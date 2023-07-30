@@ -7,7 +7,8 @@
 
 (require 'org)
 
-(setq org-special-ctrl-a/e t)
+(setq org-special-ctrl-a/e t
+      org-link-descriptive nil)
 
 (add-to-list 'org-modules 'org-tempo)
 
