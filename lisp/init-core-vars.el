@@ -34,7 +34,10 @@
     lang-web
     lang-cc
     lang-py
-    lang-hy))
+    lang-hy
+
+    ;; app-roam
+    ))
 
 (defvar init--elpa-archives
   '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/"   )

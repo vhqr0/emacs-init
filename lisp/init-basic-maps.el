@@ -60,6 +60,9 @@
 (declare-function! undo-tree
   undo-tree-visualize)
 
+(declare-function! helm-roam
+  helm-roam)
+
 (declare-function! org
   org-store-link)
 
@@ -69,6 +72,7 @@
   "c" #'org-capture
   "a" #'org-agenda
   "w" #'org-store-link
+  "n" #'helm-roam
   "g" #'helm-do-grep-ag
   "f" #'helm-multi-files
   "p" #'helm-browse-project)
