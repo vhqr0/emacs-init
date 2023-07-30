@@ -22,9 +22,10 @@
 (setq tab-bar-tab-hints t
       tab-bar-select-tab-modifiers '(meta))
 
-(global-set-key (kbd "C-S-T") #'tab-bar-new-tab)
-(global-set-key (kbd "C-S-W") #'tab-bar-close-tab)
+(global-set-key!
+ "C-S-T" #'tab-bar-new-tab
+ "C-S-W" #'tab-bar-close-tab)
 
-(define-key tab-prefix-map "`" #'toggle-frame-tab-bar)
+(define-key! tab-prefix "`" #'toggle-frame-tab-bar)
 
 (provide 'init-basic-ui)
