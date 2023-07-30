@@ -9,6 +9,7 @@
  helm-roam)
 
 (use-elpa-package!
- org-roam)
+ org-roam
+ org-roam-ui)
 
 (provide 'init-app-roam-pkg)

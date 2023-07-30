@@ -27,7 +27,7 @@
 (defun key-helper-god (prefix)
   (let ((chr (read-char (concat prefix " C-"))))
     (cond ((key-helper-execute-key-binding (key-binding (kbd (format "%s C-%c" prefix chr)))))
-          ((key-helper-execute-key-binding (key-binding (kbd (format "%s C-%c" prefix chr)))))
+          ((key-helper-execute-key-binding (key-binding (kbd (format "%s %c"   prefix chr)))))
           (t
            (error (format "key-helper-god: no key binding found on %s %c" prefix chr))))))
 

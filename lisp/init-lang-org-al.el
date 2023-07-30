@@ -12,7 +12,9 @@
 
 (add-to-list 'org-modules 'org-tempo)
 
-(defun-add-hook! org-mode init--org-modify-syntax-entry ()
+(define-key! org-mode "<" "\C-q<")
+
+(defun-add-hook! org-mode init--org-fix-angle ()
   (modify-syntax-entry ?< "." org-mode-syntax-table)
   (modify-syntax-entry ?> "." org-mode-syntax-table))
 
