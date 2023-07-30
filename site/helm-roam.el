@@ -14,14 +14,17 @@
            (concat "id:" (org-roam-node-id candidate))
            (org-roam-node-formatted candidate))))
 
-(defun helm-roam-dummy-action-capture (candidate)
-  (org-roam-capture-
-   :node (org-roam-node-create :title candidate)))
+(defun helm-roam-action-capture (candidate)
+  (org-roam-capture- :node candidate))
+
+(defun helm-roam-dummy-action-create (candidate)
+  (org-roam-capture- :node (org-roam-node-create :title candidate)))
 
 (defvar helm-roam-actions
   '(("Find Node"              . helm-roam-action-find)
     ("Find Node Other Window" . helm-roam-action-find-other-window)
-    ("Insert Node"            . helm-roam-action-insert)))
+    ("Insert Node"            . helm-roam-action-insert)
+    ("Capture Node"           . helm-roam-action-capture)))
 
 (defclass helm-roam-class (helm-source-sync)
   ((candidates :initform 'org-roam-node-read--completions)
@@ -31,10 +34,10 @@
   (helm-make-source "Roam Nodes" 'helm-roam-class))
 
 (defvar helm-roam-dummy-source
-  (helm-build-dummy-source "Capture Roam Node"
+  (helm-build-dummy-source "Roam Create Node"
     :action (helm-make-actions
-             "Capture Node"
-             #'helm-roam-dummy-action-capture)))
+             "Create Node"
+             #'helm-roam-dummy-action-create)))
 
 ;;;###autoload
 (defun helm-roam ()

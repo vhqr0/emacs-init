@@ -6,8 +6,10 @@
 (require 'init-core-utils)
 
 (setq-declare! org-roam
-  org-roam-directory (init--expand-emacs-file-name "notes")
-  org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  org-roam-directory
+  (init--expand-emacs-file-name "notes")
+  org-roam-node-display-template
+  (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
 
 (after-load! org
   (org-roam-db-autosync-mode 1))
