@@ -63,6 +63,9 @@
 (declare-function! helm-roam
   helm-roam)
 
+(declare-function! helm-x
+  helm-x-fd)
+
 (declare-function! org
   org-store-link)
 
@@ -73,7 +76,6 @@
   "a" #'org-agenda
   "w" #'org-store-link
   "n" #'helm-roam
-  "l" #'helm-mini
   "s" #'helm-occur
   "g" #'helm-do-grep-ag
   "f" #'helm-x-fd
