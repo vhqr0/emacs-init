@@ -8,6 +8,9 @@
 (declare-variable! autorevert
   auto-revert-check-vc-info)
 
+(declare-variable! tramp
+  tramp-backup-directory-alist)
+
 (declare-variable! undo-tree
   undo-tree-history-directory-alist)
 
@@ -33,6 +36,7 @@
 (setq auto-save-file-name-transforms    (init--emacs-file-name-transforms "auto-save/")
       lock-file-name-transforms         (init--emacs-file-name-transforms "lock/"     )
       backup-directory-alist            (init--emacs-directory-alist      "backup/"   )
+      tramp-backup-directory-alist      (init--emacs-directory-alist      "backup/"   )
       undo-tree-history-directory-alist (init--emacs-directory-alist      "undo-tree/")
       trash-directory                   (init--expand-emacs-file-name     "trash/"    ))
 
