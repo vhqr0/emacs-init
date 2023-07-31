@@ -12,7 +12,7 @@
 (setq hy-jedhy--enable? nil
       hy-shell--interpreter-args nil)
 
-(add-hook! (hy-mode inferior-hy-mode) paredit-mode)
+(add-hook! hy-mode paredit-mode)
 
 (evil-define-key 'normal hy-mode-map "gz" #'run-hy)
 
