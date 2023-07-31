@@ -73,12 +73,8 @@
 
 (defun init--elpa-install (&optional packages)
   (require 'package)
-  (package-read-all-archive-contents)
-  (unless package-archive-contents
-    (package-refresh-contents))
   (let ((packages (or packages init--elpa-packages)))
     (dolist (package packages)
-      (unless (package-installed-p package)
-        (package-install package)))))
+      (package-install package))))
 
 (provide 'init-core-module)

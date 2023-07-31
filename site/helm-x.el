@@ -11,13 +11,25 @@
         (t
          (helm-imenu))))
 
+(declare-function! helm-fd
+  helm-fd-1)
+
+(defun helm-x-fd (arg)
+  (interactive "P")
+  (require 'helm-fd)
+  (let ((directory
+         (if arg
+             (file-name-as-directory
+              (read-directory-name "DefaultDirectory: "))
+           default-directory)))
+    (helm-fd-1 directory)))
+
 (defvar helm-x-remap-alist
   '((execute-extended-command               . helm-M-x)
     (find-file                              . helm-find-files)
     (bookmark-jump                          . helm-bookmarks)
     (recentf-open                           . helm-recentf)
     (switch-to-buffer                       . helm-buffers-list)
-    (isearch-forward                        . helm-occur)
     (imenu                                  . helm-x-imenu)
     (yank-pop                               . helm-show-kill-ring)
     (previous-matching-history-element      . helm-minibuffer-history)

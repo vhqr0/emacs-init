@@ -73,8 +73,10 @@
   "a" #'org-agenda
   "w" #'org-store-link
   "n" #'helm-roam
+  "l" #'helm-mini
+  "s" #'helm-occur
   "g" #'helm-do-grep-ag
-  "f" #'helm-multi-files
+  "f" #'helm-x-fd
   "p" #'helm-browse-project)
 
 (setq-declare! key-helper
