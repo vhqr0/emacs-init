@@ -32,13 +32,22 @@
     "?" 'magit-dispatch))
 
 (comment! eshell
+  (declare-variable! eshell
+    eshell-mode-map)
+
   (defun-add-hook! eshell-mode
       init--eshell-export-pager ()
     (setenv "PAGER" (init--expand-misc-file-name "pager.py")))
   (add-hook! eshell-mode with-editor-export-editor)
+
   (add-advice! :override evil-collection-eshell-escape-stay ignore)
+
   (define-company-enabled-mode! eshell
-    files))
+    files)
+
+  (defun-add-hook! eshell-mode
+      init--eshell-remap-helm-pcomplete ()
+    (define-key! eshell-mode [remap completion-at-point] #'helm-esh-pcomplete)))
 
 (comment! ispell
   (setq-declare! ispell

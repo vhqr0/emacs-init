@@ -5,6 +5,15 @@
 
 (require 'init-core-utils)
 
+(setq-declare! helm
+  helm-ff-fuzzy-matching nil
+  helm-locate-library-fuzzy-match nil
+  helm-projectile-fuzzy-match nil
+  helm-projectile-truncate-lines t
+  helm-bookmark-show-location t
+  helm-buffer-max-length 40
+  helm-buffer-skip-remote-checking t)
+
 (helm-mode 1)
 
 (diminish! helm)

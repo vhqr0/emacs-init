@@ -5,7 +5,8 @@
 
 (setq frame-title-format nil
       default-frame-alist
-      '((left-fringe           . 0)
+      '((vertical-scroll-bars  . nil)
+        (left-fringe           . 0)
         (right-fringe          . 0)
         (internal-border-width . 24)))
 
