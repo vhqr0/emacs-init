@@ -5,4 +5,6 @@
 
 (add-hook! after-init ef-themes-load-random)
 
+(define-key! help "te" #'ef-themes-load-random)
+
 (provide 'init-ui-ef)
