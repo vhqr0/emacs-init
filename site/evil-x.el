@@ -44,22 +44,8 @@
   (dolist (map evil-x-escape-maps)
     (define-key (symbol-value map) (vector evil-x-escape-fkey) evil-x-escape-menu-item)))
 
-(defvar evil-x-C-p-last-commands
-  '(evil-paste-after evil-paste-before evil-past-pop evil-paste-pop-next))
-(defvar evil-x-C-p-continue-command #'evil-paste-pop)
-(defvar evil-x-C-p-command #'helm-mini)
-
-(defun evil-x-C-p-filter (_)
-  (if (memq last-command evil-x-C-p-last-commands)
-      evil-x-C-p-continue-command
-    evil-x-C-p-command))
-
 (defvar evil-x-C-p-menu-item
   `(menu-item "" nil :filter evil-x-C-p-filter))
-
-(defun evil-x-C-p-setup ()
-  (define-key evil-motion-state-map (kbd "C-p") evil-x-C-p-menu-item)
-  (define-key evil-normal-state-map (kbd "C-p") evil-x-C-p-menu-item))
 
 (evil-define-operator evil-x-operator-comment (beg end)
   :move-point nil
@@ -122,6 +108,16 @@
   (put #'evil-window-next 'repeat-map 'evil-x-window-repeat-map)
   (put #'evil-window-prev 'repeat-map 'evil-x-window-repeat-map))
 
+(defvar evil-x-C-p-last-commands
+  '(evil-paste-after evil-paste-before evil-past-pop evil-paste-pop-next))
+(defvar evil-x-C-p-continue-command #'evil-paste-pop)
+(defvar evil-x-C-p-command #'helm-mini)
+
+(defun evil-x-C-p-filter (_)
+  (if (memq last-command evil-x-C-p-last-commands)
+      evil-x-C-p-continue-command
+    evil-x-C-p-command))
+
 (defun evil-x-shift-menu-item (x)
   `(menu-item "" nil :filter (lambda (_) (key-binding (vector ,x)))))
 
@@ -153,13 +149,13 @@
   :keymap evil-x-override-mode-map)
 
 (evil-define-key '(motion normal visual operator) evil-x-override-mode-map
-  ","  evil-x-shift-map
-  "\s" evil-x-leader-map)
+  ","    evil-x-shift-map
+  "\s"   evil-x-leader-map
+  "\C-p" evil-x-C-p-menu-item)
 
 ;;;###autoload
 (defun evil-x-setup ()
   (evil-x-escape-setup)
-  (evil-x-C-p-setup)
   (evil-x-operator-setup)
   (evil-x-text-object-setup)
   (evil-x-window-setup)
