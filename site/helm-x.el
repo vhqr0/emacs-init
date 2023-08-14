@@ -37,8 +37,7 @@
     (comint-history-isearch-backward-regexp . helm-comint-input-ring)
     (dabbrev                                . helm-dabbrev)
     (describe-symbol                        . helm-apropos)
-    (find-library                           . helm-locate-library)
-    (describe-package                       . helm-list-elisp-packages-no-fetch)))
+    (find-library                           . helm-locate-library)))
 
 (defvar helm-x-remap-mode-map
   (let ((map (make-sparse-keymap)))
