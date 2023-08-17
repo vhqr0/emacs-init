@@ -89,17 +89,10 @@
        ,@body)
      (add-advice! ,how ,symbol ,name)))
 
-(defmacro after-load! (packages &rest body)
+(defmacro after-load! (package &rest body)
   (declare (indent 1))
-  (cond ((null packages)
-         `(progn ,@body))
-        ((symbolp packages)
-         `(with-eval-after-load ',packages
-            ,@body))
-        ((listp packages)
-         `(with-eval-after-load ',(car packages)
-            (after-load! ,(cdr packages)
-              ,@body)))))
+  `(with-eval-after-load ',package
+     ,@body))
 
 (defmacro init--autoload! (functions &rest args)
   (let ((functions (init--normalize-symbol-list functions)))

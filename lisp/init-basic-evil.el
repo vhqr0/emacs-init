@@ -25,7 +25,8 @@
 (global-evil-surround-mode 1)
 
 (evil-collection-init)
-(diminish! evil-collection-unimpaired)
+(after-load! evil-collection-unimpaired
+  (diminish! evil-collection-unimpaired))
 
 (declare-variable! evil
   evil-ex-completion-map

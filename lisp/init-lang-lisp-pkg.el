@@ -7,6 +7,7 @@
 
 (use-elpa-package!
  paredit
+ evil-cleverparens
  macrostep)
 
 (provide 'init-lang-lisp-pkg)

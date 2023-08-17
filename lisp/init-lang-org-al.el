@@ -23,7 +23,8 @@
   '(navigation return textobjects additional shift calendar))
 
 (require 'evil-org)
-(diminish! evil-org)
+(after-load! evil-org
+  (diminish! evil-org))
 (add-hook! org-mode evil-org-mode)
 
 (require 'evil-org-agenda)

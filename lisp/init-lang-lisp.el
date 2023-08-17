@@ -10,6 +10,14 @@
   (after-load! paredit
     (diminish! paredit)))
 
+(comment! evil-cleverparens
+  (setq-declare! evil-cleverparens
+    evil-cleverparens-use-regular-insert t
+    evil-cleverparens-use-additional-movement-keys nil)
+  (add-hook! paredit-mode evil-cleverparens-mode)
+  (after-load! evil-cleverparens
+    (diminish! evil-cleverparens)))
+
 (comment! macrostep
   (define-key! lisp-data-mode
     "C-c e" #'macrostep-expand))

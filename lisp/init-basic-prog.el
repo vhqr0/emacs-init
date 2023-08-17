@@ -66,7 +66,8 @@
 
   (yas-global-mode 1)
 
-  (diminish! yas-minor)
+  (after-load! yasnippet
+    (diminish! yas-minor))
 
   (define-auto-save-visited-predicate! yas
     (and (bound-and-true-p yas-minor-mode)

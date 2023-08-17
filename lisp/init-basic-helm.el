@@ -16,7 +16,8 @@
 
 (helm-mode 1)
 
-(diminish! helm)
+(after-load! helm-mode
+  (diminish! helm))
 
 (declare-function! helm
   helm-resume)
