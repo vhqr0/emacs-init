@@ -91,4 +91,4 @@
 
 (pyim-basedict-enable)
 
-(provide 'init-env-cn-al)
+(provide 'init-app-pyim-al)

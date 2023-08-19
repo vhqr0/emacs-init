@@ -5,7 +5,10 @@
 
 (require 'init-core-vars)
 
-(use-site-package!
- sdcv)
+(use-elpa-package!
+ posframe
+ popon
+ pyim
+ pyim-basedict)
 
-(provide 'init-env-cn-pkg)
+(provide 'init-app-pyim-pkg)

@@ -23,9 +23,10 @@
     ui-nano
     ui-fonts
 
-    ;; env-term
-    ;; env-wsl
     ;; env-cn
+    ;; env-win
+    ;; env-wsl
+    ;; env-term
 
     lang-lisp
     lang-el
@@ -37,6 +38,7 @@
     lang-hy
 
     ;; app-roam
+    ;; app-pyim
     ))
 
 (defvar init--elpa-archives

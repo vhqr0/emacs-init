@@ -3,13 +3,6 @@
 (eval-when-compile
   (require 'init-core-macs))
 
-(setq default-input-method "pyim")
-
-(global-set-key! "C-SPC" #'toggle-input-method)
-
-(after-load! pyim
-  (require 'init-env-cn-al))
-
 (defalias 'sd 'sdcv)
 
 (defun-add-advice! :override fixup-whitespace
