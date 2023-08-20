@@ -11,15 +11,17 @@
     projectile-switch-project-action #'projectile-commander
     projectile-current-project-on-switch 'move-to-end)
 
-  (projectile-mode 1)
+  (after-init!
+   (projectile-mode 1))
 
   (declare-variable! projectile
     projectile-command-map)
 
-  (define-key! projectile-command
-    "x" #'project-execute-extended-command
-    "e" #'projectile-run-eshell
-    "s" #'projectile-run-shell))
+  (after-load! projectile
+    (define-key! projectile-command
+      "x" #'project-execute-extended-command
+      "e" #'projectile-run-eshell
+      "s" #'projectile-run-shell)))
 
 (comment! grep
   (setq-declare! wgrep
@@ -64,7 +66,8 @@
   (setq-declare! yasnippet
     yas-alias-to-yas/prefix-p nil)
 
-  (yas-global-mode 1)
+  (after-init!
+   (yas-global-mode 1))
 
   (after-load! yasnippet
     (diminish! yas-minor))

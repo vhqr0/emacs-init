@@ -54,13 +54,15 @@
            `((defun-add-hook! ,mode ,name ()
                (setq-local company-backends ',backends)))))))
 
-(global-company-mode 1)
+(after-init!
+ (global-company-mode 1))
 
 (declare-variable! company
   company-mode-map)
 
-(define-key! company-mode
-  "<f2>" #'company-complete)
+(after-load! company
+  (define-key! company-mode
+    "<f2>" #'company-complete))
 
 (define-auto-save-visited-predicate! company
   (and (bound-and-true-p company-mode)

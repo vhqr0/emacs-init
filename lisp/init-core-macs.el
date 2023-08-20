@@ -94,6 +94,9 @@
   `(with-eval-after-load ',package
      ,@body))
 
+(defmacro after-init! (&rest body)
+  `(add-hook 'after-init-hook (lambda () ,@body)))
+
 (defmacro init--autoload! (functions &rest args)
   (let ((functions (init--normalize-symbol-list functions)))
     `(progn

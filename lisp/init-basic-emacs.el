@@ -55,19 +55,23 @@
   (setq auto-save-visited-interval 1
         auto-save-visited-predicate #'init--auto-save-visited-predicate)
 
-  (auto-save-visited-mode 1)
+  (after-init!
+   (auto-save-visited-mode 1))
   (add-to-list 'minor-mode-alist '(auto-save-visited-mode " AS")))
 
 (comment! recentf
   (setq-declare! recentf
     recentf-max-saved-items 200)
-  (recentf-mode 1))
+  (after-init!
+   (recentf-mode 1)))
 
 (comment! repeat
-  (repeat-mode 1))
+  (after-init!
+   (repeat-mode 1)))
 
 (comment! winner
-  (winner-mode 1))
+  (after-init!
+   (winner-mode 1)))
 
 (comment! simple-x
   (simple-x-setup))
@@ -79,7 +83,8 @@
   (setq-declare! undo-tree
     undo-tree-mode-lighter nil)
 
-  (global-undo-tree-mode 1)
+  (after-init!
+   (global-undo-tree-mode 1))
 
   (define-auto-save-visited-predicate! undo-tree
     (and (bound-and-true-p undo-tree-mode)

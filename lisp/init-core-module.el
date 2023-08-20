@@ -10,6 +10,7 @@
 (setq-declare! package
   package-quickstart t
   package-enable-at-startup nil
+  package-check-signature nil
   package-archives init--elpa-archives)
 
 (defmacro init--use-package! (list &rest packages)
