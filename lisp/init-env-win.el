@@ -5,6 +5,8 @@
 
 (prefer-coding-system 'utf-8)
 
+(setcdr (assoc "" file-coding-system-alist) 'prefer-utf-8)
+
 (add-to-list 'process-coding-system-alist '("rg" . (utf-8-dos . gbk-dos)))
 (add-to-list 'process-coding-system-alist '("fd" . (utf-8-dos . gbk-dos)))
 
