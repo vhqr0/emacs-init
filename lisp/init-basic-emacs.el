@@ -5,17 +5,13 @@
 
 (setq disabled-command-function nil)
 
-(declare-variable! autorevert
-  auto-revert-check-vc-info)
-
 (declare-variable! tramp
   tramp-backup-directory-alist)
 
 (declare-variable! undo-tree
   undo-tree-history-directory-alist)
 
-(setq auto-revert-check-vc-info t
-      vc-handled-backends '(Git)
+(setq vc-handled-backends '(Git)
       vc-make-backup-files t
       version-control t
       kept-old-versions 10
