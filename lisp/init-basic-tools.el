@@ -10,7 +10,8 @@
   (setq-declare! dired
     dired-dwim-target t
     dired-listing-switches "-lha")
-  (put 'dired-jump 'repeat-map nil))
+  (after-load! dired
+    (put 'dired-jump 'repeat-map nil)))
 
 (comment! ediff
   (declare-function! ediff

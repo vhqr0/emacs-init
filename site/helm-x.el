@@ -36,8 +36,7 @@
     (eshell-previous-matching-input         . helm-eshell-history)
     (comint-history-isearch-backward-regexp . helm-comint-input-ring)
     (dabbrev                                . helm-dabbrev)
-    (describe-symbol                        . helm-apropos)
-    (find-library                           . helm-locate-library)))
+    (describe-symbol                        . helm-apropos)))
 
 (defvar helm-x-remap-mode-map
   (let ((map (make-sparse-keymap)))
