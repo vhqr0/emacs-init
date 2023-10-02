@@ -30,12 +30,12 @@
 
     lang-lisp
     lang-el
-    lang-org
-    lang-md
-    lang-web
-    lang-cc
-    lang-py
-    lang-hy
+    ;; lang-org
+    ;; lang-md
+    ;; lang-web
+    ;; lang-cc
+    ;; lang-py
+    ;; lang-hy
 
     ;; app-roam
     ;; app-pyim

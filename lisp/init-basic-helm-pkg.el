@@ -10,6 +10,7 @@
 
 (use-elpa-package!
  helm
+ helm-comint
  helm-ls-git
  helm-projectile
  wgrep-helm)
