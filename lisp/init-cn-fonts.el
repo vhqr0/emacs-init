@@ -12,4 +12,4 @@
   (dolist (chars '(cjk-misc han bopomofo kana hangul))
     (set-fontset-font t chars font)))
 
-(provide 'init-ui-fonts)
+(provide 'init-cn-fonts)

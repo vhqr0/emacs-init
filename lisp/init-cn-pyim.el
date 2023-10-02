@@ -8,6 +8,6 @@
 (global-set-key! "C-SPC" #'toggle-input-method)
 
 (after-load! pyim
-  (require 'init-app-pyim-al))
+  (require 'init-cn-pyim-al))
 
-(provide 'init-app-pyim)
+(provide 'init-cn-pyim)

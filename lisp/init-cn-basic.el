@@ -3,8 +3,6 @@
 (eval-when-compile
   (require 'init-core-macs))
 
-(defalias 'sd 'sdcv)
-
 (defun-add-advice! :override fixup-whitespace
                    init--check-cjk-override-fixup-whitespace ()
   (interactive "*")
@@ -29,4 +27,4 @@
           contents)))
     (funcall func paragraph fixed-contents info)))
 
-(provide 'init-env-cn)
+(provide 'init-cn-basic)

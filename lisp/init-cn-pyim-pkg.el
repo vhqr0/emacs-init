@@ -11,4 +11,4 @@
  pyim
  pyim-basedict)
 
-(provide 'init-app-pyim-pkg)
+(provide 'init-cn-pyim-pkg)
