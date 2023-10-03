@@ -71,37 +71,4 @@
     (and (bound-and-true-p yas-minor-mode)
          (bound-and-true-p yas--active-snippets))))
 
-(comment! prog-x
-  (prog-x-setup)
-
-  (defmacro set-eval-function! (mode function)
-    (let* ((mode (init--normalize-mode-symbol mode))
-           (name (intern (concat "init--set-eval-function-for-" (symbol-name mode)))))
-      `(defun-add-hook! ,mode ,name ()
-         (setq-local prog-x-eval-function #',function))))
-
-  (defmacro define-eval-function! (mode &rest body)
-    (declare (indent 1))
-    (let* ((mode (init--normalize-mode-symbol mode))
-           (name (intern (concat "init--eval-function-for-" (symbol-name mode)))))
-      `(progn
-         (defun ,name (beg end)
-           ,@body)
-         (set-eval-function! ,mode ,name))))
-
-  (defmacro set-format-function! (mode function)
-    (let* ((mode (init--normalize-mode-symbol mode))
-           (name (intern (concat "init--set-format-function-for-" (symbol-name mode)))))
-      `(defun-add-hook! ,mode ,name ()
-         (setq-local prog-x-format-get-command-function #',function))))
-
-  (defmacro define-format-function! (mode &rest body)
-    (declare (indent 1))
-    (let* ((mode (init--normalize-mode-symbol mode))
-           (name (intern (concat "init--format-function-for-" (symbol-name mode)))))
-      `(progn
-         (defun ,name ()
-           ,@body)
-         (set-format-function! ,mode ,name)))))
-
 (provide 'init-basic-prog)

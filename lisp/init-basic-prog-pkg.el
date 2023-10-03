@@ -5,11 +5,9 @@
 
 (require 'init-core-vars)
 
-(use-site-package!
- prog-x)
-
 (use-elpa-package!
  projectile
- yasnippet)
+ yasnippet
+ format-all)
 
 (provide 'init-basic-prog-pkg)

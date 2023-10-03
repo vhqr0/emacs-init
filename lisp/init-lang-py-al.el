@@ -17,13 +17,6 @@
 
 (set-eval-function! python python-shell-send-region)
 
-(defvar!
- init--yapf-program "yapf"
- init--yapf-option "")
-
-(define-format-function! python
-  (format "%s %s" init--yapf-program init--yapf-option))
-
 (defun-add-hook! python-mode
     init--python-fix-comment-inline-offset ()
   (setq-local comment-inline-offset 2))
@@ -50,7 +43,6 @@
 (elpy-enable)
 
 (define-key! elpy-mode
-  [remap prog-x-format-dwim]           #'elpy-format-code
   [remap python-shell-switch-to-shell] #'elpy-shell-switch-to-shell)
 
 (provide 'init-lang-py-al)

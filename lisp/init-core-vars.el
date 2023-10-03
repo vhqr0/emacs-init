@@ -36,7 +36,6 @@
     ;; lang-org
     ;; lang-md
     ;; lang-web
-    ;; lang-cc
     ;; lang-py
     ;; lang-hy
 

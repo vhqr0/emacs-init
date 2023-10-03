@@ -6,6 +6,7 @@
 (require 'init-core-vars)
 
 (use-site-package!
+ easy-repl
  evil-x)
 
 (use-elpa-package!

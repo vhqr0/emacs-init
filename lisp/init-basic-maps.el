@@ -90,6 +90,9 @@
 (declare-variable! projectile
   projectile-command-map)
 
+(declare-variable! easy-repl
+  easy-repl-map)
+
 (declare-function! evil
   evil-ex)
 
@@ -114,6 +117,7 @@
   "n" narrow-map
   "v" vc-prefix-map
   "p" projectile-command-map
+  "x" easy-repl-map
   "r" ctl-x-r-map
   "4" ctl-x-4-map
   "5" ctl-x-5-map
@@ -124,7 +128,6 @@
   "l" init--list-prefix-map
 
   "SPC" #'evil-ex
-  "x"   #'execute-extended-command
   ";"   #'eval-expression
   "z"   #'repeat
   "0"   #'delete-window
@@ -139,7 +142,7 @@
   "{"   #'paredit-wrap-curly
   "<"   #'paredit-wrap-angled
   "e"   #'eshell-dwim
-  "="   #'prog-x-format-dwim
+  "="   #'format-all-region-or-buffer
   "#"   #'server-edit
   "!"   #'shell-command
   "&"   #'async-shell-command

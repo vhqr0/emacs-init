@@ -5,6 +5,7 @@
 
 (require 'evil)
 (require 'thingatpt)
+(require 'easy-repl)
 
 (defvar evil-x-escape-fkey ?j)
 (defvar evil-x-escape-skey ?k)
@@ -57,10 +58,16 @@
   (interactive "<r>")
   (narrow-to-region beg end))
 
+(evil-define-operator evil-x-operator-eval (beg end)
+  :move-point nil
+  (interactive "<r>")
+  (easy-repl-send-region beg end))
+
 ;;;###autoload
 (defun evil-x-operator-setup ()
   (define-key evil-normal-state-map "gc" 'evil-x-operator-comment)
-  (define-key evil-motion-state-map "g-" 'evil-x-operator-narrow))
+  (define-key evil-motion-state-map "g-" 'evil-x-operator-narrow)
+  (define-key evil-motion-state-map "gy" 'evil-x-operator-eval))
 
 (evil-define-text-object evil-x-text-object-line (count &optional beg end type)
   (evil-range (line-beginning-position) (line-end-position) 'exclusive))
