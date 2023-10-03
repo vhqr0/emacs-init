@@ -10,7 +10,6 @@
 
 (use-elpa-package!
  projectile
- wgrep
  yasnippet)
 
 (provide 'init-basic-prog-pkg)

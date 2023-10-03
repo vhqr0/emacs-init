@@ -10,6 +10,8 @@
  eshell-x)
 
 (use-elpa-package!
+ wgrep
+ rg
  magit
  with-editor)
 

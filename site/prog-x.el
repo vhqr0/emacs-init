@@ -2,21 +2,6 @@
 
 (require 'evil)
 
-(defvar prog-x-ripgrep-program "rg")
-(defvar prog-x-ripgrep-option "-n -H --no-heading")
-
-(declare-function grep--save-buffers "grep")
-
-(evil-define-command prog-x-ripgrep (arg)
-  (interactive "<sh>")
-  (require 'grep)
-  (when (string-match-p "^[^ ]+$" arg)
-    (setq arg (concat arg " .")))
-  (grep--save-buffers)
-  (compilation-start
-   (format "%s %s %s" prog-x-ripgrep-program prog-x-ripgrep-option arg)
-   'grep-mode))
-
 (defun prog-x-format-default-function ()
   (delete-trailing-whitespace (point-min) (point-max))
   (indent-region (point-min) (point-max)))
@@ -75,8 +60,6 @@
 
 ;;;###autoload
 (defun prog-x-setup ()
-  (evil-ex-define-cmd "gr[ep]" #'prog-x-ripgrep)
-  (evil-ex-define-cmd "rg"     #'prog-x-ripgrep)
   (define-key evil-normal-state-map "g=" #'prog-x-operator-format)
   (define-key evil-motion-state-map "gy" #'prog-x-operator-eval))
 

@@ -23,11 +23,6 @@
       "e" #'projectile-run-eshell
       "s" #'projectile-run-shell)))
 
-(comment! grep
-  (setq-declare! wgrep
-    wgrep-auto-save-buffer t
-    wgrep-change-readonly-file t))
-
 (comment! xref
   (setq-declare! xref
     xref-search-program 'ripgrep))

@@ -20,15 +20,25 @@
   (setq-declare! ediff
     ediff-window-setup-function #'ediff-setup-windows-plain))
 
+(comment! grep
+  (setq-declare! wgrep
+    wgrep-auto-save-buffer t
+    wgrep-change-readonly-file t))
+
+(comment! rg
+  (autoload-command! "rg"
+    rg-menu)
+  (define-key! search-map "g" #'rg-menu))
+
 (comment! magit
   (setq-declare! magit
     magit-bind-magit-project-status nil
     magit-define-global-key-bindings nil)
 
   (define-key! vc-prefix-map
-    "j" 'magit-status
-    "f" 'magit-file-dispatch
-    "?" 'magit-dispatch))
+    "j" #'magit-status
+    "f" #'magit-file-dispatch
+    "?" #'magit-dispatch))
 
 (comment! eshell
   (declare-variable! eshell
