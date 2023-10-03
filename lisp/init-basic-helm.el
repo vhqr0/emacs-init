@@ -7,12 +7,15 @@
 
 (setq-declare! helm
   helm-ff-fuzzy-matching nil
-  helm-locate-library-fuzzy-match nil
   helm-projectile-fuzzy-match nil
   helm-projectile-truncate-lines t
   helm-bookmark-show-location t
   helm-buffer-max-length 40
   helm-buffer-skip-remote-checking t)
+
+(defun-add-advice! :after evil-collection-helm-setup
+                   init--fix-minibuffer-history-key-after-helm-setup ()
+  (custom-set-variables '(helm-minibuffer-history-key "M-r")))
 
 (helm-mode 1)
 

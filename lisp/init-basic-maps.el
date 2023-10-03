@@ -127,6 +127,12 @@
   "x"   #'execute-extended-command
   ";"   #'eval-expression
   "z"   #'repeat
+  "0"   #'delete-window
+  "1"   #'delete-other-windows
+  "2"   #'split-window-below
+  "3"   #'split-window-right
+  "o"   #'other-window
+  "q"   #'quit-window
   "\""  #'paredit-meta-doublequote
   "("   #'paredit-wrap-round
   "["   #'paredit-wrap-square

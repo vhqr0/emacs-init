@@ -18,7 +18,7 @@
     basic-helm
     basic-maps
 
-    ui-ef
+    ui-themes
     ui-sml
     ui-nano
 

@@ -20,8 +20,6 @@
   company-dabbrev-downcase nil
   company-dabbrev-ignore-case t
   company-dabbrev-code-ignore-case t
-  company-transformers
-  '(company-sort-prefer-same-case-prefix)
   company-frontends
   '(company-pseudo-tooltip-frontend
     company-preview-if-just-one-frontend
