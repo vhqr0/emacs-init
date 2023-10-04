@@ -7,28 +7,27 @@
 
 (setq-declare! helm
   helm-ff-fuzzy-matching nil
-  helm-projectile-fuzzy-match nil
-  helm-projectile-truncate-lines t
   helm-bookmark-show-location t
   helm-buffer-max-length 40
   helm-buffer-skip-remote-checking t)
 
-(defun-add-advice! :after evil-collection-helm-setup
-                   init--fix-minibuffer-history-key-after-helm-setup ()
-  (custom-set-variables '(helm-minibuffer-history-key "M-r")))
-
-(helm-mode 1)
-
-(after-load! helm-mode
-  (diminish! helm))
-
 (declare-function! helm
   helm-resume)
 
-(global-set-key! "<f5>" #'helm-resume)
+(after-init!
+ (global-set-key! "<f5>" #'helm-resume)
+ (helm-mode 1)
+ (helm-x-setup))
 
-(helm-projectile-on)
+(declare-variable! helm-mode
+  helm-completing-read-handlers-alist)
 
-(helm-x-setup)
+(after-load! helm-mode
+  (diminish! helm)
+  (add-to-list 'helm-completing-read-handlers-alist '(kill-buffer . nil)))
+
+(defun-add-advice! :after evil-collection-helm-setup
+                   init--fix-minibuffer-history-key-after-helm-setup ()
+  (custom-set-variables '(helm-minibuffer-history-key "M-r")))
 
 (provide 'init-basic-helm)

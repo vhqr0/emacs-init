@@ -6,7 +6,6 @@
 (require 'init-core-vars)
 
 (use-elpa-package!
- evil-org
- htmlize)
+ evil-org)
 
 (provide 'init-lang-org-pkg)

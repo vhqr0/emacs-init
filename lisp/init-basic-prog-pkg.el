@@ -7,7 +7,9 @@
 
 (use-elpa-package!
  projectile
+ helm-projectile
  yasnippet
+ company
  format-all)
 
 (provide 'init-basic-prog-pkg)

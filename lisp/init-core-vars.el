@@ -9,18 +9,14 @@
 
 (defvar init--modules
   '(basic-emacs
-    basic-ui
-    basic-edit
-    basic-compl
     basic-evil
+    basic-helm
     basic-prog
     basic-tools
-    basic-helm
     basic-maps
 
     ui-themes
     ui-sml
-    ui-nano
 
     ;; env-win
     ;; env-wsl
@@ -32,7 +28,6 @@
     ;; cn-pyim
 
     lang-lisp
-    lang-el
     ;; lang-org
     ;; lang-md
     ;; lang-web
@@ -51,7 +46,6 @@
 (defvar init--elpa-packages nil)
 (defvar init--core-paths nil)
 (defvar init--module-paths nil)
-(defvar init--module-al-paths nil)
 (defvar init--module-pkg-paths nil)
 (defvar init--site-paths nil)
 

@@ -11,7 +11,7 @@
   x-utils-xclip-program "clip.exe"
   x-utils-xclip-option ""
   x-utils-open-program "explorer.exe"
-  x-utils-open-url-p t)
+  x-utils-open-urlize t)
 
 (setenv "GIT_ASKPASS" "git-gui--askpass")
 (setenv "SSH_ASKPASS" "git-gui--askpass")

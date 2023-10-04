@@ -5,10 +5,8 @@
 
 (require 'init-core-vars)
 
-(use-site-package!
- simple-x)
-
 (use-elpa-package!
- undo-tree)
+ undo-tree
+ rainbow-delimiters)
 
 (provide 'init-basic-emacs-pkg)

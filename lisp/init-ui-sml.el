@@ -8,7 +8,8 @@
 (setq-declare! smart-mode-line
   sml/theme 'respectful)
 
-(sml/setup)
+(after-init!
+ (sml/setup))
 
 (after-load! projectile
   (diminish! projectile))

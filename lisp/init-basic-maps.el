@@ -53,7 +53,7 @@
   "Q"     #'unbury-buffer
   "b"     #'switch-to-buffer
   "s"     #'save-buffer
-  "k"     #'kill-buffer-dwim
+  "k"     #'kill-buffer
   [left]  #'previous-buffer
   [right] #'next-buffer)
 
@@ -79,6 +79,7 @@
   "s" #'helm-occur
   "g" #'helm-do-grep-ag
   "f" #'helm-x-fd
+  "y" #'helm-show-kill-ring
   "p" #'helm-browse-project)
 
 (setq-declare! key-helper
@@ -87,14 +88,8 @@
 (declare-variable! evil
   evil-window-map)
 
-(declare-variable! projectile
-  projectile-command-map)
-
 (declare-variable! easy-repl
   easy-repl-map)
-
-(declare-function! evil
-  evil-ex)
 
 (declare-function! paredit
   paredit-meta-doublequote
@@ -116,7 +111,8 @@
   "s" search-map
   "n" narrow-map
   "v" vc-prefix-map
-  "p" projectile-command-map
+  ;; FIXME: I think projectile should autoload this map
+  ;; "p" projectile-command-map
   "x" easy-repl-map
   "r" ctl-x-r-map
   "4" ctl-x-4-map
@@ -127,7 +123,6 @@
   "b" init--buffer-prefix-map
   "l" init--list-prefix-map
 
-  "SPC" #'evil-ex
   ";"   #'eval-expression
   "z"   #'repeat
   "0"   #'delete-window

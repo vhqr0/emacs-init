@@ -17,7 +17,7 @@
 
 (defvar x-utils-open-program "xdg-open")
 (defvar x-utils-open-option "")
-(defvar x-utils-open-url-p nil)
+(defvar x-utils-open-urlize nil)
 
 (declare-function dired-get-marked-files "dired")
 
@@ -31,7 +31,7 @@
                       (default-directory)))
          (files (if (listp files) files (list files))))
     (dolist (file files)
-      (when x-utils-open-url-p
+      (when x-utils-open-urlize
         (setq file (concat "file://" (expand-file-name file))))
       (call-process-shell-command
        (format "%s %s %s" x-utils-open-program x-utils-open-option file)))))

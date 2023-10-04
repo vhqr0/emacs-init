@@ -11,8 +11,6 @@
 (use-elpa-package!
  helm
  helm-comint
- helm-ls-git
- helm-projectile
- wgrep-helm)
+ helm-ls-git)
 
 (provide 'init-basic-helm-pkg)

@@ -27,12 +27,12 @@
   `(progn
      ,@ (cl-loop for var in vars collect `(defvar ,var))))
 
-(defmacro declare-function! (file &rest fns)
+(defmacro declare-function! (file &rest functions)
   (declare (indent 1))
   (let ((file (if (symbolp file) (symbol-name file) file)))
     `(progn
-       ,@ (cl-loop for fn in fns
-                   collect `(declare-function ,fn ,file)))))
+       ,@ (cl-loop for function in functions
+                   collect `(declare-function ,function ,file)))))
 
 (defmacro setq-declare! (file &rest clauses)
   (declare (indent 1))
@@ -44,14 +44,14 @@
                               (defvar ,name)
                               (setq ,name ,(pop clauses)))))))
 
-(defmacro init--map-hook-function! (fn hooks functions)
+(defmacro init--map-hook-function! (hook-fn hooks functions)
   (let ((hooks (mapcar #'init--normalize-hook-symbol
                        (init--normalize-symbol-list hooks)))
         (functions (init--normalize-symbol-list functions)))
     `(progn
        ,@ (cl-loop for hook in hooks
                    nconc (cl-loop for function in functions
-                                  collect `(,fn ',hook #',function))))))
+                                  collect `(,hook-fn ',hook #',function))))))
 
 (defmacro add-hook! (hooks functions)
   `(init--map-hook-function! add-hook ,hooks ,functions))
@@ -97,11 +97,12 @@
 (defmacro after-init! (&rest body)
   `(add-hook 'after-init-hook (lambda () ,@body)))
 
-(defmacro init--autoload! (functions &rest args)
-  (let ((functions (init--normalize-symbol-list functions)))
+(defmacro init--autoload! (functions file &rest args)
+  (let ((file (if (symbolp file) (symbol-name file) file))
+        (functions (init--normalize-symbol-list functions)))
     `(progn
        ,@ (cl-loop for function in functions
-                   collect `(autoload ',function ,@args)))))
+                   collect `(autoload ',function ,file ,@args)))))
 
 (defmacro autoload-function! (file &rest functions)
   (declare (indent 1))

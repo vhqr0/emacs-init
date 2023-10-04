@@ -45,9 +45,6 @@
   (dolist (map evil-x-escape-maps)
     (define-key (symbol-value map) (vector evil-x-escape-fkey) evil-x-escape-menu-item)))
 
-(defvar evil-x-C-p-menu-item
-  `(menu-item "" nil :filter evil-x-C-p-filter))
-
 (evil-define-operator evil-x-operator-comment (beg end)
   :move-point nil
   (interactive "<r>")
@@ -69,18 +66,18 @@
   (define-key evil-motion-state-map "g-" 'evil-x-operator-narrow)
   (define-key evil-motion-state-map "gy" 'evil-x-operator-eval))
 
-(evil-define-text-object evil-x-text-object-line (count &optional beg end type)
+(evil-define-text-object evil-x-text-object-line (count &optional _beg _end _type)
   (evil-range (line-beginning-position) (line-end-position) 'exclusive))
 
-(evil-define-text-object evil-x-text-object-filename (count &optional beg end type)
+(evil-define-text-object evil-x-text-object-filename (count &optional _beg _end _type)
   (cl-destructuring-bind (beg . end) (bounds-of-thing-at-point 'filename)
     (evil-range beg end)))
 
-(evil-define-text-object evil-x-text-object-defun (count &optional beg end type)
+(evil-define-text-object evil-x-text-object-defun (count &optional _beg _end _type)
   (cl-destructuring-bind (beg . end) (bounds-of-thing-at-point 'defun)
     (evil-range beg end 'line)))
 
-(evil-define-text-object evil-x-text-object-entire (count &optional beg end type)
+(evil-define-text-object evil-x-text-object-entire (count &optional _beg _end _type)
   (evil-range (point-min) (point-max) 'line))
 
 ;;;###autoload
@@ -124,6 +121,9 @@
   (if (memq last-command evil-x-C-p-last-commands)
       evil-x-C-p-continue-command
     evil-x-C-p-command))
+
+(defvar evil-x-C-p-menu-item
+  `(menu-item "" nil :filter evil-x-C-p-filter))
 
 (defun evil-x-shift-menu-item (x)
   `(menu-item "" nil :filter (lambda (_) (key-binding (vector ,x)))))

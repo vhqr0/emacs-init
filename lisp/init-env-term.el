@@ -5,7 +5,8 @@
 
 (setq text-quoting-style 'grave)
 
-(xterm-mouse-mode 1)
+(after-init!
+ (xterm-mouse-mode 1))
 
 (global-set-key! "C-M-_" #'dabbrev-completion)
 

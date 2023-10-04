@@ -8,9 +8,7 @@
 (comment! paredit
   (add-hook! lisp-data-mode paredit-mode)
   (after-load! paredit
-    (diminish! paredit)))
-
-(comment! evil-cleverparens
+    (diminish! paredit))
   (setq-declare! evil-cleverparens
     evil-cleverparens-use-regular-insert t
     evil-cleverparens-use-additional-movement-keys nil)
@@ -19,7 +17,7 @@
     (diminish! evil-cleverparens)))
 
 (comment! macrostep
-  (define-key! lisp-data-mode
+  (define-key! (lisp-data-mode emacs-lisp-mode lisp-interaction-mode)
     "C-c e" #'macrostep-expand))
 
 (provide 'init-lang-lisp)

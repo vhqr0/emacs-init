@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t; no-native-compile: t -*-
+
 (require 'cl-lib)
 
 (defvar easy-repl-backends
@@ -18,13 +20,13 @@
     (define-key map "s" #'easy-repl-send-string)
     map))
 
-(cl-defgeneric easy-repl--get-buffer (backend)
+(cl-defgeneric easy-repl--get-buffer (_backend)
   (user-error "Unimplemented backend"))
 
-(cl-defgeneric easy-repl--get-buffer-create (backend)
+(cl-defgeneric easy-repl--get-buffer-create (_backend)
   (user-error "Unimplemented backend"))
 
-(cl-defgeneric easy-repl--send-string (backend string)
+(cl-defgeneric easy-repl--send-string (_backend _string)
   (user-error "Unimplemented backend"))
 
 (cl-defgeneric easy-repl--shutdown (backend)
@@ -78,10 +80,10 @@
 (declare-function inferior-emacs-lisp-mode "ext:ielm")
 (declare-function ielm-eval-input "ext:ielm")
 
-(cl-defmethod easy-repl--get-buffer ((backend (eql 'ielm)))
+(cl-defmethod easy-repl--get-buffer ((_backend (eql 'ielm)))
   (get-buffer "*ielm*"))
 
-(cl-defmethod easy-repl--get-buffer-create ((backend (eql 'ielm)))
+(cl-defmethod easy-repl--get-buffer-create ((_backend (eql 'ielm)))
   (require 'ielm)
   (with-current-buffer (get-buffer-create "*ielm*")
     (unless (comint-check-proc (current-buffer))
@@ -99,14 +101,14 @@
 (declare-function sh-shell-process "ext:sh-script")
 (declare-function sh-send-text "ext:sh-script")
 
-(cl-defmethod easy-repl--get-buffer ((backend (eql 'shell)))
+(cl-defmethod easy-repl--get-buffer ((_backend (eql 'shell)))
   (when sh-shell-process
     (process-buffer sh-shell-process)))
 
-(cl-defmethod easy-repl--get-buffer-create ((backend (eql 'shell)))
+(cl-defmethod easy-repl--get-buffer-create ((_backend (eql 'shell)))
   (process-buffer (sh-shell-process t)))
 
-(cl-defmethod easy-repl--send-string ((backend (eql 'shell)) string)
+(cl-defmethod easy-repl--send-string ((_backend (eql 'shell)) string)
   (sh-send-text string))
 
 (declare-function comint-check-proc "comint")
@@ -118,11 +120,11 @@
 (declare-function python-shell-make-comint "ext:python")
 (declare-function python-shell-send-string "ext:python")
 
-(cl-defmethod easy-repl--get-buffer ((backend (eql 'python)))
+(cl-defmethod easy-repl--get-buffer ((_backend (eql 'python)))
   (require 'python)
   (get-buffer (format "*%s*" (python-shell-get-process-name 'project))))
 
-(cl-defmethod easy-repl--get-buffer-create ((backend (eql 'python)))
+(cl-defmethod easy-repl--get-buffer-create ((_backend (eql 'python)))
   (require 'python)
   (get-buffer (python-shell-make-comint (python-shell-calculate-command) (python-shell-get-process-name 'project))))
 
@@ -137,15 +139,17 @@
 (declare-function hy-shell--make-comint "ext:hy-shell")
 (declare-function hy-shell--send "ext:hy-shell")
 
-(cl-defmethod easy-repl--get-buffer ((backend (eql 'hy)))
+(cl-defmethod easy-repl--get-buffer ((_backend (eql 'hy)))
   (require 'hy-shell)
   (get-buffer hy-shell--buffer-name))
 
-(cl-defmethod easy-repl--get-buffer-create ((backend (eql 'hy)))
+(cl-defmethod easy-repl--get-buffer-create ((_backend (eql 'hy)))
   (require 'hy-shell)
-  (process-buffer (hy-shell--make-comint)))
+  (with-current-buffer (get-buffer-create hy-shell--buffer-name)
+    (hy-shell--make-comint)
+    (current-buffer)))
 
-(cl-defmethod easy-repl--send-string ((backend (eql 'hy)) string)
+(cl-defmethod easy-repl--send-string ((_backend (eql 'hy)) string)
   (require 'hy-shell)
   (hy-shell--send (format "\n%s\n" string)))
 

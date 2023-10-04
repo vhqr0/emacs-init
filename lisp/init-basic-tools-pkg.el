@@ -11,6 +11,7 @@
 
 (use-elpa-package!
  wgrep
+ wgrep-helm
  rg
  magit
  with-editor)

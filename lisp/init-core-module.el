@@ -28,9 +28,6 @@
 (defun init--module-name (module)
   (concat "init-" (symbol-name module)))
 
-(defun init--module-al-name (module)
-  (concat "init-" (symbol-name module) "-al"))
-
 (defun init--module-pkg-name (module)
   (concat "init-" (symbol-name module) "-pkg"))
 
@@ -50,14 +47,11 @@
                  (init--expand-lisp-file-name (concat (init--module-name core) ".el"))))
   (dolist (module init--modules)
     (let ((path     (init--expand-lisp-file-name (concat (init--module-name     module) ".el")))
-          (al-path  (init--expand-lisp-file-name (concat (init--module-al-name  module) ".el")))
           (pkg-path (init--expand-lisp-file-name (concat (init--module-pkg-name module) ".el"))))
       (unless (file-exists-p path)
         (error (format "init--module-read-meta: module not found: %s"
                        (symbol-name module))))
       (add-to-list 'init--module-paths path)
-      (when (file-exists-p al-path)
-        (add-to-list 'init--module-al-paths al-path))
       (when (file-exists-p pkg-path)
         (add-to-list 'init--module-pkg-paths pkg-path)
         (init--module-pkg-require module))))
@@ -68,7 +62,6 @@
 (defun init--lisp-paths ()
   (append init--core-paths
           init--module-paths
-          init--module-al-paths
           init--module-pkg-paths
           init--site-paths))
 

@@ -21,19 +21,16 @@
 (setq-declare! evil-collection
   evil-collection-setup-minibuffer t)
 
-(evil-mode 1)
-(global-evil-surround-mode 1)
+(after-init!
+ (evil-mode 1)
+ (global-evil-surround-mode 1)
+ (evil-collection-init))
 
-(evil-collection-init)
 (after-load! evil-collection-unimpaired
   (diminish! evil-collection-unimpaired))
 
-(declare-variable! evil
-  evil-ex-completion-map
-  evil-normal-state-map)
-
-(set-keymap-parent evil-ex-completion-map minibuffer-local-map)
-(define-key! evil-normal-state [remap yank-pop] nil)
+(after-load! evil
+  (evil-x-setup))
 
 (declare-function! evil
   evil-ex-delete-hl)
@@ -43,7 +40,5 @@
                    init--delete-hl-after-evil-ex-search (&rest _)
   (sit-for 0.3)
   (evil-ex-delete-hl 'evil-ex-search))
-
-(evil-x-setup)
 
 (provide 'init-basic-evil)
