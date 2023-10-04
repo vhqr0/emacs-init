@@ -75,6 +75,8 @@
      (list (point-min) (point-max))))
   (easy-repl-send-string (buffer-substring start end)))
 
+(declare-function comint-check-proc "comint")
+
 ;;; ielm
 
 (declare-function inferior-emacs-lisp-mode "ext:ielm")
@@ -102,16 +104,17 @@
 (declare-function sh-send-text "ext:sh-script")
 
 (cl-defmethod easy-repl--get-buffer ((_backend (eql 'shell)))
+  (require 'sh-script)
   (when sh-shell-process
     (process-buffer sh-shell-process)))
 
 (cl-defmethod easy-repl--get-buffer-create ((_backend (eql 'shell)))
+  (require 'sh-script)
   (process-buffer (sh-shell-process t)))
 
 (cl-defmethod easy-repl--send-string ((_backend (eql 'shell)) string)
+  (require 'sh-script)
   (sh-send-text string))
-
-(declare-function comint-check-proc "comint")
 
 ;;; python
 
