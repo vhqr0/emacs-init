@@ -13,13 +13,15 @@
   (require 'hy-mode))
 
 (declare-function! hy-mode
-  hy--current-form-string
-  hy-shell--eval-1)
+  hy--current-form-string)
+
+(declare-function! easy-repl
+  easy-repl-send-string)
 
 (defun init--hy-shell-macroexpand-current-form ()
   (interactive)
-  (hy-shell--eval-1
-    (format "(hy.macroexpand '%s)" (hy--current-form-string))))
+  (require 'easy-repl)
+  (easy-repl-send-string (format "(hy.macroexpand '%s)" (hy--current-form-string))))
 
 (declare-variable! hy-mode
   hy-mode-map)

@@ -19,8 +19,6 @@
 (comment! dirty-directories
   (declare-variable! tramp
     tramp-backup-directory-alist)
-  (declare-variable! undo-tree
-    undo-tree-history-directory-alist)
   (defun init--emacs-file-name-transforms (x)
     `((".*" ,(init--expand-emacs-file-name x) t)))
   (defun init--emacs-directory-alist (x)
@@ -29,7 +27,6 @@
         lock-file-name-transforms         (init--emacs-file-name-transforms "lock/"     )
         backup-directory-alist            (init--emacs-directory-alist      "backup/"   )
         tramp-backup-directory-alist      (init--emacs-directory-alist      "backup/"   )
-        undo-tree-history-directory-alist (init--emacs-directory-alist      "undo-tree/")
         trash-directory                   (init--expand-emacs-file-name     "trash/"    )))
 
 (comment! auto-save-visited
@@ -78,7 +75,8 @@
 
 (comment! undo-tree
   (setq-declare! undo-tree
-    undo-tree-mode-lighter nil)
+    undo-tree-mode-lighter nil
+    undo-tree-auto-save-history nil)
   (after-init!
    (global-undo-tree-mode 1))
   (declare-variable! undo-tree

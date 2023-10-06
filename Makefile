@@ -23,4 +23,4 @@ elpa-install:
 init:
 	cp misc/init.el ..
 	cp misc/early-init.el ..
-	cd .. && mkdir -p auto-save lock backup undo-tree trash
+	cd .. && mkdir -p auto-save lock backup trash
