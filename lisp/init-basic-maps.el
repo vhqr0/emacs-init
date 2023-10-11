@@ -80,6 +80,7 @@
   "g" #'helm-do-grep-ag
   "f" #'helm-x-fd
   "y" #'helm-show-kill-ring
+  "r" #'helm-register
   "p" #'helm-browse-project)
 
 (setq-declare! key-helper

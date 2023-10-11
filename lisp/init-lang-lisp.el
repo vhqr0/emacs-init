@@ -11,6 +11,7 @@
     (diminish! paredit))
   (setq-declare! evil-cleverparens
     evil-cleverparens-use-regular-insert t
+    evil-cleverparens-use-additional-bindings nil
     evil-cleverparens-use-additional-movement-keys nil)
   (add-hook! paredit-mode evil-cleverparens-mode)
   (after-load! evil-cleverparens

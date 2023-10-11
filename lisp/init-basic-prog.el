@@ -17,10 +17,11 @@
    (projectile-mode 1))
   (after-load! projectile
     (define-key! projectile-command
-      "x" #'project-execute-extended-command
-      "e" #'projectile-run-eshell
-      "s" #'projectile-run-shell
-      "g" #'projectile-ripgrep)
+      "\e" nil
+      "x"  #'project-execute-extended-command
+      "e"  #'projectile-run-eshell
+      "s"  #'projectile-run-shell
+      "g"  #'projectile-ripgrep)
     (define-key! evil-x-leader
       "p" projectile-command-map))
   (setq-declare! helm-projectile
