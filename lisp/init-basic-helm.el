@@ -6,8 +6,6 @@
 (require 'init-core-utils)
 
 (setq-declare! helm
-  helm-M-x-fuzzy-match nil
-  helm-ff-fuzzy-matching nil
   helm-bookmark-show-location t
   helm-buffer-max-length 40
   helm-buffer-skip-remote-checking t)
