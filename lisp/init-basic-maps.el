@@ -60,8 +60,8 @@
 (declare-function! undo-tree
   undo-tree-visualize)
 
-(declare-function! helm-roam
-  helm-roam)
+(declare-function! helm
+  helm-resume)
 
 (declare-function! helm-x
   helm-x-fd)
@@ -69,19 +69,23 @@
 (declare-function! org
   org-store-link)
 
+(declare-function! helm-roam
+  helm-roam)
+
 (define-key! init--list-prefix
   "b" #'ibuffer
   "u" #'undo-tree-visualize
-  "c" #'org-capture
-  "a" #'org-agenda
-  "w" #'org-store-link
-  "n" #'helm-roam
+  "." #'helm-resume
   "s" #'helm-occur
   "g" #'helm-do-grep-ag
   "f" #'helm-x-fd
   "y" #'helm-show-kill-ring
   "r" #'helm-register
-  "p" #'helm-browse-project)
+  "p" #'helm-browse-project
+  "c" #'org-capture
+  "a" #'org-agenda
+  "w" #'org-store-link
+  "n" #'helm-roam)
 
 (setq-declare! key-helper
   key-helper-C-u-transient-map evil-x-leader-map)

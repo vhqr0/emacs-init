@@ -10,11 +10,7 @@
   helm-buffer-max-length 40
   helm-buffer-skip-remote-checking t)
 
-(declare-function! helm
-  helm-resume)
-
 (after-init!
- (global-set-key! "<f5>" #'helm-resume)
  (helm-mode 1)
  (helm-x-setup))
 

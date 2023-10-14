@@ -104,9 +104,6 @@
    (global-company-mode 1))
   (declare-variable! company
     company-mode-map)
-  (after-load! company
-    (define-key! company-mode
-      "<f2>" #'company-complete))
   (define-auto-save-visited-predicate! company
     (and (bound-and-true-p company-mode)
          (bound-and-true-p company-candidates)))

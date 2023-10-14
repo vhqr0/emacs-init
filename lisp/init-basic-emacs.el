@@ -97,9 +97,7 @@
         isearch-allow-motion t
         isearch-yank-on-move t
         isearch-motion-changes-direction t
-        isearch-repeat-on-direction-change t)
-  (define-key! isearch-mode
-    "<f2>" #'isearch-occur))
+        isearch-repeat-on-direction-change t))
 
 (comment! ui
   (setq inhibit-startup-screen t
