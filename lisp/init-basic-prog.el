@@ -21,9 +21,7 @@
       "x"  #'project-execute-extended-command
       "e"  #'projectile-run-eshell
       "s"  #'projectile-run-shell
-      "g"  #'projectile-ripgrep)
-    (define-key! evil-x-leader
-      "p" projectile-command-map))
+      "g"  #'projectile-ripgrep))
   (setq-declare! helm-projectile
     helm-projectile-fuzzy-match nil
     helm-projectile-truncate-lines t)

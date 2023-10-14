@@ -90,9 +90,6 @@
 (setq-declare! key-helper
   key-helper-C-u-transient-map evil-x-leader-map)
 
-(declare-variable! evil
-  evil-window-map)
-
 (declare-variable! easy-repl
   easy-repl-map)
 
@@ -110,13 +107,12 @@
   "u" #'key-helper-C-u
   "c" #'key-helper-C-c
 
-  "w" evil-window-map
+  ;; "w" evil-window-map
   "h" help-map
   "g" goto-map
   "s" search-map
   "n" narrow-map
   "v" vc-prefix-map
-  ;; FIXME: I think projectile should autoload this map
   ;; "p" projectile-command-map
   "x" easy-repl-map
   "r" ctl-x-r-map
@@ -151,5 +147,19 @@
   ","   #'xref-go-back
   "."   #'xref-find-definitions
   "?"   #'xref-find-references)
+
+(declare-variable! evil
+  evil-window-map)
+
+(after-load! evil
+  (define-key! evil-x-leader
+    "w" evil-window-map))
+
+(declare-variable! projectile
+  projectile-command-map)
+
+(after-load! projectile
+  (define-key! evil-x-leader
+    "p" projectile-command-map))
 
 (provide 'init-basic-maps)

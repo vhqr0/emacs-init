@@ -8,6 +8,17 @@
 (after-init!
  (xterm-mouse-mode 1))
 
+(setq-declare! evil
+  evil-want-C-i-jump nil)
+
+(declare-function! evil-collection
+  evil-collection-define-key)
+
+(defun-add-advice! :after evil-collection-help-setup
+                   init--evil-help-revert-C-i-in-term ()
+  (evil-collection-define-key 'normal 'help-mode-map
+    (kbd "C-i") nil))
+
 (global-set-key! "C-M-_" #'dabbrev-completion)
 
 (global-set-key! "C-@" #'toggle-input-method)

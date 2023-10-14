@@ -10,6 +10,7 @@
     (python-ts-mode . python)
     (hy-mode . hy)))
 
+;;;###autoload
 (defvar easy-repl-map
   (let ((map (make-sparse-keymap)))
     (define-key map "o" #'easy-repl-display)

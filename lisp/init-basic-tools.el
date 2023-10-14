@@ -55,6 +55,7 @@
     ispell-dictionary "american"))
 
 (comment! x-utils
-  (x-utils-setup))
+  (after-init!
+   (x-utils-setup)))
 
 (provide 'init-basic-tools)
