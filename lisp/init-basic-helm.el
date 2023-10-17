@@ -30,7 +30,9 @@
   (evil-collection-define-key 'normal 'helm-map
     (kbd "SPC") nil
     "m" 'helm-toggle-visible-mark
-    "U" 'helm-unmark-all))
+    "U" 'helm-unmark-all)
+  (evil-collection-define-key '(insert normal) 'helm-map
+    (kbd "C-t") 'helm-toggle-resplit-and-swap-windows))
 
 (setq-declare! helm
   helm-mini-default-sources '(helm-bufler-source helm-source-recentf))

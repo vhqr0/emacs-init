@@ -19,6 +19,11 @@
   (evil-collection-define-key 'normal 'help-mode-map
     (kbd "C-i") nil))
 
+(defun-add-advice! :after evil-collection-info-setup
+                   init--evil-info-revert-C-i-in-term ()
+  (evil-collection-define-key 'normal 'Info-mode-map
+    (kbd "C-i") nil))
+
 (global-set-key! "C-M-_" #'dabbrev-completion)
 
 (global-set-key! "C-@" #'toggle-input-method)
