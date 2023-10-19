@@ -7,6 +7,7 @@
 
 (use-elpa-package!
  undo-tree
+ page-break-lines
  rainbow-delimiters)
 
 (provide 'init-basic-emacs-pkg)

@@ -30,4 +30,9 @@
   (define-key! hy-mode
     "C-c RET" #'init--hy-shell-macroexpand-current-form))
 
+(declare-variable! page-break-lines
+  page-break-lines-modes)
+(after-load! page-break-lines
+  (add-to-list 'page-break-lines-modes 'hy-mode))
+
 (provide 'init-lang-hy)

@@ -71,7 +71,11 @@
     display-line-numbers-type 'relative)
   (setq-declare! hl-line
     global-hl-line-sticky-flag t)
-  (add-hook! (text-mode prog-mode) display-line-numbers-mode))
+  (add-hook! (text-mode prog-mode) display-line-numbers-mode)
+  (after-init!
+   (global-page-break-lines-mode 1))
+  (after-load! page-break-lines
+    (diminish! page-break-lines)))
 
 (comment! undo-tree
   (setq-declare! undo-tree
