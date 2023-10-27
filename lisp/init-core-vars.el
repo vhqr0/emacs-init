@@ -24,7 +24,6 @@
 
     ;; cn-basic
     ;; cn-fonts
-    ;; cn-win
     ;; cn-pyim
 
     lang-lisp
