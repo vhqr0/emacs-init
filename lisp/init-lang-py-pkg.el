@@ -6,7 +6,6 @@
 (require 'init-core-vars)
 
 (use-elpa-package!
- python-mls
  elpy)
 
 (provide 'init-lang-py-pkg)

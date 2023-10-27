@@ -15,16 +15,6 @@
 
 (define-company-enabled-mode! inferior-python)
 
-(add-hook! inferior-python-mode python-mls-mode)
-
-(declare-variable! comint
-  comint-last-prompt)
-
-(defun-add-advice! :around python-shell-completion-at-point
-                   init--save-comint-last-prompt-around-python-shell-completion-at-point (func &rest args)
-  (let ((comint-last-prompt comint-last-prompt))
-    (apply func args)))
-
 (setq-declare! elpy
   elpy-remove-modeline-lighter nil
   elpy-modules
