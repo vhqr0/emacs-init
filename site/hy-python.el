@@ -37,10 +37,13 @@ def __HY_PYTHON_EL_eval_file(filename, tempname, delete):
 ")
 
 (defconst hy-python-shell-ipython-setup-code "
-from IPython.core.magic import register_line_magic
-_ipy_magic_hy = lambda line: __HY_PYTHON_EL_eval(line, '__main__')
-_ipy_magic_hy.__name__ = 'hy'
-register_line_magic(_ipy_magic_hy)
+try:
+    from IPython.core.magic import register_line_magic
+    _ipy_magic_hy = lambda line: __HY_PYTHON_EL_eval(line, '__main__')
+    _ipy_magic_hy.__name__ = 'hy'
+    register_line_magic(_ipy_magic_hy)
+except Exception:
+    pass
 ")
 
 (defun hy-python-shell-first-prompt-hook ()
@@ -149,6 +152,21 @@ t when called interactively."
 
 
 
+(defun python-shell-toggle-hy-magic ()
+  (interactive)
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (if (looking-at-p "%hy")
+        (progn
+          (delete-char 3)
+          (delete-horizontal-space))
+      (delete-trailing-whitespace)
+      (insert "%hy ")))
+  (when (= (point) (line-beginning-position))
+    (goto-char (line-end-position))))
+
+
+
 (add-hook 'python-shell-first-prompt-hook #'hy-python-shell-first-prompt-hook)
 
 (advice-add 'python-shell-send-string :around 'hy-python-shell-send-string-around)
@@ -164,6 +182,8 @@ t when called interactively."
 (define-key hy-mode-map (kbd "C-c C-z") 'python-shell-switch-to-shell)
 (define-key hy-mode-map (kbd "C-M-x") 'python-shell-send-defun)
 (define-key hy-mode-map (kbd "C-c RET") 'hy-python-macroexpand)
+
+(define-key inferior-python-mode-map "\M-h" #'python-shell-toggle-hy-magic)
 
 
 

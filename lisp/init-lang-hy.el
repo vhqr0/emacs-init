@@ -6,9 +6,6 @@
 (setq-declare! hy-mode
   hy-jedhy--enable? nil)
 
-(after-load! python-mode
-  (require 'hy-python))
-
 (after-load! hy-mode
   (require 'hy-python))
 
