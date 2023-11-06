@@ -9,6 +9,8 @@ if not hasattr(hy, hy.mangle('&reader')):
 hy_reader = getattr(hy, hy.mangle('&reader'))
 def __HY_PYTHON_EL_eval(source, filename):
     import sys, io
+    if isinstance(source, bytes):
+        source = source.decode()
     retval = None
     sio = io.StringIO(source)
     try:
