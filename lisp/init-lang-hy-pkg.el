@@ -5,6 +5,9 @@
 
 (require 'init-core-vars)
 
+(use-site-package!
+ hy-python)
+
 (use-elpa-package!
  hy-mode)
 

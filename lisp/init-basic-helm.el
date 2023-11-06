@@ -34,10 +34,4 @@
   (evil-collection-define-key '(insert normal) 'helm-map
     (kbd "C-t") 'helm-toggle-resplit-and-swap-windows))
 
-(setq-declare! helm
-  helm-mini-default-sources '(helm-bufler-source helm-source-recentf))
-
-(after-load! helm-buffers
-  (require 'helm-bufler))
-
 (provide 'init-basic-helm)

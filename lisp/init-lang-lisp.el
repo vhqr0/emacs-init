@@ -6,7 +6,7 @@
 (require 'init-core-utils)
 
 (comment! paredit
-  (add-hook! lisp-data-mode paredit-mode)
+  (add-hook! (lisp-data-mode emacs-lisp-mode lisp-interaction-mode) paredit-mode)
   (after-load! paredit
     (diminish! paredit))
   (setq-declare! evil-cleverparens

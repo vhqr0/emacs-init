@@ -7,29 +7,16 @@
 (require 'init-basic-emacs)
 
 (comment! projectile
-  (declare-variable! projectile
-    projectile-mode-map
-    projectile-command-map)
   (setq-declare! projectile
-    projectile-switch-project-action #'projectile-commander
+    projectile-switch-project-action #'helm-projectile
     projectile-current-project-on-switch 'move-to-end)
   (after-init!
    (projectile-mode 1))
-  (after-load! projectile
-    (define-key! projectile-command
-      "\e" nil
-      "x"  #'project-execute-extended-command
-      "e"  #'projectile-run-eshell
-      "s"  #'projectile-run-shell
-      "g"  #'projectile-ripgrep))
   (setq-declare! helm-projectile
     helm-projectile-fuzzy-match nil
     helm-projectile-truncate-lines t)
   (after-load! helm
-    (helm-projectile-on))
-  (defun-add-advice! :after helm-projectile-on
-                     init--helm-projectile-unremap-rg-after-on ()
-    (define-key! projectile-mode [remap projectile-ripgrep] nil)))
+    (require 'helm-projectile)))
 
 (comment! xref
   (setq-declare! xref

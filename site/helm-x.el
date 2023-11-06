@@ -11,6 +11,15 @@
         (t
          (helm-imenu))))
 
+(defun helm-x-imenu-all ()
+  (interactive)
+  (cond ((derived-mode-p 'comint-mode)
+         (helm-comint-prompts-all))
+        ((derived-mode-p 'eshell-mode)
+         (helm-eshell-prompts-all))
+        (t
+         (helm-imenu-in-all-buffers))))
+
 (declare-function! helm-fd
   helm-fd-1)
 
@@ -26,17 +35,11 @@
 
 (defvar helm-x-remap-alist
   '((execute-extended-command               . helm-M-x)
-    (find-file                              . helm-find-files)
-    (bookmark-jump                          . helm-bookmarks)
-    (recentf-open                           . helm-recentf)
-    (switch-to-buffer                       . helm-buffers-list)
-    (imenu                                  . helm-x-imenu)
     (yank-pop                               . helm-show-kill-ring)
     (previous-matching-history-element      . helm-minibuffer-history)
     (eshell-previous-matching-input         . helm-eshell-history)
     (comint-history-isearch-backward-regexp . helm-comint-input-ring)
-    (dabbrev                                . helm-dabbrev)
-    (describe-symbol                        . helm-apropos)))
+    (dabbrev                                . helm-dabbrev)))
 
 (defvar helm-x-remap-mode-map
   (let ((map (make-sparse-keymap)))

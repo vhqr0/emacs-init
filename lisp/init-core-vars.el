@@ -15,7 +15,6 @@
     basic-tools
     basic-maps
 
-    ui-themes
     ui-sml
 
     ;; env-win

@@ -60,6 +60,9 @@
    (repeat-mode 1)))
 
 (comment! paren
+  (defun init--insert-pair-1 (&optional arg open close)
+    (interactive "P")
+    (insert-pair (or arg '(1)) open close))
   (setq-declare! paren
     show-paren-context-when-offscreen t)
   (show-paren-mode 1)
@@ -114,6 +117,25 @@
   (dolist (mode init--ui-disable-modes)
     (when (fboundp mode)
       (funcall mode -1))))
+
+(comment! themes
+  (defvar! init--load-theme-after-init t)
+
+  (defun init--load-theme (theme)
+    (interactive
+     (list (intern (completing-read "Load custom theme: "
+                                    (mapcar #'symbol-name (custom-available-themes))))))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme theme t)
+    (message "load theme: %s" theme))
+
+  (defun init--load-theme-random ()
+    (interactive)
+    (init--load-theme (seq-random-elt (custom-available-themes))))
+
+  (when init--load-theme-after-init
+    (after-init!
+     (init--load-theme-random))))
 
 (comment! tab
   (setq tab-bar-tab-hints t

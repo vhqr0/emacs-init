@@ -5,7 +5,6 @@
 
 (require 'evil)
 (require 'thingatpt)
-(require 'easy-repl)
 
 (defvar evil-x-escape-fkey ?j)
 (defvar evil-x-escape-skey ?k)
@@ -55,10 +54,19 @@
   (interactive "<r>")
   (narrow-to-region beg end))
 
+(defvar evil-x-eval-function-alist
+  '((emacs-lisp-mode       . eval-region)
+    (lisp-interaction-mode . eval-region)
+    (python-mode           . python-shell-send-region)
+    (python-ts-mode        . python-shell-send-region)
+    (hy-mode               . python-shell-send-region)))
+
 (evil-define-operator evil-x-operator-eval (beg end)
   :move-point nil
   (interactive "<r>")
-  (easy-repl-send-region beg end))
+  (let ((eval-function (cdr (assq major-mode evil-x-eval-function-alist))))
+    (when eval-function
+      (funcall eval-function beg end))))
 
 ;;;###autoload
 (defun evil-x-operator-setup ()

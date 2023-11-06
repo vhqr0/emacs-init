@@ -4,31 +4,15 @@
   (require 'init-core-macs))
 
 (setq-declare! hy-mode
-  hy-jedhy--enable? nil
-  hy-shell--interpreter-args nil)
+  hy-jedhy--enable? nil)
 
-(add-hook! hy-mode paredit-mode)
-
-(after-load! hy-shell
-  (require 'hy-mode))
-
-(declare-function! hy-mode
-  hy--current-form-string)
-
-(declare-function! easy-repl
-  easy-repl-send-string)
-
-(defun init--hy-shell-macroexpand-current-form ()
-  (interactive)
-  (require 'easy-repl)
-  (easy-repl-send-string (format "(hy.macroexpand '%s)" (hy--current-form-string))))
-
-(declare-variable! hy-mode
-  hy-mode-map)
+(after-load! python-mode
+  (require 'hy-python))
 
 (after-load! hy-mode
-  (define-key! hy-mode
-    "C-c RET" #'init--hy-shell-macroexpand-current-form))
+  (require 'hy-python))
+
+(add-hook! hy-mode paredit-mode)
 
 (declare-variable! page-break-lines
   page-break-lines-modes)

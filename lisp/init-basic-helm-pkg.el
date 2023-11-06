@@ -6,13 +6,11 @@
 (require 'init-core-vars)
 
 (use-site-package!
- helm-x
- helm-bufler)
+ helm-x)
 
 (use-elpa-package!
  helm
  helm-comint
- helm-ls-git
- bufler)
+ helm-ls-git)
 
 (provide 'init-basic-helm-pkg)

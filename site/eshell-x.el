@@ -7,6 +7,10 @@
 (declare-function eshell-reset "esh-mode")
 (declare-function eshell/cd "em-dirs")
 
+(declare-function project-current "project")
+(declare-function project-root "project")
+(declare-function project-prefixed-buffer-name "project")
+
 ;;;###autoload
 (defun eshell-dwim (&optional arg)
   (interactive "P")
@@ -31,6 +35,22 @@
           (arg
            (switch-to-buffer-other-window buffer))
           (t
-           (pop-to-buffer buffer '(display-buffer-at-bottom))))))
+           (let ((parent (window-parent (selected-window))))
+             (cond ((window-left-child parent)
+                    (select-window (split-window-vertically))
+                    (switch-to-buffer buffer))
+                   ((window-top-child parent)
+                    (select-window (split-window-horizontally))
+                    (switch-to-buffer buffer))
+                   (t
+                    (switch-to-buffer-other-window buffer))))))))
 
-(provide 'eshell-dwim)
+;;;###autoload
+(defun project-eshell-dwim (&optional arg)
+  (interactive "P")
+  (let* ((project (project-current))
+         (default-directory (if project (project-root project) default-directory))
+         (eshell-buffer-name (project-prefixed-buffer-name "eshell")))
+    (eshell-dwim arg)))
+
+(provide 'eshell-x)
