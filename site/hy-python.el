@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t; no-native-compile: t -*-
+
 (require 'python)
 (require 'hy-mode)
 (require 'thingatpt)
@@ -171,19 +173,19 @@ t when called interactively."
 
 (add-hook 'python-shell-first-prompt-hook #'hy-python-shell-first-prompt-hook)
 
-(advice-add 'python-shell-send-string :around 'hy-python-shell-send-string-around)
-(advice-add 'python-shell-send-file :around 'hy-python-shell-send-file-around)
-(advice-add 'python-shell-send-defun :around 'hy-python-shell-send-defun-around)
-(advice-add 'python-shell-buffer-substring :around 'hy-python-shell-buffer-substring-around)
+(advice-add 'python-shell-send-string      :around #'hy-python-shell-send-string-around)
+(advice-add 'python-shell-send-file        :around #'hy-python-shell-send-file-around)
+(advice-add 'python-shell-send-defun       :around #'hy-python-shell-send-defun-around)
+(advice-add 'python-shell-buffer-substring :around #'hy-python-shell-buffer-substring-around)
 
-(define-key hy-mode-map (kbd "C-c C-p") 'run-python)
-(define-key hy-mode-map (kbd "C-c C-s") 'python-shell-send-string)
-(define-key hy-mode-map (kbd "C-c C-r") 'python-shell-send-region)
-(define-key hy-mode-map (kbd "C-c C-c") 'python-shell-send-buffer)
-(define-key hy-mode-map (kbd "C-c C-l") 'python-shell-send-file)
-(define-key hy-mode-map (kbd "C-c C-z") 'python-shell-switch-to-shell)
-(define-key hy-mode-map (kbd "C-M-x") 'python-shell-send-defun)
-(define-key hy-mode-map (kbd "C-c RET") 'hy-python-macroexpand)
+(define-key hy-mode-map (kbd "C-c C-p") #'run-python)
+(define-key hy-mode-map (kbd "C-c C-s") #'python-shell-send-string)
+(define-key hy-mode-map (kbd "C-c C-r") #'python-shell-send-region)
+(define-key hy-mode-map (kbd "C-c C-c") #'python-shell-send-buffer)
+(define-key hy-mode-map (kbd "C-c C-l") #'python-shell-send-file)
+(define-key hy-mode-map (kbd "C-c C-z") #'python-shell-switch-to-shell)
+(define-key hy-mode-map (kbd "C-M-x")   #'python-shell-send-defun)
+(define-key hy-mode-map (kbd "C-c RET") #'hy-python-macroexpand)
 
 (define-key inferior-python-mode-map "\M-h" #'python-shell-toggle-hy-magic)
 
