@@ -27,7 +27,7 @@
 
 (setq-declare! evil-org
   evil-org-key-theme
-  '(navigation return textobjects additional shift calendar))
+  '(navigation return textobjects additional calendar))
 
 (add-hook! org-mode evil-org-mode)
 

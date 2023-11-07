@@ -54,8 +54,9 @@
   (setq-default
    indent-tabs-mode nil
    truncate-lines t)
-  (setq disabled-command-function nil
-        word-wrap-by-category t)
+  (setq system-time-locale "C")
+  (setq word-wrap-by-category t)
+  (setq disabled-command-function nil)
   (after-init!
    (repeat-mode 1)))
 

@@ -55,7 +55,8 @@
   "xf"        'font-lock-update
   "xn"        'clone-buffer
   "xr"        'rename-buffer
-  "ru"        'rename-uniquely
+  "xu"        'rename-uniquely
+  "xo"        'x-utils-xdg-open
   "x <left>"  'previous-buffer
   "x <right>" 'next-buffer
   "ww"        'evil-window-next
@@ -193,6 +194,10 @@
   "lr"        'helm-register
   "lb"        'ibuffer
   "plb"       'projectile-ibuffer
+  "ln"        'helm-roam
+  "lc"        'org-capture
+  "la"        'org-agenda
+  "lw"        'org-store-link
   "e"         'eshell-dwim
   "pe"        'project-eshell-dwim
   "#"         'server-edit
