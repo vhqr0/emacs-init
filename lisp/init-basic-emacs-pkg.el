@@ -7,6 +7,7 @@
 
 (use-elpa-package!
  embark
+ helpful
  undo-tree
  page-break-lines
  rainbow-delimiters)

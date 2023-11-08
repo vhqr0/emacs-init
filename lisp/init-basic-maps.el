@@ -135,14 +135,14 @@
   "hl"        'view-lossage
   "he"        'view-echo-area-messages
   "ho"        'helm-apropos
-  "hf"        'describe-function
-  "hv"        'describe-variable
+  "hf"        'helpful-callable
+  "hv"        'helpful-variable
   "hp"        'describe-package
   "hm"        'describe-mode
   "hb"        'describe-bindings
   "hB"        'describe-keymap
   "hw"        'where-is
-  "hk"        'describe-key
+  "hk"        'helpful-key
   "hc"        'describe-key-briefly
   "htl"       'load-library
   "htf"       'load-file

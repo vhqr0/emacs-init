@@ -8,7 +8,9 @@
 (setq-declare! helm
   helm-bookmark-show-location t
   helm-buffer-max-length 40
-  helm-buffer-skip-remote-checking t)
+  helm-buffer-skip-remote-checking t
+  helm-describe-function-function #'helpful-callable
+  helm-describe-variable-function #'helpful-variable)
 
 (after-init!
  (helm-mode 1)

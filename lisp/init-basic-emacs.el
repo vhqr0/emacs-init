@@ -109,6 +109,10 @@
         isearch-motion-changes-direction t
         isearch-repeat-on-direction-change t))
 
+(comment! helpful
+  (setq-declare! helpful
+    helpful-max-buffers nil))
+
 (comment! ui
   (setq inhibit-startup-screen t
         initial-scratch-message nil)
