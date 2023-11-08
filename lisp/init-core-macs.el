@@ -5,12 +5,6 @@
 
 (require 'init-core-utils)
 
-(defmacro comment! (comment &rest body)
-  (declare (indent 1))
-  (ignore comment)
-  `(progn
-     ,@body))
-
 (defmacro defvar! (&rest clauses)
   `(progn
      ,@ (cl-loop while clauses
