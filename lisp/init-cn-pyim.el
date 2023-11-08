@@ -3,8 +3,6 @@
 (eval-when-compile
   (require 'init-core-macs))
 
-(global-set-key! "C-SPC" #'toggle-input-method)
-
 (setq default-input-method "pyim")
 
 (defvar!

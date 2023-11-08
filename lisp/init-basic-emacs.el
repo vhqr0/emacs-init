@@ -57,8 +57,10 @@
   (setq system-time-locale "C")
   (setq word-wrap-by-category t)
   (setq disabled-command-function nil)
+  (global-set-key! "C-SPC" #'toggle-input-method)
   (after-init!
-   (repeat-mode 1)))
+   (repeat-mode 1))
+  (global-set-key! "M-o" #'embark-act))
 
 (comment! paren
   (defun init--insert-pair-1 (&optional arg open close)

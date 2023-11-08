@@ -6,6 +6,7 @@
 (require 'init-core-vars)
 
 (use-elpa-package!
+ embark
  undo-tree
  page-break-lines
  rainbow-delimiters)

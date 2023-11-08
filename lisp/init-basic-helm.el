@@ -32,6 +32,7 @@
     "m" 'helm-toggle-visible-mark
     "U" 'helm-unmark-all)
   (evil-collection-define-key '(insert normal) 'helm-map
+    (kbd "C-SPC") 'toggle-input-method
     (kbd "C-t") 'helm-toggle-resplit-and-swap-windows))
 
 (provide 'init-basic-helm)
