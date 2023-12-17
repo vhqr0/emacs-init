@@ -1,9 +1,8 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(eval-when-compile
-  (require 'init-core-macs))
+(require 'init-core-lib)
 
-(setq-declare! markdown-mode
-  markdown-fontify-code-blocks-natively t)
+(init-setq-declare!
+ markdown-fontify-code-blocks-natively t)
 
 (provide 'init-lang-md)

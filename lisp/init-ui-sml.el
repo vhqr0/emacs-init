@@ -1,17 +1,14 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(eval-when-compile
-  (require 'init-core-macs))
+(require 'init-core-lib)
 
-(require 'init-core-utils)
+(init-setq-declare!
+ sml/theme 'respectful)
 
-(setq-declare! smart-mode-line
-  sml/theme 'respectful)
-
-(after-init!
+(init-eval-after-init!
  (sml/setup))
 
-(after-load! projectile
-  (diminish! projectile))
+(with-eval-after-load 'projectile
+  (init-diminish-minor-mode 'projectile-mode))
 
 (provide 'init-ui-sml)

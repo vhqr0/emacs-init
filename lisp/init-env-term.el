@@ -1,40 +1,35 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(eval-when-compile
-  (require 'init-core-macs))
+(require 'init-core-lib)
 
 (setq text-quoting-style 'grave)
 
-(after-init!
+(init-eval-after-init!
  (xterm-mouse-mode 1))
 
-(setq-declare! evil
-  evil-want-C-i-jump nil)
+(init-setq-declare!
+ evil-want-C-i-jump nil)
 
-(declare-function! evil-collection
-  evil-collection-define-key)
+(declare-function evil-collection-define-key "evil-collection")
 
-(defun-add-advice! :after evil-collection-help-setup
-                   init--evil-help-revert-C-i-in-term ()
-  (evil-collection-define-key 'normal 'help-mode-map
-    (kbd "C-i") nil))
+(defun init-evil-help-revert-C-i-in-term ()
+  (evil-collection-define-key 'normal 'help-mode-map (kbd "C-i") nil))
+(init-add-advice :after 'evil-collection-help-setup #'init-evil-help-revert-C-i-in-term)
 
-(defun-add-advice! :after evil-collection-info-setup
-                   init--evil-info-revert-C-i-in-term ()
-  (evil-collection-define-key 'normal 'Info-mode-map
-    (kbd "C-i") nil))
+(defun init-evil-info-revert-C-i-in-term ()
+  (evil-collection-define-key 'normal 'Info-mode-map (kbd "C-i") nil))
+(init-add-advice :after 'evil-collection-info-setup #'init-evil-info-revert-C-i-in-term)
 
-(global-set-key! "C-M-_" #'dabbrev-completion)
+(init-global-set-key "C-M-_" #'dabbrev-completion)
 
-(global-set-key! "C-@" #'toggle-input-method)
+(init-global-set-key "C-@" #'toggle-input-method)
 
-(declare-variable! evil
-  evil-insert-state-map)
+(defvar evil-insert-state-map)
 
-(after-load! evil
-  (define-key! evil-insert-state "C-@" #'toggle-input-method))
+(with-eval-after-load 'evil
+  (init-define-key evil-insert-state-map "C-@" #'toggle-input-method))
 
-(setq-declare! magit
-  magit-section-visibility-indicator '("..." . t))
+(init-setq-declare!
+ magit-section-visibility-indicator '("..." . t))
 
 (provide 'init-env-term)

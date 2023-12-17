@@ -1,37 +1,33 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(eval-when-compile
-  (require 'init-core-macs))
+(require 'init-core-lib)
 
-(require 'init-core-utils)
+(init-setq-declare!
+ helm-completion-style 'helm-fuzzy
+ helm-buffers-fuzzy-matching t
+ helm-recentf-fuzzy-match t
+ helm-apropos-fuzzy-match t
+ helm-bookmark-show-location t
+ helm-buffer-max-length 40
+ helm-buffer-skip-remote-checking t
+ helm-describe-function-function #'helpful-callable
+ helm-describe-variable-function #'helpful-variable)
 
-(setq-declare! helm
-  helm-completion-style 'helm-fuzzy
-  helm-buffers-fuzzy-matching t
-  helm-recentf-fuzzy-match t
-  helm-apropos-fuzzy-match t
-  helm-bookmark-show-location t
-  helm-buffer-max-length 40
-  helm-buffer-skip-remote-checking t
-  helm-describe-function-function #'helpful-callable
-  helm-describe-variable-function #'helpful-variable)
-
-(after-init!
+(init-eval-after-init!
  (helm-mode 1)
  (helm-x-setup))
 
-(declare-variable! helm-mode
-  helm-completing-read-handlers-alist)
+(init-global-set-key "<f5>" #'helm-resume)
 
-(after-load! helm-mode
-  (diminish! helm)
+(defvar helm-completing-read-handlers-alist)
+
+(with-eval-after-load 'helm-mode
+  (init-diminish-minor-mode 'helm-mode)
   (add-to-list 'helm-completing-read-handlers-alist '(kill-buffer . nil)))
 
-(declare-function! evil-collection
-  evil-collection-define-key)
+(declare-function evil-collection-define-key "evil-collection")
 
-(defun-add-advice! :after evil-collection-helm-setup
-                   init--evil-helm-custom ()
+(defun init-evil-helm-custom ()
   (custom-set-variables '(helm-minibuffer-history-key "M-r"))
   (evil-collection-define-key 'normal 'helm-map
     (kbd "SPC") nil
@@ -40,5 +36,7 @@
   (evil-collection-define-key '(insert normal) 'helm-map
     (kbd "C-SPC") 'toggle-input-method
     (kbd "C-t") 'helm-toggle-resplit-and-swap-windows))
+
+(init-add-advice :after 'evil-collection-setup #'init-evil-helm-custom)
 
 (provide 'init-basic-helm)

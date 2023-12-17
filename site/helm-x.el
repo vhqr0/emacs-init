@@ -20,8 +20,7 @@
         (t
          (helm-imenu-in-all-buffers))))
 
-(declare-function! helm-fd
-  helm-fd-1)
+(declare-function helm-fd-1 "helm-fd")
 
 (defun helm-x-fd (arg)
   (interactive "P")

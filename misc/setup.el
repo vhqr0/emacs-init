@@ -4,7 +4,8 @@
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
-  (load custom-file))
+  (let ((backup-inhibited t))
+    (load custom-file t t)))
 
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
 
@@ -15,10 +16,8 @@
 (add-to-list 'load-path init-lisp-directory)
 (add-to-list 'load-path init-site-directory)
 
-(require 'site-autoloads)
 (require 'init-core)
 
+(init-elpa-install)
 (package-initialize)
-(init-module-load)
-
-(provide 'init)
+(init-compile)

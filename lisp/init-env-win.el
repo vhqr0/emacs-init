@@ -7,11 +7,11 @@
 
 (setcdr (assoc "" file-coding-system-alist) 'prefer-utf-8)
 
-(setq-declare! x-utils
-  x-utils-xclip-program "clip.exe"
-  x-utils-xclip-option ""
-  x-utils-open-program "explorer.exe"
-  x-utils-open-urlize t)
+(init-setq-declare!
+ x-utils-xclip-program "clip.exe"
+ x-utils-xclip-option ""
+ x-utils-open-program "explorer.exe"
+ x-utils-open-urlize t)
 
 (setenv "GIT_ASKPASS" "git-gui--askpass")
 (setenv "SSH_ASKPASS" "git-gui--askpass")

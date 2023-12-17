@@ -1,51 +1,44 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(defconst init--cores
-  '(core
-    core-vars
-    core-utils
-    core-macs
-    core-module))
+(defconst init-core-modules
+  '(init-core
+    init-core-vars
+    init-core-lib
+    init-core-meta
+    init-core-module))
 
-(defvar init--modules
-  '(basic-emacs
-    basic-evil
-    basic-helm
-    basic-prog
-    basic-tools
-    basic-maps
+(defvar init-modules
+  '(init-basic-emacs
+    init-basic-evil
+    init-basic-helm
+    init-basic-prog
+    init-basic-tools
+    init-basic-maps
 
-    ui-sml
+    init-ui-sml
 
-    ;; env-win
-    ;; env-wsl
-    ;; env-term
+    ;; init-env-win
+    ;; init-env-wsl
+    ;; init-env-term
 
-    ;; cn-basic
-    ;; cn-fonts
-    ;; cn-pyim
+    ;; init-cn-basic
+    ;; init-cn-fonts
+    ;; init-cn-pyim
 
-    lang-lisp
-    ;; lang-org
-    ;; lang-md
-    ;; lang-web
-    ;; lang-py
-    ;; lang-hy
-    ;; lang-clj
+    init-lang-lisp
+    ;; init-lang-org
+    ;; init-lang-md
+    ;; init-lang-web
+    ;; init-lang-py
+    ;; init-lang-hy
+    ;; init-lang-clj
 
-    ;; app-roam
+    ;; init-app-roam
     ))
 
-(defvar init--elpa-archives
+(defvar init-elpa-archives
   '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/"   )
     ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
     ("melpa"  . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/" )))
-
-(defvar init--site-packages nil)
-(defvar init--elpa-packages nil)
-(defvar init--core-paths nil)
-(defvar init--module-paths nil)
-(defvar init--module-pkg-paths nil)
-(defvar init--site-paths nil)
 
 (provide 'init-core-vars)

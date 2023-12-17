@@ -1,26 +1,26 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(eval-when-compile
-  (require 'init-core-macs))
+(require 'init-core-lib)
 
-(require 'init-core-utils)
+(init-add-hook
+ '(lisp-data-mode-hook emacs-lisp-mode-hook lisp-interaction-mode-hook)
+ #'paredit-mode)
 
-(add-hook! (lisp-data-mode emacs-lisp-mode lisp-interaction-mode) paredit-mode)
+(with-eval-after-load 'paredit
+  (init-diminish-minor-mode 'paredit-mode))
 
-(after-load! paredit
-  (diminish! paredit))
+(init-setq-declare!
+ evil-cleverparens-use-regular-insert t
+ evil-cleverparens-use-additional-bindings nil
+ evil-cleverparens-use-additional-movement-keys nil)
 
-(setq-declare! evil-cleverparens
-  evil-cleverparens-use-regular-insert t
-  evil-cleverparens-use-additional-bindings nil
-  evil-cleverparens-use-additional-movement-keys nil)
+(init-add-hook 'paredit-mode-hook #'evil-cleverparens-mode)
 
-(add-hook! paredit-mode evil-cleverparens-mode)
+(with-eval-after-load 'evil-cleverparens
+  (init-diminish-minor-mode 'evil-cleverparens-mode))
 
-(after-load! evil-cleverparens
-  (diminish! evil-cleverparens))
-
-(define-key! (lisp-data-mode emacs-lisp-mode lisp-interaction-mode)
-  "C-c e" #'macrostep-expand)
+(init-define-key
+ '(lisp-data-mode-map emacs-lisp-mode-map lisp-interaction-mode-map)
+ "C-c e" #'macrostep-expand)
 
 (provide 'init-lang-lisp)

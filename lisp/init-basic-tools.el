@@ -1,83 +1,78 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(eval-when-compile
-  (require 'init-core-macs))
-
-(require 'init-core-utils)
+(require 'init-core-lib)
 (require 'init-basic-prog)
 
 
 ;;; dired
 
-(setq-declare! dired
-  dired-dwim-target t
-  dired-listing-switches "-lha")
+(init-setq-declare!
+ dired-dwim-target t
+ dired-listing-switches "-lha")
 
-(after-load! dired
+(with-eval-after-load 'dired
   (put 'dired-jump 'repeat-map nil))
 
 
 ;;; ediff
 
-(declare-function! ediff
-  ediff-setup-windows-plain)
+(declare-function ediff-setup-windows-plain "ediff")
 
-(setq-declare! ediff
-  ediff-window-setup-function #'ediff-setup-windows-plain)
+(init-setq-declare!
+ ediff-window-setup-function #'ediff-setup-windows-plain)
 
 
 ;;; grep
 
-(setq-declare! wgrep
-  wgrep-auto-save-buffer t
-  wgrep-change-readonly-file t)
+(init-setq-declare!
+ wgrep-auto-save-buffer t
+ wgrep-change-readonly-file t)
 
-(autoload-command! rg
-  rg-menu)
+(autoload 'rg-menu "rg" nil t)
 
 
 ;;; magit
 
-(setq-declare! magit
-  magit-bind-magit-project-status nil
-  magit-define-global-key-bindings nil)
+(init-setq-declare!
+ magit-bind-magit-project-status nil
+ magit-define-global-key-bindings nil)
 
-(define-key! vc-prefix-map
-  "j" #'magit-status
-  "f" #'magit-file-dispatch
-  "?" #'magit-dispatch)
+(init-define-key
+ vc-prefix-map
+ "j" #'magit-status
+ "f" #'magit-file-dispatch
+ "?" #'magit-dispatch)
 
 
 ;;; eshell
 
-(defun-add-hook! eshell-mode
-    init--eshell-export-pager ()
-  (setenv "PAGER" (init--expand-misc-file-name "pager.py")))
+(defun init-eshell-export-pager ()
+  (setenv "PAGER" (init-expand-misc-file-name "pager.py")))
 
-(add-hook! eshell-mode with-editor-export-editor)
+(init-add-hook 'eshell-mode-hook (list #'init-eshell-export-pager #'with-editor-export-editor))
 
-(add-advice! :override evil-collection-eshell-escape-stay ignore)
+(init-add-advice :override 'evil-collection-eshell-escape-stay #'ignore)
 
-(define-company-enabled-mode! eshell
-  files)
+(add-to-list 'init-company-enabled-modes 'eshell-mode)
+(add-to-list 'init-company-backends-alist '(eshell-mode . (company-files)))
 
-(declare-variable! eshell
-  eshell-mode-map)
+(defvar eshell-mode-map)
 
-(defun-add-hook! eshell-mode
-    init--eshell-remap-helm-pcomplete ()
-  (define-key! eshell-mode [remap completion-at-point] #'helm-esh-pcomplete))
+(defun init-eshell-remap-helm-pcomplete ()
+  (init-define-key eshell-mode-map [remap completion-at-point] #'helm-esh-pcomplete))
+
+(init-add-hook 'eshell-mode-hook #'init-eshell-remap-helm-pcomplete)
 
 
 ;;; ispell
 
-(setq-declare! ispell
-  ispell-dictionary "american")
+(init-setq-declare!
+ ispell-dictionary "american")
 
 
 ;;; x-utils
 
-(after-init!
+(init-eval-after-init!
  (x-utils-setup))
 
 (provide 'init-basic-tools)

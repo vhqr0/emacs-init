@@ -1,19 +1,19 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(defvar early-init--file-name-handler-alist file-name-handler-alist)
+(defvar early-init-file-name-handler-alist file-name-handler-alist)
 
 (setq read-process-output-max (* 1024 1024)
       gc-cons-percentage 0.8
       gc-cons-threshold most-positive-fixnum
       file-name-handler-alist nil)
 
-(defun early-init--after-init ()
+(defun early-init-after-init ()
   (setq gc-cons-percentage 0.2
         gc-cons-threshold (* 100 1000 1000)
         file-name-handler-alist
-        (append early-init--file-name-handler-alist
+        (append early-init-file-name-handler-alist
                 file-name-handler-alist)))
 
-(add-hook 'after-init-hook #'early-init--after-init)
+(add-hook 'after-init-hook #'early-init-after-init)
 
 (provide 'early-init)

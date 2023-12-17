@@ -20,6 +20,7 @@
             (push 'escape unread-command-events))
         (insert ?j)
         (push event unread-command-events)))))
+
 ;;;###autoload
 (defun evil-x-jk-setup ()
   (define-key evil-insert-state-map  "j" #'evil-x-jk)
@@ -105,8 +106,8 @@
 
 (defvar evil-x-shift-map
   (let ((map (make-sparse-keymap)))
-    (cl-loop for chr from ?a to ?z
-             do (define-key map (vector chr) (evil-x-shift-menu-item (upcase chr))))
+    (cl-loop for char from ?a to ?z
+             do (define-key map (vector char) (evil-x-shift-menu-item (upcase char))))
     (cl-loop for cons in evil-x-shift-special-chars
              do (define-key map (vector (car cons)) (evil-x-shift-menu-item (cdr cons))))
     map))
