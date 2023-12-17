@@ -15,26 +15,33 @@
 
 (define-company-enabled-mode! inferior-python)
 
-(setq-declare! elpy
-  elpy-remove-modeline-lighter nil
-  elpy-modules
-  '(elpy-module-company
-    elpy-module-eldoc
-    elpy-module-flymake
-    elpy-module-pyvenv
-    elpy-module-django))
+(declare-variable! evil-x
+  evil-x-eval-function-alist)
 
-(after-load! python
-  (elpy-enable))
+(after-load! evil-x
+  (add-to-list 'evil-x-eval-function-alist '(python-mode    . python-shell-send-region))
+  (add-to-list 'evil-x-eval-function-alist '(python-ts-mode . python-shell-send-region)))
 
-(declare-variable! elpy
-  elpy-mode-map)
+;; (setq-declare! elpy
+;;   elpy-remove-modeline-lighter nil
+;;   elpy-modules
+;;   '(elpy-module-company
+;;     elpy-module-eldoc
+;;     elpy-module-flymake
+;;     elpy-module-pyvenv
+;;     elpy-module-django))
 
-(declare-function! elpy
-  elpy-shell-switch-to-shell)
+;; (after-load! python
+;;   (elpy-enable))
 
-(after-load! elpy
-  (define-key! elpy-mode
-    [remap python-shell-switch-to-shell] #'elpy-shell-switch-to-shell))
+;; (declare-variable! elpy
+;;   elpy-mode-map)
+
+;; (declare-function! elpy
+;;   elpy-shell-switch-to-shell)
+
+;; (after-load! elpy
+;;   (define-key! elpy-mode
+;;     [remap python-shell-switch-to-shell] #'elpy-shell-switch-to-shell))
 
 (provide 'init-lang-py)

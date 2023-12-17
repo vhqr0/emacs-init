@@ -16,4 +16,11 @@
 (after-load! page-break-lines
   (add-to-list 'page-break-lines-modes 'hy-mode))
 
+(declare-variable! evil-x
+  evil-x-eval-function-alist)
+
+(after-load! evil-x
+  (add-to-list 'evil-x-eval-function-alist '(hy-mode . python-shell-send-region)))
+
+
 (provide 'init-lang-hy)

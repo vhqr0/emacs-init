@@ -21,6 +21,8 @@
 (setq-declare! evil-collection
   evil-collection-setup-minibuffer t)
 
+(add-advice! :override evil-set-cursor ignore)
+
 (after-init!
  (evil-mode 1)
  (global-evil-surround-mode 1)

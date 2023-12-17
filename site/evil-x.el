@@ -6,43 +6,26 @@
 (require 'evil)
 (require 'thingatpt)
 
-(defvar evil-x-escape-fkey ?j)
-(defvar evil-x-escape-skey ?k)
-
-(defvar evil-x-escape-delay 0.15)
-
-(defvar evil-x-escape-maps '(evil-insert-state-map evil-replace-state-map))
-
-(defvar evil-x-escape-ignore nil)
-
-(defun evil-x-escape-filter (_)
-  (cond ((or executing-kbd-macro defining-kbd-macro)
-         nil)
-        (evil-x-escape-ignore
-         (setq evil-x-escape-ignore nil)
-         nil)
-        ((sit-for evil-x-escape-delay 'no-redisplay)
-         (push evil-x-escape-fkey unread-command-events)
-         (setq evil-x-escape-ignore t)
-         'ignore)
-        (t
-         (let ((evt (read-event)))
-           (if (eq evt evil-x-escape-skey)
-               (progn
-                 (evil-repeat-stop)
-                 (push 'escape unread-command-events))
-             (push evt unread-command-events)
-             (push evil-x-escape-fkey unread-command-events)
-             (setq evil-x-escape-ignore t)))
-         'ignore)))
-
-(defvar evil-x-escape-menu-item
-  '(menu-item "" nil :filter evil-x-escape-filter))
-
+(defun evil-x-jk ()
+  (interactive)
+  (if (or executing-kbd-macro
+          defining-kbd-macro
+          (sit-for 0.15 'no-redisplay))
+      (insert ?j)
+    (let ((event (read-event)))
+      (if (= event ?k)
+          (progn
+            (setq this-command 'ignore
+                  real-this-command 'ignore)
+            (push 'escape unread-command-events))
+        (insert ?j)
+        (push event unread-command-events)))))
 ;;;###autoload
-(defun evil-x-escape-setup ()
-  (dolist (map evil-x-escape-maps)
-    (define-key (symbol-value map) (vector evil-x-escape-fkey) evil-x-escape-menu-item)))
+(defun evil-x-jk-setup ()
+  (define-key evil-insert-state-map  "j" #'evil-x-jk)
+  (define-key evil-replace-state-map "j" #'evil-x-jk))
+
+
 
 (evil-define-operator evil-x-operator-comment (beg end)
   :move-point nil
@@ -56,10 +39,7 @@
 
 (defvar evil-x-eval-function-alist
   '((emacs-lisp-mode       . eval-region)
-    (lisp-interaction-mode . eval-region)
-    (python-mode           . python-shell-send-region)
-    (python-ts-mode        . python-shell-send-region)
-    (hy-mode               . python-shell-send-region)))
+    (lisp-interaction-mode . eval-region)))
 
 (evil-define-operator evil-x-operator-eval (beg end)
   :move-point nil
@@ -74,6 +54,8 @@
   (define-key evil-motion-state-map "g-" 'evil-x-operator-narrow)
   (define-key evil-motion-state-map "gy" 'evil-x-operator-eval))
 
+
+
 (evil-define-text-object evil-x-text-object-line (count &optional _beg _end _type)
   (evil-range (line-beginning-position) (line-end-position) 'exclusive))
 
@@ -81,44 +63,19 @@
   (cl-destructuring-bind (beg . end) (bounds-of-thing-at-point 'filename)
     (evil-range beg end)))
 
-(evil-define-text-object evil-x-text-object-defun (count &optional _beg _end _type)
-  (cl-destructuring-bind (beg . end) (bounds-of-thing-at-point 'defun)
-    (evil-range beg end 'line)))
-
 (evil-define-text-object evil-x-text-object-entire (count &optional _beg _end _type)
   (evil-range (point-min) (point-max) 'line))
 
 ;;;###autoload
 (defun evil-x-text-object-setup ()
   (dolist (binding '(("l" . evil-x-text-object-line)
-                     ("d" . evil-x-text-object-defun)
-                     ("f" . evil-x-text-object-defun)
                      ("u" . evil-x-text-object-filename)
-                     ("F" . evil-x-text-object-filename)
                      ("g" . evil-x-text-object-entire)
                      ("h" . evil-x-text-object-entire)))
     (define-key evil-inner-text-objects-map (car binding) (cdr binding))
     (define-key evil-outer-text-objects-map (car binding) (cdr binding))))
 
-(defvar evil-x-window-repeat-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "w" #'evil-window-next)
-    (define-key map "W" #'evil-window-prev)
-    map))
-
-(declare-function winner-undo "winner")
-(declare-function winner-redo "winner")
-
-;;;###autoload
-(defun evil-x-window-setup ()
-  (define-key evil-window-map "0"     #'evil-window-delete)
-  (define-key evil-window-map "1"     #'delete-other-windows)
-  (define-key evil-window-map "2"     #'evil-window-split)
-  (define-key evil-window-map "3"     #'evil-window-vsplit)
-  (define-key evil-window-map [left]  #'winner-undo)
-  (define-key evil-window-map [right] #'winner-redo)
-  (put #'evil-window-next 'repeat-map 'evil-x-window-repeat-map)
-  (put #'evil-window-prev 'repeat-map 'evil-x-window-repeat-map))
+
 
 (defvar evil-x-C-p-last-commands
   '(evil-paste-after evil-paste-before evil-past-pop evil-paste-pop-next))
@@ -132,6 +89,8 @@
 
 (defvar evil-x-C-p-menu-item
   `(menu-item "" nil :filter evil-x-C-p-filter))
+
+
 
 (defun evil-x-shift-menu-item (x)
   `(menu-item "" nil :filter (lambda (_) (key-binding (vector ,x)))))
@@ -155,6 +114,8 @@
 ;;;###autoload
 (defvar evil-x-leader-map (make-sparse-keymap))
 
+
+
 (defvar evil-x-override-mode-map (make-sparse-keymap))
 
 (define-minor-mode evil-x-override-mode
@@ -168,12 +129,13 @@
   "\s"   evil-x-leader-map
   "\C-p" evil-x-C-p-menu-item)
 
+
+
 ;;;###autoload
 (defun evil-x-setup ()
-  (evil-x-escape-setup)
+  (evil-x-jk-setup)
   (evil-x-operator-setup)
   (evil-x-text-object-setup)
-  (evil-x-window-setup)
   (evil-x-override-mode 1))
 
 (provide 'evil-x)

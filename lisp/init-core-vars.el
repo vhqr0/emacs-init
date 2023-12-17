@@ -31,6 +31,7 @@
     ;; lang-web
     ;; lang-py
     ;; lang-hy
+    ;; lang-clj
 
     ;; app-roam
     ))

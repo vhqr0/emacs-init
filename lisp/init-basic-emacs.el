@@ -114,6 +114,9 @@
 
 (add-hook! (text-mode prog-mode) display-line-numbers-mode)
 
+(setq-declare! page-break-lines
+  page-break-lines-char ?-)
+
 (after-init!
  (global-page-break-lines-mode 1))
 

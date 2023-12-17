@@ -6,6 +6,10 @@
 (require 'init-core-utils)
 
 (setq-declare! helm
+  helm-completion-style 'helm-fuzzy
+  helm-buffers-fuzzy-matching t
+  helm-recentf-fuzzy-match t
+  helm-apropos-fuzzy-match t
   helm-bookmark-show-location t
   helm-buffer-max-length 40
   helm-buffer-skip-remote-checking t

@@ -17,7 +17,6 @@
  (projectile-mode 1))
 
 (setq-declare! helm-projectile
-  helm-projectile-fuzzy-match nil
   helm-projectile-truncate-lines t)
 
 (after-load! helm

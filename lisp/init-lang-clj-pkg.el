@@ -6,6 +6,7 @@
 (require 'init-core-vars)
 
 (use-elpa-package!
- elpy)
+ clojure-mode
+ cider)
 
-(provide 'init-lang-py-pkg)
+(provide 'init-lang-clj-pkg)
