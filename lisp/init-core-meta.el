@@ -7,7 +7,7 @@
     (init-basic-helm  . ((site helm-x)
                          (elpa helm helm-comint helm-ls-git)))
     (init-basic-prog  . ((elpa projectile helm-projectile yasnippet company format-all)))
-    (init-basic-tools . ((site x-utils eshell-x)
+    (init-basic-tools . ((site xdg-open eshell-x)
                          (elpa wgrep wgrep-helm rg magit with-editor)))
     (init-ui-sml      . ((elpa smart-mode-line)))
     (init-cn-pyim     . ((elpa posframe popon pyim pyim-basedict)))

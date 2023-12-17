@@ -8,12 +8,14 @@
 (init-setq-declare!
  recentf-exclude '("^/mnt/.*"))
 
-(init-setq-declare!
- x-utils-xclip-program "clip.exe"
- x-utils-xclip-option ""
- x-utils-open-program (init-expand-misc-file-name "wsl-xdg-open.py"))
+(defun init-xdg-open-file-wsl (file)
+  (call-process-shell-command
+   (format "%s %s"
+           (init-expand-misc-file-name "wsl-xdg-open.py")
+           (expand-file-name file))))
 
 (init-setq-declare!
+ xdg-open-file-function #'init-xdg-open-file-wsl
  browse-url-generic-program "/mnt/c/Windows/System32/cmd.exe"
  browse-url-generic-args '("/c" "start")
  browse-url-browser-function #'browse-url-generic)

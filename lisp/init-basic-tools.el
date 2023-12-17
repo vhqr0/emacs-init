@@ -69,10 +69,4 @@
 (init-setq-declare!
  ispell-dictionary "american")
 
-
-;;; x-utils
-
-(init-eval-after-init!
- (x-utils-setup))
-
 (provide 'init-basic-tools)

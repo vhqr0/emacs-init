@@ -95,7 +95,7 @@
  "xn"        #'clone-buffer
  "xr"        #'rename-buffer
  "xu"        #'rename-uniquely
- "xo"        #'x-utils-xdg-open
+ "xo"        #'xdg-open
  "x <left>"  #'previous-buffer
  "x <right>" #'next-buffer)
 
