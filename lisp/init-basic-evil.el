@@ -5,7 +5,6 @@
 (init-setq-declare!
  evil-want-keybinding nil
  evil-want-minibuffer t
- evil-want-C-u-delete t
  evil-want-C-u-scroll t
  evil-want-Y-yank-to-eol t
  evil-want-fine-undo t
@@ -29,7 +28,8 @@
   (init-diminish-minor-mode 'evil-collection-unimpaired-mode))
 
 (with-eval-after-load 'evil
-  (evil-x-setup))
+  (evil-x-setup)
+  (init-define-key evil-insert-state-map "C-a" nil "C-k" nil))
 
 (declare-function evil-ex-delete-hl "evil")
 

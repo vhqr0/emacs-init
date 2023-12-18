@@ -7,6 +7,14 @@
 
 (setq system-time-locale "C")
 
+(setq inhibit-startup-screen t
+      initial-scratch-message nil)
+
+(setq use-dialog-box nil
+      use-file-dialog nil)
+
+(setq ring-bell-function #'ignore)
+
 (setq disabled-command-function nil)
 
 (setq word-wrap-by-category t)
@@ -32,6 +40,12 @@
       remote-file-name-inhibit-locks t
       remote-file-name-inhibit-delete-by-moving-to-trash t
       remote-file-name-inhibit-auto-save-visited t)
+
+(init-setq-declare!
+ recentf-max-saved-items 200)
+
+(init-eval-after-init!
+ (recentf-mode 1))
 
 
 ;;; dirty directories
@@ -68,15 +82,6 @@
 (add-to-list 'minor-mode-alist '(auto-save-visited-mode " AS"))
 
 
-;;; recent files
-
-(init-setq-declare!
- recentf-max-saved-items 200)
-
-(init-eval-after-init!
- (recentf-mode 1))
-
-
 ;;; edit
 
 (setq-default
@@ -95,13 +100,19 @@
  sp-base-key-bindings 'paredit
  sp-paredit-bindings '(("C-M-f"       . sp-forward-sexp)
                        ("C-M-b"       . sp-backward-sexp)
-                       ("C-M-u"       . sp-backward-up-sexp)
                        ("C-M-d"       . sp-down-sexp)
-                       ("C-M-p"       . sp-backward-down-sexp)
-                       ("C-M-n"       . sp-up-sexp)
+                       ("C-M-u"       . sp-backward-up-sexp)
+                       ("C-M-n"       . sp-next-sexp)
+                       ("C-M-p"       . sp-previous-sexp)
+                       ("C-M-k"       . sp-kill-sexp)
+                       ("C-M-w"       . sp-copy-sexp)
+                       ("C-M-SPC"     . sp-mark-sexp)
+                       ("C-k"         . sp-kill-hybrid-sexp)
                        ("M-r"         . sp-splice-sexp-killing-around)
+                       ("M-R"         . sp-splice-sexp-killing-backward)
                        ("M-s"         . sp-splice-sexp)
                        ("M-S"         . sp-split-sexp)
+                       ("M-J"         . sp-join-sexp)
                        ("M-?"         . sp-convolute-sexp)
                        ("C-<right>"   . sp-forward-slurp-sexp)
                        ("C-<left>"    . sp-forward-barf-sexp)
@@ -173,12 +184,6 @@
 
 ;;; ui
 
-(setq inhibit-startup-screen t
-      initial-scratch-message nil)
-
-(setq use-dialog-box nil
-      use-file-dialog nil)
-
 (defvar init-ui-disabled-modes
   '(blink-cursor-mode tooltip-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
 
@@ -205,7 +210,7 @@
    (init-load-theme-random)))
 
 
-;;; tabs
+;;; windows
 
 (setq tab-bar-tab-hints t
       tab-bar-select-tab-modifiers '(meta))
@@ -215,9 +220,6 @@
  "C-S-W" #'tab-bar-close-tab)
 
 (init-define-key tab-prefix-map "`" #'toggle-frame-tab-bar)
-
-
-;;; winner
 
 (init-eval-after-init!
  (winner-mode 1))
