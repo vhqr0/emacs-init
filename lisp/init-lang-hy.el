@@ -8,7 +8,7 @@
 (with-eval-after-load 'hy-mode
   (require 'hy-python))
 
-(init-add-hook 'hy-mode-hook #'paredit-mode)
+(init-add-hook 'hy-mode-hook (list #'smartparens-strict-mode #'evil-cleverparens-mode))
 
 (defvar page-break-lines-modes)
 

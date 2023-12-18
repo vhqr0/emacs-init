@@ -7,7 +7,9 @@
 (with-eval-after-load 'clojure-mode
   (define-key clojure-mode-map [remap format-all-region-or-buffer] #'cider-format-buffer))
 
-(init-add-hook '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook) #'paredit-mode)
+(init-add-hook
+ '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook)
+ (list #'smartparens-strict-mode #'evil-cleverparens-mode))
 
 (defvar page-break-lines-modes)
 

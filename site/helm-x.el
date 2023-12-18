@@ -37,8 +37,7 @@
     (yank-pop                               . helm-show-kill-ring)
     (previous-matching-history-element      . helm-minibuffer-history)
     (eshell-previous-matching-input         . helm-eshell-history)
-    (comint-history-isearch-backward-regexp . helm-comint-input-ring)
-    (dabbrev                                . helm-dabbrev)))
+    (comint-history-isearch-backward-regexp . helm-comint-input-ring)))
 
 (defvar helm-x-remap-mode-map
   (let ((map (make-sparse-keymap)))

@@ -3,6 +3,22 @@
 (require 'init-core-lib)
 
 
+;;; essentials
+
+(setq system-time-locale "C")
+
+(setq disabled-command-function nil)
+
+(setq word-wrap-by-category t)
+
+(init-setq-declare!
+ helpful-max-buffers nil)
+
+(init-global-set-key "C-SPC" #'toggle-input-method)
+
+(init-global-set-key "M-o" #'embark-act)
+
+
 ;;; files
 
 (setq vc-handled-backends '(Git)
@@ -29,10 +45,10 @@
   `((".*" . ,(init-expand-emacs-file-name x))))
 
 (setq auto-save-file-name-transforms (init-emacs-file-name-transforms "auto-save/")
-      lock-file-name-transforms      (init-emacs-file-name-transforms "lock/"     )
-      backup-directory-alist         (init-emacs-directory-alist      "backup/"   )
-      tramp-backup-directory-alist   (init-emacs-directory-alist      "backup/"   )
-      trash-directory                (init-expand-emacs-file-name     "trash/"    ))
+      lock-file-name-transforms      (init-emacs-file-name-transforms "lock/")
+      backup-directory-alist         (init-emacs-directory-alist      "backup/")
+      tramp-backup-directory-alist   (init-emacs-directory-alist      "backup/")
+      trash-directory                (init-expand-emacs-file-name     "trash/"))
 
 
 ;;; auto save visited
@@ -67,37 +83,40 @@
  indent-tabs-mode nil
  truncate-lines t)
 
-(setq system-time-locale "C")
-
-(setq word-wrap-by-category t)
-
-(setq disabled-command-function nil)
-
-(init-global-set-key "C-SPC" #'toggle-input-method)
-
 (init-eval-after-init!
  (repeat-mode 1))
-
-(init-global-set-key "M-o" #'embark-act)
-
-
-;;; pairs
 
 (defun init-insert-pair-1 (&optional arg open close)
   (interactive "P")
   (insert-pair (or arg '(1)) open close))
 
 (init-setq-declare!
- show-paren-context-when-offscreen t)
+ sp-ignore-modes-list nil
+ sp-base-key-bindings 'paredit
+ sp-paredit-bindings '(("C-M-f"       . sp-forward-sexp)
+                       ("C-M-b"       . sp-backward-sexp)
+                       ("C-M-u"       . sp-backward-up-sexp)
+                       ("C-M-d"       . sp-down-sexp)
+                       ("C-M-p"       . sp-backward-down-sexp)
+                       ("C-M-n"       . sp-up-sexp)
+                       ("M-r"         . sp-splice-sexp-killing-around)
+                       ("M-s"         . sp-splice-sexp)
+                       ("M-S"         . sp-split-sexp)
+                       ("M-?"         . sp-convolute-sexp)
+                       ("C-<right>"   . sp-forward-slurp-sexp)
+                       ("C-<left>"    . sp-forward-barf-sexp)
+                       ("C-M-<left>"  . sp-backward-slurp-sexp)
+                       ("C-M-<right>" . sp-backward-barf-sexp)))
 
-(show-paren-mode 1)
+(with-eval-after-load 'smartparens
+  (require 'smartparens-config)
+  (init-diminish-minor-mode 'smartparens-mode))
 
-(electric-pair-mode 1)
+(init-eval-after-init!
+ (smartparens-global-mode 1)
+ (show-smartparens-global-mode 1))
 
 (init-add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-
-
-;;; lines
 
 (init-setq-declare!
  display-line-numbers-type 'relative
@@ -113,6 +132,22 @@
 
 (with-eval-after-load 'page-break-lines
   (init-diminish-minor-mode 'page-break-lines-mode))
+
+
+;;; completion
+
+(setq completion-ignore-case t
+      read-buffer-completion-ignore-case t
+      read-file-name-completion-ignore-case t)
+
+(setq isearch-lazy-count t
+      isearch-allow-scroll t
+      isearch-allow-motion t
+      isearch-yank-on-move t
+      isearch-motion-changes-direction t
+      isearch-repeat-on-direction-change t)
+
+(init-global-set-key "M-/" #'hippie-expand)
 
 
 ;;; undo tree
@@ -136,29 +171,7 @@
 (init-add-hook 'init-auto-save-visited-predicate-hook #'init-auto-save-visited-predicate-for-undo-tree)
 
 
-;;; completion
-
-(setq completion-ignore-case t
-      read-buffer-completion-ignore-case t
-      read-file-name-completion-ignore-case t)
-
-
-;;; isearch
-
-(setq isearch-lazy-count t
-      isearch-allow-scroll t
-      isearch-allow-motion t
-      isearch-yank-on-move t
-      isearch-motion-changes-direction t
-      isearch-repeat-on-direction-change t)
-
-
-;;; helpful
-
-(init-setq-declare!
- helpful-max-buffers nil)
-
-
+;;; ui
 
 (setq inhibit-startup-screen t
       initial-scratch-message nil)
@@ -166,15 +179,12 @@
 (setq use-dialog-box nil
       use-file-dialog nil)
 
-(defvar init-ui-disable-modes
+(defvar init-ui-disabled-modes
   '(blink-cursor-mode tooltip-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
 
-(dolist (mode init-ui-disable-modes)
+(dolist (mode init-ui-disabled-modes)
   (when (fboundp mode)
     (funcall mode -1)))
-
-
-;;; themes
 
 (defvar init-load-theme-after-init t)
 
