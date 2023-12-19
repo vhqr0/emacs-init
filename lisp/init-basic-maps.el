@@ -28,7 +28,6 @@
            (error (format "init-kh-god: no key binding found on %s %c" prefix char))))))
 
 (defun init-kh-C-c ()
-
   (interactive)
   (init-kh-god "C-c"))
 
@@ -99,7 +98,7 @@
  "x <left>"  #'previous-buffer
  "x <right>" #'next-buffer)
 
-;;; files
+;;; file
 (init-define-leader
  "f"  #'helm-find-files
  "b"  #'helm-buffers-list
@@ -112,7 +111,7 @@
  "ro" #'org-agenda
  "rn" #'helm-roam)
 
-;;; window/frame/tab
+;;; other-window/frame/tab
 (init-define-leader
  "44" #'other-window-prefix
  "41" #'same-window-prefix
@@ -169,7 +168,7 @@
  "vv" #'magit
  "v?" #'magit-dispatch
  "vf" #'magit-file-dispatch
- "vg" #'vc-update
+ "vg" #'vc-refresh-state
  "vd" #'vc-diff
  "vD" #'vc-root-diff
  "vl" #'vc-print-log
@@ -177,15 +176,12 @@
  "vh" #'vc-region-history)
 
 (declare-function rg-menu "rg")
-(declare-function helm-x-fd "helm-x")
-(declare-function helm-x-imenu "helm-x")
-(declare-function helm-x-imenu-all "helm-x")
 
 ;;; search
 (init-define-leader
  "s"  #'helm-occur
- "S"  #'helm-do-grep-ag
- "F"  #'helm-x-fd
+ "S"  #'helm-x-grep
+ "F"  #'helm-x-find
  "i"  #'helm-x-imenu
  "I"  #'helm-x-imenu-all
  "gg" #'rg-menu
@@ -234,6 +230,7 @@
  "mt" #'toggle-truncate-lines
  "mh" #'hl-line-mode
  "ml" #'display-line-numbers-mode
+ "mL" #'init-toggle-line-numbers-type
  "ms" #'whitespace-mode
  "mv" #'visual-line-mode)
 

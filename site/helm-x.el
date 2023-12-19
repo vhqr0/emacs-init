@@ -2,6 +2,7 @@
 
 (require 'helm)
 
+;;;###autoload
 (defun helm-x-imenu ()
   (interactive)
   (cond ((derived-mode-p 'comint-mode)
@@ -11,6 +12,7 @@
         (t
          (helm-imenu))))
 
+;;;###autoload
 (defun helm-x-imenu-all ()
   (interactive)
   (cond ((derived-mode-p 'comint-mode)
@@ -21,16 +23,29 @@
          (helm-imenu-in-all-buffers))))
 
 (declare-function helm-fd-1 "helm-fd")
+(declare-function helm-grep-ag-1 "helm-grep")
 
-(defun helm-x-fd (arg)
+(defun helm-x-search-directory (arg)
+  (cond ((> (prefix-numeric-value arg) 4)
+         (read-directory-name "Directory:"))
+        (arg
+         default-directory)
+        (t
+         (let ((project (project-current)))
+           (if project (project-root project) default-directory)))))
+
+;;;###autoload
+(defun helm-x-find (arg)
   (interactive "P")
   (require 'helm-fd)
-  (let ((directory
-         (if arg
-             (file-name-as-directory
-              (read-directory-name "DefaultDirectory: "))
-           default-directory)))
-    (helm-fd-1 directory)))
+  (let ((default-directory (helm-x-search-directory arg)))
+    (helm-fd-1 default-directory)))
+
+;;;###autoload
+(defun helm-x-grep (arg)
+  (interactive "P")
+  (let ((default-directory (helm-x-search-directory arg)))
+    (helm-grep-ag-1 default-directory)))
 
 (defvar helm-x-remap-alist
   '((execute-extended-command               . helm-M-x)

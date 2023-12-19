@@ -130,8 +130,12 @@
 (init-add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
 (init-setq-declare!
- display-line-numbers-type 'relative
  global-hl-line-sticky-flag t)
+
+(defun init-toggle-line-numbers-type ()
+  (interactive)
+  (setq-local display-line-numbers-type (if (eq display-line-numbers-type 'relative) t 'relative))
+  (display-line-numbers-mode 1))
 
 (init-add-hook '(text-mode-hook prog-mode-hook) #'display-line-numbers-mode)
 

@@ -10,6 +10,7 @@
  helm-bookmark-show-location t
  helm-buffer-max-length 40
  helm-buffer-skip-remote-checking t
+ helm-grep-file-path-style 'relative
  helm-describe-function-function #'helpful-callable
  helm-describe-variable-function #'helpful-variable)
 
