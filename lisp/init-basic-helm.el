@@ -15,10 +15,13 @@
  helm-describe-variable-function #'helpful-variable)
 
 (init-eval-after-init!
- (helm-mode 1)
- (helm-x-setup))
+ (helm-mode 1))
 
-(init-global-set-key "<f5>" #'helm-resume)
+(init-global-set-key
+ "<f5>"  #'helm-resume
+ "M-x"   #'helm-M-x
+ "M-y"   #'helm-show-kill-ring
+ "C-c h" #'helm-x-history)
 
 (defvar helm-completing-read-handlers-alist)
 
@@ -28,8 +31,9 @@
 
 (declare-function evil-collection-define-key "evil-collection")
 
+(init-add-advice :override 'helm-minibuffer-history-mode #'ignore)
+
 (defun init-evil-helm-custom ()
-  (custom-set-variables '(helm-minibuffer-history-key "M-r"))
   (evil-collection-define-key 'normal 'helm-map
     (kbd "SPC") nil
     "m" 'helm-toggle-visible-mark
@@ -38,6 +42,6 @@
     (kbd "C-SPC") 'toggle-input-method
     (kbd "C-t") 'helm-toggle-resplit-and-swap-windows))
 
-(init-add-advice :after 'evil-collection-setup #'init-evil-helm-custom)
+(init-add-advice :after 'evil-collection-helm-setup #'init-evil-helm-custom)
 
 (provide 'init-basic-helm)

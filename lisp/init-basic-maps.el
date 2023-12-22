@@ -145,6 +145,7 @@
 (init-define-leader
  "pp"  #'projectile-switch-project
  "pf"  #'helm-projectile-find-file
+ "pd"  #'helm-projectile-find-dir
  "pb"  #'helm-projectile-switch-to-buffer
  "pj"  #'projectile-dired
  "pi"  #'projectile-invalidate-cache
@@ -185,6 +186,9 @@
  "i"  #'helm-x-imenu
  "I"  #'helm-x-imenu-all
  "gg" #'rg-menu
+ "gd" #'rg-dwim
+ "gc" #'rg-dwim-current-dir
+ "gf" #'rg-dwim-current-file
  "gn" #'next-error
  "gp" #'previous-error
  "nw" #'widen

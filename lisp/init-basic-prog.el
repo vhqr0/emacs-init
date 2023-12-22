@@ -6,8 +6,10 @@
 
 ;;; projectile
 
+(declare-function helm-projectile-find-file "helm-projectile")
+
 (init-setq-declare!
- projectile-switch-project-action #'helm-projectile
+ projectile-switch-project-action #'helm-projectile-find-file
  projectile-current-project-on-switch 'move-to-end)
 
 (init-eval-after-init!

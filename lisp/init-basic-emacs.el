@@ -26,6 +26,9 @@
 
 (init-global-set-key "M-o" #'embark-act)
 
+(init-eval-after-init!
+ (gcmh-mode 1))
+
 
 ;;; files
 

@@ -29,7 +29,8 @@
 
 (with-eval-after-load 'evil
   (evil-x-setup)
-  (init-define-key evil-insert-state-map "C-a" nil "C-k" nil))
+  (init-define-key evil-insert-state-map "C-a" nil "C-k" nil)
+  (init-define-key evil-normal-state-map [remap yank-pop] nil))
 
 (declare-function evil-ex-delete-hl "evil")
 

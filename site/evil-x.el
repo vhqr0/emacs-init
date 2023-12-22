@@ -5,6 +5,7 @@
 
 (require 'evil)
 (require 'thingatpt)
+(require 'smartparens)
 
 (defun evil-x-jk ()
   (interactive)
@@ -25,6 +26,20 @@
 (defun evil-x-jk-setup ()
   (define-key evil-insert-state-map  "j" #'evil-x-jk)
   (define-key evil-replace-state-map "j" #'evil-x-jk))
+
+
+
+(evil-define-motion evil-x-jump-item ()
+  :jump t
+  :type inclusive
+  (let* ((thing (sp-get-thing))
+         (beg (sp-get thing :beg))
+         (end (1- (sp-get thing :end))))
+    (goto-char (if (= (point) end) beg end))))
+
+;;;###autoload
+(defun evil-x-motion-setup ()
+  (define-key evil-motion-state-map "%" #'evil-x-jump-item))
 
 
 

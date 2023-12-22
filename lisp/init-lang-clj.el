@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
 (require 'init-core-lib)
+(require 'init-basic-prog)
 
 (defvar clojure-mode-map)
 
@@ -10,6 +11,8 @@
 (init-add-hook
  '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook)
  (list #'smartparens-strict-mode #'evil-cleverparens-mode))
+
+(add-to-list 'init-company-enabled-modes 'cider-repl-mode)
 
 (defvar page-break-lines-modes)
 

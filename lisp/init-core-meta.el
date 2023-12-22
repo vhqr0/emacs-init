@@ -1,7 +1,8 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
 (defvar init-metas
-  '((init-basic-emacs . ((elpa embark helpful undo-tree page-break-lines smartparens rainbow-delimiters)))
+  '((init-basic-emacs . ((elpa embark helpful undo-tree page-break-lines smartparens rainbow-delimiters)
+                         (site gcmh)))
     (init-basic-evil  . ((site evil-x)
                          (elpa evil evil-surround evil-collection)))
     (init-basic-helm  . ((site helm-x)
