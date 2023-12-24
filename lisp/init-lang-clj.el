@@ -3,13 +3,16 @@
 (require 'init-core-lib)
 (require 'init-basic-prog)
 
+(defvar init-clojure-modes '(clojure-mode clojurescript-mode clojurec-mode))
+(defvar init-clojure-mode-hooks '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook))
+
 (defvar clojure-mode-map)
 
 (with-eval-after-load 'clojure-mode
   (define-key clojure-mode-map [remap format-all-region-or-buffer] #'cider-format-buffer))
 
 (init-add-hook
- '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook)
+ init-clojure-mode-hooks
  (list #'smartparens-strict-mode #'evil-cleverparens-mode))
 
 (add-to-list 'init-company-enabled-modes 'cider-repl-mode)
@@ -17,15 +20,13 @@
 (defvar page-break-lines-modes)
 
 (with-eval-after-load 'page-break-lines
-  (add-to-list 'page-break-lines-modes 'clojure-mode)
-  (add-to-list 'page-break-lines-modes 'clojurescript-mode)
-  (add-to-list 'page-break-lines-modes 'clojurec-mode))
+  (init-append-to-list 'page-break-lines-modes init-clojure-modes))
 
 (defvar evil-x-eval-function-alist)
 
 (with-eval-after-load 'evil-x
-  (add-to-list 'evil-x-eval-function-alist '(clojure-mode       . cider-eval-region))
-  (add-to-list 'evil-x-eval-function-alist '(clojurescript-mode . cider-eval-region))
-  (add-to-list 'evil-x-eval-function-alist '(clojurec-mode      . cider-eval-region)))
+  (init-append-to-list
+   'evil-x-eval-function-alist
+   (mapcar (lambda (mode) (cons mode 'cider-eval-region)) init-clojure-modes)))
 
 (provide 'init-lang-clj)

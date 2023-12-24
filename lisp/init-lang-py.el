@@ -3,6 +3,8 @@
 (require 'init-core-lib)
 (require 'init-basic-prog)
 
+(defvar init-python-modes '(python-mode python-ts-mode))
+
 (init-setq-declare!
  python-shell-interpreter "ipython"
  python-shell-interpreter-args "--simple-prompt")
@@ -17,7 +19,8 @@
 (defvar evil-x-eval-function-alist)
 
 (with-eval-after-load 'evil-x
-  (add-to-list 'evil-x-eval-function-alist '(python-mode    . python-shell-send-region))
-  (add-to-list 'evil-x-eval-function-alist '(python-ts-mode . python-shell-send-region)))
+  (init-append-to-list
+   'evil-x-eval-function-alist
+   (mapcar (lambda (mode) (cons mode 'python-shell-send-region)) init-python-modes)))
 
 (provide 'init-lang-py)

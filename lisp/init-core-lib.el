@@ -29,6 +29,10 @@
 (defun init-remove-advice (symbol function)
   (init-funcall-product2 #'advice-remove symbol function))
 
+(defun init-append-to-list (list-var elements)
+  (dolist (element elements)
+    (add-to-list list-var element)))
+
 
 
 (defun init-kbd (key)
