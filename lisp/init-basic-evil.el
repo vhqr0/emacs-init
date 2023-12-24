@@ -17,8 +17,6 @@
 (init-setq-declare!
  evil-collection-setup-minibuffer t)
 
-(init-add-advice :override 'evil-set-cursor #'ignore)
-
 (init-eval-after-init!
  (evil-mode 1)
  (global-evil-surround-mode 1)
@@ -27,10 +25,20 @@
 (with-eval-after-load 'evil-collection-unimpaired
   (init-diminish-minor-mode 'evil-collection-unimpaired-mode))
 
+(init-add-advice :override 'evil-set-cursor #'ignore)
+
 (with-eval-after-load 'evil
   (evil-x-setup)
   (init-define-key evil-insert-state-map "C-a" nil "C-k" nil)
   (init-define-key evil-normal-state-map [remap yank-pop] nil))
+
+(defvar init-evil-disable-adjust-cursor-commands '(sp-forward-sexp sp-previous-sexp))
+
+(defun init-evil-disable-adjust-cursor (func &rest args)
+  (unless (memq this-command init-evil-disable-adjust-cursor-commands)
+    (apply func args)))
+
+(init-add-advice :around 'evil-adjust-cursor #'init-evil-disable-adjust-cursor)
 
 (declare-function evil-ex-delete-hl "evil")
 

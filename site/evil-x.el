@@ -150,6 +150,7 @@
 ;;;###autoload
 (defun evil-x-setup ()
   (evil-x-jk-setup)
+  (evil-x-motion-setup)
   (evil-x-operator-setup)
   (evil-x-text-object-setup)
   (evil-x-override-mode 1))

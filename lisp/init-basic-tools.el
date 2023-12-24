@@ -28,8 +28,6 @@
  wgrep-auto-save-buffer t
  wgrep-change-readonly-file t)
 
-(autoload 'rg-menu "rg" nil t)
-
 
 ;;; magit
 

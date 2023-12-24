@@ -48,9 +48,7 @@
  "#"  #'server-edit
  "e"  #'eshell-dwim
  "pe" #'project-eshell-dwim
- "U"  #'undo-tree-visualize
- "B"  #'ibuffer
- "pB" #'projectile-ibuffer)
+ "U"  #'undo-tree-visualize)
 
 (declare-function winner-undo "winner")
 (declare-function winner-redo "winner")
@@ -104,6 +102,7 @@
  "b"  #'helm-buffers-list
  "j"  #'dired-jump
  "k"  #'kill-buffer
+ "l"  #'ibuffer
  "rm" #'bookmark-set
  "rb" #'helm-bookmarks
  "re" #'helm-recentf
@@ -148,6 +147,7 @@
  "pd"  #'helm-projectile-find-dir
  "pb"  #'helm-projectile-switch-to-buffer
  "pj"  #'projectile-dired
+ "pl"  #'projectile-ibuffer
  "pi"  #'projectile-invalidate-cache
  "px"  #'projectile-run-command-in-root
  "p!"  #'projectile-run-shell-command-in-root
@@ -177,6 +177,8 @@
  "vh" #'vc-region-history)
 
 (declare-function rg-menu "rg")
+(declare-function rg-save-search "rg")
+(declare-function rg-save-search-as-name "rg")
 
 ;;; search
 (init-define-leader
@@ -185,10 +187,16 @@
  "F"  #'helm-x-find
  "i"  #'helm-x-imenu
  "I"  #'helm-x-imenu-all
+ "go" #'occur
  "gg" #'rg-menu
  "gd" #'rg-dwim
  "gc" #'rg-dwim-current-dir
  "gf" #'rg-dwim-current-file
+ "gr" #'rg
+ "gt" #'rg-literal
+ "gl" #'rg-list-searches
+ "gs" #'rg-save-search
+ "gS" #'rg-save-search-as-name
  "gn" #'next-error
  "gp" #'previous-error
  "nw" #'widen
@@ -205,6 +213,7 @@
  "hl"  #'view-lossage
  "he"  #'view-echo-area-messages
  "ho"  #'helm-apropos
+ "hx"  #'helpful-command
  "hf"  #'helpful-callable
  "hv"  #'helpful-variable
  "hp"  #'describe-package
