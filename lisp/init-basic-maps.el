@@ -176,6 +176,7 @@
  "vL" #'vc-print-root-log
  "vh" #'vc-region-history)
 
+(autoload 'rg-menu "rg" nil t)
 (declare-function rg-menu "rg")
 (declare-function rg-save-search "rg")
 (declare-function rg-save-search-as-name "rg")
@@ -214,7 +215,7 @@
  "he"  #'view-echo-area-messages
  "ho"  #'helm-apropos
  "hx"  #'helpful-command
- "hf"  #'helpful-callable
+ "hf"  #'helpful-function
  "hv"  #'helpful-variable
  "hp"  #'describe-package
  "hm"  #'describe-mode
