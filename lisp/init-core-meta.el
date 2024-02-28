@@ -12,6 +12,7 @@
                          (elpa wgrep wgrep-helm rg magit with-editor)))
     (init-ui-sml      . ((elpa smart-mode-line)))
     (init-cn-pyim     . ((elpa posframe popon pyim pyim-basedict)))
+    (init-cn-pyim     . ((elpa fcitx)))
     (init-lang-lisp   . ((elpa evil-cleverparens macrostep)))
     (init-lang-org    . ((elpa evil-org)))
     (init-lang-md     . ((elpa markdown-mode edit-indirect)))

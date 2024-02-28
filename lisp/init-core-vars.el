@@ -24,6 +24,7 @@
     ;; init-cn-basic
     ;; init-cn-fonts
     ;; init-cn-pyim
+    ;; init-cn-fcitx
 
     init-lang-lisp
     ;; init-lang-org
