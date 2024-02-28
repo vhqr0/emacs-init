@@ -32,7 +32,8 @@
   (init-define-key evil-insert-state-map "C-a" nil "C-k" nil)
   (init-define-key evil-normal-state-map [remap yank-pop] nil))
 
-(defvar init-evil-disable-adjust-cursor-commands '(sp-forward-sexp sp-previous-sexp))
+(defvar init-evil-disable-adjust-cursor-commands
+  '(sp-forward-sexp sp-previous-sexp forward-sexp forward-list))
 
 (defun init-evil-disable-adjust-cursor (func &rest args)
   (unless (memq this-command init-evil-disable-adjust-cursor-commands)
