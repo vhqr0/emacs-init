@@ -93,66 +93,11 @@
 
 
 
-(defvar evil-x-C-p-last-commands
-  '(evil-paste-after evil-paste-before evil-past-pop evil-paste-pop-next))
-(defvar evil-x-C-p-continue-command #'evil-paste-pop)
-(defvar evil-x-C-p-command #'helm-mini)
-
-(defun evil-x-C-p-filter (_)
-  (if (memq last-command evil-x-C-p-last-commands)
-      evil-x-C-p-continue-command
-    evil-x-C-p-command))
-
-(defvar evil-x-C-p-menu-item
-  `(menu-item "" nil :filter evil-x-C-p-filter))
-
-
-
-(defun evil-x-shift-menu-item (x)
-  `(menu-item "" nil :filter (lambda (_) (key-binding (vector ,x)))))
-
-;; ?\, and ?\. are exclusive
-;; ?^ is special for ?\^ is not a char
-(defconst evil-x-shift-special-chars
-  '((?1  . ?\!) (?2  . ?\@) (?3  . ?\#) (?4  . ?\$) (?5  . ?\%)
-    (?6  . ?^ ) (?7  . ?\&) (?8  . ?\*) (?9  . ?\() (?0  . ?\))
-    (?\` . ?\~) (?\- . ?\_) (?\= . ?\+) (?\[ . ?\{) (?\] . ?\})
-    (?\\ . ?\|) (?\; . ?\:) (?\' . ?\") (?\/ . ?\?)))
-
-(defvar evil-x-shift-map
-  (let ((map (make-sparse-keymap)))
-    (cl-loop for char from ?a to ?z
-             do (define-key map (vector char) (evil-x-shift-menu-item (upcase char))))
-    (cl-loop for cons in evil-x-shift-special-chars
-             do (define-key map (vector (car cons)) (evil-x-shift-menu-item (cdr cons))))
-    map))
-
-;;;###autoload
-(defvar evil-x-leader-map (make-sparse-keymap))
-
-
-
-(defvar evil-x-override-mode-map (make-sparse-keymap))
-
-(define-minor-mode evil-x-override-mode
-  "Override global and local evil maps."
-  :group 'evil
-  :global t
-  :keymap evil-x-override-mode-map)
-
-(evil-define-key '(motion normal visual operator) evil-x-override-mode-map
-  ","    evil-x-shift-map
-  "\s"   evil-x-leader-map
-  "\C-p" evil-x-C-p-menu-item)
-
-
-
 ;;;###autoload
 (defun evil-x-setup ()
   (evil-x-jk-setup)
   (evil-x-motion-setup)
   (evil-x-operator-setup)
-  (evil-x-text-object-setup)
-  (evil-x-override-mode 1))
+  (evil-x-text-object-setup))
 
 (provide 'evil-x)

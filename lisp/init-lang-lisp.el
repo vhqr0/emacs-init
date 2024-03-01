@@ -6,6 +6,7 @@
 (require 'init-core-lib)
 
 (init-setq-declare!
+ evil-cleverparens-use-s-and-S nil
  evil-cleverparens-use-regular-insert t
  evil-cleverparens-use-additional-bindings nil
  evil-cleverparens-use-additional-movement-keys nil)

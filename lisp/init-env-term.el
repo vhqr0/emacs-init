@@ -24,11 +24,6 @@
 
 (init-global-set-key "C-@" #'toggle-input-method)
 
-(defvar evil-insert-state-map)
-
-(with-eval-after-load 'evil
-  (init-define-key evil-insert-state-map "C-@" #'toggle-input-method))
-
 (init-setq-declare!
  magit-section-visibility-indicator '("..." . t))
 

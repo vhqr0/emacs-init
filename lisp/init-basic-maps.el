@@ -1,12 +1,38 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
+(eval-when-compile
+  (require 'evil))
+
 (require 'init-core-lib)
+
+(init-global-set-key "M-o" #'embark-act)
+
+
+
+(defvar init-leader-override-mode-map (make-sparse-keymap))
+
+(define-minor-mode init-leader-override-mode
+  "Override leader prefix map."
+  :group 'evil
+  :global t
+  :keymap init-leader-override-mode-map)
+
+(init-eval-after-init!
+ (init-leader-override-mode 1))
+
+(defvar init-leader-map (make-sparse-keymap))
+
+(with-eval-after-load 'evil
+  (evil-define-key '(motion normal visual operator) init-leader-override-mode-map
+    (kbd "SPC") init-leader-map))
+
+
 
 (defun init-kh-C-u ()
   (interactive)
   (setq prefix-arg
         (list (* 4 (if current-prefix-arg (prefix-numeric-value current-prefix-arg) 1))))
-  (set-transient-map evil-x-leader-map))
+  (set-transient-map init-leader-map))
 
 (defun init-kh-execute-key-binding (key-binding)
   (cond ((commandp key-binding)
@@ -32,12 +58,9 @@
   (init-kh-god "C-c"))
 
 (defun init-define-leader (&rest clauses)
-  (apply #'init-define-key evil-x-leader-map clauses))
+  (apply #'init-define-key init-leader-map clauses))
 
 
-
-;;; embark
-(init-global-set-key "M-o" #'embark-act)
 
 (init-eval-after-init!
  (repeat-mode 1))
@@ -98,6 +121,7 @@
 
 ;;; buffer
 (init-define-leader
+ "SPC"       #'helm-mini
  "f"         #'helm-find-files
  "b"         #'helm-buffers-list
  "j"         #'dired-jump

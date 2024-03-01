@@ -34,6 +34,14 @@
 
 (init-add-hook 'init-auto-save-visited-predicate-hook #'init-auto-save-visited-predicate-for-yas)
 
+(init-global-set-key
+ "C-c y n" #'yas-new-snippet
+ "C-c y s" #'yas-insert-snippet
+ "C-c y v" #'yas-visit-snippet-file
+ "C-c y w" #'aya-create
+ "C-c y y" #'aya-expand
+ "C-c y b" #'aya-expand-from-history)
+
 
 ;;; company
 
@@ -77,5 +85,7 @@
        (bound-and-true-p company-candidates)))
 
 (init-add-hook 'init-auto-save-visited-predicate-hook #'init-auto-save-visited-predicate-for-company)
+
+(init-global-set-key "C-c TAB" #'company-complete)
 
 (provide 'init-basic-compl)

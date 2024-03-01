@@ -8,6 +8,7 @@
  helm-echo-input-in-header-line t
  helm-split-window-default-side 'other
  helm-split-window-other-side-when-one-window 'right
+ helm-move-to-line-cycle-in-source nil
  helm-completion-style 'helm-fuzzy
  helm-buffers-fuzzy-matching t
  helm-recentf-fuzzy-match t
@@ -31,7 +32,7 @@
 (init-global-set-key
  "M-x"   #'helm-M-x
  "M-y"   #'helm-show-kill-ring
- "C-c r" #'helm-resume
+ "C-c b" #'helm-resume
  "C-c h" #'helm-x-history
  "C-c i" #'helm-x-imenu
  "C-c I" #'helm-x-imenu-all)

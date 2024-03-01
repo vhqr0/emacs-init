@@ -23,7 +23,6 @@
     ;; init-env-wsl
     ;; init-env-term
 
-    ;; init-cn-basic
     ;; init-cn-fonts
     ;; init-cn-pyim
     ;; init-cn-fcitx
