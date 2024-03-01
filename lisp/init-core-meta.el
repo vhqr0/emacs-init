@@ -1,15 +1,16 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
 (defvar init-metas
-  '((init-basic-emacs . ((elpa helpful undo-tree page-break-lines smartparens rainbow-delimiters)
-                         (site gcmh)))
+  '((init-basic-emacs . ((site gcmh)
+                         (elpa undo-tree projectile)))
+    (init-basic-edit  . ((elpa smartparens rainbow-delimiters page-break-lines)))
+    (init-basic-compl . ((elpa yasnippet company)))
     (init-basic-evil  . ((site evil-x)
                          (elpa evil evil-surround evil-collection)))
     (init-basic-helm  . ((site helm-x)
-                         (elpa helm helm-comint helm-ls-git)))
-    (init-basic-prog  . ((elpa projectile helm-projectile yasnippet company format-all)))
+                         (elpa helm helm-comint helm-ls-git helm-projectile)))
     (init-basic-tools . ((site xdg-open eshell-x)
-                         (elpa wgrep wgrep-helm rg magit with-editor)))
+                         (elpa helpful wgrep wgrep-helm rg magit with-editor format-all)))
     (init-basic-maps  . ((elpa embark)))
     (init-ui-sml      . ((elpa smart-mode-line)))
     (init-cn-pyim     . ((elpa posframe popon pyim pyim-basedict)))

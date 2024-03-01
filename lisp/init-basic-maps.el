@@ -34,7 +34,13 @@
 (defun init-define-leader (&rest clauses)
   (apply #'init-define-key evil-x-leader-map clauses))
 
+
+
+;;; embark
 (init-global-set-key "M-o" #'embark-act)
+
+(init-eval-after-init!
+ (repeat-mode 1))
 
 (declare-function undo-tree-visualize "undo-tree")
 (declare-function server-edit "server")
@@ -51,6 +57,9 @@
  "e"  #'eshell-dwim
  "pe" #'project-eshell-dwim
  "U"  #'undo-tree-visualize)
+
+(init-eval-after-init!
+ (winner-mode 1))
 
 (declare-function winner-undo "winner")
 (declare-function winner-redo "winner")
@@ -89,6 +98,17 @@
 
 ;;; buffer
 (init-define-leader
+ "f"         #'helm-find-files
+ "b"         #'helm-buffers-list
+ "j"         #'dired-jump
+ "k"         #'kill-buffer
+ "l"         #'ibuffer
+ "rm"        #'bookmark-set
+ "rb"        #'helm-bookmarks
+ "re"        #'helm-recentf
+ "rc"        #'org-capture
+ "ro"        #'org-agenda
+ "rn"        #'helm-roam
  "xg"        #'revert-buffer-quick
  "xf"        #'font-lock-update
  "xn"        #'clone-buffer
@@ -97,20 +117,6 @@
  "xo"        #'xdg-open
  "x <left>"  #'previous-buffer
  "x <right>" #'next-buffer)
-
-;;; file
-(init-define-leader
- "f"  #'helm-find-files
- "b"  #'helm-buffers-list
- "j"  #'dired-jump
- "k"  #'kill-buffer
- "l"  #'ibuffer
- "rm" #'bookmark-set
- "rb" #'helm-bookmarks
- "re" #'helm-recentf
- "rc" #'org-capture
- "ro" #'org-agenda
- "rn" #'helm-roam)
 
 ;;; other-window/frame/tab
 (init-define-leader

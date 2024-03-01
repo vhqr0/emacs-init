@@ -9,9 +9,11 @@
 
 (defvar init-modules
   '(init-basic-emacs
+    init-basic-ui
+    init-basic-edit
+    init-basic-compl
     init-basic-evil
     init-basic-helm
-    init-basic-prog
     init-basic-tools
     init-basic-maps
 

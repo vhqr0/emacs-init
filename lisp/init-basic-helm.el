@@ -2,6 +2,8 @@
 
 (require 'init-core-lib)
 
+(declare-function helm-projectile-find-file "helm-projectile")
+
 (init-setq-declare!
  helm-echo-input-in-header-line t
  helm-split-window-default-side 'other
@@ -19,17 +21,20 @@
  helm-buffer-max-length 40
  helm-buffer-skip-remote-checking t
  helm-grep-file-path-style 'relative
- helm-describe-function-function #'helpful-callable
- helm-describe-variable-function #'helpful-variable)
+ helm-projectile-truncate-lines t
+ projectile-switch-project-action #'helm-projectile-find-file)
 
 (init-eval-after-init!
- (helm-mode 1))
+ (helm-mode 1)
+ (require 'helm-projectile))
 
 (init-global-set-key
- "<f5>"  #'helm-resume
  "M-x"   #'helm-M-x
  "M-y"   #'helm-show-kill-ring
- "C-c h" #'helm-x-history)
+ "C-c r" #'helm-resume
+ "C-c h" #'helm-x-history
+ "C-c i" #'helm-x-imenu
+ "C-c I" #'helm-x-imenu-all)
 
 (defvar helm-completing-read-handlers-alist)
 

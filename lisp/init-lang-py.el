@@ -1,7 +1,7 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
 (require 'init-core-lib)
-(require 'init-basic-prog)
+(require 'init-basic-compl)
 
 (defvar init-python-modes '(python-mode python-ts-mode))
 

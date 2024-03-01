@@ -1,7 +1,7 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
 (require 'init-core-lib)
-(require 'init-basic-prog)
+(require 'init-basic-compl)
 
 (defvar init-clojure-modes '(clojure-mode clojurescript-mode clojurec-mode))
 (defvar init-clojure-mode-hooks '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook))

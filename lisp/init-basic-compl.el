@@ -3,63 +3,18 @@
 (require 'init-core-lib)
 (require 'init-basic-emacs)
 
-
-;;; projectile
+(setq completion-ignore-case t
+      read-buffer-completion-ignore-case t
+      read-file-name-completion-ignore-case t)
 
-(declare-function helm-projectile-find-file "helm-projectile")
+(setq isearch-lazy-count t
+      isearch-allow-scroll t
+      isearch-allow-motion t
+      isearch-yank-on-move t
+      isearch-motion-changes-direction t
+      isearch-repeat-on-direction-change t)
 
-(init-setq-declare!
- projectile-switch-project-action #'helm-projectile-find-file
- projectile-current-project-on-switch 'move-to-end)
-
-(init-eval-after-init!
- (projectile-mode 1))
-
-(init-setq-declare!
- helm-projectile-truncate-lines t)
-
-(with-eval-after-load 'helm
-  (require 'helm-projectile))
-
-
-;;; xref
-
-(init-setq-declare!
- xref-search-program 'ripgrep)
-
-
-;;; flymake
-
-(defvar flymake-mode-map)
-
-(declare-function flymake-goto-next-error "flymake")
-(declare-function flymake-goto-prev-error "flymake")
-
-(with-eval-after-load 'flymake
-  (init-define-key
-   flymake-mode-map
-   "M-n" #'flymake-goto-next-error
-   "M-p" #'flymake-goto-prev-error))
-
-(declare-function flymake-proc-legacy-flymake "flymake-proc")
-
-(with-eval-after-load 'flymake-proc
-  (init-remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake))
-
-
-;;; eldoc
-
-(setq eldoc-minor-mode-string nil)
-
-
-;;; eglot
-
-(init-setq-declare!
- eglot-events-buffer-size 0
- eglot-extend-to-xref t
- eglot-stay-out-of '(company)
- eglot-ignored-server-capabilities
- '(:hoverProvider :documentHighlightProvider))
+(init-global-set-key "M-/" #'hippie-expand)
 
 
 ;;; yasnippet
@@ -123,4 +78,4 @@
 
 (init-add-hook 'init-auto-save-visited-predicate-hook #'init-auto-save-visited-predicate-for-company)
 
-(provide 'init-basic-prog)
+(provide 'init-basic-compl)
