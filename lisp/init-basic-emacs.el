@@ -26,8 +26,6 @@
 
 (init-global-set-key "C-SPC" #'toggle-input-method)
 
-(init-global-set-key "M-o" #'embark-act)
-
 (init-eval-after-init!
  (gcmh-mode 1))
 

@@ -34,6 +34,8 @@
 (defun init-define-leader (&rest clauses)
   (apply #'init-define-key evil-x-leader-map clauses))
 
+(init-global-set-key "M-o" #'embark-act)
+
 (declare-function undo-tree-visualize "undo-tree")
 (declare-function server-edit "server")
 
