@@ -9,7 +9,12 @@
  helm-completion-style 'helm-fuzzy
  helm-buffers-fuzzy-matching t
  helm-recentf-fuzzy-match t
+ helm-file-cache-fuzzy-match t
+ helm-locate-fuzzy-match t
+ helm-ls-git-fuzzy-match t
+ helm-etags-fuzzy-match t
  helm-apropos-fuzzy-match t
+ helm-session-fuzzy-match t
  helm-bookmark-show-location t
  helm-buffer-max-length 40
  helm-buffer-skip-remote-checking t
