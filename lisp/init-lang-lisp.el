@@ -21,6 +21,8 @@
   (sp-with-modes '(minibuffer-mode)
     (sp-local-pair "'" nil :actions nil)))
 
+(init-add-advice :override 'evil-cp--enable-text-objects #'ignore)
+
 (with-eval-after-load 'evil-cleverparens
   (init-diminish-minor-mode 'evil-cleverparens-mode))
 

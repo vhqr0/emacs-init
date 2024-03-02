@@ -72,24 +72,59 @@
 
 
 
-(evil-define-text-object evil-x-text-object-line (count &optional _beg _end _type)
-  (evil-range (line-beginning-position) (line-end-position) 'exclusive))
+(evil-define-text-object evil-x-inner-line (count &optional _beg _end _type)
+  (evil-range (save-excursion
+                (goto-char (line-beginning-position))
+                (back-to-indentation)
+                (point))
+              (line-end-position)
+              'exclusive))
 
-(evil-define-text-object evil-x-text-object-filename (count &optional _beg _end _type)
+(evil-define-text-object evil-x-a-line (count &optional _beg _end _type)
+  (evil-range (line-beginning-position) (line-end-position) 'line))
+
+(evil-define-text-object evil-x-inner-defun (count &optional beg end _type)
+  (evil-select-inner-object 'evil-defun beg end type count t))
+
+(evil-define-text-object evil-x-a-defun (count &optional beg end _type)
+  (evil-select-an-object 'evil-defun beg end type count t))
+
+(evil-define-text-object evil-x-inner-comment (count &optional _beg _end _type)
+  (cl-destructuring-bind (beg . end) (sp-get-comment-bounds)
+    (evil-range (save-excursion
+                  (goto-char beg)
+                  (forward-word 1)
+                  (forward-word -1)
+                  (point))
+                (save-excursion
+                  (goto-char end)
+                  (evil-end-of-line)
+                  (point))
+                'block)))
+
+(evil-define-text-object evil-x-a-comment (count &optional _beg _end _type)
+  (cl-destructuring-bind (beg . end) (sp-get-comment-bounds)
+    (evil-range beg end 'exclusive)))
+
+(evil-define-text-object evil-x-text-object-url (count &optional _beg _end _type)
   (cl-destructuring-bind (beg . end) (bounds-of-thing-at-point 'filename)
-    (evil-range beg end)))
+    (evil-range beg end 'inclusive)))
 
 (evil-define-text-object evil-x-text-object-entire (count &optional _beg _end _type)
   (evil-range (point-min) (point-max) 'line))
 
 ;;;###autoload
 (defun evil-x-text-object-setup ()
-  (dolist (binding '(("l" . evil-x-text-object-line)
-                     ("u" . evil-x-text-object-filename)
-                     ("g" . evil-x-text-object-entire)
-                     ("h" . evil-x-text-object-entire)))
-    (define-key evil-inner-text-objects-map (car binding) (cdr binding))
-    (define-key evil-outer-text-objects-map (car binding) (cdr binding))))
+  (define-key evil-inner-text-objects-map "l" #'evil-x-inner-line)
+  (define-key evil-outer-text-objects-map "l" #'evil-x-a-line)
+  (define-key evil-inner-text-objects-map "d" #'evil-x-inner-defun)
+  (define-key evil-outer-text-objects-map "d" #'evil-x-a-defun)
+  (define-key evil-inner-text-objects-map "c" #'evil-x-inner-comment)
+  (define-key evil-outer-text-objects-map "c" #'evil-x-a-comment)
+  (define-key evil-inner-text-objects-map "u" #'evil-x-text-object-url)
+  (define-key evil-outer-text-objects-map "u" #'evil-x-text-object-url)
+  (define-key evil-inner-text-objects-map "h" #'evil-x-text-object-entire)
+  (define-key evil-outer-text-objects-map "h" #'evil-x-text-object-entire))
 
 
 
