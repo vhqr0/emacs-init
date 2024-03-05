@@ -6,9 +6,8 @@
 
 (init-setq-declare!
  helm-echo-input-in-header-line t
- helm-split-window-default-side 'other
- helm-split-window-other-side-when-one-window 'right
  helm-move-to-line-cycle-in-source nil
+ helm-window-prefer-horizontal-split t
  helm-completion-style 'helm-fuzzy
  helm-buffers-fuzzy-matching t
  helm-recentf-fuzzy-match t
