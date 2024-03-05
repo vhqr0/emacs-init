@@ -5,6 +5,15 @@
 
 (require 'init-core-lib)
 
+(init-eval-after-init!
+ (which-key-mode 1))
+
+(with-eval-after-load 'which-key
+  (init-diminish-minor-mode 'which-key-mode))
+
+(init-eval-after-init!
+ (embark-which-key-enable))
+
 (init-global-set-key "M-o" #'embark-act)
 
 
