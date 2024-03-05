@@ -11,6 +11,10 @@
  helm-describe-function-function #'helpful-callable
  helm-describe-variable-function #'helpful-variable)
 
+(init-define-key
+ '(emacs-lisp-mode-map lisp-interaction-mode-map help-mode-map helpful-mode-map)
+ [remap display-local-help] #'helpful-at-point)
+
 
 ;;; dired
 

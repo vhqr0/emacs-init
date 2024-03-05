@@ -28,7 +28,6 @@
 
 (init-define-key
  '(emacs-lisp-mode-map lisp-interaction-mode-map)
- [remap display-local-help] #'helpful-at-point
  "C-c e" #'macrostep-expand)
 
 (provide 'init-lang-lisp)
