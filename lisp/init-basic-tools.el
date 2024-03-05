@@ -11,9 +11,20 @@
  helm-describe-function-function #'helpful-callable
  helm-describe-variable-function #'helpful-variable)
 
-(init-define-key
- '(emacs-lisp-mode-map lisp-interaction-mode-map help-mode-map helpful-mode-map)
- [remap display-local-help] #'helpful-at-point)
+(defun init-lookup-setup-command (command)
+  (setq-local evil-lookup-func command)
+  (local-set-key [remap display-local-help] command))
+
+(defun init-lookup-setup-helpful () (init-lookup-setup-command #'helpful-at-point))
+(defun init-lookup-setup-woman   () (init-lookup-setup-command #'woman))
+
+(init-add-hook
+ '(emacs-lisp-mode-hook lisp-interaction-mode-hook help-mode-hook helpful-mode-hook)
+ #'init-lookup-setup-helpful)
+
+(init-add-hook
+ '(c-mode-common-hook sh-mode-hook shell-mode-hook eshell-mode-hook man-mode-hook woman-mode-hook)
+ #'init-lookup-setup-woman)
 
 
 ;;; dired
