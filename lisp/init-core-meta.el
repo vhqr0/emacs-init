@@ -20,7 +20,7 @@
     (init-lang-md     . ((elpa markdown-mode edit-indirect)))
     (init-lang-hy     . ((site hy-python)
                          (elpa hy-mode)))
-    (init-lang-clj    . ((elpa clojure-mode cider)))
+    (init-lang-clj    . ((elpa clojure-mode cider helm-cider)))
     (init-app-roam    . ((site helm-roam)
                          (elpa org-roam)))))
 

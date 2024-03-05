@@ -11,6 +11,10 @@
 (with-eval-after-load 'clojure-mode
   (define-key clojure-mode-map [remap format-all-region-or-buffer] #'cider-format-buffer))
 
+(with-eval-after-load 'cider
+  (helm-cider-mode 1)
+  (define-key cider-repl-mode-map [remap helm-x-history] #'helm-cider-repl-history))
+
 (init-add-hook
  init-clojure-mode-hooks
  (list #'smartparens-strict-mode #'evil-cleverparens-mode))
