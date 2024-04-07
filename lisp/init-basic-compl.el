@@ -14,6 +14,13 @@
       isearch-motion-changes-direction t
       isearch-repeat-on-direction-change t)
 
+(setq hippie-expand-try-functions-list
+      '(try-complete-file-name-partially
+        try-complete-file-name
+        try-expand-dabbrev
+        try-expand-dabbrev-all-buffers
+        try-expand-dabbrev-from-kill))
+
 (init-global-set-key "M-/" #'hippie-expand)
 
 
