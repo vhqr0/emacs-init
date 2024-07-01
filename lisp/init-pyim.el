@@ -1,8 +1,12 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(require 'init-core-lib)
+(require 'init-emacs)
+(require 'pyim)
+(require 'pyim-basedict)
+(require 'posframe)
+(require 'popon)
 
-(setq default-input-method "pyim")
+(setq! default-input-method "pyim")
 
 (defvar init-pyim-zirjma-keymaps
   '(("a"    "a"    "a"          )
@@ -51,52 +55,45 @@
     ("ou"   "ou"                )))
 
 (defvar init-pyim-punctuation-dict
-  '(("'"  "‘"  "’")
-    ("\"" "“"  "”")
-    ("("  "（"    )
-    (")"  "）"    )
-    ("["  "【"    )
-    ("]"  "】"    )
-    ("<"  "《"    )
-    (">"  "》"    )
-    ("?"  "？"    )
-    ("!"  "！"    )
-    (","  "，"    )
-    ("."  "。"    )
-    (";"  "；"    )
-    (":"  "："    )
-    ("\\" "、"    )))
+  )
 
-(init-setq-declare!
- pyim-default-scheme 'zirjma
- pyim-pinyin-fuzzy-alist nil
- pyim-enable-shortcode nil
- pyim-candidates-search-buffer-p nil
- pyim-indicator-list nil
- pyim-punctuation-dict init-pyim-punctuation-dict
- pyim-page-tooltip '(posframe popon))
+(setq! pyim-default-scheme 'zirjma)
+(setq! pyim-pinyin-fuzzy-alist nil)
+(setq! pyim-enable-shortcode nil)
+(setq! pyim-candidates-search-buffer-p nil)
+(setq! pyim-indicator-list nil)
+(setq! pyim-page-tooltip '(posframe popon))
 
-(defvar pyim-mode-map)
-(declare-function pyim-scheme-add "pyim")
-(declare-function pyim-page-next-page "pyim")
-(declare-function pyim-page-previous-page "pyim")
+(setq! pyim-punctuation-dict
+       '(("'"  "‘"  "’")
+         ("\"" "“"  "”")
+         ("("  "（"    )
+         (")"  "）"    )
+         ("["  "【"    )
+         ("]"  "】"    )
+         ("<"  "《"    )
+         (">"  "》"    )
+         ("?"  "？"    )
+         ("!"  "！"    )
+         (","  "，"    )
+         ("."  "。"    )
+         (";"  "；"    )
+         (":"  "："    )
+         ("\\" "、"    )))
 
-(with-eval-after-load 'pyim
-  (require 'posframe)
-  (require 'popon)
-  (pyim-scheme-add
-   `(zirjma
-     :document "zirjma"
-     :class shuangpin
-     :first-chars "abcdefghijklmnopqrstuvwxyz"
-     :rest-chars "abcdefghijklmnopqrstuvwxyz"
-     :prefer-triggers nil
-     :cregexp-support-p t
-     :keymaps ,init-pyim-zirjma-keymaps))
-  (init-define-key
-   pyim-mode-map
-   "." #'pyim-page-next-page
-   "," #'pyim-page-previous-page)
-  (pyim-basedict-enable))
+(pyim-scheme-add
+ `(zirjma
+   :document "zirjma"
+   :class shuangpin
+   :first-chars "abcdefghijklmnopqrstuvwxyz"
+   :rest-chars "abcdefghijklmnopqrstuvwxyz"
+   :prefer-triggers nil
+   :cregexp-support-p t
+   :keymaps ,init-pyim-zirjma-keymaps))
 
-(provide 'init-cn-pyim)
+(define-key pyim-mode-map "." #'pyim-page-next-page)
+(define-key pyim-mode-map "," #'pyim-page-previous-page)
+
+(pyim-basedict-enable)
+
+(provide 'init-pyim)

@@ -5,7 +5,6 @@
 
 (require 'helm)
 
-;;;###autoload
 (defun helm-x-history ()
   (interactive)
   (cl-case (derived-mode-p 'comint-mode 'eshell-mode 'minibuffer-mode)
@@ -13,7 +12,6 @@
     (eshell-mode     (helm-eshell-history))
     (minibuffer-mode (helm-minibuffer-history))))
 
-;;;###autoload
 (defun helm-x-imenu ()
   (interactive)
   (cl-case (derived-mode-p 'comint-mode 'eshell-mode)
@@ -21,7 +19,6 @@
     (eshell-mode (helm-eshell-prompts))
     (t           (helm-imenu))))
 
-;;;###autoload
 (defun helm-x-imenu-all ()
   (interactive)
   (cl-case (derived-mode-p 'comint-mode 'eshell-mode)
@@ -41,14 +38,12 @@
          (let ((project (project-current)))
            (if project (project-root project) default-directory)))))
 
-;;;###autoload
 (defun helm-x-find (arg)
   (interactive "P")
   (require 'helm-fd)
   (let ((default-directory (helm-x-search-directory arg)))
     (helm-fd-1 default-directory)))
 
-;;;###autoload
 (defun helm-x-grep (arg)
   (interactive "P")
   (let ((default-directory (helm-x-search-directory arg)))

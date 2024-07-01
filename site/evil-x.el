@@ -22,13 +22,6 @@
         (insert ?j)
         (push event unread-command-events)))))
 
-;;;###autoload
-(defun evil-x-jk-setup ()
-  (define-key evil-insert-state-map  "j" #'evil-x-jk)
-  (define-key evil-replace-state-map "j" #'evil-x-jk))
-
-
-
 (evil-define-motion evil-x-jump-item ()
   :jump t
   :type inclusive
@@ -36,12 +29,6 @@
          (beg (sp-get thing :beg))
          (end (1- (sp-get thing :end))))
     (goto-char (if (= (point) end) beg end))))
-
-;;;###autoload
-(defun evil-x-motion-setup ()
-  (define-key evil-motion-state-map "%" #'evil-x-jump-item))
-
-
 
 (evil-define-operator evil-x-operator-comment (beg end)
   :move-point nil
@@ -55,7 +42,9 @@
 
 (defvar evil-x-eval-function-alist
   '((emacs-lisp-mode       . eval-region)
-    (lisp-interaction-mode . eval-region)))
+    (lisp-interaction-mode . eval-region)
+    (python-mode           . python-shell-send-region)
+    (python-ts-mode        . python-shell-send-region)))
 
 (evil-define-operator evil-x-operator-eval (beg end)
   :move-point nil
@@ -63,14 +52,6 @@
   (let ((eval-function (cdr (assq major-mode evil-x-eval-function-alist))))
     (when eval-function
       (funcall eval-function beg end))))
-
-;;;###autoload
-(defun evil-x-operator-setup ()
-  (define-key evil-normal-state-map "gc" 'evil-x-operator-comment)
-  (define-key evil-motion-state-map "g-" 'evil-x-operator-narrow)
-  (define-key evil-motion-state-map "gy" 'evil-x-operator-eval))
-
-
 
 (evil-define-text-object evil-x-inner-line (count &optional _beg _end _type)
   (evil-range (save-excursion
@@ -113,8 +94,17 @@
 (evil-define-text-object evil-x-text-object-entire (count &optional _beg _end _type)
   (evil-range (point-min) (point-max) 'line))
 
-;;;###autoload
-(defun evil-x-text-object-setup ()
+(defun evil-x-default-keybindings ()
+  ;; escape
+  (define-key evil-insert-state-map  "j" #'evil-x-jk)
+  (define-key evil-replace-state-map "j" #'evil-x-jk)
+  ;; motions
+  (define-key evil-motion-state-map "%" #'evil-x-jump-item)
+  ;; operations
+  (define-key evil-normal-state-map "gc" 'evil-x-operator-comment)
+  (define-key evil-motion-state-map "g-" 'evil-x-operator-narrow)
+  (define-key evil-motion-state-map "gy" 'evil-x-operator-eval)
+  ;; text objects
   (define-key evil-inner-text-objects-map "l" #'evil-x-inner-line)
   (define-key evil-outer-text-objects-map "l" #'evil-x-a-line)
   (define-key evil-inner-text-objects-map "d" #'evil-x-inner-defun)
@@ -125,14 +115,5 @@
   (define-key evil-outer-text-objects-map "u" #'evil-x-text-object-url)
   (define-key evil-inner-text-objects-map "h" #'evil-x-text-object-entire)
   (define-key evil-outer-text-objects-map "h" #'evil-x-text-object-entire))
-
-
-
-;;;###autoload
-(defun evil-x-setup ()
-  (evil-x-jk-setup)
-  (evil-x-motion-setup)
-  (evil-x-operator-setup)
-  (evil-x-text-object-setup))
 
 (provide 'evil-x)

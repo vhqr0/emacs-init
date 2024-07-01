@@ -33,16 +33,14 @@ prompter."
          (remq #'embark-which-key-indicator embark-indicators)))
       (apply fn args)))
 
-;;;###autoload
 (defun embark-which-key-enable ()
   (interactive)
   (advice-add 'embark-mixed-indicator :override #'embark-which-key-indicator)
   (advice-add 'embark-completing-read-prompter :around #'embark-hide-which-key-indicator))
 
-;;;###autoload
 (defun embark-which-key-disable ()
   (interactive)
   (advice-remove 'embark-mixed-indicator #'embark-which-key-indicator)
   (advice-remove 'embark-completing-read-prompter #'embark-hide-which-key-indicator))
 
-(provide 'embark-which-key)
+(provide 'embark-x)
