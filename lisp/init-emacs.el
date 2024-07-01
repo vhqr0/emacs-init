@@ -353,6 +353,8 @@
 
 (helm-projectile-on)
 
+(advice-add 'helm-projectile-rg :override #'projectile-ripgrep)
+
 ;; inhibit access known project list during initial
 (add-hook 'after-init-hook #'projectile-mode)
 
