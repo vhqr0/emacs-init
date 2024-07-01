@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
+(require 'cl-lib)
+
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
 
 (defvar init-lisp-directory (expand-file-name "lisp" init-directory))
@@ -78,7 +80,7 @@
       (concat (symbol-name module) ".el")
       init-lisp-directory))))
 
-(defun init-make ()
+(defun init-compile ()
   (interactive)
   (init-compile-site-packages)
   (init-compile-modules))

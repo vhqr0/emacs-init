@@ -6,19 +6,5 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
-(defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
-
-(defvar init-lisp-directory (expand-file-name "lisp" init-directory))
-(defvar init-site-directory (expand-file-name "site" init-directory))
-(defvar init-misc-directory (expand-file-name "misc" init-directory))
-
-(add-to-list 'load-path init-lisp-directory)
-(add-to-list 'load-path init-site-directory)
-
-(require 'site-autoloads)
-(require 'init-core)
-
-(package-initialize)
-(init-module-load)
-
-(provide 'init)
+(load-file (expand-file-name "emacs-init/lisp/init-core.el" user-emacs-directory))
+(init-load-modules)

@@ -15,5 +15,3 @@
                 file-name-handler-alist)))
 
 (add-hook 'after-init-hook #'early-init-after-init)
-
-(provide 'early-init)
