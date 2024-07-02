@@ -216,10 +216,10 @@
 (advice-add #'evil-set-cursor :override #'ignore)
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor)
 
-(define-key evil-insert-state-map "C-@" nil)
-(define-key evil-insert-state-map "C-a" nil)
-(define-key evil-insert-state-map "C-k" nil)
-(define-key evil-insert-state-map "C-w" nil)
+(define-key evil-insert-state-map (kbd "C-@") nil)
+(define-key evil-insert-state-map (kbd "C-a") nil)
+(define-key evil-insert-state-map (kbd "C-k") nil)
+(define-key evil-insert-state-map (kbd "C-w") nil)
 (define-key evil-normal-state-map [remap yank-pop] nil)
 
 (setq! evil-collection-setup-minibuffer t)
@@ -345,7 +345,7 @@
 
 ;;; project
 
-(setq! projectile-keymap-prefix "C-x p")
+(setq! projectile-keymap-prefix (kbd "C-x p"))
 (setq! helm-projectile-truncate-lines t)
 (setq! projectile-current-project-on-switch 'move-to-end)
 (setq! projectile-switch-project-action #'helm-projectile-find-file)
