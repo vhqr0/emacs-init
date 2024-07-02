@@ -93,6 +93,8 @@
 
 ;;; windows
 
+(require 'winner)
+
 (winner-mode 1)
 
 (windmove-default-keybindings)
