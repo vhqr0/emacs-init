@@ -26,6 +26,7 @@
     (eshell-mode (helm-eshell-prompts-all))
     (t           (helm-imenu-in-all-buffers))))
 
+(declare-function project-root "project")
 (declare-function helm-fd-1 "helm-fd")
 (declare-function helm-grep-ag-1 "helm-grep")
 
@@ -36,7 +37,9 @@
          default-directory)
         (t
          (let ((project (project-current)))
-           (if project (project-root project) default-directory)))))
+           (if project
+               (project-root project)
+             default-directory)))))
 
 (defun helm-x-find (arg)
   (interactive "P")
