@@ -32,6 +32,8 @@
 
 (gcmh-mode 1)
 
+(require 'repeat)
+
 (repeat-mode 1)
 
 ;;; files
@@ -54,6 +56,8 @@
 (add-hook 'after-init-hook #'auto-save-visited-mode)
 
 (setq! recentf-max-saved-items 200)
+
+(require 'recentf)
 
 ;; inhibit access recent file list during initial
 (add-hook 'after-init-hook #'recentf-mode)
@@ -97,6 +101,8 @@
 
 (winner-mode 1)
 
+(require 'windmove)
+
 (windmove-default-keybindings)
 
 (setq! tab-bar-tab-hints t)
@@ -118,6 +124,8 @@
 
 (setq! global-hl-line-sticky-flag t)
 
+(require 'display-line-numbers)
+
 (defun init-toggle-line-numbers-type ()
   (interactive)
   (setq-local display-line-numbers-type
@@ -130,9 +138,13 @@
 
 (setq! page-break-lines-lighter nil)
 
+(require 'page-break-lines)
+
 (global-page-break-lines-mode 1)
 
 ;;; paredit
+
+(require 'rainbow-delimiters)
 
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
@@ -191,6 +203,8 @@
          try-expand-dabbrev-all-buffers
          try-expand-dabbrev-from-kill))
 
+(require 'hippie-exp)
+
 (global-set-key (kbd "M-/") #'hippie-expand)
 
 ;;; evil
@@ -203,6 +217,8 @@
 (setq! evil-undo-system 'undo-redo)
 (setq! evil-symbol-word-search t)
 (setq! evil-respect-visual-line-mode t)
+
+(require 'evil)
 
 (evil-mode 1)
 
@@ -230,6 +246,8 @@
 
 (init-diminish-minor-mode 'evil-collection-unimpaired-mode)
 
+(require 'evil-surround)
+
 (global-evil-surround-mode 1)
 
 (setq! evil-snipe-repeat-keys nil)
@@ -242,9 +260,11 @@
 (evil-snipe-override-mode 1)
 
 (require 'evil-multiedit)
+
 (evil-multiedit-default-keybinds)
 
 (require 'evil-x)
+
 (evil-x-default-keybindings)
 
 ;;; company
@@ -269,6 +289,8 @@
          (company-capf :with company-yasnippet)
          (company-dabbrev-code company-keywords :with company-yasnippet)
          (company-dabbrev company-yasnippet)))
+
+(require 'company)
 
 (global-company-mode 1)
 
@@ -315,6 +337,10 @@
 
 (require 'helm-mode)
 
+(advice-add #'helm-minibuffer-history-mode :override #'ignore)
+
+(add-to-list 'helm-completing-read-handlers-alist '(kill-buffer . nil))
+
 (init-diminish-minor-mode 'helm-mode)
 
 (helm-mode 1)
@@ -327,12 +353,6 @@
 (global-set-key (kbd "C-c h") #'helm-x-history)
 (global-set-key (kbd "C-c i") #'helm-x-imenu)
 (global-set-key (kbd "C-c I") #'helm-x-imenu-all)
-
-(defvar helm-completing-read-handlers-alist)
-
-(add-to-list 'helm-completing-read-handlers-alist '(kill-buffer . nil))
-
-(advice-add #'helm-minibuffer-history-mode :override #'ignore)
 
 (evil-collection-define-key 'normal 'helm-map
   (kbd "SPC") nil
@@ -415,9 +435,13 @@
 
 ;;; help
 
+(require 'find-func)
+
 (find-function-setup-keys)
 
 (setq! helpful-max-buffers nil)
+
+(require 'helpful)
 
 (setq! helm-describe-function-function #'helpful-callable)
 (setq! helm-describe-variable-function #'helpful-variable)
@@ -449,11 +473,13 @@
 
 (which-key-mode 1)
 
+(require 'embark)
+
+(global-set-key (kbd "M-o") #'embark-act)
+
 (require 'embark-x)
 
 (embark-which-key-enable)
-
-(global-set-key (kbd "M-o") #'embark-act)
 
 (defun init-open-files (&optional files)
   (interactive)
@@ -567,7 +593,7 @@
   "n d" #'narrow-to-defun
   "n p" #'narrow-to-page
   "g g" #'rg-menu
-  "g ." #'rg-dwim
+  "g d" #'rg-dwim
   "g o" #'occur
   "g n" #'next-error
   "g p" #'previous-error
@@ -636,7 +662,7 @@
 (evil-define-key '(motion normal visual operator) init-leader-override-mode-map
   (kbd "SPC") init-leader-map)
 
-;;; elisp
+;;; lisp
 
 (setq! evil-cleverparens-use-s-and-S nil)
 (setq! evil-cleverparens-use-regular-insert t)
@@ -653,7 +679,7 @@
   (evil-cleverparens-mode 1))
 
 (defvar init-lisp-mode-hooks
-  '(lisp-data-mode-hook emacs-lisp-mode-hook lisp-interaction-mode-hook))
+  '(lisp-data-mode-hook emacs-lisp-mode-hook lisp-interaction-mode-hook lisp-mode-hook))
 
 (dolist (hook init-lisp-mode-hooks)
   (add-hook hook #'init-enable-smartparens))
