@@ -20,12 +20,13 @@
 (defvar init-module-metadata
   '((init-emacs . ((site evil-x helm-x embark-x eshell-x)
                    (elpa
-                    gcmh page-break-lines macrostep
+                    gcmh bm page-break-lines macrostep dashboard
                     evil evil-collection evil-surround evil-snipe evil-multiedit
                     smartparens rainbow-delimiters evil-cleverparens
                     company yasnippet yasnippet-snippets auto-yasnippet
                     helm helm-comint helm-ls-git projectile helm-projectile
-                    with-editor magit rg wgrep wgrep-helm format-all
+                    with-editor git-modes magit forge git-timemachine orgit orgit-forge
+                    rg wgrep wgrep-helm format-all
                     helpful which-key embark god-mode
                     htmlize evil-org markdown-mode edit-indirect)))
     (init-clojure . ((elpa clojure-mode cider clj-refactor helm-cider)))

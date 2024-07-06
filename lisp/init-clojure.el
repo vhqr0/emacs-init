@@ -8,14 +8,22 @@
 (defvar clojure-mode-map)
 (defvar cider-repl-mode-map)
 
-(with-eval-after-load 'clojure-mode
+(with-eval-after-load 'cider
+  (require 'helm-cider)
+  (helm-cider--override)
+  (define-key cider-repl-mode-map [remap helm-x-history] #'helm-cider-repl-history)
   (define-key clojure-mode-map [remap format-all-region-or-buffer] #'cider-format-buffer))
 
-(with-eval-after-load 'cider
-  (helm-cider-mode 1)
-  (define-key cider-repl-mode-map [remap helm-x-history] #'helm-cider-repl-history))
+(with-eval-after-load 'clj-refactor
+  (dolist (binding cljr--all-helpers)
+    (evil-define-key '(motion normal visual operator) clj-refactor-map
+      (concat "gr" (car binding)) (cadr binding)))
+  (define-key clj-refactor-map [remap sp-splice-sexp-killing-around] #'cljr-raise-sexp)
+  (define-key clj-refactor-map [remap sp-splice-sexp-killing-forward] #'cljr-splice-sexp-killing-forward)
+  (define-key clj-refactor-map [remap sp-splice-sexp-killing-backward] #'cljr-splice-sexp-killing-backward))
 
 (dolist (hook init-clojure-mode-hooks)
+  (add-hook hook #'clj-refactor-mode)
   (add-hook hook #'init-enable-smartparens))
 
 (dolist (mode init-clojure-modes)

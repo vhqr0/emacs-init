@@ -62,6 +62,14 @@
 ;; inhibit access recent file list during initial
 (add-hook 'after-init-hook #'recentf-mode)
 
+(require 'bm)
+
+(defvar-keymap init-bm-repeat-map
+  :repeat t
+  "m" #'bm-toggle
+  "n" #'bm-next
+  "p" #'bm-previous)
+
 ;;; ui
 
 (setq! inhibit-startup-screen t)
@@ -94,6 +102,16 @@
   (mapc #'disable-theme custom-enabled-themes)
   (load-theme theme t)
   (message "Load custom theme: %s" theme))
+
+(setq! dashboard-items
+       '((recents   . 5)
+         (bookmarks . 5)
+         (projects  . 5)
+         (agenda    . 5)))
+
+(require 'dashboard)
+
+(dashboard-setup-startup-hook)
 
 ;;; windows
 
@@ -294,7 +312,15 @@
 
 (global-company-mode 1)
 
-(global-set-key (kbd "C-c c") #'company-complete)
+(defvar-keymap init-company-prefix-map
+  "<tab>" #'company-complete
+  "TAB"   #'company-complete
+  "c"     #'company-capf
+  "f"     #'company-files
+  "/"     #'company-dabbrev
+  "y"     #'company-yasnippet)
+
+(global-set-key (kbd "C-c c") init-company-prefix-map)
 
 ;;; yasnippet
 
@@ -306,15 +332,17 @@
 
 (yas-global-mode 1)
 
-(defvar-keymap init-yas-prefix-map
-  "s" #'yas-insert-snippet
-  "n" #'yas-new-snippet
-  "v" #'yas-visit-snippet-file
-  "w" #'aya-create
-  "y" #'aya-expand
-  "Y" #'aya-expand-from-history)
+(defvar-keymap init-yasnippet-prefix-map
+  "<tab>" #'yas-expand-from-trigger-key
+  "TAB"   #'yas-expand-from-trigger-key
+  "s"     #'yas-insert-snippet
+  "n"     #'yas-new-snippet
+  "v"     #'yas-visit-snippet-file
+  "w"     #'aya-create
+  "y"     #'aya-expand
+  "Y"     #'aya-expand-from-history)
 
-(global-set-key (kbd "C-c y") init-yas-prefix-map)
+(global-set-key (kbd "C-c y") init-yasnippet-prefix-map)
 
 ;;; helm
 
@@ -354,6 +382,9 @@
 (global-set-key (kbd "C-c i") #'helm-x-imenu)
 (global-set-key (kbd "C-c I") #'helm-x-imenu-all)
 
+(define-key helm-occur-mode-map [remap helm-occur-mode-goto-line] #'helm-occur-mode-goto-line-ow)
+(define-key helm-grep-mode-map [remap helm-grep-mode-jump] #'helm-grep-mode-jump-other-window)
+
 (evil-collection-define-key 'normal 'helm-map
   (kbd "SPC") nil
   "m" 'helm-toggle-visible-mark
@@ -373,17 +404,10 @@
 (require 'projectile)
 (require 'helm-projectile)
 
+(projectile-mode 1)
 (helm-projectile-on)
 
 (advice-add 'helm-projectile-rg :override #'projectile-ripgrep)
-
-;; inhibit access known project list during initial
-(add-hook 'after-init-hook #'projectile-mode)
-
-;;; git
-
-(setq! magit-bind-magit-project-status nil)
-(setq! magit-define-global-key-bindings nil)
 
 ;;; dired
 
@@ -397,11 +421,11 @@
 ;;; ibuffer
 
 (setq! ibuffer-formats
-       '((mark modified read-only locked
+       '((mark " " modified read-only locked
                " " (name 40 40 :left :elide)
                " " (size 9 -1 :right)
-               " " (mode 16 16 :left :elide) " " filename-and-process)
-         (mark " " (name 16 -1) " " filename)))
+               " " (mode 16 16 :left :elide)
+               " " filename-and-process)))
 
 ;;; grep
 
@@ -454,7 +478,7 @@
 (defun init-lookup-setup-woman   () (init-lookup-setup-command #'woman))
 
 (defvar init-lookup-helpful-mode-hooks
-  '(emacs-lisp-mode-hook lisp-interaction-mode-hook help-mode-hook helpful-mode-hook))
+  '(emacs-lisp-mode-hook lisp-interaction-mode-hook help-mode-hook helpful-mode-hook Info-mode-hook))
 
 (defvar init-lookup-woman-mode-hooks
   '(c-mode-common-hook sh-mode-hook shell-mode-hook eshell-mode-hook man-mode-hook woman-mode-hook))
@@ -492,6 +516,71 @@
          (files (if (listp files) files (list files))))
     (dolist (file files)
       (helm-open-file-with-default-tool file))))
+
+;;; lisp
+
+(setq! evil-cleverparens-use-s-and-S nil)
+(setq! evil-cleverparens-use-regular-insert t)
+(setq! evil-cleverparens-use-additional-bindings nil)
+(setq! evil-cleverparens-use-additional-movement-keys nil)
+
+(require 'evil-cleverparens)
+
+(init-diminish-minor-mode 'evil-cleverparens-mode)
+
+(defun init-enable-smartparens ()
+  (interactive)
+  (smartparens-strict-mode 1)
+  (evil-cleverparens-mode 1))
+
+(defvar init-lisp-mode-hooks
+  '(lisp-data-mode-hook emacs-lisp-mode-hook lisp-interaction-mode-hook lisp-mode-hook))
+
+(dolist (hook init-lisp-mode-hooks)
+  (add-hook hook #'init-enable-smartparens))
+
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
+  (define-key map (kbd "C-c e") #'macrostep-expand))
+
+;;; python
+
+(setq! python-shell-interpreter "ipython")
+(setq! python-shell-interpreter-args "--simple-prompt")
+
+;;; markdown
+
+(setq! markdown-fontify-code-blocks-natively t)
+
+;;; org
+
+(setq! org-directory (expand-file-name "org" user-emacs-directory))
+(setq! org-agenda-files (list org-directory))
+(setq! org-default-notes-file (expand-file-name "inbox.org" org-directory))
+
+(setq! org-capture-templates
+       '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
+
+(require 'org)
+
+(add-to-list 'org-modules 'org-tempo)
+
+(define-key org-mode-map (kbd "C-c l") #'org-toggle-link-display)
+
+(defun init-org-modify-syntax ()
+  (modify-syntax-entry ?< "." org-mode-syntax-table)
+  (modify-syntax-entry ?> "." org-mode-syntax-table))
+
+(add-hook 'org-mode-hook #'init-org-modify-syntax)
+
+(setq! evil-org-key-theme
+       '(navigation return textobjects additional calendar))
+
+(require 'evil-org)
+(require 'evil-org-agenda)
+
+(init-diminish-minor-mode 'evil-org-mode)
+
+(evil-org-agenda-set-keys)
 
 ;;; leader maps
 
@@ -549,15 +638,32 @@
   "4 f" #'find-file-other-window
   "4 b" #'switch-to-buffer-other-window
   "4 j" #'dired-jump-other-window
+  "5 0" #'delete-frame
+  "5 1" #'delete-other-frames
+  "5 2" #'make-frame-command
+  "5 o" #'other-frame
+  "5 u" #'undelete-frame
+  "t 0" #'tab-bar-close-tab
+  "t 1" #'tab-bar-close-group-tabs
+  "t 2" #'tab-bar-new-tab
+  "t o" #'tab-bar-switch-to-next-tab
+  "t O" #'tab-bar-switch-to-prev-tab
+  "t u" #'tab-bar-undo-close-tab
   "r m" #'bookmark-set
   "r b" #'helm-bookmarks
   "r e" #'helm-recentf
+  "r w" #'org-store-link
   "r a" #'org-agenda
   "r c" #'org-capture
   "x g" #'revert-buffer-quick
   "x G" #'revert-buffer
+  "x v" #'vc-refresh-state
   "x f" #'font-lock-update
   "x o" #'init-open-files
+  "x m" #'bm-toggle
+  "x n" #'bm-next
+  "x p" #'bm-previous
+  "x M" #'bm-remove-all-current-buffer
   "x <left>" #'previous-buffer
   "x <right>" #'next-buffer
   "p p" #'projectile-switch-project
@@ -571,19 +677,29 @@
   "p s" #'projectile-save-project-buffers
   "p k" #'projectile-kill-buffers
   "p x" #'projectile-run-command-in-root
+  "p c" #'projectile-compile-project
   "p !" #'projectile-run-shell-command-in-root
   "p &" #'projectile-run-async-shell-command-in-root
   "p v" #'projectile-vc
   "p g" #'projectile-ripgrep
-  "v v" #'magit
-  "v ?" #'magit-dispatch
-  "v f" #'magit-file-dispatch
-  "v g" #'vc-refresh-state
-  "v d" #'vc-diff
-  "v D" #'vc-root-diff
-  "v l" #'vc-print-log
-  "v L" #'vc-print-root-log
-  "v h" #'vc-region-history
+  "v v" #'magit-status
+  "v V" #'magit-dispatch
+  "v ?" #'magit-file-dispatch
+  "v g" #'magit-status-here
+  "v G" #'magit-display-repository-buffer
+  "v s" #'magit-stage-buffer-file
+  "v u" #'magit-unstage-buffer-file
+  "v d" #'magit-diff-buffer-file
+  "v D" #'magit-diff
+  "v l" #'magit-log-buffer-file
+  "v L" #'magit-log
+  "v b" #'magit-blame-addition
+  "v B" #'magit-blame
+  "v f" #'magit-find-file
+  "v F" #'magit-blob-visit-file
+  "v n" #'magit-blob-next
+  "v p" #'magit-blob-previous
+  "v t" #'git-timemachine
   "l" #'ibuffer
   "p l" #'projectile-ibuffer
   "e" #'eshell-dwim
@@ -594,6 +710,8 @@
   "n p" #'narrow-to-page
   "g g" #'rg-menu
   "g d" #'rg-dwim
+  "g c" #'rg-dwim-current-dir
+  "g f" #'rg-dwim-current-file
   "g o" #'occur
   "g n" #'next-error
   "g p" #'previous-error
@@ -620,11 +738,12 @@
   "m s" #'whitespace-mode
   "m v" #'visual-line-mode
   "h h" #'help-for-help
-  "h ?" #'help-quick-toggle
   "h ." #'display-local-help
   "h i" #'info
   "h l" #'view-lossage
   "h e" #'view-echo-area-messages
+  "h d" #'dashboard-open
+  "h s" #'scratch-buffer
   "h o" #'helm-apropos
   "h x" #'helpful-command
   "h f" #'helpful-function
@@ -662,73 +781,8 @@
 (evil-define-key '(motion normal visual operator) init-leader-override-mode-map
   (kbd "SPC") init-leader-map)
 
-;;; lisp
-
-(setq! evil-cleverparens-use-s-and-S nil)
-(setq! evil-cleverparens-use-regular-insert t)
-(setq! evil-cleverparens-use-additional-bindings nil)
-(setq! evil-cleverparens-use-additional-movement-keys nil)
-
-(require 'evil-cleverparens)
-
-(init-diminish-minor-mode 'evil-cleverparens-mode)
-
-(defun init-enable-smartparens ()
-  (interactive)
-  (smartparens-strict-mode 1)
-  (evil-cleverparens-mode 1))
-
-(defvar init-lisp-mode-hooks
-  '(lisp-data-mode-hook emacs-lisp-mode-hook lisp-interaction-mode-hook lisp-mode-hook))
-
-(dolist (hook init-lisp-mode-hooks)
-  (add-hook hook #'init-enable-smartparens))
-
-(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (define-key map (kbd "C-c e") #'macrostep-expand))
-
-;;; python
-
-(setq! python-shell-interpreter "ipython")
-(setq! python-shell-interpreter-args "--simple-prompt")
-
-;;; org
-
-(setq! org-directory (expand-file-name "org" user-emacs-directory))
-(setq! org-agenda-files (list org-directory))
-(setq! org-default-notes-file (expand-file-name "notes.org" org-directory))
-
-(defvar org-modules)
-(defvar org-mode-map)
-(defvar org-mode-syntax-table)
-
-(with-eval-after-load 'org
-  (add-to-list 'org-modules 'org-tempo)
-  (define-key org-mode-map "<" "\C-q<"))
-
-(defun init-org-fix-angle ()
-  (modify-syntax-entry ?< "." org-mode-syntax-table)
-  (modify-syntax-entry ?> "." org-mode-syntax-table))
-
-(add-hook 'org-mode-hook #'init-org-fix-angle)
-
-(setq! evil-org-key-theme
-       '(navigation return textobjects additional calendar))
-
-(with-eval-after-load 'evil-org
-  (init-diminish-minor-mode 'evil-org-mode))
-
-(declare-function evil-org-agenda-set-keys "evil-org-agenda")
-
-(with-eval-after-load 'org
-  (require 'evil-org-agenda))
-
-(with-eval-after-load 'evil-org-agenda
-  (evil-org-agenda-set-keys))
-
-;;; markdown
-
-(setq! markdown-fontify-code-blocks-natively t)
+(evil-define-key '(insert) init-leader-override-mode-map
+  (kbd "M-r")  #'helm-x-history)
 
 ;;; end
 
