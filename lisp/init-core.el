@@ -37,9 +37,10 @@
 
 (defmacro setq! (sym val)
   (let ((val (or (cdr (assq sym init-override-variables)) val)))
-    `(progn
-       (defvar ,sym)
-       (setq ,sym ,val))))
+    `(eval-and-compile
+       (progn
+         (defvar ,sym)
+         (setq ,sym ,val)))))
 
 (setq! package-archives
        '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")

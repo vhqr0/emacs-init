@@ -7,6 +7,10 @@
 
 (defvar clojure-mode-map)
 (defvar cider-repl-mode-map)
+(defvar clj-refactor-map)
+(defvar cljr--all-helpers)
+
+(declare-function helm-cider--override "helm-cider")
 
 (with-eval-after-load 'cider
   (require 'helm-cider)

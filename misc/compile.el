@@ -7,6 +7,5 @@
   (load custom-file))
 
 (load-file (expand-file-name "emacs-init/lisp/init-core.el" user-emacs-directory))
-(init-install-elpa-packages)
 (package-initialize)
 (init-compile)

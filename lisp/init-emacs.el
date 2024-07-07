@@ -10,11 +10,11 @@
         (->> minor-mode-alist
              (--remove (eq (car it) mode)))))
 
-(defun init-file-name-transforms (x)
-  `((".*" ,(expand-file-name x user-emacs-directory) t)))
-
-(defun init-directory-alist (x)
-  `((".*" . ,(expand-file-name x user-emacs-directory))))
+(eval-and-compile
+  (defun init-file-name-transforms (x)
+    `((".*" ,(expand-file-name x user-emacs-directory) t)))
+  (defun init-directory-alist (x)
+    `((".*" . ,(expand-file-name x user-emacs-directory)))))
 
 ;;; essentials
 
@@ -309,6 +309,7 @@
          (company-dabbrev company-yasnippet)))
 
 (require 'company)
+(require 'company-capf)
 
 (global-company-mode 1)
 
@@ -408,6 +409,13 @@
 (helm-projectile-on)
 
 (advice-add 'helm-projectile-rg :override #'projectile-ripgrep)
+
+;;; git
+
+(setq! forge-add-default-bindings nil)
+
+(require 'magit)
+(require 'forge)
 
 ;;; dired
 
