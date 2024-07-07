@@ -11,16 +11,15 @@
 (defvar cljr--all-helpers)
 
 (declare-function cider-doc "cider-doc")
-
 (declare-function helm-cider--override "helm-cider")
 
-(with-eval-after-load 'cider
+(with-eval-after-load 'clojure-mode
+  (require 'cider)
+  (require 'clj-refactor)
   (require 'helm-cider)
   (helm-cider--override)
   (define-key cider-repl-mode-map [remap helm-x-history] #'helm-cider-repl-history)
-  (define-key clojure-mode-map [remap format-all-region-or-buffer] #'cider-format-buffer))
-
-(with-eval-after-load 'clj-refactor
+  (define-key clojure-mode-map [remap format-all-region-or-buffer] #'cider-format-buffer)
   (dolist (binding cljr--all-helpers)
     (evil-define-key '(motion normal visual operator) clj-refactor-map
       (concat "gr" (car binding)) (cadr binding)))
