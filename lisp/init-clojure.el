@@ -2,13 +2,15 @@
 
 (require 'init-emacs)
 
-(defvar init-clojure-modes '(clojure-mode clojurescript-mode clojurec-mode))
-(defvar init-clojure-mode-hooks '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook))
+(defvar init-clojure-modes '(clojure-mode clojurescript-mode clojurec-mode cider-repl-mode))
+(defvar init-clojure-mode-hooks '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook cider-repl-mode-hook))
 
 (defvar clojure-mode-map)
 (defvar cider-repl-mode-map)
 (defvar clj-refactor-map)
 (defvar cljr--all-helpers)
+
+(declare-function cider-doc "cider-doc")
 
 (declare-function helm-cider--override "helm-cider")
 
@@ -26,9 +28,12 @@
   (define-key clj-refactor-map [remap sp-splice-sexp-killing-forward] #'cljr-splice-sexp-killing-forward)
   (define-key clj-refactor-map [remap sp-splice-sexp-killing-backward] #'cljr-splice-sexp-killing-backward))
 
+(defun init-lookup-setup-cider () (init-lookup-setup-command #'cider-doc))
+
 (dolist (hook init-clojure-mode-hooks)
   (add-hook hook #'clj-refactor-mode)
-  (add-hook hook #'init-enable-smartparens))
+  (add-hook hook #'init-enable-smartparens)
+  (add-hook hook #'init-lookup-setup-cider))
 
 (dolist (mode init-clojure-modes)
   (add-to-list 'evil-x-eval-function-alist `(,mode . cider-eval-region)))

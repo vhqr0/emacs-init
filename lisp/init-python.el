@@ -19,6 +19,9 @@
 (defvar elpy-mode-map)
 (defvar elpy-refactor-map)
 
+(declare-function elpy-doc "elpy")
+(declare-function elpy-format-code "elpy")
+
 (with-eval-after-load 'python
   (require 'elpy)
   (elpy-enable)
