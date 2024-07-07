@@ -345,6 +345,13 @@
 
 (global-set-key (kbd "C-c y") init-yasnippet-prefix-map)
 
+;;; flymake
+
+(require 'flymake)
+
+(define-key flymake-mode-map (kbd "M-n") #'flymake-goto-next-error)
+(define-key flymake-mode-map (kbd "M-p") #'flymake-goto-prev-error)
+
 ;;; helm
 
 (setq! helm-echo-input-in-header-line t)
