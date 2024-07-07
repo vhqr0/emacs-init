@@ -14,6 +14,7 @@
 (defvar init-enabled-modules
   '(init-emacs
     ;; init-clojure
+    ;; init-python
     ;; init-pyim
     ))
 
@@ -30,6 +31,7 @@
                     helpful which-key embark god-mode
                     htmlize evil-org markdown-mode edit-indirect)))
     (init-clojure . ((elpa clojure-mode cider clj-refactor helm-cider)))
+    (init-python . ((elpa elpy python-mls)))
     (init-pyim . ((elpa pyim pyim-basedict posframe popon)))))
 
 (eval-and-compile

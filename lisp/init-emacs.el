@@ -1,7 +1,7 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(require 'init-core)
 (require 'dash)
+(require 'init-core)
 
 ;;; utils
 
@@ -549,11 +549,6 @@
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (define-key map (kbd "C-c e") #'macrostep-expand))
-
-;;; python
-
-(setq! python-shell-interpreter "ipython")
-(setq! python-shell-interpreter-args "--simple-prompt")
 
 ;;; markdown
 

@@ -41,9 +41,7 @@
 (defvar evil-x-eval-function-alist
   '((emacs-lisp-mode       . eval-region)
     (lisp-interaction-mode . eval-region)
-    (lisp-mode             . lisp-eval-region)
-    (python-mode           . python-shell-send-region)
-    (python-ts-mode        . python-shell-send-region)))
+    (lisp-mode             . lisp-eval-region)))
 
 (evil-define-operator evil-x-operator-eval (beg end)
   :move-point nil
