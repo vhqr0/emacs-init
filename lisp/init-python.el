@@ -12,6 +12,8 @@
          elpy-module-django))
 
 (setq! elpy-formatter 'black)
+(setq! elpy-get-info-from-shell t)
+(setq! elpy-remove-modeline-lighter nil)
 
 (defvar init-python-modes '(python-mode python-ts-mode inferior-python-mode))
 (defvar init-python-mode-hooks '(python-base-mode-hook inferior-python-mode-hook))
