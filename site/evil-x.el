@@ -1,8 +1,6 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(eval-when-compile
-  (require 'cl-macs))
-
+(require 'cl-lib)
 (require 'evil)
 (require 'thingatpt)
 (require 'smartparens)

@@ -1,8 +1,6 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(eval-when-compile
-  (require 'cl-macs))
-
+(require 'cl-lib)
 (require 'helm)
 
 (defun helm-x-history ()
@@ -49,6 +47,7 @@
 
 (defun helm-x-grep (arg)
   (interactive "P")
+  (require 'helm-grep)
   (let ((default-directory (helm-x-search-directory arg)))
     (helm-grep-ag-1 default-directory)))
 

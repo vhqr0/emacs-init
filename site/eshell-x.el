@@ -11,7 +11,6 @@
 (declare-function project-root "project")
 (declare-function project-prefixed-buffer-name "project")
 
-;;;###autoload
 (defun eshell-dwim (&optional arg)
   (interactive "P")
   (let* ((window-buffer-list (mapcar #'window-buffer (window-list)))
@@ -45,7 +44,6 @@
                    (t
                     (switch-to-buffer-other-window buffer))))))))
 
-;;;###autoload
 (defun project-eshell-dwim (&optional arg)
   (interactive "P")
   (let* ((project (project-current))
