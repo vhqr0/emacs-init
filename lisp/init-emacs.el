@@ -419,6 +419,7 @@
 
 ;;; git
 
+(setq! forge-post-mode-hook nil)
 (setq! forge-add-default-bindings nil)
 
 (require 'magit)
