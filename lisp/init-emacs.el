@@ -592,6 +592,8 @@
 
 (evil-org-agenda-set-keys)
 
+(autoload 'helm-roam "helm-roam" nil t)
+
 ;;; leader maps
 
 (defvar init-leader-map)
@@ -665,6 +667,7 @@
   "r w" #'org-store-link
   "r a" #'org-agenda
   "r c" #'org-capture
+  "r n" #'helm-roam
   "x g" #'revert-buffer-quick
   "x G" #'revert-buffer
   "x v" #'vc-refresh-state

@@ -16,6 +16,7 @@
     ;; init-clojure
     ;; init-python
     ;; init-pyim
+    ;; init-roam
     ))
 
 (defvar init-module-metadata
@@ -32,7 +33,9 @@
                     htmlize evil-org markdown-mode edit-indirect)))
     (init-clojure . ((elpa clojure-mode cider clj-refactor helm-cider)))
     (init-python . ((elpa elpy python-mls)))
-    (init-pyim . ((elpa pyim pyim-basedict posframe popon)))))
+    (init-pyim . ((elpa pyim pyim-basedict posframe popon)))
+    (init-roam . ((site helm-roam)
+                  (elpa org-roam org-roam-ui)))))
 
 (eval-and-compile
   (defvar init-override-variables nil))
