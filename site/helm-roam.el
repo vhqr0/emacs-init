@@ -1,6 +1,5 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
-(require 'eieio)
 (require 'helm)
 (require 'org-roam)
 
