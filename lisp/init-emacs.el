@@ -345,12 +345,15 @@
 
 (global-set-key (kbd "C-c y") init-yasnippet-prefix-map)
 
-;;; flymake
+;;; check
 
-(require 'flymake)
+(with-eval-after-load 'flymake
+  (define-key flymake-mode-map (kbd "M-n") #'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-p") #'flymake-goto-prev-error))
 
-(define-key flymake-mode-map (kbd "M-n") #'flymake-goto-next-error)
-(define-key flymake-mode-map (kbd "M-p") #'flymake-goto-prev-error)
+(with-eval-after-load 'flycheck
+  (define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
+  (define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error))
 
 ;;; helm
 
