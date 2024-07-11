@@ -283,6 +283,8 @@
 (global-set-key (kbd "C-r") #'swiper-isearch-backward)
 
 (define-key swiper-isearch-map [remap init-helm-history] #'swiper-isearch-C-r)
+(define-key swiper-isearch-map (kbd "TAB") #'swiper-isearch-toggle)
+(define-key isearch-mode-map (kbd "TAB") #'swiper-isearch-toggle)
 
 (define-key evil-motion-state-map "/" #'swiper-isearch)
 (define-key evil-motion-state-map "?" #'swiper-isearch-backward)
