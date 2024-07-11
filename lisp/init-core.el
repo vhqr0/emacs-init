@@ -22,7 +22,7 @@
 (defvar init-module-metadata
   '((init-emacs . ((site evil-x eshell-x)
                    (elpa
-                    gcmh bm page-break-lines dashboard
+                    gcmh bm page-break-lines dashboard swiper
                     evil evil-collection evil-surround evil-snipe evil-multiedit
                     smartparens rainbow-delimiters evil-cleverparens
                     company yasnippet yasnippet-snippets auto-yasnippet

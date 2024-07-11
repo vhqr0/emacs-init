@@ -275,6 +275,21 @@
 
 (evil-x-default-keybindings)
 
+;;; swiper
+
+(require 'swiper)
+
+(global-set-key (kbd "C-s") #'swiper-isearch)
+(global-set-key (kbd "C-r") #'swiper-isearch-backward)
+
+(define-key swiper-isearch-map [remap init-helm-history] #'swiper-isearch-C-r)
+
+(define-key evil-motion-state-map "/" #'swiper-isearch)
+(define-key evil-motion-state-map "?" #'swiper-isearch-backward)
+
+(define-key evil-operator-state-map "/" #'evil-search-forward)
+(define-key evil-operator-state-map "?" #'evil-search-backward)
+
 ;;; company
 
 (setq! company-idle-delay 0.2)
@@ -732,8 +747,8 @@
   "v n" #'magit-blob-next
   "v p" #'magit-blob-previous
   "v t" #'git-timemachine
-  "l" #'ibuffer
-  "p l" #'projectile-ibuffer
+  "l b" #'ibuffer
+  "p l l" #'projectile-ibuffer
   "e" #'eshell-dwim
   "p e" #'project-eshell-dwim
   "n w" #'widen
@@ -748,10 +763,10 @@
   "g n" #'next-error
   "g p" #'previous-error
   "s" #'helm-occur
-  "S" #'helm-do-grep-ag
-  "F" #'helm-find
   "i" #'helm-imenu
   "I" #'helm-imenu-in-all-buffers
+  "l g" #'helm-do-grep-ag
+  "l f" #'helm-find
   "$" #'ispell-word
   "%" #'query-replace-regexp
   "=" #'format-all-region-or-buffer
@@ -772,6 +787,7 @@
   "h h" #'help-for-help
   "h ." #'display-local-help
   "h i" #'info
+  "4 h i" #'info-other-window
   "h l" #'view-lossage
   "h e" #'view-echo-area-messages
   "h d" #'dashboard-open
@@ -795,7 +811,6 @@
   "h F" #'find-function
   "h V" #'find-variable
   "h K" #'find-function-on-key
-  "4 h i" #'info-other-window
   "4 h L" #'find-library-other-window
   "4 h F" #'find-function-other-window
   "4 h V" #'find-variable-other-window
