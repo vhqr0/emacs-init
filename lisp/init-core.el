@@ -20,17 +20,21 @@
     ))
 
 (defvar init-module-metadata
-  '((init-emacs . ((site evil-x helm-x embark-x eshell-x)
+  '((init-emacs . ((site evil-x eshell-x)
                    (elpa
-                    gcmh bm page-break-lines macrostep dashboard
+                    gcmh bm page-break-lines dashboard
                     evil evil-collection evil-surround evil-snipe evil-multiedit
                     smartparens rainbow-delimiters evil-cleverparens
                     company yasnippet yasnippet-snippets auto-yasnippet
-                    helm helm-comint helm-ls-git projectile helm-projectile
-                    with-editor git-modes magit forge git-timemachine orgit orgit-forge
-                    rg wgrep wgrep-helm format-all
-                    helpful which-key embark god-mode
-                    htmlize evil-org markdown-mode edit-indirect)))
+                    helm helm-comint helm-descbinds helm-themes
+                    helm-ls-git projectile helm-projectile
+                    with-editor git-modes magit forge git-timemachine
+                    rg wgrep wgrep-helm
+                    format-all flycheck
+                    embark god-mode
+                    helpful macrostep
+                    markdown-mode edit-indirect
+                    htmlize evil-org helm-org orgit orgit-forge)))
     (init-clojure . ((elpa clojure-mode cider clj-refactor helm-cider)))
     (init-python . ((elpa elpy python-mls)))
     (init-pyim . ((elpa pyim pyim-basedict posframe popon)))

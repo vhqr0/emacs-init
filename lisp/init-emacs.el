@@ -36,6 +36,8 @@
 
 (repeat-mode 1)
 
+(global-set-key (kbd "M-o") #'embark-act)
+
 ;;; files
 
 (setq! vc-handled-backends '(Git))
@@ -90,18 +92,6 @@
       (funcall mode -1))))
 
 (init-disable-ui)
-
-(defun init-read-theme (prompt)
-  (->> (custom-available-themes)
-       (-map #'symbol-name)
-       (completing-read prompt)))
-
-(defun init-load-theme (theme)
-  (interactive
-   (list (intern (init-read-theme "Load custom theme: "))))
-  (mapc #'disable-theme custom-enabled-themes)
-  (load-theme theme t)
-  (message "Load custom theme: %s" theme))
 
 (setq! dashboard-items
        '((recents   . 5)
@@ -160,7 +150,7 @@
 
 (global-page-break-lines-mode 1)
 
-;;; paredit
+;;; parens
 
 (require 'rainbow-delimiters)
 
@@ -347,9 +337,17 @@
 
 ;;; check
 
+(defvar flymake-mode-map)
+(declare-function flymake-goto-next-error "flymake")
+(declare-function flymake-goto-prev-error "flymake")
+
 (with-eval-after-load 'flymake
   (define-key flymake-mode-map (kbd "M-n") #'flymake-goto-next-error)
   (define-key flymake-mode-map (kbd "M-p") #'flymake-goto-prev-error))
+
+(defvar flycheck-mode-map)
+(declare-function flycheck-next-error "flycheck")
+(declare-function flycheck-previous-error "flycheck")
 
 (with-eval-after-load 'flycheck
   (define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
@@ -363,35 +361,64 @@
 (setq! helm-completion-style 'helm-fuzzy)
 (setq! helm-buffers-fuzzy-matching t)
 (setq! helm-recentf-fuzzy-match t)
+(setq! helm-bookmark-show-location t)
 (setq! helm-file-cache-fuzzy-match t)
 (setq! helm-locate-fuzzy-match t)
 (setq! helm-ls-git-fuzzy-match t)
 (setq! helm-etags-fuzzy-match t)
 (setq! helm-apropos-fuzzy-match t)
 (setq! helm-session-fuzzy-match t)
-(setq! helm-bookmark-show-location t)
 (setq! helm-buffer-max-length 40)
-(setq! helm-buffer-skip-remote-checking t)
 (setq! helm-grep-file-path-style 'relative)
 
 (require 'helm-mode)
-
-(advice-add #'helm-minibuffer-history-mode :override #'ignore)
+(require 'helm-descbinds)
+(require 'helm-find)
+(require 'helm-fd)
 
 (add-to-list 'helm-completing-read-handlers-alist '(kill-buffer . nil))
+
+(advice-add #'helm-minibuffer-history-mode :override #'ignore)
 
 (init-diminish-minor-mode 'helm-mode)
 
 (helm-mode 1)
 
-(require 'helm-x)
+(helm-descbinds-mode 1)
+
+(defun init-helm-history ()
+  (interactive)
+  (user-error "No history command found for current major mode."))
 
 (global-set-key (kbd "M-x") #'helm-M-x)
 (global-set-key (kbd "M-y") #'helm-show-kill-ring)
 (global-set-key (kbd "C-c b") #'helm-resume)
-(global-set-key (kbd "C-c h") #'helm-x-history)
-(global-set-key (kbd "C-c i") #'helm-x-imenu)
-(global-set-key (kbd "C-c I") #'helm-x-imenu-all)
+(global-set-key (kbd "C-c h") #'init-helm-history)
+
+(define-key minibuffer-mode-map [remap init-helm-history] #'helm-minibuffer-history)
+
+(defun init-open-files (&optional files)
+  (interactive)
+  (require 'helm-utils)
+  (let* ((files (cond (files)
+                      (buffer-file-name)
+                      ((eq major-mode 'dired-mode)
+                       (dired-get-marked-files))
+                      (default-directory)))
+         (files (if (listp files) files (list files))))
+    (dolist (file files)
+      (helm-open-file-with-default-tool file))))
+
+(advice-add #'helm-find-1 :override #'helm-fd-1)
+
+(define-key helm-buffer-map [remap helm-occur] #'helm-buffers-run-occur)
+(define-key helm-generic-files-map [remap helm-occur] #'helm-ff-run-grep)
+(define-key helm-generic-files-map [remap init-open-files] #'helm-ff-run-open-file-with-default-tool)
+
+(define-key helm-find-files-map [remap helm-do-grep-ag] #'helm-ff-run-grep-ag)
+(define-key helm-find-files-map [remap helm-find] #'helm-ff-run-find-sh-command)
+(define-key helm-find-files-map [remap helm-occur] #'helm-ff-run-grep)
+(define-key helm-find-files-map [remap init-open-files] #'helm-ff-run-open-file-with-default-tool)
 
 (define-key helm-occur-mode-map [remap helm-occur-mode-goto-line] #'helm-occur-mode-goto-line-ow)
 (define-key helm-grep-mode-map [remap helm-grep-mode-jump] #'helm-grep-mode-jump-other-window)
@@ -408,9 +435,9 @@
 ;;; project
 
 (setq! projectile-keymap-prefix (kbd "C-x p"))
-(setq! helm-projectile-truncate-lines t)
 (setq! projectile-current-project-on-switch 'move-to-end)
 (setq! projectile-switch-project-action #'helm-projectile-find-file)
+(setq! helm-projectile-truncate-lines t)
 
 (require 'projectile)
 (require 'helm-projectile)
@@ -418,7 +445,7 @@
 (projectile-mode 1)
 (helm-projectile-on)
 
-(advice-add 'helm-projectile-rg :override #'projectile-ripgrep)
+(advice-add #'helm-projectile-rg :override #'projectile-ripgrep)
 
 ;;; git
 
@@ -454,6 +481,13 @@
 (autoload 'rg-menu "rg" nil t)
 (declare-function rg-menu "rg")
 
+;;; shell
+
+(with-eval-after-load 'comint
+  (define-key comint-mode-map [remap helm-imenu] #'helm-comint-prompts)
+  (define-key comint-mode-map [remap helm-imenu-in-all-buffers] #'helm-comint-prompts-all)
+  (define-key comint-mode-map [remap init-helm-history] #'helm-comint-input-ring))
+
 ;;; eshell
 
 (defvar eshell-mode-map)
@@ -461,12 +495,15 @@
 (defun init-eshell-set-company ()
   (setq-local company-backends '(company-files)))
 
-(defun init-eshell-remap-pcomplete ()
-  (define-key eshell-mode-map [remap completion-at-point] #'helm-esh-pcomplete))
+(defun init-eshell-remap-helm ()
+  (define-key eshell-mode-map [remap completion-at-point] #'helm-esh-pcomplete)
+  (define-key eshell-mode-map [remap helm-imenu] #'helm-eshell-prompts)
+  (define-key eshell-mode-map [remap helm-imenu-in-all-buffers] #'helm-eshell-prompts-all)
+  (define-key eshell-mode-map [remap init-helm-history] #'helm-eshell-history))
 
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'init-eshell-set-company)
-(add-hook 'eshell-mode-hook #'init-eshell-remap-pcomplete)
+(add-hook 'eshell-mode-hook #'init-eshell-remap-helm)
 
 (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
 (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
@@ -489,12 +526,14 @@
 (setq! helm-describe-function-function #'helpful-callable)
 (setq! helm-describe-variable-function #'helpful-variable)
 
+(setq! helm-man-or-woman-function #'woman)
+
 (defun init-lookup-setup-command (command)
   (setq-local evil-lookup-func command)
   (local-set-key [remap display-local-help] command))
 
 (defun init-lookup-setup-helpful () (init-lookup-setup-command #'helpful-at-point))
-(defun init-lookup-setup-woman   () (init-lookup-setup-command #'woman))
+(defun init-lookup-setup-woman   () (init-lookup-setup-command #'helm-man-woman))
 
 (defvar init-lookup-helpful-mode-hooks
   '(emacs-lisp-mode-hook lisp-interaction-mode-hook help-mode-hook helpful-mode-hook Info-mode-hook))
@@ -507,34 +546,6 @@
 
 (dolist (hook init-lookup-woman-mode-hooks)
   (add-hook hook #'init-lookup-setup-woman))
-
-;;; context
-
-(require 'which-key)
-
-(init-diminish-minor-mode 'which-key-mode)
-
-(which-key-mode 1)
-
-(require 'embark)
-
-(global-set-key (kbd "M-o") #'embark-act)
-
-(require 'embark-x)
-
-(embark-which-key-enable)
-
-(defun init-open-files (&optional files)
-  (interactive)
-  (require 'helm-utils)
-  (let* ((files (cond (files)
-                      (buffer-file-name)
-                      ((eq major-mode 'dired-mode)
-                       (dired-get-marked-files))
-                      (default-directory)))
-         (files (if (listp files) files (list files))))
-    (dolist (file files)
-      (helm-open-file-with-default-tool file))))
 
 ;;; lisp
 
@@ -585,6 +596,9 @@
   (modify-syntax-entry ?> "." org-mode-syntax-table))
 
 (add-hook 'org-mode-hook #'init-org-modify-syntax)
+
+(define-key org-mode-map [remap helm-imenu] #'helm-org-in-buffer-headings)
+(define-key org-mode-map [remap helm-imenu-in-all-buffers] #'helm-org-agenda-files-headings)
 
 (setq! evil-org-key-theme
        '(navigation return textobjects additional calendar))
@@ -671,6 +685,8 @@
   "r w" #'org-store-link
   "r a" #'org-agenda
   "r c" #'org-capture
+  "r A" #'helm-org-agenda-files-headings
+  "r C" #'helm-org-capture-templates
   "r n" #'helm-roam
   "x g" #'revert-buffer-quick
   "x G" #'revert-buffer
@@ -680,7 +696,6 @@
   "x m" #'bm-toggle
   "x n" #'bm-next
   "x p" #'bm-previous
-  "x M" #'bm-remove-all-current-buffer
   "x <left>" #'previous-buffer
   "x <right>" #'next-buffer
   "p p" #'projectile-switch-project
@@ -733,10 +748,10 @@
   "g n" #'next-error
   "g p" #'previous-error
   "s" #'helm-occur
-  "S" #'helm-x-grep
-  "F" #'helm-x-find
-  "i" #'helm-x-imenu
-  "I" #'helm-x-imenu-all
+  "S" #'helm-do-grep-ag
+  "F" #'helm-find
+  "i" #'helm-imenu
+  "I" #'helm-imenu-in-all-buffers
   "$" #'ispell-word
   "%" #'query-replace-regexp
   "=" #'format-all-region-or-buffer
@@ -766,16 +781,17 @@
   "h f" #'helpful-function
   "h v" #'helpful-variable
   "h p" #'describe-package
+  "h P" #'helm-packages
   "h m" #'describe-mode
-  "h b" #'describe-bindings
+  "h b" #'helm-descbinds
   "h B" #'describe-keymap
   "h w" #'where-is
   "h k" #'helpful-key
   "h c" #'describe-key-briefly
   "h t l" #'load-library
   "h t f" #'load-file
-  "h t t" #'init-load-theme
-  "h L" #'find-library
+  "h t t" #'helm-themes
+  "h L" #'helm-locate-library
   "h F" #'find-function
   "h V" #'find-variable
   "h K" #'find-function-on-key
@@ -799,7 +815,7 @@
   (kbd "SPC") init-leader-map)
 
 (evil-define-key '(insert) init-leader-override-mode-map
-  (kbd "M-r")  #'helm-x-history)
+  (kbd "M-r")  #'init-helm-history)
 
 ;;; end
 
