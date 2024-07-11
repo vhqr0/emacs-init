@@ -292,6 +292,15 @@
 (define-key evil-operator-state-map "/" #'evil-search-forward)
 (define-key evil-operator-state-map "?" #'evil-search-backward)
 
+(defun init-after-swiper-isearch-forward (&rest _)
+  (setq isearch-forward t isearch-regexp t))
+
+(defun init-after-swiper-isearch-backward (&rest _)
+  (setq isearch-forward nil isearch-regexp t))
+
+(advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
+(advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
+
 ;;; company
 
 (setq! company-idle-delay 0.2)
