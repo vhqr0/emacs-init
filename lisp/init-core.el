@@ -25,7 +25,7 @@
                     gcmh bm page-break-lines dashboard swiper
                     evil evil-collection evil-surround evil-snipe evil-multiedit
                     smartparens rainbow-delimiters evil-cleverparens
-                    company yasnippet yasnippet-snippets auto-yasnippet
+                    company yasnippet yasnippet-snippets
                     helm helm-comint helm-descbinds helm-themes
                     helm-ls-git projectile helm-projectile
                     with-editor git-modes magit forge git-timemachine

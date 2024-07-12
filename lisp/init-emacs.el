@@ -355,9 +355,7 @@
   "s"     #'yas-insert-snippet
   "n"     #'yas-new-snippet
   "v"     #'yas-visit-snippet-file
-  "w"     #'aya-create
-  "y"     #'aya-expand
-  "Y"     #'aya-expand-from-history)
+  "h"     #'yas-describe-tables)
 
 (global-set-key (kbd "C-c y") init-yasnippet-prefix-map)
 
@@ -399,8 +397,6 @@
 
 (require 'helm-mode)
 (require 'helm-descbinds)
-(require 'helm-find)
-(require 'helm-fd)
 
 (add-to-list 'helm-completing-read-handlers-alist '(kill-buffer . nil))
 
@@ -434,8 +430,6 @@
          (files (if (listp files) files (list files))))
     (dolist (file files)
       (helm-open-file-with-default-tool file))))
-
-(advice-add #'helm-find-1 :override #'helm-fd-1)
 
 (define-key helm-buffer-map [remap helm-occur] #'helm-buffers-run-occur)
 (define-key helm-generic-files-map [remap helm-occur] #'helm-ff-run-grep)
@@ -602,6 +596,12 @@
 
 (setq! markdown-fontify-code-blocks-natively t)
 
+(require 'markdown-mode)
+(require 'edit-indirect)
+
+(define-key markdown-mode-map (kbd "C-c C-'") #'markdown-edit-code-block)
+(define-key edit-indirect-mode-map (kbd "C-c C-'") #'edit-indirect-commit)
+
 ;;; org
 
 (setq! org-directory (expand-file-name "org" user-emacs-directory))
@@ -615,13 +615,17 @@
 
 (add-to-list 'org-modules 'org-tempo)
 
-(define-key org-mode-map (kbd "C-c l") #'org-toggle-link-display)
-
 (defun init-org-modify-syntax ()
   (modify-syntax-entry ?< "." org-mode-syntax-table)
   (modify-syntax-entry ?> "." org-mode-syntax-table))
 
 (add-hook 'org-mode-hook #'init-org-modify-syntax)
+
+(define-key org-mode-map (kbd "C-c l") #'org-toggle-link-display)
+
+(define-key org-mode-map (kbd "C-c C-'") #'org-edit-special)
+(define-key org-src-mode-map (kbd "C-c C-'") #'org-edit-src-exit)
+(define-key org-src-mode-map (kbd "C-c C-c") #'org-edit-src-exit)
 
 (define-key org-mode-map [remap helm-imenu] #'helm-org-in-buffer-headings)
 (define-key org-mode-map [remap helm-imenu-in-all-buffers] #'helm-org-agenda-files-headings)
@@ -778,6 +782,8 @@
   "I" #'helm-imenu-in-all-buffers
   "l g" #'helm-do-grep-ag
   "l f" #'helm-find
+  "l r" #'helm-register
+  "l m" #'helm-all-mark-rings
   "$" #'ispell-word
   "%" #'query-replace-regexp
   "=" #'format-all-region-or-buffer
@@ -807,8 +813,7 @@
   "h x" #'helpful-command
   "h f" #'helpful-function
   "h v" #'helpful-variable
-  "h p" #'describe-package
-  "h P" #'helm-packages
+  "h p" #'helm-packages
   "h m" #'describe-mode
   "h b" #'helm-descbinds
   "h B" #'describe-keymap
