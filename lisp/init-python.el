@@ -31,7 +31,8 @@
     "gr" elpy-refactor-map)
   (define-key elpy-mode-map [remap format-all-region-or-buffer] #'elpy-format-code)
   (define-key elpy-mode-map (kbd "C-c C-p") nil)
-  (define-key elpy-mode-map (kbd "C-c C-n") nil))
+  (define-key elpy-mode-map (kbd "C-c C-n") nil)
+  (define-key elpy-mode-map (kbd "C-c C-z") nil))
 
 (add-hook 'inferior-python-mode-hook #'python-mls-mode)
 
