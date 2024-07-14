@@ -142,7 +142,8 @@
                 'relative))
   (display-line-numbers-mode 1))
 
-(global-display-line-numbers-mode 1)
+(add-hook 'text-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (setq! page-break-lines-lighter nil)
 
