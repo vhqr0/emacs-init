@@ -198,13 +198,6 @@
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
 
-(setq! isearch-lazy-count t)
-(setq! isearch-allow-scroll t)
-(setq! isearch-allow-motion t)
-(setq! isearch-yank-on-move t)
-(setq! isearch-motion-changes-direction t)
-(setq! isearch-repeat-on-direction-change t)
-
 (setq! hippie-expand-try-functions-list
        '(try-complete-file-name-partially
          try-complete-file-name
@@ -276,7 +269,14 @@
 
 (evil-x-default-keybindings)
 
-;;; swiper
+;;; isearch
+
+(setq! isearch-lazy-count t)
+(setq! isearch-allow-scroll t)
+(setq! isearch-allow-motion t)
+(setq! isearch-yank-on-move t)
+(setq! isearch-motion-changes-direction t)
+(setq! isearch-repeat-on-direction-change t)
 
 (require 'swiper)
 
@@ -480,11 +480,20 @@
 
 (setq! dired-dwim-target t)
 (setq! dired-auto-revert-buffer t)
+(setq! dired-kill-when-opening-new-dired-buffer t)
 (setq! dired-listing-switches "-lha")
 
 (require 'dired)
+(require 'dired-x)
 
 (put 'dired-jump 'repeat-map nil)
+
+(define-key dired-mode-map "O" #'dired-omit-mode)
+
+(add-to-list 'dired-mode-hook #'diredfl-mode)
+
+(evil-collection-define-key 'normal 'dired-mode-map
+  "O" #'dired-omit-mode)
 
 ;;; ibuffer
 
@@ -765,7 +774,7 @@
   "v p" #'magit-blob-previous
   "v t" #'git-timemachine
   "l b" #'ibuffer
-  "p l l" #'projectile-ibuffer
+  "p l b" #'projectile-ibuffer
   "e" #'eshell-dwim
   "p e" #'project-eshell-dwim
   "n w" #'widen
