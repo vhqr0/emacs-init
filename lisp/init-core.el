@@ -29,7 +29,7 @@
                     helm helm-comint helm-descbinds helm-themes
                     helm-ls-git projectile helm-projectile
                     with-editor git-modes magit forge git-timemachine
-                    diredfl rg wgrep wgrep-helm
+                    diredfl ibuffer-vc rg wgrep wgrep-helm
                     format-all flycheck
                     embark god-mode
                     helpful macrostep

@@ -497,12 +497,21 @@
 
 ;;; ibuffer
 
+(require 'ibuffer)
+(require 'ibuffer-vc)
+
 (setq! ibuffer-formats
-       '((mark " " modified read-only locked
+       '((mark " " modified read-only locked vc-status-mini
                " " (name 40 40 :left :elide)
                " " (size 9 -1 :right)
                " " (mode 16 16 :left :elide)
-               " " filename-and-process)))
+               " " (vc-status 16 16 :left :elide)
+               " " vc-relative-file)))
+
+(define-key ibuffer-mode-map (kbd "s V") #'ibuffer-do-sort-by-vc-status)
+
+(evil-collection-define-key 'normal 'ibuffer-mode-map
+  (kbd "o V") #'ibuffer-do-sort-by-vc-status)
 
 ;;; grep
 
