@@ -479,6 +479,7 @@
 ;;; dired
 
 (setq! dired-dwim-target t)
+(setq! dired-auto-revert-buffer t)
 (setq! dired-listing-switches "-lha")
 
 (require 'dired)
