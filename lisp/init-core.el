@@ -21,25 +21,17 @@
      (dash :fetcher elpa)
      (s :fetcher elpa)
      (f :fetcher elpa)
-     (gcmh :fetcher github
-           :repo "vhqr0/gcmh"
-           :commit "0089f9c3a6d4e9a310d0791cf6fa8f35642ecfd9")
+     (gcmh :fetcher github :repo "vhqr0/gcmh")
      (embark :fetcher elpa)
      ;; ui
      (dashboard :fetcher elpa)
      ;; lines
      (page-break-lines :fetcher elpa)
-     (ws-butler :fetcher github
-                :repo "vhqr0/ws-butler"
-                :commit "e3a38d93e01014cd47bf5af4924459bd145fd7c4")
-     (bm :fetcher github
-         :repo "vhqr0/bm"
-         :commit "1351e2e15a7666e614c94b41414c8f024dc10a50")
+     (ws-butler :fetcher github :repo "vhqr0/ws-butler")
+     (bm :fetcher github :repo "vhqr0/bm")
      ;; parens
      (smartparens :fetcher elpa)
-     (rainbow-delimiters :fetcher github
-                         :repo "vhqr0/rainbow-delimiters"
-                         :commit "f40ece58df8b2f0fb6c8576b527755a552a5e763")
+     (rainbow-delimiters :fetcher github :repo "vhqr0/rainbow-delimiters")
      ;; evil
      (evil :fetcher elpa)
      (evil-collection :fetcher elpa)
@@ -50,12 +42,8 @@
      (helm :fetcher elpa)
      (helm-ls-git :fetcher elpa)
      (helm-descbinds :fetcher elpa)
-     (helm-comint :fetcher github
-                  :repo "vhqr0/helm-comint"
-                  :commit "9215b2aa8f42f62cbda66a1503832abb7f491549")
-     (helm-themes :fetcher github
-                  :repo "vhqr0/helm-themes"
-                  :commit "344cf5af4adc95f9f95e29af33fa4f03554447a8")
+     (helm-comint :fetcher github :repo "vhqr0/helm-comint")
+     (helm-themes :fetcher github :repo "vhqr0/helm-themes")
      ;; search
      (swiper :fetcher elpa)
      ;; help
@@ -73,16 +61,14 @@
      ;; tools
      (ibuffer-vc :fetcher elpa)
      (diredfl :fetcher elpa)
-     (with-editor :fetcher elpa)
      (git-modes :fetcher elpa)
+     (with-editor :fetcher elpa)
      (magit :fetcher elpa)
      (git-timemachine :fetcher elpa)
      (rg :fetcher elpa)
      (wgrep :fetcher elpa)
      (wgrep-helm :fetcher elpa)
-     (eshell-dwim :fetcher github
-                  :repo "vhqr0/eshell-dwim"
-                  :commit "ffadd39710a940f1aba16509daed45c2f7c17abb")
+     (eshell-dwim :fetcher github :repo "vhqr0/eshell-dwim")
      ;; lisp
      (evil-cleverparens :fetcher elpa)
      (macrostep :fetcher elpa)
@@ -97,9 +83,7 @@
      (helm-org :fetcher elpa)
      (orgit :fetcher elpa)
      ;; leaders
-     (god-mode :fetcher github
-               :repo "vhqr0/god-mode"
-               :commit "607aff10a7b27a8aa0c1a15c2c39337ab17cfda7"))
+     (god-mode :fetcher github :repo "vhqr0/god-mode"))
     (init-clojure
      (clojure-mode :fetcher elpa)
      (cider :fetcher elpa)
@@ -107,9 +91,7 @@
      (helm-cider :fetcher elpa))
     (init-python
      (python-mls :fetcher elpa)
-     (hy-mode :fetcher github
-              :repo "vhqr0/hy-mode"
-              :commit "ec1d060896213bb561abc7252cc4a3f8591c97eb"))
+     (hy-mode :fetcher github :repo "vhqr0/hy-mode"))
     (init-pyim
      (pyim :fetcher elpa)
      (pyim-basedict :fetcher elpa)
@@ -118,9 +100,7 @@
     (init-roam
      (org-roam :fetcher elpa)
      (org-roam-ui :fetcher elpa)
-     (helm-roam :fetcher github
-                :repo "vhqr0/helm-roam"
-                :commit "fa35f0a0ab67ab09ec75cc8b887b9e54f8cf1590"))))
+     (helm-roam :fetcher github :repo "vhqr0/helm-roam"))))
 
 (defvar init-enabled-modules
   '(init-emacs
