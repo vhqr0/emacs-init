@@ -35,6 +35,6 @@
   (add-hook hook #'init-lookup-setup-cider))
 
 (dolist (mode init-clojure-modes)
-  (add-to-list 'evil-x-eval-function-alist `(,mode . cider-eval-region)))
+  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
 (provide 'init-clojure)

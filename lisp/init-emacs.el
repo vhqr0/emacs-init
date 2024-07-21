@@ -1,5 +1,6 @@
 ;;; -*- lexical-binding: t; no-native-compile: t -*-
 
+(require 'cl-lib)
 (require 'dash)
 (require 'init-core)
 
@@ -10,12 +11,6 @@
         (->> minor-mode-alist
              (--remove (eq (car it) mode)))))
 
-(eval-and-compile
-  (defun init-file-name-transforms (x)
-    `((".*" ,(expand-file-name x user-emacs-directory) t)))
-  (defun init-directory-alist (x)
-    `((".*" . ,(expand-file-name x user-emacs-directory)))))
-
 ;;; essentials
 
 (prefer-coding-system 'utf-8)
@@ -23,8 +18,6 @@
 (setq! disabled-command-function nil)
 
 (setq! system-time-locale "C")
-
-(global-set-key (kbd "C-SPC") #'toggle-input-method)
 
 (require 'gcmh)
 
@@ -38,6 +31,8 @@
 
 (global-set-key (kbd "M-o") #'embark-act)
 
+(global-set-key (kbd "C-SPC") #'toggle-input-method)
+
 ;;; files
 
 (setq! vc-handled-backends '(Git))
@@ -45,6 +40,12 @@
 (setq! version-control t)
 (setq! backup-by-copying t)
 (setq! delete-old-versions t)
+
+(eval-and-compile
+  (defun init-file-name-transforms (x)
+    `((".*" ,(expand-file-name x user-emacs-directory) t)))
+  (defun init-directory-alist (x)
+    `((".*" . ,(expand-file-name x user-emacs-directory)))))
 
 (setq! auto-save-file-name-transforms (init-file-name-transforms "save/"))
 (setq! lock-file-name-transforms      (init-file-name-transforms "lock/"))
@@ -54,23 +55,13 @@
 
 (add-to-list 'minor-mode-alist '(auto-save-visited-mode " AS"))
 
-;; inhibit save files during initial
-(add-hook 'after-init-hook #'auto-save-visited-mode)
+(auto-save-visited-mode 1)
 
 (setq! recentf-max-saved-items 200)
 
 (require 'recentf)
 
-;; inhibit access recent file list during initial
-(add-hook 'after-init-hook #'recentf-mode)
-
-(require 'bm)
-
-(defvar-keymap init-bm-repeat-map
-  :repeat t
-  "m" #'bm-toggle
-  "n" #'bm-next
-  "p" #'bm-previous)
+(recentf-mode 1)
 
 ;;; ui
 
@@ -122,7 +113,7 @@
 (global-set-key (kbd "C--") #'text-scale-decrease)
 (global-set-key (kbd "C-=") #'text-scale-increase)
 
-;;; indent
+;;; lines
 
 (setq-default
  indent-tabs-mode nil
@@ -145,11 +136,32 @@
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
+(defun init-set-trailing-whitespace-display ()
+  (setq-local show-trailing-whitespace t))
+
+(add-hook 'text-mode-hook #'init-set-trailing-whitespace-display)
+(add-hook 'prog-mode-hook #'init-set-trailing-whitespace-display)
+
+(require 'ws-butler)
+
+(init-diminish-minor-mode 'ws-butler-mode)
+
+(add-hook 'text-mode-hook #'ws-butler-mode)
+(add-hook 'prog-mode-hook #'ws-butler-mode)
+
 (setq! page-break-lines-lighter nil)
 
 (require 'page-break-lines)
 
 (global-page-break-lines-mode 1)
+
+(require 'bm)
+
+(defvar-keymap init-bm-repeat-map
+  :repeat t
+  "m" #'bm-toggle
+  "n" #'bm-next
+  "p" #'bm-previous)
 
 ;;; parens
 
@@ -265,9 +277,190 @@
 
 (evil-multiedit-default-keybinds)
 
-(require 'evil-x)
+(defun init-evil-escape ()
+  (interactive)
+  (if (or executing-kbd-macro
+          defining-kbd-macro
+          (sit-for 0.15 'no-redisplay))
+      (insert ?j)
+    (let ((event (read-event)))
+      (if (= event ?k)
+          (progn
+            (setq this-command 'ignore
+                  real-this-command 'ignore)
+            (push 'escape unread-command-events))
+        (insert ?j)
+        (push event unread-command-events)))))
 
-(evil-x-default-keybindings)
+(evil-define-motion init-evil-jump-item ()
+  :jump t
+  :type inclusive
+  (let* ((thing (sp-get-thing))
+         (beg (sp-get thing :beg))
+         (end (1- (sp-get thing :end))))
+    (goto-char (if (= (point) end) beg end))))
+
+(evil-define-operator init-evil-operator-comment (beg end)
+  :move-point nil
+  (interactive "<r>")
+  (comment-or-uncomment-region beg end))
+
+(evil-define-operator init-evil-operator-narrow (beg end)
+  :move-point nil
+  (interactive "<r>")
+  (narrow-to-region beg end))
+
+(defvar init-evil-eval-function-alist
+  '((emacs-lisp-mode . eval-region)
+    (lisp-interaction-mode . eval-region)
+    (lisp-mode . lisp-eval-region)))
+
+(evil-define-operator init-evil-operator-eval (beg end)
+  :move-point nil
+  (interactive "<r>")
+  (let ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
+    (when eval-function
+      (funcall eval-function beg end))))
+
+(evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
+  (evil-range
+   (save-excursion (goto-char (line-beginning-position)) (back-to-indentation) (point))
+   (line-end-position)
+   'exclusive))
+
+(evil-define-text-object init-evil-a-line (count &optional _beg _end _type)
+  (evil-range (line-beginning-position) (line-end-position) 'line))
+
+(evil-define-text-object init-evil-inner-defun (count &optional beg end _type)
+  (evil-select-inner-object 'evil-defun beg end type count t))
+
+(evil-define-text-object init-evil-a-defun (count &optional beg end _type)
+  (evil-select-an-object 'evil-defun beg end type count t))
+
+(evil-define-text-object init-evil-text-object-url (count &optional _beg _end _type)
+  (cl-destructuring-bind (beg . end) (bounds-of-thing-at-point 'filename)
+    (evil-range beg end 'inclusive)))
+
+(evil-define-text-object init-evil-text-object-entire (count &optional _beg _end _type)
+  (evil-range (point-min) (point-max) 'line))
+
+(evil-define-text-object init-evil-inner-comment (count &optional _beg _end _type)
+  (cl-destructuring-bind (beg . end) (sp-get-comment-bounds)
+    (evil-range
+     (save-excursion (goto-char beg) (forward-word 1) (forward-word -1) (point))
+     (save-excursion (goto-char end) (evil-end-of-line) (point))
+     'block)))
+
+(evil-define-text-object init-evil-a-comment (count &optional _beg _end _type)
+  (cl-destructuring-bind (beg . end) (sp-get-comment-bounds)
+    (evil-range beg end 'exclusive)))
+
+(define-key evil-insert-state-map "j" #'init-evil-escape)
+(define-key evil-replace-state-map "j" #'init-evil-escape)
+(define-key evil-motion-state-map "%" #'init-evil-jump-item)
+(define-key evil-normal-state-map "gc" #'init-evil-operator-comment)
+(define-key evil-motion-state-map "g-" #'init-evil-operator-narrow)
+(define-key evil-motion-state-map "gy" #'init-evil-operator-eval)
+(define-key evil-inner-text-objects-map "l" #'init-evil-inner-line)
+(define-key evil-outer-text-objects-map "l" #'init-evil-a-line)
+(define-key evil-inner-text-objects-map "d" #'init-evil-inner-defun)
+(define-key evil-outer-text-objects-map "d" #'init-evil-a-defun)
+(define-key evil-inner-text-objects-map "c" #'init-evil-inner-comment)
+(define-key evil-outer-text-objects-map "c" #'init-evil-a-comment)
+(define-key evil-inner-text-objects-map "u" #'init-evil-text-object-url)
+(define-key evil-outer-text-objects-map "u" #'init-evil-text-object-url)
+(define-key evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
+(define-key evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
+
+(defvar init-evil-override-mode-map (make-sparse-keymap))
+
+(define-minor-mode init-evil-override-mode
+  "Override leader prefix map."
+  :group 'init
+  :global t
+  :keymap init-evil-override-mode-map)
+
+(init-evil-override-mode 1)
+
+;;; helm
+
+(setq! helm-echo-input-in-header-line t)
+(setq! helm-move-to-line-cycle-in-source nil)
+(setq! helm-window-prefer-horizontal-split t)
+(setq! helm-completion-style 'helm-fuzzy)
+(setq! helm-buffers-fuzzy-matching t)
+(setq! helm-recentf-fuzzy-match t)
+(setq! helm-bookmark-show-location t)
+(setq! helm-file-cache-fuzzy-match t)
+(setq! helm-locate-fuzzy-match t)
+(setq! helm-ls-git-fuzzy-match t)
+(setq! helm-imenu-fuzzy-match t)
+(setq! helm-etags-fuzzy-match t)
+(setq! helm-apropos-fuzzy-match t)
+(setq! helm-session-fuzzy-match t)
+(setq! helm-buffer-max-length 40)
+(setq! helm-grep-file-path-style 'relative)
+(setq! helm-grep-save-buffer-name-no-confirm t)
+
+(require 'helm-mode)
+(require 'helm-descbinds)
+
+(add-to-list 'helm-completing-read-handlers-alist '(kill-buffer . nil))
+
+(advice-add #'helm-minibuffer-history-mode :override #'ignore)
+
+(init-diminish-minor-mode 'helm-mode)
+
+(helm-mode 1)
+
+(helm-descbinds-mode 1)
+
+(defun init-helm-history ()
+  (interactive)
+  (user-error "No history command found for current major mode."))
+
+(global-set-key (kbd "M-x") #'helm-M-x)
+(global-set-key (kbd "M-y") #'helm-show-kill-ring)
+(global-set-key (kbd "C-c b") #'helm-resume)
+(global-set-key (kbd "C-c h") #'init-helm-history)
+
+(evil-define-key '(insert) init-evil-override-mode-map
+  (kbd "M-r")  #'init-helm-history)
+
+(define-key minibuffer-mode-map [remap init-helm-history] #'helm-minibuffer-history)
+
+(defun init-open-files (&optional files)
+  (interactive)
+  (require 'helm-utils)
+  (let* ((files (cond (files)
+                      (buffer-file-name)
+                      ((eq major-mode 'dired-mode)
+                       (dired-get-marked-files))
+                      (default-directory)))
+         (files (if (listp files) files (list files))))
+    (dolist (file files)
+      (helm-open-file-with-default-tool file))))
+
+(define-key helm-buffer-map [remap helm-occur] #'helm-buffers-run-occur)
+(define-key helm-generic-files-map [remap helm-occur] #'helm-ff-run-grep)
+(define-key helm-generic-files-map [remap init-open-files] #'helm-ff-run-open-file-with-default-tool)
+
+(define-key helm-find-files-map [remap helm-do-grep-ag] #'helm-ff-run-grep-ag)
+(define-key helm-find-files-map [remap helm-find] #'helm-ff-run-find-sh-command)
+(define-key helm-find-files-map [remap helm-occur] #'helm-ff-run-grep)
+(define-key helm-find-files-map [remap init-open-files] #'helm-ff-run-open-file-with-default-tool)
+
+(define-key helm-occur-mode-map [remap helm-occur-mode-goto-line] #'helm-occur-mode-goto-line-ow)
+(define-key helm-grep-mode-map [remap helm-grep-mode-jump] #'helm-grep-mode-jump-other-window)
+
+(evil-collection-define-key 'normal 'helm-map
+  (kbd "SPC") nil
+  "m" 'helm-toggle-visible-mark
+  "U" 'helm-unmark-all)
+
+(evil-collection-define-key '(insert normal) 'helm-map
+  (kbd "C-SPC") 'toggle-input-method
+  (kbd "C-t") 'helm-toggle-resplit-and-swap-windows)
 
 ;;; isearch
 
@@ -302,7 +495,58 @@
 (advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
 (advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
 
-;;; company
+;;; help
+
+(require 'find-func)
+
+(find-function-setup-keys)
+
+(setq! helpful-max-buffers nil)
+
+(require 'helpful)
+
+(setq! helm-describe-function-function #'helpful-callable)
+(setq! helm-describe-variable-function #'helpful-variable)
+
+(setq! helm-man-or-woman-function #'woman)
+
+(defun init-lookup-setup-command (command)
+  (setq-local evil-lookup-func command)
+  (local-set-key [remap display-local-help] command))
+
+(defun init-lookup-setup-helpful () (init-lookup-setup-command #'helpful-at-point))
+(defun init-lookup-setup-woman   () (init-lookup-setup-command #'helm-man-woman))
+
+(defvar init-lookup-helpful-mode-hooks
+  '(emacs-lisp-mode-hook lisp-interaction-mode-hook help-mode-hook helpful-mode-hook Info-mode-hook))
+
+(defvar init-lookup-woman-mode-hooks
+  '(c-mode-common-hook sh-mode-hook shell-mode-hook eshell-mode-hook man-mode-hook woman-mode-hook))
+
+(dolist (hook init-lookup-helpful-mode-hooks)
+  (add-hook hook #'init-lookup-setup-helpful))
+
+(dolist (hook init-lookup-woman-mode-hooks)
+  (add-hook hook #'init-lookup-setup-woman))
+
+;;; project
+
+(setq! projectile-keymap-prefix (kbd "C-x p"))
+(setq! projectile-current-project-on-switch 'move-to-end)
+(setq! projectile-switch-project-action #'helm-projectile-find-file)
+(setq! helm-projectile-truncate-lines t)
+
+(require 'projectile)
+(require 'helm-projectile)
+
+(projectile-mode 1)
+(helm-projectile-on)
+
+(advice-add #'helm-projectile-rg :override #'projectile-ripgrep)
+
+;;; prog
+
+;;;; company
 
 (setq! company-idle-delay 0.2)
 (setq! company-minimum-prefix-length 2)
@@ -340,7 +584,7 @@
 
 (global-set-key (kbd "C-c c") init-company-prefix-map)
 
-;;; yasnippet
+;;;; yasnippet
 
 (setq! yas-alias-to-yas/prefix-p nil)
 
@@ -360,7 +604,7 @@
 
 (global-set-key (kbd "C-c y") init-yasnippet-prefix-map)
 
-;;; check
+;;;; checker
 
 (defvar flymake-mode-map)
 (declare-function flymake-goto-next-error "flymake")
@@ -378,124 +622,9 @@
   (define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
   (define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error))
 
-;;; helm
+;;; tools
 
-(setq! helm-echo-input-in-header-line t)
-(setq! helm-move-to-line-cycle-in-source nil)
-(setq! helm-window-prefer-horizontal-split t)
-(setq! helm-completion-style 'helm-fuzzy)
-(setq! helm-buffers-fuzzy-matching t)
-(setq! helm-recentf-fuzzy-match t)
-(setq! helm-bookmark-show-location t)
-(setq! helm-file-cache-fuzzy-match t)
-(setq! helm-locate-fuzzy-match t)
-(setq! helm-ls-git-fuzzy-match t)
-(setq! helm-etags-fuzzy-match t)
-(setq! helm-apropos-fuzzy-match t)
-(setq! helm-session-fuzzy-match t)
-(setq! helm-buffer-max-length 40)
-(setq! helm-grep-file-path-style 'relative)
-
-(require 'helm-mode)
-(require 'helm-descbinds)
-
-(add-to-list 'helm-completing-read-handlers-alist '(kill-buffer . nil))
-
-(advice-add #'helm-minibuffer-history-mode :override #'ignore)
-
-(init-diminish-minor-mode 'helm-mode)
-
-(helm-mode 1)
-
-(helm-descbinds-mode 1)
-
-(defun init-helm-history ()
-  (interactive)
-  (user-error "No history command found for current major mode."))
-
-(global-set-key (kbd "M-x") #'helm-M-x)
-(global-set-key (kbd "M-y") #'helm-show-kill-ring)
-(global-set-key (kbd "C-c b") #'helm-resume)
-(global-set-key (kbd "C-c h") #'init-helm-history)
-
-(define-key minibuffer-mode-map [remap init-helm-history] #'helm-minibuffer-history)
-
-(defun init-open-files (&optional files)
-  (interactive)
-  (require 'helm-utils)
-  (let* ((files (cond (files)
-                      (buffer-file-name)
-                      ((eq major-mode 'dired-mode)
-                       (dired-get-marked-files))
-                      (default-directory)))
-         (files (if (listp files) files (list files))))
-    (dolist (file files)
-      (helm-open-file-with-default-tool file))))
-
-(define-key helm-buffer-map [remap helm-occur] #'helm-buffers-run-occur)
-(define-key helm-generic-files-map [remap helm-occur] #'helm-ff-run-grep)
-(define-key helm-generic-files-map [remap init-open-files] #'helm-ff-run-open-file-with-default-tool)
-
-(define-key helm-find-files-map [remap helm-do-grep-ag] #'helm-ff-run-grep-ag)
-(define-key helm-find-files-map [remap helm-find] #'helm-ff-run-find-sh-command)
-(define-key helm-find-files-map [remap helm-occur] #'helm-ff-run-grep)
-(define-key helm-find-files-map [remap init-open-files] #'helm-ff-run-open-file-with-default-tool)
-
-(define-key helm-occur-mode-map [remap helm-occur-mode-goto-line] #'helm-occur-mode-goto-line-ow)
-(define-key helm-grep-mode-map [remap helm-grep-mode-jump] #'helm-grep-mode-jump-other-window)
-
-(evil-collection-define-key 'normal 'helm-map
-  (kbd "SPC") nil
-  "m" 'helm-toggle-visible-mark
-  "U" 'helm-unmark-all)
-
-(evil-collection-define-key '(insert normal) 'helm-map
-  (kbd "C-SPC") 'toggle-input-method
-  (kbd "C-t") 'helm-toggle-resplit-and-swap-windows)
-
-;;; project
-
-(setq! projectile-keymap-prefix (kbd "C-x p"))
-(setq! projectile-current-project-on-switch 'move-to-end)
-(setq! projectile-switch-project-action #'helm-projectile-find-file)
-(setq! helm-projectile-truncate-lines t)
-
-(require 'projectile)
-(require 'helm-projectile)
-
-(projectile-mode 1)
-(helm-projectile-on)
-
-(advice-add #'helm-projectile-rg :override #'projectile-ripgrep)
-
-;;; git
-
-(setq! forge-post-mode-hook nil)
-(setq! forge-add-default-bindings nil)
-
-(require 'magit)
-(require 'forge)
-
-;;; dired
-
-(setq! dired-dwim-target t)
-(setq! dired-auto-revert-buffer t)
-(setq! dired-kill-when-opening-new-dired-buffer t)
-(setq! dired-listing-switches "-lha")
-
-(require 'dired)
-(require 'dired-x)
-
-(put 'dired-jump 'repeat-map nil)
-
-(define-key dired-mode-map "O" #'dired-omit-mode)
-
-(add-to-list 'dired-mode-hook #'diredfl-mode)
-
-(evil-collection-define-key 'normal 'dired-mode-map
-  "O" #'dired-omit-mode)
-
-;;; ibuffer
+;;;; buffers
 
 (require 'ibuffer)
 (require 'ibuffer-vc)
@@ -513,7 +642,32 @@
 (evil-collection-define-key 'normal 'ibuffer-mode-map
   (kbd "o V") #'ibuffer-do-sort-by-vc-status)
 
-;;; grep
+;;;; dired
+
+(setq! dired-dwim-target t)
+(setq! dired-auto-revert-buffer t)
+(setq! dired-kill-when-opening-new-dired-buffer t)
+(setq! dired-listing-switches "-lha")
+
+(require 'dired)
+(require 'dired-x)
+(require 'diredfl)
+
+(put 'dired-jump 'repeat-map nil)
+
+(add-to-list 'dired-mode-hook #'diredfl-mode)
+
+(define-key dired-mode-map "O" #'dired-omit-mode)
+
+(evil-collection-define-key 'normal 'dired-mode-map
+  "O" #'dired-omit-mode)
+
+;;;; git
+
+(autoload 'magit-blob-next "magit" nil t)
+(autoload 'magit-blob-previous "magit" nil t)
+
+;;;; grep
 
 (setq! wgrep-auto-save-buffer t)
 (setq! wgrep-change-readonly-file t)
@@ -521,14 +675,14 @@
 (autoload 'rg-menu "rg" nil t)
 (declare-function rg-menu "rg")
 
-;;; shell
+;;;; shell
 
 (with-eval-after-load 'comint
   (define-key comint-mode-map [remap helm-imenu] #'helm-comint-prompts)
   (define-key comint-mode-map [remap helm-imenu-in-all-buffers] #'helm-comint-prompts-all)
   (define-key comint-mode-map [remap init-helm-history] #'helm-comint-input-ring))
 
-;;; eshell
+;;;; eshell
 
 (defvar eshell-mode-map)
 
@@ -548,46 +702,13 @@
 (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
 (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
 
-(autoload 'eshell-dwim "eshell-x" nil t)
-(autoload 'project-eshell-dwim "eshell-x" nil t)
-(declare-function eshell-dwim "eshell-x")
-(declare-function projecit-eshell-dwim "eshell-x")
+;;;; spell
 
-;;; help
-
-(require 'find-func)
-
-(find-function-setup-keys)
-
-(setq! helpful-max-buffers nil)
-
-(require 'helpful)
-
-(setq! helm-describe-function-function #'helpful-callable)
-(setq! helm-describe-variable-function #'helpful-variable)
-
-(setq! helm-man-or-woman-function #'woman)
-
-(defun init-lookup-setup-command (command)
-  (setq-local evil-lookup-func command)
-  (local-set-key [remap display-local-help] command))
-
-(defun init-lookup-setup-helpful () (init-lookup-setup-command #'helpful-at-point))
-(defun init-lookup-setup-woman   () (init-lookup-setup-command #'helm-man-woman))
-
-(defvar init-lookup-helpful-mode-hooks
-  '(emacs-lisp-mode-hook lisp-interaction-mode-hook help-mode-hook helpful-mode-hook Info-mode-hook))
-
-(defvar init-lookup-woman-mode-hooks
-  '(c-mode-common-hook sh-mode-hook shell-mode-hook eshell-mode-hook man-mode-hook woman-mode-hook))
-
-(dolist (hook init-lookup-helpful-mode-hooks)
-  (add-hook hook #'init-lookup-setup-helpful))
-
-(dolist (hook init-lookup-woman-mode-hooks)
-  (add-hook hook #'init-lookup-setup-woman))
+(setq! ispell-dictionary "american")
 
 ;;; lisp
+
+(advice-add 'evil-cp--enable-text-objects :override #'ignore)
 
 (setq! evil-cleverparens-use-s-and-S nil)
 (setq! evil-cleverparens-use-regular-insert t)
@@ -662,11 +783,14 @@
 
 (autoload 'helm-roam "helm-roam" nil t)
 
-;;; leader maps
+;;; leaders
 
-(defvar init-leader-map)
+(defvar init-leader-map (make-sparse-keymap))
 
-(defun init-magic-universal-argument ()
+(evil-define-key '(motion normal visual operator) init-evil-override-mode-map
+  (kbd "SPC") init-leader-map)
+
+(defun init-leader-universal-argument ()
   (interactive)
   (setq prefix-arg
         (list (if current-prefix-arg
@@ -677,196 +801,180 @@
 (autoload 'god-mode-self-insert "god-mode" nil t)
 (declare-function god-mode-self-insert "god-mode")
 
-(defvar-keymap init-leader-map
-  "SPC" #'helm-mini
-  "u" #'init-magic-universal-argument
-  "c" #'god-mode-self-insert
-  "z" #'repeat
-  ";" #'eval-expression
-  "!" #'shell-command
-  "&" #'async-shell-command
-  "0" #'delete-window
-  "1" #'delete-other-windows
-  "2" #'split-window-below
-  "3" #'split-window-right
-  "o" #'other-window
-  "q" #'quit-window
-  "w w" #'evil-window-next
-  "w W" #'evil-window-prev
-  "w q" #'evil-quit
-  "w c" #'evil-window-delete
-  "w 0" #'evil-window-delete
-  "w o" #'delete-other-windows
-  "w s" #'evil-window-split
-  "w v" #'evil-window-vsplit
-  "w =" #'balance-windows
-  "w x" #'evil-window-exchange
-  "w j" #'evil-window-down
-  "w k" #'evil-window-up
-  "w h" #'evil-window-left
-  "w l" #'evil-window-right
-  "w J" #'evil-window-move-very-bottom
-  "w K" #'evil-window-move-very-top
-  "w H" #'evil-window-move-far-left
-  "w L" #'evil-window-move-far-right
-  "w <left>" #'winner-undo
-  "w <right>" #'winner-redo
-  "f" #'helm-find-files
-  "b" #'helm-buffers-list
-  "j" #'dired-jump
-  "k" #'kill-buffer
-  "4 f" #'find-file-other-window
-  "4 b" #'switch-to-buffer-other-window
-  "4 j" #'dired-jump-other-window
-  "5 0" #'delete-frame
-  "5 1" #'delete-other-frames
-  "5 2" #'make-frame-command
-  "5 o" #'other-frame
-  "5 u" #'undelete-frame
-  "t 0" #'tab-bar-close-tab
-  "t 1" #'tab-bar-close-group-tabs
-  "t 2" #'tab-bar-new-tab
-  "t o" #'tab-bar-switch-to-next-tab
-  "t O" #'tab-bar-switch-to-prev-tab
-  "t u" #'tab-bar-undo-close-tab
-  "r m" #'bookmark-set
-  "r b" #'helm-bookmarks
-  "r e" #'helm-recentf
-  "r w" #'org-store-link
-  "r a" #'org-agenda
-  "r c" #'org-capture
-  "r A" #'helm-org-agenda-files-headings
-  "r C" #'helm-org-capture-templates
-  "r n" #'helm-roam
-  "x g" #'revert-buffer-quick
-  "x G" #'revert-buffer
-  "x v" #'vc-refresh-state
-  "x f" #'font-lock-update
-  "x o" #'init-open-files
-  "x m" #'bm-toggle
-  "x n" #'bm-next
-  "x p" #'bm-previous
-  "x <left>" #'previous-buffer
-  "x <right>" #'next-buffer
-  "p p" #'projectile-switch-project
-  "p i" #'projectile-invalidate-cache
-  "p f" #'projectile-find-file
-  "p b" #'projectile-switch-to-buffer
-  "p j" #'projectile-dired
-  "4 p f" #'projectile-find-file-other-window
-  "4 p b" #'projectile-switch-to-buffer-other-window
-  "4 p j" #'projectile-dired-other-window
-  "p s" #'projectile-save-project-buffers
-  "p k" #'projectile-kill-buffers
-  "p x" #'projectile-run-command-in-root
-  "p c" #'projectile-compile-project
-  "p !" #'projectile-run-shell-command-in-root
-  "p &" #'projectile-run-async-shell-command-in-root
-  "p v" #'projectile-vc
-  "p g" #'projectile-ripgrep
-  "v v" #'magit-status
-  "v V" #'magit-dispatch
-  "v ?" #'magit-file-dispatch
-  "v g" #'magit-status-here
-  "v G" #'magit-display-repository-buffer
-  "v s" #'magit-stage-buffer-file
-  "v u" #'magit-unstage-buffer-file
-  "v d" #'magit-diff-buffer-file
-  "v D" #'magit-diff
-  "v l" #'magit-log-buffer-file
-  "v L" #'magit-log
-  "v b" #'magit-blame-addition
-  "v B" #'magit-blame
-  "v f" #'magit-find-file
-  "v F" #'magit-blob-visit-file
-  "v n" #'magit-blob-next
-  "v p" #'magit-blob-previous
-  "v t" #'git-timemachine
-  "l b" #'ibuffer
-  "p l b" #'projectile-ibuffer
-  "e" #'eshell-dwim
-  "p e" #'project-eshell-dwim
-  "n w" #'widen
-  "n n" #'narrow-to-region
-  "n d" #'narrow-to-defun
-  "n p" #'narrow-to-page
-  "g g" #'rg-menu
-  "g d" #'rg-dwim
-  "g c" #'rg-dwim-current-dir
-  "g f" #'rg-dwim-current-file
-  "g o" #'occur
-  "g n" #'next-error
-  "g p" #'previous-error
-  "s" #'helm-occur
-  "i" #'helm-imenu
-  "I" #'helm-imenu-in-all-buffers
-  "l g" #'helm-do-grep-ag
-  "l f" #'helm-find
-  "l r" #'helm-register
-  "l m" #'helm-all-mark-rings
-  "$" #'ispell-word
-  "%" #'query-replace-regexp
-  "=" #'format-all-region-or-buffer
-  "." #'xref-find-definitions
-  "?" #'xref-find-references
-  "," #'xref-go-back
-  "4 ." #'xref-find-definitions-other-window
-  "(" #'sp-wrap-round
-  "[" #'sp-wrap-square
-  "{" #'sp-wrap-curly
-  "m a" #'auto-save-visited-mode
-  "m t" #'toggle-truncate-lines
-  "m h" #'hl-line-mode
-  "m l" #'display-line-numbers-mode
-  "m L" #'init-toggle-line-numbers-type
-  "m s" #'whitespace-mode
-  "m v" #'visual-line-mode
-  "h h" #'help-for-help
-  "h ." #'display-local-help
-  "h i" #'info
-  "4 h i" #'info-other-window
-  "h l" #'view-lossage
-  "h e" #'view-echo-area-messages
-  "h d" #'dashboard-open
-  "h s" #'scratch-buffer
-  "h o" #'helm-apropos
-  "h x" #'helpful-command
-  "h f" #'helpful-function
-  "h v" #'helpful-variable
-  "h p" #'helm-packages
-  "h m" #'describe-mode
-  "h b" #'helm-descbinds
-  "h B" #'describe-keymap
-  "h w" #'where-is
-  "h k" #'helpful-key
-  "h c" #'describe-key-briefly
-  "h t l" #'load-library
-  "h t f" #'load-file
-  "h t t" #'helm-themes
-  "h L" #'helm-locate-library
-  "h F" #'find-function
-  "h V" #'find-variable
-  "h K" #'find-function-on-key
-  "4 h L" #'find-library-other-window
-  "4 h F" #'find-function-other-window
-  "4 h V" #'find-variable-other-window
-  "4 h K" #'find-function-on-key-other-window)
-
-(defvar init-leader-override-mode-map (make-sparse-keymap))
-
-(define-minor-mode init-leader-override-mode
-  "Override leader prefix map."
-  :group 'init
-  :global t
-  :keymap init-leader-override-mode-map)
-
-(init-leader-override-mode 1)
-
-(evil-define-key '(motion normal visual operator) init-leader-override-mode-map
-  (kbd "SPC") init-leader-map)
-
-(evil-define-key '(insert) init-leader-override-mode-map
-  (kbd "M-r")  #'init-helm-history)
+(define-key init-leader-map (kbd "SPC") #'helm-mini)
+(define-key init-leader-map (kbd "u") #'init-leader-universal-argument)
+(define-key init-leader-map (kbd "c") #'god-mode-self-insert)
+(define-key init-leader-map (kbd "z") #'repeat)
+(define-key init-leader-map (kbd ";") #'eval-expression)
+(define-key init-leader-map (kbd "!") #'shell-command)
+(define-key init-leader-map (kbd "&") #'async-shell-command)
+(define-key init-leader-map (kbd "0") #'delete-window)
+(define-key init-leader-map (kbd "1") #'delete-other-windows)
+(define-key init-leader-map (kbd "2") #'split-window-below)
+(define-key init-leader-map (kbd "3") #'split-window-right)
+(define-key init-leader-map (kbd "o") #'other-window)
+(define-key init-leader-map (kbd "q") #'quit-window)
+(define-key init-leader-map (kbd "w w") #'evil-window-next)
+(define-key init-leader-map (kbd "w W") #'evil-window-prev)
+(define-key init-leader-map (kbd "w q") #'evil-quit)
+(define-key init-leader-map (kbd "w c") #'evil-window-delete)
+(define-key init-leader-map (kbd "w 0") #'evil-window-delete)
+(define-key init-leader-map (kbd "w o") #'delete-other-windows)
+(define-key init-leader-map (kbd "w s") #'evil-window-split)
+(define-key init-leader-map (kbd "w v") #'evil-window-vsplit)
+(define-key init-leader-map (kbd "w =") #'balance-windows)
+(define-key init-leader-map (kbd "w x") #'evil-window-exchange)
+(define-key init-leader-map (kbd "w j") #'evil-window-down)
+(define-key init-leader-map (kbd "w k") #'evil-window-up)
+(define-key init-leader-map (kbd "w h") #'evil-window-left)
+(define-key init-leader-map (kbd "w l") #'evil-window-right)
+(define-key init-leader-map (kbd "w J") #'evil-window-move-very-bottom)
+(define-key init-leader-map (kbd "w K") #'evil-window-move-very-top)
+(define-key init-leader-map (kbd "w H") #'evil-window-move-far-left)
+(define-key init-leader-map (kbd "w L") #'evil-window-move-far-right)
+(define-key init-leader-map (kbd "w <left>") #'winner-undo)
+(define-key init-leader-map (kbd "w <right>") #'winner-redo)
+(define-key init-leader-map (kbd "f") #'helm-find-files)
+(define-key init-leader-map (kbd "b") #'helm-buffers-list)
+(define-key init-leader-map (kbd "j") #'dired-jump)
+(define-key init-leader-map (kbd "k") #'kill-buffer)
+(define-key init-leader-map (kbd "4 f") #'find-file-other-window)
+(define-key init-leader-map (kbd "4 b") #'switch-to-buffer-other-window)
+(define-key init-leader-map (kbd "4 j") #'dired-jump-other-window)
+(define-key init-leader-map (kbd "5 0") #'delete-frame)
+(define-key init-leader-map (kbd "5 1") #'delete-other-frames)
+(define-key init-leader-map (kbd "5 2") #'make-frame-command)
+(define-key init-leader-map (kbd "5 o") #'other-frame)
+(define-key init-leader-map (kbd "5 u") #'undelete-frame)
+(define-key init-leader-map (kbd "t 0") #'tab-bar-close-tab)
+(define-key init-leader-map (kbd "t 1") #'tab-bar-close-group-tabs)
+(define-key init-leader-map (kbd "t 2") #'tab-bar-new-tab)
+(define-key init-leader-map (kbd "t o") #'tab-bar-switch-to-next-tab)
+(define-key init-leader-map (kbd "t O") #'tab-bar-switch-to-prev-tab)
+(define-key init-leader-map (kbd "t u") #'tab-bar-undo-close-tab)
+(define-key init-leader-map (kbd "r m") #'bookmark-set)
+(define-key init-leader-map (kbd "r b") #'helm-bookmarks)
+(define-key init-leader-map (kbd "r e") #'helm-recentf)
+(define-key init-leader-map (kbd "r w") #'org-store-link)
+(define-key init-leader-map (kbd "r a") #'org-agenda)
+(define-key init-leader-map (kbd "r c") #'org-capture)
+(define-key init-leader-map (kbd "r A") #'helm-org-agenda-files-headings)
+(define-key init-leader-map (kbd "r C") #'helm-org-capture-templates)
+(define-key init-leader-map (kbd "r n") #'helm-roam)
+(define-key init-leader-map (kbd "x g") #'revert-buffer-quick)
+(define-key init-leader-map (kbd "x G") #'revert-buffer)
+(define-key init-leader-map (kbd "x v") #'vc-refresh-state)
+(define-key init-leader-map (kbd "x f") #'font-lock-update)
+(define-key init-leader-map (kbd "x o") #'init-open-files)
+(define-key init-leader-map (kbd "x m") #'bm-toggle)
+(define-key init-leader-map (kbd "x n") #'bm-next)
+(define-key init-leader-map (kbd "x p") #'bm-previous)
+(define-key init-leader-map (kbd "x <left>") #'previous-buffer)
+(define-key init-leader-map (kbd "x <right>") #'next-buffer)
+(define-key init-leader-map (kbd "p p") #'projectile-switch-project)
+(define-key init-leader-map (kbd "p i") #'projectile-invalidate-cache)
+(define-key init-leader-map (kbd "p f") #'projectile-find-file)
+(define-key init-leader-map (kbd "p b") #'projectile-switch-to-buffer)
+(define-key init-leader-map (kbd "p j") #'projectile-dired)
+(define-key init-leader-map (kbd "4 p f") #'projectile-find-file-other-window)
+(define-key init-leader-map (kbd "4 p b") #'projectile-switch-to-buffer-other-window)
+(define-key init-leader-map (kbd "4 p j") #'projectile-dired-other-window)
+(define-key init-leader-map (kbd "p s") #'projectile-save-project-buffers)
+(define-key init-leader-map (kbd "p k") #'projectile-kill-buffers)
+(define-key init-leader-map (kbd "p x") #'projectile-run-command-in-root)
+(define-key init-leader-map (kbd "p c") #'projectile-compile-project)
+(define-key init-leader-map (kbd "p !") #'projectile-run-shell-command-in-root)
+(define-key init-leader-map (kbd "p &") #'projectile-run-async-shell-command-in-root)
+(define-key init-leader-map (kbd "p v") #'projectile-vc)
+(define-key init-leader-map (kbd "p g") #'projectile-ripgrep)
+(define-key init-leader-map (kbd "v v") #'magit-status)
+(define-key init-leader-map (kbd "v V") #'magit-dispatch)
+(define-key init-leader-map (kbd "v ?") #'magit-file-dispatch)
+(define-key init-leader-map (kbd "v g") #'magit-status-here)
+(define-key init-leader-map (kbd "v G") #'magit-display-repository-buffer)
+(define-key init-leader-map (kbd "v s") #'magit-stage-buffer-file)
+(define-key init-leader-map (kbd "v u") #'magit-unstage-buffer-file)
+(define-key init-leader-map (kbd "v d") #'magit-diff-buffer-file)
+(define-key init-leader-map (kbd "v D") #'magit-diff)
+(define-key init-leader-map (kbd "v l") #'magit-log-buffer-file)
+(define-key init-leader-map (kbd "v L") #'magit-log)
+(define-key init-leader-map (kbd "v b") #'magit-blame-addition)
+(define-key init-leader-map (kbd "v B") #'magit-blame)
+(define-key init-leader-map (kbd "v f") #'magit-find-file)
+(define-key init-leader-map (kbd "v F") #'magit-blob-visit-file)
+(define-key init-leader-map (kbd "v n") #'magit-blob-next)
+(define-key init-leader-map (kbd "v p") #'magit-blob-previous)
+(define-key init-leader-map (kbd "v t") #'git-timemachine)
+(define-key init-leader-map (kbd "l b") #'ibuffer)
+(define-key init-leader-map (kbd "p l b") #'projectile-ibuffer)
+(define-key init-leader-map (kbd "e") #'eshell-dwim)
+(define-key init-leader-map (kbd "p e") #'eshell-dwim-project)
+(define-key init-leader-map (kbd "n w") #'widen)
+(define-key init-leader-map (kbd "n n") #'narrow-to-region)
+(define-key init-leader-map (kbd "n d") #'narrow-to-defun)
+(define-key init-leader-map (kbd "n p") #'narrow-to-page)
+(define-key init-leader-map (kbd "g g") #'rg-menu)
+(define-key init-leader-map (kbd "g d") #'rg-dwim)
+(define-key init-leader-map (kbd "g c") #'rg-dwim-current-dir)
+(define-key init-leader-map (kbd "g f") #'rg-dwim-current-file)
+(define-key init-leader-map (kbd "g o") #'occur)
+(define-key init-leader-map (kbd "g n") #'next-error)
+(define-key init-leader-map (kbd "g p") #'previous-error)
+(define-key init-leader-map (kbd "s") #'helm-occur)
+(define-key init-leader-map (kbd "i") #'helm-imenu)
+(define-key init-leader-map (kbd "I") #'helm-imenu-in-all-buffers)
+(define-key init-leader-map (kbd "l g") #'helm-do-grep-ag)
+(define-key init-leader-map (kbd "l f") #'helm-find)
+(define-key init-leader-map (kbd "l r") #'helm-register)
+(define-key init-leader-map (kbd "l m") #'helm-all-mark-rings)
+(define-key init-leader-map (kbd "$") #'ispell-word)
+(define-key init-leader-map (kbd "%") #'query-replace-regexp)
+(define-key init-leader-map (kbd "=") #'format-all-region-or-buffer)
+(define-key init-leader-map (kbd ".") #'xref-find-definitions)
+(define-key init-leader-map (kbd "?") #'xref-find-references)
+(define-key init-leader-map (kbd ",") #'xref-go-back)
+(define-key init-leader-map (kbd "4 .") #'xref-find-definitions-other-window)
+(define-key init-leader-map (kbd "(") #'sp-wrap-round)
+(define-key init-leader-map (kbd "[") #'sp-wrap-square)
+(define-key init-leader-map (kbd "{") #'sp-wrap-curly)
+(define-key init-leader-map (kbd "m a") #'auto-save-visited-mode)
+(define-key init-leader-map (kbd "m t") #'toggle-truncate-lines)
+(define-key init-leader-map (kbd "m h") #'hl-line-mode)
+(define-key init-leader-map (kbd "m l") #'display-line-numbers-mode)
+(define-key init-leader-map (kbd "m L") #'init-toggle-line-numbers-type)
+(define-key init-leader-map (kbd "m s") #'whitespace-mode)
+(define-key init-leader-map (kbd "m v") #'visual-line-mode)
+(define-key init-leader-map (kbd "h h") #'help-for-help)
+(define-key init-leader-map (kbd "h .") #'display-local-help)
+(define-key init-leader-map (kbd "h i") #'info)
+(define-key init-leader-map (kbd "4 h i") #'info-other-window)
+(define-key init-leader-map (kbd "h l") #'view-lossage)
+(define-key init-leader-map (kbd "h e") #'view-echo-area-messages)
+(define-key init-leader-map (kbd "h d") #'dashboard-open)
+(define-key init-leader-map (kbd "h s") #'scratch-buffer)
+(define-key init-leader-map (kbd "h o") #'helm-apropos)
+(define-key init-leader-map (kbd "h x") #'helpful-command)
+(define-key init-leader-map (kbd "h f") #'helpful-function)
+(define-key init-leader-map (kbd "h v") #'helpful-variable)
+(define-key init-leader-map (kbd "h p") #'describe-package)
+(define-key init-leader-map (kbd "h P") #'helm-packages)
+(define-key init-leader-map (kbd "h m") #'describe-mode)
+(define-key init-leader-map (kbd "h b") #'helm-descbinds)
+(define-key init-leader-map (kbd "h B") #'describe-keymap)
+(define-key init-leader-map (kbd "h w") #'where-is)
+(define-key init-leader-map (kbd "h k") #'helpful-key)
+(define-key init-leader-map (kbd "h c") #'describe-key-briefly)
+(define-key init-leader-map (kbd "h t l") #'load-library)
+(define-key init-leader-map (kbd "h t f") #'load-file)
+(define-key init-leader-map (kbd "h t t") #'helm-themes)
+(define-key init-leader-map (kbd "h L") #'helm-locate-library)
+(define-key init-leader-map (kbd "h F") #'find-function)
+(define-key init-leader-map (kbd "h V") #'find-variable)
+(define-key init-leader-map (kbd "h K") #'find-function-on-key)
+(define-key init-leader-map (kbd "4 h L") #'find-library-other-window)
+(define-key init-leader-map (kbd "4 h F") #'find-function-other-window)
+(define-key init-leader-map (kbd "4 h V") #'find-variable-other-window)
+(define-key init-leader-map (kbd "4 h K") #'find-function-on-key-other-window)
 
 ;;; end
 

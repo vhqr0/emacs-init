@@ -7,4 +7,4 @@
   (load custom-file))
 
 (load-file (expand-file-name "emacs-init/lisp/init-core.el" user-emacs-directory))
-(init-load-modules)
+(init-load)
