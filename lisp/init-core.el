@@ -63,6 +63,7 @@
      (with-editor :type elpa)
      (magit :type elpa)
      (git-timemachine :type elpa)
+     (diff-hl :type vc :url "https://github.com/emacsmirror/diff-hl")
      (rg :type elpa)
      (wgrep :type elpa)
      (wgrep-helm :type elpa)
@@ -145,6 +146,14 @@
     (package-vc-install package)))
 
 ;;; commands
+
+(defun init-select-packages ()
+  (interactive)
+  (dolist (package (init-required-packages))
+    (if (eq (plist-get (cdr package) :type) 'elpa)
+        (add-to-list 'package-selected-packages (car package))
+      (add-to-list 'package-vc-selected-packages package)))
+  (custom-save-all))
 
 (defun init-install (&optional force)
   (interactive "P")

@@ -667,6 +667,10 @@
 (autoload 'magit-blob-next "magit" nil t)
 (autoload 'magit-blob-previous "magit" nil t)
 
+(require 'diff-hl)
+
+(global-diff-hl-mode 1)
+
 ;;;; grep
 
 (setq! wgrep-auto-save-buffer t)
@@ -905,6 +909,8 @@
 (define-key init-leader-map (kbd "v n") #'magit-blob-next)
 (define-key init-leader-map (kbd "v p") #'magit-blob-previous)
 (define-key init-leader-map (kbd "v t") #'git-timemachine)
+(define-key init-leader-map (kbd "v [") #'diff-hl-previous-hunk)
+(define-key init-leader-map (kbd "v ]") #'diff-hl-next-hunk)
 (define-key init-leader-map (kbd "l b") #'ibuffer)
 (define-key init-leader-map (kbd "p l b") #'projectile-ibuffer)
 (define-key init-leader-map (kbd "e") #'eshell-dwim)
