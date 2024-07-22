@@ -83,14 +83,15 @@
      (orgit :type elpa)
      ;; leaders
      (god-mode :type vc :url "https://github.com/emacsmirror/god-mode"))
+    (init-python
+     (python-mls :type vc :url "https://github.com/emacsmirror/python-mls"))
+    (init-hylang
+     (hy-mode :type vc :url "https://github.com/vhqr0/hy-mode"))
     (init-clojure
      (clojure-mode :type elpa)
      (cider :type elpa)
      (clj-refactor :type elpa)
      (helm-cider :type elpa))
-    (init-python
-     (python-mls :type vc :url "https://github.com/emacsmirror/python-mls")
-     (hy-mode :type vc :url "https://github.com/vhqr0/hy-mode"))
     (init-pyim
      (pyim :type elpa)
      (pyim-basedict :type elpa)
@@ -103,8 +104,9 @@
 
 (defvar init-enabled-modules
   '(init-emacs
-    ;; init-clojure
     ;; init-python
+    ;; init-hylang
+    ;; init-clojure
     ;; init-pyim
     ;; init-roam
     ))
