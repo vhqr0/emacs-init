@@ -56,6 +56,9 @@
      (yasnippet-snippets :type elpa)
      (flycheck :type elpa)
      (format-all :type elpa)
+     (lsp-mode :type elpa)
+     (lsp-ui :type elpa)
+     (helm-lsp :type elpa)
      ;; tools
      (ibuffer-vc :type vc :url "https://github.com/emacsmirror/ibuffer-vc")
      (diredfl :type vc :url "https://github.com/emacsmirror/diredfl")
@@ -84,7 +87,8 @@
      ;; leaders
      (god-mode :type vc :url "https://github.com/emacsmirror/god-mode"))
     (init-python
-     (python-mls :type vc :url "https://github.com/emacsmirror/python-mls"))
+     (python-mls :type vc :url "https://github.com/emacsmirror/python-mls")
+     (lsp-pyright :type elpa))
     (init-hylang
      (hy-mode :type vc :url "https://github.com/vhqr0/hy-mode"))
     (init-clojure
