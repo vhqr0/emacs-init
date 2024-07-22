@@ -29,4 +29,4 @@
  :when '(sp-in-string-p sp-in-comment-p)
  :unless '(sp-lisp-invalid-hyperlink-p))
 
-(provide 'init-python)
+(provide 'init-hylang)
