@@ -335,6 +335,11 @@ FUNC and ARGS see `evil-set-cursor'."
     (when eval-function
       (funcall eval-function beg end))))
 
+(evil-define-operator init-evil-operator-format (beg end)
+  :move-point nil
+  (interactive "<r>")
+  (format-all-region beg end))
+
 (evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
   (evil-range
    (save-excursion (goto-char (line-beginning-position)) (back-to-indentation) (point))
@@ -374,6 +379,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key evil-normal-state-map "gc" #'init-evil-operator-comment)
 (define-key evil-motion-state-map "g-" #'init-evil-operator-narrow)
 (define-key evil-motion-state-map "gy" #'init-evil-operator-eval)
+(define-key evil-motion-state-map "g=" #'init-evil-operator-format)
 (define-key evil-inner-text-objects-map "l" #'init-evil-inner-line)
 (define-key evil-outer-text-objects-map "l" #'init-evil-a-line)
 (define-key evil-inner-text-objects-map "d" #'init-evil-inner-defun)

@@ -1,4 +1,9 @@
-;;; -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-python --- Init Python -*- lexical-binding: t; no-native-compile: t -*-
+
+;;; Commentary:
+;; Various init configuration for Python language.
+
+;;; Code:
 
 (require 'init-emacs)
 
@@ -11,6 +16,7 @@
 (add-hook 'inferior-python-mode-hook #'python-mls-mode)
 
 (defun init-python-fix-defaults ()
+  "Fix local variables for `python-mode'."
   (setq-local comment-inline-offset 2
               forward-sexp-function nil))
 
@@ -21,3 +27,4 @@
   (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
 
 (provide 'init-python)
+;;; init-python.el ends here

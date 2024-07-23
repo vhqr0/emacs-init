@@ -1,4 +1,9 @@
-;;; -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-hylang --- Init Hylang -*- lexical-binding: t; no-native-compile: t -*-
+
+;;; Commentary:
+;; Various init for Hy language.
+
+;;; Code:
 
 (require 'init-emacs)
 
@@ -32,3 +37,4 @@
 (add-hook 'hy-mode-hook #'init-enable-smartparens)
 
 (provide 'init-hylang)
+;;; init-hylang.el ends here

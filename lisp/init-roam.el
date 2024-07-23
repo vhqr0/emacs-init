@@ -1,4 +1,9 @@
-;;; -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-roam --- Init Org Roam -*- lexical-binding: t; no-native-compile: t -*-
+
+;;; Commentary:
+;; Init configuration to use Org Roam note taking tool.
+
+;;; Code:
 
 (require 'init-emacs)
 
@@ -19,3 +24,4 @@
 (global-set-key (kbd "C-c n") init-roam-prefix-map)
 
 (provide 'init-roam)
+;;; init-roam.el ends here
