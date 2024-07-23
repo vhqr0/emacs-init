@@ -2,8 +2,7 @@
 
 (defvar early-init-file-name-handler-alist file-name-handler-alist)
 
-(setq read-process-output-max (* 1024 1024)
-      gc-cons-percentage 0.8
+(setq gc-cons-percentage 0.8
       gc-cons-threshold most-positive-fixnum
       file-name-handler-alist nil)
 

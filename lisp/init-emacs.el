@@ -19,6 +19,8 @@
 
 (setq! system-time-locale "C")
 
+(setq! read-process-output-max (* 1024 1024))
+
 (require 'gcmh)
 
 (init-diminish-minor-mode 'gcmh-mode)
