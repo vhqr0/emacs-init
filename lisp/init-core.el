@@ -65,7 +65,7 @@
      (git-modes :type elpa)
      (with-editor :type elpa)
      (magit :type elpa)
-     (git-timemachine :type elpa)
+     (git-timemachine :type vc :url "https://github.com/emacsmirror/git-timemachine")
      (diff-hl :type vc :url "https://github.com/emacsmirror/diff-hl")
      (rg :type elpa)
      (wgrep :type elpa)
@@ -142,16 +142,16 @@
        '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
          ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
          ("melpa"  . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+
 (setq! package-quickstart t)
 
 (require 'package)
+(require 'package-vc)
 
 (defun init-install-package (package)
   (if (eq (plist-get (cdr package) :type) 'elpa)
       (package-install (car package))
     (package-vc-install package)))
-
-;;; commands
 
 (defun init-select-packages ()
   (interactive)
@@ -160,6 +160,8 @@
         (add-to-list 'package-selected-packages (car package))
       (add-to-list 'package-vc-selected-packages package)))
   (custom-save-all))
+
+;;; commands
 
 (defun init-install (&optional force)
   (interactive "P")

@@ -818,6 +818,7 @@
 (define-key init-leader-map (kbd "3") #'split-window-right)
 (define-key init-leader-map (kbd "o") #'other-window)
 (define-key init-leader-map (kbd "q") #'quit-window)
+
 (define-key init-leader-map (kbd "w w") #'evil-window-next)
 (define-key init-leader-map (kbd "w W") #'evil-window-prev)
 (define-key init-leader-map (kbd "w q") #'evil-quit)
@@ -838,6 +839,7 @@
 (define-key init-leader-map (kbd "w L") #'evil-window-move-far-right)
 (define-key init-leader-map (kbd "w <left>") #'winner-undo)
 (define-key init-leader-map (kbd "w <right>") #'winner-redo)
+
 (define-key init-leader-map (kbd "f") #'helm-find-files)
 (define-key init-leader-map (kbd "b") #'helm-buffers-list)
 (define-key init-leader-map (kbd "j") #'dired-jump)
@@ -856,6 +858,7 @@
 (define-key init-leader-map (kbd "t o") #'tab-bar-switch-to-next-tab)
 (define-key init-leader-map (kbd "t O") #'tab-bar-switch-to-prev-tab)
 (define-key init-leader-map (kbd "t u") #'tab-bar-undo-close-tab)
+
 (define-key init-leader-map (kbd "r m") #'bookmark-set)
 (define-key init-leader-map (kbd "r b") #'helm-bookmarks)
 (define-key init-leader-map (kbd "r e") #'helm-recentf)
@@ -865,6 +868,7 @@
 (define-key init-leader-map (kbd "r A") #'helm-org-agenda-files-headings)
 (define-key init-leader-map (kbd "r C") #'helm-org-capture-templates)
 (define-key init-leader-map (kbd "r n") #'helm-roam)
+
 (define-key init-leader-map (kbd "x g") #'revert-buffer-quick)
 (define-key init-leader-map (kbd "x G") #'revert-buffer)
 (define-key init-leader-map (kbd "x v") #'vc-refresh-state)
@@ -875,6 +879,7 @@
 (define-key init-leader-map (kbd "x p") #'bm-previous)
 (define-key init-leader-map (kbd "x <left>") #'previous-buffer)
 (define-key init-leader-map (kbd "x <right>") #'next-buffer)
+
 (define-key init-leader-map (kbd "p p") #'projectile-switch-project)
 (define-key init-leader-map (kbd "p i") #'projectile-invalidate-cache)
 (define-key init-leader-map (kbd "p f") #'projectile-find-file)
@@ -891,6 +896,7 @@
 (define-key init-leader-map (kbd "p &") #'projectile-run-async-shell-command-in-root)
 (define-key init-leader-map (kbd "p v") #'projectile-vc)
 (define-key init-leader-map (kbd "p g") #'projectile-ripgrep)
+
 (define-key init-leader-map (kbd "v v") #'magit-status)
 (define-key init-leader-map (kbd "v V") #'magit-dispatch)
 (define-key init-leader-map (kbd "v ?") #'magit-file-dispatch)
@@ -911,14 +917,24 @@
 (define-key init-leader-map (kbd "v t") #'git-timemachine)
 (define-key init-leader-map (kbd "v [") #'diff-hl-previous-hunk)
 (define-key init-leader-map (kbd "v ]") #'diff-hl-next-hunk)
+(define-key init-leader-map (kbd "v {") #'diff-hl-show-hunk-previous)
+(define-key init-leader-map (kbd "v }") #'diff-hl-show-hunk-next)
+(define-key init-leader-map (kbd "v *") #'diff-hl-show-hunk)
+(define-key init-leader-map (kbd "v =") #'diff-hl-diff-goto-hunk)
+(define-key init-leader-map (kbd "v S") #'diff-hl-stage-dwim)
+(define-key init-leader-map (kbd "v x") #'diff-hl-revert-hunk)
+
 (define-key init-leader-map (kbd "l b") #'ibuffer)
 (define-key init-leader-map (kbd "p l b") #'projectile-ibuffer)
+
 (define-key init-leader-map (kbd "e") #'eshell-dwim)
 (define-key init-leader-map (kbd "p e") #'eshell-dwim-project)
+
 (define-key init-leader-map (kbd "n w") #'widen)
 (define-key init-leader-map (kbd "n n") #'narrow-to-region)
 (define-key init-leader-map (kbd "n d") #'narrow-to-defun)
 (define-key init-leader-map (kbd "n p") #'narrow-to-page)
+
 (define-key init-leader-map (kbd "g g") #'rg-menu)
 (define-key init-leader-map (kbd "g d") #'rg-dwim)
 (define-key init-leader-map (kbd "g c") #'rg-dwim-current-dir)
@@ -926,6 +942,7 @@
 (define-key init-leader-map (kbd "g o") #'occur)
 (define-key init-leader-map (kbd "g n") #'next-error)
 (define-key init-leader-map (kbd "g p") #'previous-error)
+
 (define-key init-leader-map (kbd "s") #'helm-occur)
 (define-key init-leader-map (kbd "i") #'helm-imenu)
 (define-key init-leader-map (kbd "I") #'helm-imenu-in-all-buffers)
@@ -933,6 +950,7 @@
 (define-key init-leader-map (kbd "l f") #'helm-find)
 (define-key init-leader-map (kbd "l r") #'helm-register)
 (define-key init-leader-map (kbd "l m") #'helm-all-mark-rings)
+
 (define-key init-leader-map (kbd "$") #'ispell-word)
 (define-key init-leader-map (kbd "%") #'query-replace-regexp)
 (define-key init-leader-map (kbd "=") #'format-all-region-or-buffer)
@@ -943,6 +961,7 @@
 (define-key init-leader-map (kbd "(") #'sp-wrap-round)
 (define-key init-leader-map (kbd "[") #'sp-wrap-square)
 (define-key init-leader-map (kbd "{") #'sp-wrap-curly)
+
 (define-key init-leader-map (kbd "m a") #'auto-save-visited-mode)
 (define-key init-leader-map (kbd "m t") #'toggle-truncate-lines)
 (define-key init-leader-map (kbd "m h") #'hl-line-mode)
@@ -950,6 +969,7 @@
 (define-key init-leader-map (kbd "m L") #'init-toggle-line-numbers-type)
 (define-key init-leader-map (kbd "m s") #'whitespace-mode)
 (define-key init-leader-map (kbd "m v") #'visual-line-mode)
+
 (define-key init-leader-map (kbd "h h") #'help-for-help)
 (define-key init-leader-map (kbd "h .") #'display-local-help)
 (define-key init-leader-map (kbd "h i") #'info)
