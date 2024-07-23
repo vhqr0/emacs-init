@@ -1,4 +1,9 @@
-;;; -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-core --- Core Framework -*- lexical-binding: t; no-native-compile: t -*-
+
+;;; Commentary:
+;; Core framework for Emacs init files.
+
+;;; Code:
 
 (require 'cl-lib)
 
@@ -116,6 +121,7 @@
     ))
 
 (defun init-required-packages ()
+  "Return required packages based on `init-deps' and `init-enabled-modules'."
   (cl-delete-duplicates
    (apply #'append
           (mapcar
@@ -130,6 +136,7 @@
   (defvar init-override-variables nil))
 
 (defmacro setq! (sym val)
+  "`setq' SYM VAL that can be overridden via `init-override-variables'."
   (let ((val (or (cdr (assq sym init-override-variables)) val)))
     `(eval-and-compile
        (progn
@@ -149,11 +156,13 @@
 (require 'package-vc)
 
 (defun init-install-package (package)
+  "Install PACKAGE."
   (if (eq (plist-get (cdr package) :type) 'elpa)
       (package-install (car package))
     (package-vc-install package)))
 
 (defun init-select-packages ()
+  "Add required packages to selected packages."
   (interactive)
   (dolist (package (init-required-packages))
     (if (eq (plist-get (cdr package) :type) 'elpa)
@@ -164,12 +173,14 @@
 ;;; commands
 
 (defun init-install (&optional force)
+  "Install all required packages.  FORCE reinstall."
   (interactive "P")
   (dolist (package (init-required-packages))
     (when (or force (not (package-installed-p (car package))))
       (init-install-package package))))
 
 (defun init-compile (&optional force)
+  "Compile all module files.  FORCE recompile."
   (interactive "P")
   (let ((compile-function (if force #'byte-compile-file #'byte-recompile-file)))
     (dolist (module (cons 'init-core init-enabled-modules))
@@ -177,7 +188,9 @@
         (funcall compile-function filename)))))
 
 (defun init-load ()
+  "Load all module files."
   (dolist (module init-enabled-modules)
     (require module)))
 
 (provide 'init-core)
+;;; init-core.el ends here
