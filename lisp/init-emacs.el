@@ -1,12 +1,18 @@
-;;; -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-emacs.el --- Init Emacs -*- lexical-binding: t; no-native-compile: t -*-
+
+;;; Commentary:
+;; Various init configuration for Emacs itself.
 
 (require 'cl-lib)
 (require 'dash)
 (require 'init-core)
 
+;;; Code:
+
 ;;; utils
 
 (defun init-diminish-minor-mode (mode)
+  "Diminish MODE lighter."
   (setq minor-mode-alist
         (->> minor-mode-alist
              (--remove (eq (car it) mode)))))
@@ -79,6 +85,7 @@
   '(blink-cursor-mode tooltip-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
 
 (defun init-disable-ui ()
+  "Disable various ui modes."
   (interactive)
   (dolist (mode init-disabled-ui-modes)
     (when (fboundp mode)
@@ -128,6 +135,7 @@
 (require 'display-line-numbers)
 
 (defun init-toggle-line-numbers-type ()
+  "Toggle local display type of line numbers."
   (interactive)
   (setq-local display-line-numbers-type
               (if (eq display-line-numbers-type 'relative)
@@ -139,6 +147,7 @@
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (defun init-set-trailing-whitespace-display ()
+  "Set local display of trailing whitespace."
   (setq-local show-trailing-whitespace t))
 
 (add-hook 'text-mode-hook #'init-set-trailing-whitespace-display)
@@ -242,6 +251,8 @@
   '(sp-forward-sexp sp-previous-sexp forward-sexp forward-list))
 
 (defun init-around-evil-adjust-cursor (func &rest args)
+  "Dont adjust cursor after certain commands.
+FUNC and ARGS see `evil-set-cursor'."
   (unless (memq this-command init-evil-adjust-cursor-disabled-commands)
     (apply func args)))
 
@@ -280,6 +291,7 @@
 (evil-multiedit-default-keybinds)
 
 (defun init-evil-escape ()
+  ":imap jk <esc>."
   (interactive)
   (if (or executing-kbd-macro
           defining-kbd-macro
@@ -314,8 +326,7 @@
 
 (defvar init-evil-eval-function-alist
   '((emacs-lisp-mode . eval-region)
-    (lisp-interaction-mode . eval-region)
-    (lisp-mode . lisp-eval-region)))
+    (lisp-interaction-mode . eval-region)))
 
 (evil-define-operator init-evil-operator-eval (beg end)
   :move-point nil
@@ -418,8 +429,9 @@
 (helm-descbinds-mode 1)
 
 (defun init-helm-history ()
+  "Place holder to remap to local helm history commands."
   (interactive)
-  (user-error "No history command found for current major mode."))
+  (user-error "No history command found for current major mode"))
 
 (global-set-key (kbd "M-x") #'helm-M-x)
 (global-set-key (kbd "M-y") #'helm-show-kill-ring)
@@ -432,6 +444,7 @@
 (define-key minibuffer-mode-map [remap init-helm-history] #'helm-minibuffer-history)
 
 (defun init-open-files (&optional files)
+  "Open FILES externally with `helm-open-file-with-default-tool'."
   (interactive)
   (require 'helm-utils)
   (let* ((files (cond (files)
@@ -489,9 +502,11 @@
 (define-key evil-operator-state-map "?" #'evil-search-backward)
 
 (defun init-after-swiper-isearch-forward (&rest _)
+  "Reset `v/isearch-forward' after `swiper'."
   (setq isearch-forward t isearch-regexp t))
 
 (defun init-after-swiper-isearch-backward (&rest _)
+  "Reset `v/isearch-forward' after `swiper'."
   (setq isearch-forward nil isearch-regexp t))
 
 (advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
@@ -513,11 +528,12 @@
 (setq! helm-man-or-woman-function #'woman)
 
 (defun init-lookup-setup-command (command)
+  "Setup COMMAND as local help command."
   (setq-local evil-lookup-func command)
   (local-set-key [remap display-local-help] command))
 
-(defun init-lookup-setup-helpful () (init-lookup-setup-command #'helpful-at-point))
-(defun init-lookup-setup-woman   () (init-lookup-setup-command #'helm-man-woman))
+(defun init-lookup-setup-helpful () "Setup helpful." (init-lookup-setup-command #'helpful-at-point))
+(defun init-lookup-setup-woman   () "Setup woman."   (init-lookup-setup-command #'helm-man-woman))
 
 (defvar init-lookup-helpful-mode-hooks
   '(emacs-lisp-mode-hook lisp-interaction-mode-hook help-mode-hook helpful-mode-hook Info-mode-hook))
@@ -693,9 +709,11 @@
 (defvar eshell-mode-map)
 
 (defun init-eshell-set-company ()
+  "Clean company backends."
   (setq-local company-backends '(company-files)))
 
 (defun init-eshell-remap-helm ()
+  "Remap eshell local maps to helm commands."
   (define-key eshell-mode-map [remap completion-at-point] #'helm-esh-pcomplete)
   (define-key eshell-mode-map [remap helm-imenu] #'helm-eshell-prompts)
   (define-key eshell-mode-map [remap helm-imenu-in-all-buffers] #'helm-eshell-prompts-all)
@@ -726,6 +744,7 @@
 (init-diminish-minor-mode 'evil-cleverparens-mode)
 
 (defun init-enable-smartparens ()
+  "Init smartparens related modes for lispy mode."
   (interactive)
   (smartparens-strict-mode 1)
   (evil-cleverparens-mode 1))
@@ -738,6 +757,8 @@
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (define-key map (kbd "C-c e") #'macrostep-expand))
+
+(setq! flycheck-emacs-lisp-load-path load-path)
 
 ;;; markdown
 
@@ -763,6 +784,7 @@
 (add-to-list 'org-modules 'org-tempo)
 
 (defun init-org-modify-syntax ()
+  "Modify `org-mode' syntax table."
   (modify-syntax-entry ?< "." org-mode-syntax-table)
   (modify-syntax-entry ?> "." org-mode-syntax-table))
 
@@ -797,6 +819,7 @@
   (kbd "SPC") init-leader-map)
 
 (defun init-leader-universal-argument ()
+  "Magic universal arguments for `init-leader-map'."
   (interactive)
   (setq prefix-arg
         (list (if current-prefix-arg
@@ -971,6 +994,8 @@
 (define-key init-leader-map (kbd "m L") #'init-toggle-line-numbers-type)
 (define-key init-leader-map (kbd "m s") #'whitespace-mode)
 (define-key init-leader-map (kbd "m v") #'visual-line-mode)
+(define-key init-leader-map (kbd "m c") #'flycheck-mode)
+(define-key init-leader-map (kbd "m C") #'global-flycheck-mode)
 
 (define-key init-leader-map (kbd "h h") #'help-for-help)
 (define-key init-leader-map (kbd "h .") #'display-local-help)
@@ -1007,3 +1032,4 @@
 ;;; end
 
 (provide 'init-emacs)
+;;; init-emacs.el ends here

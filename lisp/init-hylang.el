@@ -29,4 +29,6 @@
  :when '(sp-in-string-p sp-in-comment-p)
  :unless '(sp-lisp-invalid-hyperlink-p))
 
+(add-hook 'hy-mode-hook #'init-enable-smartparens)
+
 (provide 'init-hylang)
