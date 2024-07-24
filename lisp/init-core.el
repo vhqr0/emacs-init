@@ -65,7 +65,6 @@
      (lsp-ui :type elpa)
      (helm-lsp :type elpa)
      ;; tools
-     (ibuffer-vc :type vc :url "https://github.com/emacsmirror/ibuffer-vc")
      (diredfl :type vc :url "https://github.com/emacsmirror/diredfl")
      (git-modes :type elpa)
      (with-editor :type elpa)

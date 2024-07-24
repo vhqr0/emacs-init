@@ -29,7 +29,7 @@
   (define-key clj-refactor-map [remap sp-splice-sexp-killing-forward] #'cljr-splice-sexp-killing-forward)
   (define-key clj-refactor-map [remap sp-splice-sexp-killing-backward] #'cljr-splice-sexp-killing-backward)
   (helm-cider--override)
-  (define-key cider-repl-mode-map [remap helm-x-history] #'helm-cider-repl-history))
+  (define-key cider-repl-mode-map [remap init-history-placeholder] #'helm-cider-repl-history))
 
 (defun init-lookup-setup-cider () "Setup cider doc." (init-lookup-setup-command #'cider-doc))
 
@@ -53,10 +53,9 @@
   (:format
    (format-all--buffer-native
     'clojurec-mode
-    (let ((f (symbol-function 'cider-format-region)))
-      (if region
-          (lambda () (when f (funcall f (car region) (cdr region))))
-        (lambda () (when f (funcall f (point-min) (point-max)))))))))
+    (if region
+        (lambda () (cider-format-region (car region) (cdr region)))
+      (lambda () (cider-format-region (point-min) (point-max)))))))
 
 (provide 'init-clojure)
 ;;; init-clojure.el ends here

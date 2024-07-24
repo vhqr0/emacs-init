@@ -434,20 +434,18 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (helm-descbinds-mode 1)
 
-(defun init-helm-history ()
-  "Place holder to remap to local helm history commands."
-  (interactive)
-  (user-error "No history command found for current major mode"))
-
 (global-set-key (kbd "M-x") #'helm-M-x)
 (global-set-key (kbd "M-y") #'helm-show-kill-ring)
 (global-set-key (kbd "C-c b") #'helm-resume)
-(global-set-key (kbd "C-c h") #'init-helm-history)
+
+(defun init-history-placeholder ()
+  "Placeholder for `M-r' to search history in insert mode."
+  (interactive))
 
 (evil-define-key '(insert) init-evil-override-mode-map
-  (kbd "M-r")  #'init-helm-history)
+  (kbd "M-r")  #'init-history-placeholder)
 
-(define-key minibuffer-mode-map [remap init-helm-history] #'helm-minibuffer-history)
+(define-key minibuffer-mode-map [remap init-history-placeholder] #'helm-minibuffer-history)
 
 (defun init-open-files (&optional files)
   "Open FILES externally with `helm-open-file-with-default-tool'."
@@ -497,7 +495,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (global-set-key (kbd "C-s") #'swiper-isearch)
 (global-set-key (kbd "C-r") #'swiper-isearch-backward)
 
-(define-key swiper-isearch-map [remap init-helm-history] #'swiper-isearch-C-r)
+(define-key swiper-isearch-map [remap init-history-placeholder] #'swiper-isearch-C-r)
 (define-key swiper-isearch-map (kbd "TAB") #'swiper-isearch-toggle)
 (define-key isearch-mode-map (kbd "TAB") #'swiper-isearch-toggle)
 
@@ -598,15 +596,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-company-mode 1)
 
-(defvar-keymap init-company-prefix-map
-  "<tab>" #'company-complete
-  "TAB"   #'company-complete
-  "c"     #'company-capf
-  "f"     #'company-files
-  "/"     #'company-dabbrev
-  "y"     #'company-yasnippet)
-
-(global-set-key (kbd "C-c c") init-company-prefix-map)
+(global-set-key (kbd "C-c c") #'company-complete)
 
 ;;;; yasnippet
 
@@ -618,17 +608,11 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (yas-global-mode 1)
 
-(defvar-keymap init-yasnippet-prefix-map
-  "<tab>" #'yas-expand-from-trigger-key
-  "TAB"   #'yas-expand-from-trigger-key
-  "s"     #'yas-insert-snippet
-  "n"     #'yas-new-snippet
-  "v"     #'yas-visit-snippet-file
-  "h"     #'yas-describe-tables)
-
-(global-set-key (kbd "C-c y") init-yasnippet-prefix-map)
+(global-set-key (kbd "C-c y") #'yas-expand-from-trigger-key)
 
 ;;;; checker
+
+;;;;; flymake
 
 (defvar flymake-mode-map)
 (declare-function flymake-goto-next-error "flymake")
@@ -637,6 +621,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (with-eval-after-load 'flymake
   (define-key flymake-mode-map (kbd "M-n") #'flymake-goto-next-error)
   (define-key flymake-mode-map (kbd "M-p") #'flymake-goto-prev-error))
+
+;;;;; flycheck
 
 (defvar flycheck-mode-map)
 (declare-function flycheck-next-error "flycheck")
@@ -647,24 +633,6 @@ FUNC and ARGS see `evil-set-cursor'."
   (define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error))
 
 ;;; tools
-
-;;;; buffers
-
-(require 'ibuffer)
-(require 'ibuffer-vc)
-
-(setq! ibuffer-formats
-       '((mark " " modified read-only locked vc-status-mini
-               " " (name 40 40 :left :elide)
-               " " (size 9 -1 :right)
-               " " (mode 16 16 :left :elide)
-               " " (vc-status 16 16 :left :elide)
-               " " vc-relative-file)))
-
-(define-key ibuffer-mode-map (kbd "s V") #'ibuffer-do-sort-by-vc-status)
-
-(evil-collection-define-key 'normal 'ibuffer-mode-map
-  (kbd "o V") #'ibuffer-do-sort-by-vc-status)
 
 ;;;; dired
 
@@ -708,7 +676,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (with-eval-after-load 'comint
   (define-key comint-mode-map [remap helm-imenu] #'helm-comint-prompts)
   (define-key comint-mode-map [remap helm-imenu-in-all-buffers] #'helm-comint-prompts-all)
-  (define-key comint-mode-map [remap init-helm-history] #'helm-comint-input-ring))
+  (define-key comint-mode-map [remap init-history-placeholder] #'helm-comint-input-ring))
 
 ;;;; eshell
 
@@ -723,7 +691,7 @@ FUNC and ARGS see `evil-set-cursor'."
   (define-key eshell-mode-map [remap completion-at-point] #'helm-esh-pcomplete)
   (define-key eshell-mode-map [remap helm-imenu] #'helm-eshell-prompts)
   (define-key eshell-mode-map [remap helm-imenu-in-all-buffers] #'helm-eshell-prompts-all)
-  (define-key eshell-mode-map [remap init-helm-history] #'helm-eshell-history))
+  (define-key eshell-mode-map [remap init-history-placeholder] #'helm-eshell-history))
 
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'init-eshell-set-company)
@@ -849,6 +817,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "3") #'split-window-right)
 (define-key init-leader-map (kbd "o") #'other-window)
 (define-key init-leader-map (kbd "q") #'quit-window)
+(define-key init-leader-map (kbd "`") #'tmm-menubar)
 
 (define-key init-leader-map (kbd "w w") #'evil-window-next)
 (define-key init-leader-map (kbd "w W") #'evil-window-prev)
@@ -955,9 +924,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "v S") #'diff-hl-stage-dwim)
 (define-key init-leader-map (kbd "v x") #'diff-hl-revert-hunk)
 
-(define-key init-leader-map (kbd "l b") #'ibuffer)
-(define-key init-leader-map (kbd "p l b") #'projectile-ibuffer)
-
 (define-key init-leader-map (kbd "e") #'eshell-dwim)
 (define-key init-leader-map (kbd "p e") #'eshell-dwim-project)
 
@@ -977,14 +943,11 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "s") #'helm-occur)
 (define-key init-leader-map (kbd "i") #'helm-imenu)
 (define-key init-leader-map (kbd "I") #'helm-imenu-in-all-buffers)
-(define-key init-leader-map (kbd "l g") #'helm-do-grep-ag)
-(define-key init-leader-map (kbd "l f") #'helm-find)
-(define-key init-leader-map (kbd "l r") #'helm-register)
-(define-key init-leader-map (kbd "l m") #'helm-all-mark-rings)
+(define-key init-leader-map (kbd "S") #'helm-do-grep-ag)
+(define-key init-leader-map (kbd "F") #'helm-find)
 
-(define-key init-leader-map (kbd "$") #'ispell-word)
-(define-key init-leader-map (kbd "%") #'query-replace-regexp)
 (define-key init-leader-map (kbd "=") #'format-all-region-or-buffer)
+(define-key init-leader-map (kbd "%") #'query-replace-regexp)
 (define-key init-leader-map (kbd ".") #'xref-find-definitions)
 (define-key init-leader-map (kbd "?") #'xref-find-references)
 (define-key init-leader-map (kbd ",") #'xref-go-back)
@@ -994,14 +957,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "{") #'sp-wrap-curly)
 
 (define-key init-leader-map (kbd "m a") #'auto-save-visited-mode)
+(define-key init-leader-map (kbd "m A") #'auto-revert-mode)
 (define-key init-leader-map (kbd "m t") #'toggle-truncate-lines)
-(define-key init-leader-map (kbd "m h") #'hl-line-mode)
 (define-key init-leader-map (kbd "m l") #'display-line-numbers-mode)
 (define-key init-leader-map (kbd "m L") #'init-toggle-line-numbers-type)
+(define-key init-leader-map (kbd "m h") #'hl-line-mode)
 (define-key init-leader-map (kbd "m s") #'whitespace-mode)
 (define-key init-leader-map (kbd "m v") #'visual-line-mode)
+(define-key init-leader-map (kbd "m s") #'lsp)
 (define-key init-leader-map (kbd "m c") #'flycheck-mode)
-(define-key init-leader-map (kbd "m C") #'global-flycheck-mode)
 
 (define-key init-leader-map (kbd "h h") #'help-for-help)
 (define-key init-leader-map (kbd "h .") #'display-local-help)
