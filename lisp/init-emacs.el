@@ -610,27 +610,12 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-set-key (kbd "C-c y") #'yas-expand-from-trigger-key)
 
-;;;; checker
+;;;; flycheck
 
-;;;;; flymake
+(require 'flycheck)
 
-(defvar flymake-mode-map)
-(declare-function flymake-goto-next-error "flymake")
-(declare-function flymake-goto-prev-error "flymake")
-
-(with-eval-after-load 'flymake
-  (define-key flymake-mode-map (kbd "M-n") #'flymake-goto-next-error)
-  (define-key flymake-mode-map (kbd "M-p") #'flymake-goto-prev-error))
-
-;;;;; flycheck
-
-(defvar flycheck-mode-map)
-(declare-function flycheck-next-error "flycheck")
-(declare-function flycheck-previous-error "flycheck")
-
-(with-eval-after-load 'flycheck
-  (define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
-  (define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error))
+(define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
+(define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error)
 
 ;;; tools
 
@@ -673,10 +658,11 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; shell
 
-(with-eval-after-load 'comint
-  (define-key comint-mode-map [remap helm-imenu] #'helm-comint-prompts)
-  (define-key comint-mode-map [remap helm-imenu-in-all-buffers] #'helm-comint-prompts-all)
-  (define-key comint-mode-map [remap init-history-placeholder] #'helm-comint-input-ring))
+(require 'comint)
+
+(define-key comint-mode-map [remap helm-imenu] #'helm-comint-prompts)
+(define-key comint-mode-map [remap helm-imenu-in-all-buffers] #'helm-comint-prompts-all)
+(define-key comint-mode-map [remap init-history-placeholder] #'helm-comint-input-ring)
 
 ;;;; eshell
 
@@ -732,7 +718,11 @@ FUNC and ARGS see `evil-set-cursor'."
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (define-key map (kbd "C-c e") #'macrostep-expand))
 
+(require 'flycheck-package)
+
 (setq! flycheck-emacs-lisp-load-path load-path)
+
+(add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
 ;;; markdown
 
@@ -783,8 +773,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (evil-org-agenda-set-keys)
 
-(autoload 'helm-roam "helm-roam" nil t)
-
 ;;; leaders
 
 (defvar init-leader-map (make-sparse-keymap))
@@ -801,8 +789,7 @@ FUNC and ARGS see `evil-set-cursor'."
                 4)))
   (set-transient-map init-leader-map))
 
-(autoload 'god-mode-self-insert "god-mode" nil t)
-(declare-function god-mode-self-insert "god-mode")
+(require 'god-mode)
 
 (define-key init-leader-map (kbd "SPC") #'helm-mini)
 (define-key init-leader-map (kbd "u") #'init-leader-universal-argument)

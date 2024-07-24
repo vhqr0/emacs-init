@@ -7,36 +7,34 @@
 
 (require 'init-emacs)
 
+(require 'clojure-mode)
+(require 'cider)
+(require 'helm-cider)
+(require 'clj-refactor)
+(require 'flycheck-clj-kondo)
+
 (defvar init-clojure-modes '(clojure-mode clojurescript-mode clojurec-mode cider-repl-mode))
 (defvar init-clojure-mode-hooks '(clojure-mode-hook clojurescript-mode-hook clojurec-mode-hook cider-repl-mode-hook))
-
-(defvar clojure-mode-map)
-(defvar cider-repl-mode-map)
-(defvar clj-refactor-map)
-(defvar cljr--all-helpers)
-
-(declare-function cider-doc "cider-doc")
-(declare-function helm-cider--override "helm-cider")
-
-(with-eval-after-load 'clojure-mode
-  (require 'cider)
-  (require 'clj-refactor)
-  (require 'helm-cider)
-  (dolist (binding cljr--all-helpers)
-    (evil-define-key '(motion normal visual operator) clj-refactor-map
-      (concat "gr" (car binding)) (cadr binding)))
-  (define-key clj-refactor-map [remap sp-splice-sexp-killing-around] #'cljr-raise-sexp)
-  (define-key clj-refactor-map [remap sp-splice-sexp-killing-forward] #'cljr-splice-sexp-killing-forward)
-  (define-key clj-refactor-map [remap sp-splice-sexp-killing-backward] #'cljr-splice-sexp-killing-backward)
-  (helm-cider--override)
-  (define-key cider-repl-mode-map [remap init-history-placeholder] #'helm-cider-repl-history))
 
 (defun init-lookup-setup-cider () "Setup cider doc." (init-lookup-setup-command #'cider-doc))
 
 (dolist (hook init-clojure-mode-hooks)
   (add-hook hook #'clj-refactor-mode)
   (add-hook hook #'init-enable-smartparens)
-  (add-hook hook #'init-lookup-setup-cider))
+  (add-hook hook #'init-lookup-setup-cider)
+  (when (not (eq hook 'cider-repl-mode-hook))
+    (add-hook hook #'flycheck-mode)))
+
+(helm-cider--override)
+(define-key cider-repl-mode-map [remap init-history-placeholder] #'helm-cider-repl-history)
+
+(dolist (binding cljr--all-helpers)
+  (evil-define-key '(motion normal visual operator) clj-refactor-map
+    (concat "gr" (car binding)) (cadr binding)))
+
+(define-key clj-refactor-map [remap sp-splice-sexp-killing-around] #'cljr-raise-sexp)
+(define-key clj-refactor-map [remap sp-splice-sexp-killing-forward] #'cljr-splice-sexp-killing-forward)
+(define-key clj-refactor-map [remap sp-splice-sexp-killing-backward] #'cljr-splice-sexp-killing-backward)
 
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))

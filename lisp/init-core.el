@@ -98,8 +98,9 @@
     (init-clojure
      (clojure-mode :type elpa)
      (cider :type elpa)
+     (helm-cider :type elpa)
      (clj-refactor :type elpa)
-     (helm-cider :type elpa))
+     (flycheck-clj-kondo :type elpa))
     (init-pyim
      (pyim :type elpa)
      (pyim-basedict :type elpa)
