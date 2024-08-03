@@ -22,16 +22,9 @@
   '((init-emacs
      ;; essentials
      (dash :type elpa)
-     (s :type elpa)
-     (f :type elpa)
-     (gcmh :type vc :url "https://github.com/emacsmirror/gcmh")
      (embark :type elpa)
      ;; ui
      (dashboard :type elpa)
-     ;; lines
-     (page-break-lines :type vc :url "https://github.com/emacsmirror/page-break-lines")
-     (ws-butler :type vc :url "https://github.com/emacsmirror/ws-butler")
-     (bm :type vc :url "https://github.com/emacsmirror/bm")
      ;; parens
      (smartparens :type elpa)
      (rainbow-delimiters :type vc :url "https://github.com/emacsmirror/rainbow-delimiters")
@@ -40,7 +33,6 @@
      (evil-collection :type elpa)
      (evil-surround :type elpa)
      (evil-snipe :type vc :url "https://github.com/emacsmirror/evil-snipe")
-     (evil-multiedit :type vc :url "https://github.com/emacsmirror/evil-multiedit")
      ;; helm
      (helm :type elpa)
      (helm-ls-git :type elpa)
@@ -60,7 +52,7 @@
      (yasnippet :type elpa)
      (yasnippet-snippets :type elpa)
      (flycheck :type elpa)
-     (format-all :type elpa)
+     (apheleia :type elpa)
      (lsp-mode :type elpa)
      (lsp-ui :type elpa)
      (helm-lsp :type elpa)
@@ -75,8 +67,7 @@
      (wgrep :type elpa)
      (wgrep-helm :type elpa)
      (eshell-dwim :type vc :url "https://github.com/vhqr0/eshell-dwim")
-     ;; lisp
-     (evil-cleverparens :type elpa)
+     ;; elisp
      (macrostep :type elpa)
      (package-lint :type elpa)
      (flycheck-package :type elpa)
@@ -85,21 +76,18 @@
      (edit-indirect :type elpa)
      ;; org
      (htmlize :type elpa)
-     (evil-org :type elpa)
-     (helm-org :type elpa)
      (orgit :type elpa)
+     (helm-org :type elpa)
+     (evil-org :type elpa :type vc :url "https://github.com/emacsmirror/evil-org")
      ;; leaders
      (god-mode :type vc :url "https://github.com/emacsmirror/god-mode"))
     (init-python
      (python-mls :type vc :url "https://github.com/emacsmirror/python-mls")
      (lsp-pyright :type elpa))
-    (init-hylang
-     (hy-mode :type vc :url "https://github.com/vhqr0/hy-mode"))
     (init-clojure
      (clojure-mode :type elpa)
      (cider :type elpa)
      (helm-cider :type elpa)
-     (clj-refactor :type elpa)
      (flycheck-clj-kondo :type elpa))
     (init-pyim
      (pyim :type elpa)
@@ -114,7 +102,6 @@
 (defvar init-enabled-modules
   '(init-emacs
     ;; init-python
-    ;; init-hylang
     ;; init-clojure
     ;; init-pyim
     ;; init-roam

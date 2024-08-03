@@ -27,12 +27,6 @@
 
 (setq! read-process-output-max (* 1024 1024))
 
-(require 'gcmh)
-
-(init-diminish-minor-mode 'gcmh-mode)
-
-(gcmh-mode 1)
-
 (require 'repeat)
 
 (repeat-mode 1)
@@ -153,27 +147,6 @@
 (add-hook 'text-mode-hook #'init-set-trailing-whitespace-display)
 (add-hook 'prog-mode-hook #'init-set-trailing-whitespace-display)
 
-(require 'ws-butler)
-
-(init-diminish-minor-mode 'ws-butler-mode)
-
-(add-hook 'text-mode-hook #'ws-butler-mode)
-(add-hook 'prog-mode-hook #'ws-butler-mode)
-
-(setq! page-break-lines-lighter nil)
-
-(require 'page-break-lines)
-
-(global-page-break-lines-mode 1)
-
-(require 'bm)
-
-(defvar-keymap init-bm-repeat-map
-  :repeat t
-  "m" #'bm-toggle
-  "n" #'bm-next
-  "p" #'bm-previous)
-
 ;;; parens
 
 (require 'rainbow-delimiters)
@@ -181,56 +154,42 @@
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
 (setq! sp-ignore-modes-list nil)
-(setq! sp-base-key-bindings 'paredit)
-(setq! sp-paredit-bindings
-       '(("C-M-f"       . sp-forward-sexp)
-         ("C-M-b"       . sp-backward-sexp)
-         ("C-M-d"       . sp-down-sexp)
-         ("C-M-u"       . sp-backward-up-sexp)
-         ("C-M-n"       . sp-next-sexp)
-         ("C-M-p"       . sp-previous-sexp)
-         ("C-M-k"       . sp-kill-sexp)
-         ("C-M-w"       . sp-copy-sexp)
-         ("C-M-SPC"     . sp-mark-sexp)
-         ("C-k"         . sp-kill-hybrid-sexp)
-         ("M-r"         . sp-splice-sexp-killing-around)
-         ("M-R"         . sp-splice-sexp-killing-backward)
-         ("M-s"         . sp-splice-sexp)
-         ("M-S"         . sp-split-sexp)
-         ("M-J"         . sp-join-sexp)
-         ("M-?"         . sp-convolute-sexp)
-         ("C-<right>"   . sp-forward-slurp-sexp)
-         ("C-<left>"    . sp-forward-barf-sexp)
-         ("C-M-<left>"  . sp-backward-slurp-sexp)
-         ("C-M-<right>" . sp-backward-barf-sexp)))
 
 (require 'smartparens)
 (require 'smartparens-config)
 
-(sp-with-modes '(minibuffer-mode)
-  (sp-local-pair "'" nil :actions nil))
+(sp-local-pair 'minibuffer-mode "'" nil :actions nil)
 
 (init-diminish-minor-mode 'smartparens-mode)
 
 (smartparens-global-mode 1)
 (show-smartparens-global-mode 1)
 
+(define-key smartparens-mode-map (kbd "C-M-f") #'sp-forward-sexp)
+(define-key smartparens-mode-map (kbd "C-M-b") #'sp-backward-sexp)
+(define-key smartparens-mode-map (kbd "C-M-d") #'sp-down-sexp)
+(define-key smartparens-mode-map (kbd "C-M-u") #'sp-backward-up-sexp)
+(define-key smartparens-mode-map (kbd "C-M-n") #'sp-next-sexp)
+(define-key smartparens-mode-map (kbd "C-M-p") #'sp-previous-sexp)
+(define-key smartparens-mode-map (kbd "C-M-k") #'sp-kill-sexp)
+(define-key smartparens-mode-map (kbd "C-M-w") #'sp-copy-sexp)
+(define-key smartparens-mode-map (kbd "C-M-SPC") #'sp-mark-sexp)
+(define-key smartparens-mode-map (kbd "C-k") #'sp-kill-hybrid-sexp)
+(define-key smartparens-mode-map (kbd "M-r") #'sp-splice-sexp-killing-around)
+(define-key smartparens-mode-map (kbd "M-R") #'sp-splice-sexp-killing-backward)
+(define-key smartparens-mode-map (kbd "M-s") #'sp-splice-sexp)
+(define-key smartparens-mode-map (kbd "M-S") #'sp-split-sexp)
+(define-key smartparens-mode-map (kbd "M-J") #'sp-join-sexp)
+(define-key smartparens-mode-map (kbd "C-<right>") #'sp-forward-slurp-sexp)
+(define-key smartparens-mode-map (kbd "C-<left>") #'sp-forward-barf-sexp)
+(define-key smartparens-mode-map (kbd "C-M-<right>") #'sp-backward-barf-sexp)
+(define-key smartparens-mode-map (kbd "C-M-<left>") #'sp-backward-slurp-sexp)
+
 ;;; completion
 
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
-
-(setq! hippie-expand-try-functions-list
-       '(try-complete-file-name-partially
-         try-complete-file-name
-         try-expand-dabbrev
-         try-expand-dabbrev-all-buffers
-         try-expand-dabbrev-from-kill))
-
-(require 'hippie-exp)
-
-(global-set-key (kbd "M-/") #'hippie-expand)
 
 ;;; evil
 
@@ -286,10 +245,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-snipe-mode 1)
 (evil-snipe-override-mode 1)
 
-(require 'evil-multiedit)
-
-(evil-multiedit-default-keybinds)
-
 (defun init-evil-escape ()
   ":imap jk <esc>."
   (interactive)
@@ -335,11 +290,6 @@ FUNC and ARGS see `evil-set-cursor'."
     (when eval-function
       (funcall eval-function beg end))))
 
-(evil-define-operator init-evil-operator-format (beg end)
-  :move-point nil
-  (interactive "<r>")
-  (format-all-region beg end))
-
 (evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
   (evil-range
    (save-excursion (goto-char (line-beginning-position)) (back-to-indentation) (point))
@@ -379,7 +329,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key evil-normal-state-map "gc" #'init-evil-operator-comment)
 (define-key evil-motion-state-map "g-" #'init-evil-operator-narrow)
 (define-key evil-motion-state-map "gy" #'init-evil-operator-eval)
-(define-key evil-motion-state-map "g=" #'init-evil-operator-format)
 (define-key evil-inner-text-objects-map "l" #'init-evil-inner-line)
 (define-key evil-outer-text-objects-map "l" #'init-evil-a-line)
 (define-key evil-inner-text-objects-map "d" #'init-evil-inner-defun)
@@ -436,6 +385,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-set-key (kbd "M-x") #'helm-M-x)
 (global-set-key (kbd "M-y") #'helm-show-kill-ring)
+(global-set-key (kbd "M-/") #'helm-dabbrev)
 (global-set-key (kbd "C-c b") #'helm-resume)
 
 (defun init-history-placeholder ()
@@ -491,6 +441,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! isearch-repeat-on-direction-change t)
 
 (require 'swiper)
+
+(define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
 
 (global-set-key (kbd "C-s") #'swiper-isearch)
 (global-set-key (kbd "C-r") #'swiper-isearch-backward)
@@ -617,6 +569,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
 (define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error)
 
+;;;; lsp
+
+(require 'lsp-mode)
+(require 'lsp-ui)
+
+(defun init-lookup-setup-lsp () "Setup lsp ui doc." (init-lookup-setup-command #'lsp-ui-doc-glance))
+
+(add-hook 'lsp-ui-mode-hook #'init-lookup-setup-lsp)
+
 ;;; tools
 
 ;;;; dired
@@ -690,30 +651,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (setq! ispell-dictionary "american")
 
-;;; lisp
+;;; lang
 
-(advice-add 'evil-cp--enable-text-objects :override #'ignore)
-
-(setq! evil-cleverparens-use-s-and-S nil)
-(setq! evil-cleverparens-use-regular-insert t)
-(setq! evil-cleverparens-use-additional-bindings nil)
-(setq! evil-cleverparens-use-additional-movement-keys nil)
-
-(require 'evil-cleverparens)
-
-(init-diminish-minor-mode 'evil-cleverparens-mode)
-
-(defun init-enable-smartparens ()
-  "Init smartparens related modes for lispy mode."
-  (interactive)
-  (smartparens-strict-mode 1)
-  (evil-cleverparens-mode 1))
-
-(defvar init-lisp-mode-hooks
-  '(lisp-data-mode-hook emacs-lisp-mode-hook lisp-interaction-mode-hook lisp-mode-hook))
-
-(dolist (hook init-lisp-mode-hooks)
-  (add-hook hook #'init-enable-smartparens))
+;;;; elisp
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (define-key map (kbd "C-c e") #'macrostep-expand))
@@ -724,7 +664,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
-;;; markdown
+;;;; markdown
 
 (setq! markdown-fontify-code-blocks-natively t)
 
@@ -734,7 +674,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key markdown-mode-map (kbd "C-c C-'") #'markdown-edit-code-block)
 (define-key edit-indirect-mode-map (kbd "C-c C-'") #'edit-indirect-commit)
 
-;;; org
+;;;; org
 
 (setq! org-directory (expand-file-name "org" user-emacs-directory))
 (setq! org-agenda-files (list org-directory))
@@ -861,9 +801,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "x v") #'vc-refresh-state)
 (define-key init-leader-map (kbd "x f") #'font-lock-update)
 (define-key init-leader-map (kbd "x o") #'init-open-files)
-(define-key init-leader-map (kbd "x m") #'bm-toggle)
-(define-key init-leader-map (kbd "x n") #'bm-next)
-(define-key init-leader-map (kbd "x p") #'bm-previous)
 (define-key init-leader-map (kbd "x <left>") #'previous-buffer)
 (define-key init-leader-map (kbd "x <right>") #'next-buffer)
 
@@ -933,7 +870,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "S") #'helm-do-grep-ag)
 (define-key init-leader-map (kbd "F") #'helm-find)
 
-(define-key init-leader-map (kbd "=") #'format-all-region-or-buffer)
+(define-key init-leader-map (kbd "=") #'apheleia-format-buffer)
 (define-key init-leader-map (kbd "%") #'query-replace-regexp)
 (define-key init-leader-map (kbd ".") #'xref-find-definitions)
 (define-key init-leader-map (kbd "?") #'xref-find-references)

@@ -17,11 +17,15 @@
 
 (defun init-python-fix-defaults ()
   "Fix local variables for `python-mode'."
-  (setq-local comment-inline-offset 2
-              forward-sexp-function nil))
+  (setq-local
+   comment-inline-offset 2
+   forward-sexp-function nil))
 
 (dolist (hook init-python-mode-hooks)
   (add-hook hook #'init-python-fix-defaults))
+
+(dolist (hook init-python-mode-hooks)
+  (add-hook hook #'flycheck-mode))
 
 (dolist (mode init-python-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
