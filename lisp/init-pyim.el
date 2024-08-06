@@ -59,9 +59,6 @@
     ("oo"   "o"                 )
     ("ou"   "ou"                )))
 
-(defvar init-pyim-punctuation-dict
-  )
-
 (setq! pyim-default-scheme 'zirjma)
 (setq! pyim-pinyin-fuzzy-alist nil)
 (setq! pyim-enable-shortcode nil)
