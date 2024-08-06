@@ -658,9 +658,11 @@ FUNC and ARGS see `evil-set-cursor'."
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (define-key map (kbd "C-c e") #'macrostep-expand))
 
+(setq! flycheck-emacs-lisp-load-path load-path)
+
 (require 'flycheck-package)
 
-(setq! flycheck-emacs-lisp-load-path load-path)
+(flycheck-package-setup)
 
 (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
