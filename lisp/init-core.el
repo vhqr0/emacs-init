@@ -82,7 +82,6 @@
      ;; leaders
      (god-mode :type vc :url "https://github.com/emacsmirror/god-mode"))
     (init-python
-     (python-mls :type vc :url "https://github.com/emacsmirror/python-mls")
      (lsp-pyright :type elpa))
     (init-clojure
      (clojure-mode :type elpa)
