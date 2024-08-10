@@ -87,16 +87,6 @@
 
 (init-disable-ui)
 
-(setq! dashboard-items
-       '((recents   . 5)
-         (bookmarks . 5)
-         (projects  . 5)
-         (agenda    . 5)))
-
-(require 'dashboard)
-
-(dashboard-setup-startup-hook)
-
 ;;; windows
 
 (require 'winner)
@@ -899,7 +889,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "4 h i") #'info-other-window)
 (define-key init-leader-map (kbd "h l") #'view-lossage)
 (define-key init-leader-map (kbd "h e") #'view-echo-area-messages)
-(define-key init-leader-map (kbd "h d") #'dashboard-open)
 (define-key init-leader-map (kbd "h s") #'scratch-buffer)
 (define-key init-leader-map (kbd "h o") #'helm-apropos)
 (define-key init-leader-map (kbd "h x") #'helpful-command)
