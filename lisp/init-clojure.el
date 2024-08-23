@@ -13,10 +13,6 @@
 (defvar init-clojure-mode-hooks '(clojurec-mode-hook clojure-mode-hook clojurescript-mode-hook))
 
 (require 'cider)
-(require 'helm-cider)
-
-(helm-cider--override)
-(define-key cider-repl-mode-map [remap init-history-placeholder] #'helm-cider-repl-history)
 
 (defun init-lookup-setup-cider () "Setup cider doc." (init-lookup-setup-command #'cider-doc))
 

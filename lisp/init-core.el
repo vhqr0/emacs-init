@@ -21,7 +21,6 @@
 (defvar init-deps
   '((init-emacs
      (dash :type elpa)
-     (embark :type elpa)
      (smartparens :type elpa)
      (rainbow-delimiters :type vc :url "https://github.com/emacsmirror/rainbow-delimiters")
      ;; evil
@@ -29,38 +28,35 @@
      (evil-collection :type elpa)
      (evil-surround :type elpa)
      (evil-snipe :type vc :url "https://github.com/emacsmirror/evil-snipe")
-     ;; helm
-     (helm :type elpa)
-     (helm-ls-git :type elpa)
-     (helm-descbinds :type elpa)
-     (helm-comint :type vc :url "https://github.com/emacsmirror/helm-comint")
-     (helm-themes :type vc :url "https://github.com/emacsmirror/helm-themes")
-     ;; search
+     ;; completion
+     (embark :type elpa)
+     (embark-consult :type elpa)
+     (orderless :type elpa)
+     (marginalia :type elpa)
+     (vertico :type elpa)
+     (consult :type elpa)
      (swiper :type elpa)
      ;; help
      (elisp-refs :type vc :url "https://github.com/emacsmirror/elisp-refs")
      (helpful :type vc :url "https://github.com/emacsmirror/helpful")
      ;; project
      (projectile :type elpa)
-     (helm-projectile :type elpa)
      ;; prog
      (company :type elpa)
+     (consult-company :type vc :url "https://github.com/emacsmirror/consult-company")
      (yasnippet :type elpa)
      (yasnippet-snippets :type elpa)
      (flycheck :type elpa)
      (apheleia :type elpa)
      (lsp-mode :type elpa)
      (lsp-ui :type elpa)
-     (helm-lsp :type elpa)
      ;; tools
      (diredfl :type vc :url "https://github.com/emacsmirror/diredfl")
      (git-modes :type elpa)
      (with-editor :type elpa)
      (magit :type elpa)
-     (git-timemachine :type vc :url "https://github.com/emacsmirror/git-timemachine")
      (rg :type elpa)
      (wgrep :type elpa)
-     (wgrep-helm :type elpa)
      (eshell-dwim :type vc :url "https://github.com/vhqr0/eshell-dwim")
      ;; elisp
      (macrostep :type elpa)
@@ -72,7 +68,6 @@
      ;; org
      (htmlize :type elpa)
      (orgit :type elpa)
-     (helm-org :type elpa)
      (evil-org :type elpa :type vc :url "https://github.com/emacsmirror/evil-org")
      ;; leaders
      (god-mode :type vc :url "https://github.com/emacsmirror/god-mode"))
@@ -81,7 +76,6 @@
     (init-clojure
      (clojure-mode :type elpa)
      (cider :type elpa)
-     (helm-cider :type elpa)
      (flycheck-clj-kondo :type elpa))
     (init-pyim
      (pyim :type elpa)
@@ -90,8 +84,7 @@
      (popon :type elpa))
     (init-roam
      (org-roam :type elpa)
-     (org-roam-ui :type elpa)
-     (helm-roam :type vc :url "https://github.com/vhqr0/helm-roam"))))
+     (org-roam-ui :type elpa))))
 
 (defvar init-enabled-modules
   '(init-emacs
