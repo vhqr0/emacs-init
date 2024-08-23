@@ -58,7 +58,6 @@
      (with-editor :type elpa)
      (magit :type elpa)
      (git-timemachine :type vc :url "https://github.com/emacsmirror/git-timemachine")
-     (diff-hl :type vc :url "https://github.com/emacsmirror/diff-hl")
      (rg :type elpa)
      (wgrep :type elpa)
      (wgrep-helm :type elpa)

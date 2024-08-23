@@ -373,6 +373,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (helm-descbinds-mode 1)
 
+(define-key helm-map (kbd "M-o") #'helm-select-action)
+
 (global-set-key (kbd "M-x") #'helm-M-x)
 (global-set-key (kbd "M-y") #'helm-show-kill-ring)
 (global-set-key (kbd "M-/") #'helm-dabbrev)
@@ -457,6 +459,12 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
 (advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
+
+(evil-collection-define-key 'normal 'ivy-minibuffer-map
+  (kbd "gg")  #'ivy-beginning-of-buffer
+  (kbd "G")   #'ivy-end-of-buffer
+  (kbd "C-d") #'ivy-scroll-up-command
+  (kbd "C-u") #'ivy-scroll-down-command)
 
 ;;; help
 
@@ -594,10 +602,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (autoload 'magit-blob-next "magit" nil t)
 (autoload 'magit-blob-previous "magit" nil t)
-
-(require 'diff-hl)
-
-(global-diff-hl-mode 1)
 
 ;;;; grep
 
@@ -831,14 +835,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "v n") #'magit-blob-next)
 (define-key init-leader-map (kbd "v p") #'magit-blob-previous)
 (define-key init-leader-map (kbd "v t") #'git-timemachine)
-(define-key init-leader-map (kbd "v [") #'diff-hl-previous-hunk)
-(define-key init-leader-map (kbd "v ]") #'diff-hl-next-hunk)
-(define-key init-leader-map (kbd "v {") #'diff-hl-show-hunk-previous)
-(define-key init-leader-map (kbd "v }") #'diff-hl-show-hunk-next)
-(define-key init-leader-map (kbd "v *") #'diff-hl-show-hunk)
-(define-key init-leader-map (kbd "v =") #'diff-hl-diff-goto-hunk)
-(define-key init-leader-map (kbd "v S") #'diff-hl-stage-dwim)
-(define-key init-leader-map (kbd "v x") #'diff-hl-revert-hunk)
 
 (define-key init-leader-map (kbd "e") #'eshell-dwim)
 (define-key init-leader-map (kbd "p e") #'eshell-dwim-project)
