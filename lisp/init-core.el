@@ -21,6 +21,7 @@
 (defvar init-deps
   '((init-emacs
      (dash :type elpa)
+     ;; parens
      (smartparens :type elpa)
      (rainbow-delimiters :type vc :url "https://github.com/emacsmirror/rainbow-delimiters")
      ;; evil

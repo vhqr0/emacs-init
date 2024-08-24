@@ -25,6 +25,8 @@
 
 (setq! read-process-output-max (* 1024 1024))
 
+(setq! enable-recursive-minibuffers t)
+
 ;;; files
 
 (setq! vc-handled-backends '(Git))
@@ -101,8 +103,6 @@
 ;;;; lines
 
 (setq-default truncate-lines t)
-
-(setq! global-hl-line-sticky-flag t)
 
 (require 'display-line-numbers)
 
@@ -382,38 +382,50 @@ FUNC and ARGS see `evil-set-cursor'."
 ;;;; completion ui
 
 (require 'vertico)
+(require 'vertico-multiform)
+(require 'vertico-directory)
 (require 'vertico-repeat)
+(require 'vertico-suspend)
 
 (vertico-mode 1)
+(vertico-multiform-mode 1)
 
 (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
 (global-set-key (kbd "C-c b") #'vertico-repeat)
+(global-set-key (kbd "C-c s") #'vertico-suspend)
+
+(define-key vertico-map (kbd "RET") #'vertico-directory-enter)
+(define-key vertico-map (kbd "DEL") #'vertico-directory-delete-char)
+(define-key vertico-map (kbd "M-DEL") #'vertico-directory-delete-word)
+
+(add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
 
 (evil-collection-define-key 'normal 'vertico-map
   "gg" #'vertico-first
   "G"  #'vertico-last)
 
+(defun init-vertico-embark-preview ()
+  "Previews candidate in vertico buffer."
+  (interactive)
+  (save-selected-window
+    (let ((embark-quit-after-action nil))
+      (embark-dwim))))
+
+(define-key vertico-map (kbd "C-j") #'init-vertico-embark-preview)
+
 ;;;; consult
 
-(setq! consult-preview-key '(:debounce 0.2 any))
+(setq! consult-preview-key '(:debounce 0.3 any))
 (setq! consult-line-start-from-top t)
 
 (require 'consult)
 
 (consult-customize
  consult-line
- :preview-key 'any
- consult-grep
- consult-git-grep
- consult-ripgrep
- :preview-key '(:debounce 0.3 any)
- consult-buffer
- consult-buffer-other-window
- consult-buffer-other-frame
- consult-project-buffer
- consult-theme
- :preview-key '(:debounce 0.5 any))
+ consult-imenu
+ consult-imenu-multi
+ :preview-key 'any)
 
 (setq! completion-in-region-function #'consult-completion-in-region)
 
@@ -484,7 +496,14 @@ FUNC and ARGS see `evil-set-cursor'."
 (defun init-lookup-setup-helpful () "Setup helpful." (init-lookup-setup-command #'helpful-at-point))
 
 (defvar init-lookup-helpful-mode-hooks
-  '(emacs-lisp-mode-hook lisp-interaction-mode-hook eshell-mode help-mode-hook helpful-mode-hook Info-mode-hook))
+  '(emacs-lisp-mode-hook
+    lisp-interaction-mode-hook
+    ielm-mode-hook
+    eshell-mode-hook
+    org-mode-hook
+    help-mode-hook
+    helpful-mode-hook
+    Info-mode-hook))
 
 (dolist (hook init-lookup-helpful-mode-hooks)
   (add-hook hook #'init-lookup-setup-helpful))
@@ -496,6 +515,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'projectile)
 
 (projectile-mode 1)
+
+(add-to-list 'marginalia-command-categories '(projectile-find-file . project-file))
 
 ;;; prog
 
