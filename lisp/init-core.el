@@ -23,12 +23,12 @@
      (dash :type elpa)
      ;; parens
      (smartparens :type elpa)
-     (rainbow-delimiters :type vc :url "https://github.com/emacsmirror/rainbow-delimiters")
+     (rainbow-delimiters :type elpa)
      ;; evil
      (evil :type elpa)
      (evil-collection :type elpa)
      (evil-surround :type elpa)
-     (evil-snipe :type vc :url "https://github.com/emacsmirror/evil-snipe")
+     (evil-snipe :type elpa)
      ;; completion
      (embark :type elpa)
      (embark-consult :type elpa)
@@ -36,15 +36,16 @@
      (marginalia :type elpa)
      (vertico :type elpa)
      (consult :type elpa)
+     (ivy :type elpa)
      (swiper :type elpa)
+     (counsel :type elpa)
      ;; help
-     (elisp-refs :type vc :url "https://github.com/emacsmirror/elisp-refs")
-     (helpful :type vc :url "https://github.com/emacsmirror/helpful")
+     (elisp-refs :type elpa)
+     (helpful :type elpa)
      ;; project
      (projectile :type elpa)
      ;; prog
      (company :type elpa)
-     (consult-company :type vc :url "https://github.com/emacsmirror/consult-company")
      (yasnippet :type elpa)
      (yasnippet-snippets :type elpa)
      (flycheck :type elpa)
@@ -52,7 +53,7 @@
      (lsp-mode :type elpa)
      (lsp-ui :type elpa)
      ;; tools
-     (diredfl :type vc :url "https://github.com/emacsmirror/diredfl")
+     (diredfl :type elpa)
      (git-modes :type elpa)
      (with-editor :type elpa)
      (magit :type elpa)
@@ -69,9 +70,9 @@
      ;; org
      (htmlize :type elpa)
      (orgit :type elpa)
-     (evil-org :type elpa :type vc :url "https://github.com/emacsmirror/evil-org")
+     (evil-org :type elpa)
      ;; leaders
-     (god-mode :type vc :url "https://github.com/emacsmirror/god-mode"))
+     (god-mode :type elpa))
     (init-python
      (lsp-pyright :type elpa))
     (init-clojure

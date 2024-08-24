@@ -14,7 +14,9 @@
 
 (require 'cider)
 
-(defun init-lookup-setup-cider () "Setup cider doc." (init-lookup-setup-command #'cider-doc))
+(defun init-lookup-setup-cider ()
+  "Setup cider doc."
+  (init-lookup-setup-command #'cider-doc))
 
 (dolist (hook '(cider-mode-hook cider-repl-mode-hook))
   (add-hook hook #'init-lookup-setup-cider))

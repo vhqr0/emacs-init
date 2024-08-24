@@ -493,7 +493,9 @@ FUNC and ARGS see `evil-set-cursor'."
   (setq-local evil-lookup-func command)
   (local-set-key [remap display-local-help] command))
 
-(defun init-lookup-setup-helpful () "Setup helpful." (init-lookup-setup-command #'helpful-at-point))
+(defun init-lookup-setup-helpful ()
+  "Setup helpful."
+  (init-lookup-setup-command #'helpful-at-point))
 
 (defvar init-lookup-helpful-mode-hooks
   '(emacs-lisp-mode-hook
@@ -516,7 +518,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (projectile-mode 1)
 
-(add-to-list 'marginalia-command-categories '(projectile-find-file . project-file))
+(add-to-list 'marginalia-command-categories
+             '(projectile-find-file . project-file))
 
 ;;; prog
 
@@ -544,13 +547,12 @@ FUNC and ARGS see `evil-set-cursor'."
          (company-dabbrev company-yasnippet)))
 
 (require 'company)
-(require 'company-capf)
 
 (global-company-mode 1)
 
 (global-set-key (kbd "C-c c") #'company-complete)
 
-(define-key company-active-map (kbd "C-s") #'consult-company)
+(define-key company-active-map (kbd "C-s") #'counsel-company)
 
 ;;;; yasnippet
 
@@ -576,7 +578,9 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'lsp-mode)
 (require 'lsp-ui)
 
-(defun init-lookup-setup-lsp () "Setup lsp ui doc." (init-lookup-setup-command #'lsp-ui-doc-glance))
+(defun init-lookup-setup-lsp ()
+  "Setup lsp ui doc."
+  (init-lookup-setup-command #'lsp-ui-doc-glance))
 
 (add-hook 'lsp-ui-mode-hook #'init-lookup-setup-lsp)
 
@@ -835,10 +839,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "g p") #'previous-error)
 
 (define-key init-leader-map (kbd "s") #'consult-line)
-(define-key init-leader-map (kbd "S") #'consult-ripgrep)
 (define-key init-leader-map (kbd "i") #'consult-imenu)
 (define-key init-leader-map (kbd "I") #'consult-imenu-multi)
 (define-key init-leader-map (kbd "F") #'consult-find)
+(define-key init-leader-map (kbd "S") #'consult-ripgrep)
 
 (define-key init-leader-map (kbd "=") #'apheleia-format-buffer)
 (define-key init-leader-map (kbd "%") #'query-replace-regexp)
