@@ -23,9 +23,6 @@
 
 (require 'flycheck-clj-kondo)
 
-(dolist (hook init-clojure-mode-hooks)
-  (add-hook hook #'flycheck-mode))
-
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 

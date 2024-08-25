@@ -365,6 +365,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! isearch-motion-changes-direction t)
 (setq! isearch-repeat-on-direction-change t)
 
+(setq! ivy-count-format "(%d/%d) ")
 (setq! ivy-use-virtual-buffers t)
 
 (require 'amx)
@@ -381,11 +382,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (counsel-mode 1)
 
 (global-set-key (kbd "C-s") #'swiper-thing-at-point)
-
 (global-set-key (kbd "C-c b") #'ivy-resume)
 
+(define-key ivy-minibuffer-map (kbd "M-r") #'ivy-reverse-i-search)
 (define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
-
 (define-key counsel-find-file-map (kbd "C-l") #'counsel-up-directory)
 
 (evil-collection-define-key 'normal 'ivy-minibuffer-map
@@ -415,6 +415,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
 (advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
 
+(define-key counsel-mode-map [remap recentf-open] #'counsel-recentf)
 (define-key counsel-mode-map [remap previous-matching-history-element] #'counsel-minibuffer-history)
 (define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
 (define-key counsel-mode-map [remap comint-history-isearch-backward-regexp] #'counsel-shell-history)
@@ -479,7 +480,10 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'counsel-projectile)
 
-(counsel-projectile-mode 1)
+(define-key counsel-mode-map [remap projectile-switch-to-buffer] #'counsel-projectile-switch-to-buffer)
+(define-key counsel-mode-map [remap projectile-find-file] #'counsel-projectile-find-file)
+(define-key counsel-mode-map [remap projectile-find-dir] #'counsel-projectile-find-dir)
+(define-key counsel-mode-map [remap projectile-ripgrep] #'counsel-projectile-rg)
 
 ;;; prog
 
@@ -512,7 +516,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-set-key (kbd "C-c c") #'company-complete)
 
-(define-key company-active-map (kbd "C-s") #'counsel-company)
+(define-key counsel-mode-map [remap company-search-candidates] #'counsel-company)
 
 ;;;; yasnippet
 
@@ -532,6 +536,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
 (define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error)
+
+(global-flycheck-mode 1)
 
 ;;;; lsp
 
@@ -609,8 +615,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'flycheck-package)
 
 (flycheck-package-setup)
-
-(add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
 ;;;; markdown
 
@@ -830,13 +834,18 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "m s") #'whitespace-mode)
 (define-key init-leader-map (kbd "m v") #'visual-line-mode)
 (define-key init-leader-map (kbd "m s") #'lsp)
-(define-key init-leader-map (kbd "m c") #'flycheck-mode)
+(define-key init-leader-map (kbd "m c") #'company-mode)
+(define-key init-leader-map (kbd "m y") #'yas-minor-mode)
+(define-key init-leader-map (kbd "m f") #'flycheck-mode)
+(define-key init-leader-map (kbd "m =") #'apheleia-mode)
+(define-key init-leader-map (kbd "m m") #'counsel-minor)
 
 (define-key init-leader-map (kbd "h h") #'help-for-help)
 (define-key init-leader-map (kbd "h .") #'display-local-help)
 (define-key init-leader-map (kbd "h i") #'info)
 (define-key init-leader-map (kbd "4 h i") #'info-other-window)
-(define-key init-leader-map (kbd "h l") #'view-lossage)
+(define-key init-leader-map (kbd "h S") #'info-lookup-symbol)
+(define-key init-leader-map (kbd "h L") #'view-lossage)
 (define-key init-leader-map (kbd "h e") #'view-echo-area-messages)
 (define-key init-leader-map (kbd "h s") #'scratch-buffer)
 (define-key init-leader-map (kbd "h o") #'describe-symbol)
@@ -847,16 +856,13 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "h m") #'describe-mode)
 (define-key init-leader-map (kbd "h b") #'describe-bindings)
 (define-key init-leader-map (kbd "h B") #'describe-keymap)
+(define-key init-leader-map (kbd "h l") #'find-library)
 (define-key init-leader-map (kbd "h w") #'where-is)
 (define-key init-leader-map (kbd "h k") #'helpful-key)
 (define-key init-leader-map (kbd "h c") #'describe-key-briefly)
 (define-key init-leader-map (kbd "h t l") #'load-library)
 (define-key init-leader-map (kbd "h t f") #'load-file)
 (define-key init-leader-map (kbd "h t t") #'load-theme)
-(define-key init-leader-map (kbd "h L") #'find-library)
-(define-key init-leader-map (kbd "h F") #'find-function)
-(define-key init-leader-map (kbd "h V") #'find-variable)
-(define-key init-leader-map (kbd "h K") #'find-function-on-key)
 (define-key init-leader-map (kbd "4 h L") #'find-library-other-window)
 (define-key init-leader-map (kbd "4 h F") #'find-function-other-window)
 (define-key init-leader-map (kbd "4 h V") #'find-variable-other-window)
