@@ -372,6 +372,9 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'swiper)
 (require 'counsel)
 
+(add-to-list 'ivy-completing-read-handlers-alist
+             '(kill-buffer . completing-read-default))
+
 (amx-mode 1)
 (ivy-mode 1)
 (counsel-mode 1)
