@@ -369,6 +369,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'amx)
 (require 'ivy)
+(require 'ivy-hydra)
 (require 'swiper)
 (require 'counsel)
 
@@ -385,11 +386,14 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
 
+(define-key counsel-find-file-map (kbd "C-l") #'counsel-up-directory)
+
 (evil-collection-define-key 'normal 'ivy-minibuffer-map
   (kbd "gg")  #'ivy-beginning-of-buffer
   (kbd "G")   #'ivy-end-of-buffer
   (kbd "C-d") #'ivy-scroll-up-command
-  (kbd "C-u") #'ivy-scroll-down-command)
+  (kbd "C-u") #'ivy-scroll-down-command
+  (kbd "C-o") #'hydra-ivy/body)
 
 (define-key swiper-isearch-map (kbd "TAB") #'swiper-isearch-toggle)
 (define-key isearch-mode-map (kbd "TAB") #'swiper-isearch-toggle)
@@ -414,6 +418,19 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key counsel-mode-map [remap previous-matching-history-element] #'counsel-minibuffer-history)
 (define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
 (define-key counsel-mode-map [remap comint-history-isearch-backward-regexp] #'counsel-shell-history)
+
+(defun init-ivy--action-append (x)
+  "Append X after point."
+  (unless (eolp) (forward-char))
+  (ivy--action-insert x))
+
+(defun init-counsel--set-variable (x)
+  "Set variable X."
+  (counsel-set-variable (intern x)))
+
+(ivy-add-actions t '(("a" init-ivy--action-append "append")))
+(ivy-add-actions 'counsel-describe-variable '(("s" init-counsel--set-variable "set")))
+(ivy-add-actions 'counsel-find-library '(("l" load-library "load")))
 
 ;;; help
 
