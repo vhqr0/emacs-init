@@ -31,12 +31,8 @@
      (evil-snipe :type elpa)
      ;; completion
      (embark :type elpa)
-     (embark-consult :type elpa)
-     (orderless :type elpa)
-     (marginalia :type elpa)
-     (vertico :type elpa)
-     (consult :type elpa)
      (ivy :type elpa)
+     (ivy-hydra :type elpa)
      (swiper :type elpa)
      (counsel :type elpa)
      ;; help

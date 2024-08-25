@@ -157,25 +157,25 @@
 (smartparens-global-mode 1)
 (show-smartparens-global-mode 1)
 
-(define-key smartparens-mode-map (kbd "C-M-f") #'sp-forward-sexp)
-(define-key smartparens-mode-map (kbd "C-M-b") #'sp-backward-sexp)
-(define-key smartparens-mode-map (kbd "C-M-d") #'sp-down-sexp)
-(define-key smartparens-mode-map (kbd "C-M-u") #'sp-backward-up-sexp)
-(define-key smartparens-mode-map (kbd "C-M-n") #'sp-next-sexp)
-(define-key smartparens-mode-map (kbd "C-M-p") #'sp-previous-sexp)
-(define-key smartparens-mode-map (kbd "C-M-k") #'sp-kill-sexp)
-(define-key smartparens-mode-map (kbd "C-M-w") #'sp-copy-sexp)
-(define-key smartparens-mode-map (kbd "C-M-SPC") #'sp-mark-sexp)
-(define-key smartparens-mode-map (kbd "C-k") #'sp-kill-hybrid-sexp)
-(define-key smartparens-mode-map (kbd "M-r") #'sp-splice-sexp-killing-around)
-(define-key smartparens-mode-map (kbd "M-R") #'sp-splice-sexp-killing-backward)
-(define-key smartparens-mode-map (kbd "M-s") #'sp-splice-sexp)
-(define-key smartparens-mode-map (kbd "M-S") #'sp-split-sexp)
-(define-key smartparens-mode-map (kbd "M-J") #'sp-join-sexp)
-(define-key smartparens-mode-map (kbd "C-<right>") #'sp-forward-slurp-sexp)
-(define-key smartparens-mode-map (kbd "C-<left>") #'sp-forward-barf-sexp)
-(define-key smartparens-mode-map (kbd "C-M-<right>") #'sp-backward-barf-sexp)
-(define-key smartparens-mode-map (kbd "C-M-<left>") #'sp-backward-slurp-sexp)
+(global-set-key (kbd "C-M-f") #'sp-forward-sexp)
+(global-set-key (kbd "C-M-b") #'sp-backward-sexp)
+(global-set-key (kbd "C-M-d") #'sp-down-sexp)
+(global-set-key (kbd "C-M-u") #'sp-backward-up-sexp)
+(global-set-key (kbd "C-M-n") #'sp-next-sexp)
+(global-set-key (kbd "C-M-p") #'sp-previous-sexp)
+(global-set-key (kbd "C-M-k") #'sp-kill-sexp)
+(global-set-key (kbd "C-M-w") #'sp-copy-sexp)
+(global-set-key (kbd "C-M-SPC") #'sp-mark-sexp)
+(global-set-key (kbd "C-k") #'sp-kill-hybrid-sexp)
+(global-set-key (kbd "M-r") #'sp-splice-sexp-killing-around)
+(global-set-key (kbd "M-R") #'sp-splice-sexp-killing-backward)
+(global-set-key (kbd "M-s") #'sp-splice-sexp)
+(global-set-key (kbd "M-S") #'sp-split-sexp)
+(global-set-key (kbd "M-J") #'sp-join-sexp)
+(global-set-key (kbd "C-<right>") #'sp-forward-slurp-sexp)
+(global-set-key (kbd "C-<left>") #'sp-forward-barf-sexp)
+(global-set-key (kbd "C-M-<right>") #'sp-backward-barf-sexp)
+(global-set-key (kbd "C-M-<left>") #'sp-backward-slurp-sexp)
 
 ;;; evil
 
@@ -338,8 +338,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;; completion
 
-;;;; context
-
 (require 'embark)
 
 (global-set-key (kbd "M-o") #'embark-act)
@@ -356,85 +354,9 @@ FUNC and ARGS see `evil-set-cursor'."
     (dolist (file files)
       (embark-open-externally file))))
 
-;;;; completion style
-
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
-
-(setq! orderless-component-separator 'orderless-escapable-split-on-space)
-
-(require 'orderless)
-
-(defun init-orderless-setup ()
-  "Setup orderless."
-  (setq-local completion-category-defaults nil)
-  (setq-local completion-styles '(orderless)))
-
-(add-hook 'minibuffer-setup-hook #'init-orderless-setup)
-
-;;;; completion annotation
-
-(require 'marginalia)
-
-(marginalia-mode 1)
-
-;;;; completion ui
-
-(require 'vertico)
-(require 'vertico-multiform)
-(require 'vertico-directory)
-(require 'vertico-repeat)
-(require 'vertico-suspend)
-
-(vertico-mode 1)
-(vertico-multiform-mode 1)
-
-(add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
-
-(global-set-key (kbd "C-c b") #'vertico-repeat)
-(global-set-key (kbd "C-c s") #'vertico-suspend)
-
-(define-key vertico-map (kbd "RET") #'vertico-directory-enter)
-(define-key vertico-map (kbd "DEL") #'vertico-directory-delete-char)
-(define-key vertico-map (kbd "M-DEL") #'vertico-directory-delete-word)
-
-(add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
-
-(evil-collection-define-key 'normal 'vertico-map
-  "gg" #'vertico-first
-  "G"  #'vertico-last)
-
-(defun init-vertico-embark-preview ()
-  "Previews candidate in vertico buffer."
-  (interactive)
-  (save-selected-window
-    (let ((embark-quit-after-action nil))
-      (embark-dwim))))
-
-(define-key vertico-map (kbd "C-j") #'init-vertico-embark-preview)
-
-;;;; consult
-
-(setq! consult-preview-key '(:debounce 0.3 any))
-(setq! consult-line-start-from-top t)
-
-(require 'consult)
-
-(consult-customize
- consult-line
- consult-imenu
- consult-imenu-multi
- :preview-key 'any)
-
-(setq! completion-in-region-function #'consult-completion-in-region)
-
-(evil-define-key '(insert) init-evil-override-mode-map
-  (kbd "M-r")  #'consult-history)
-
-(global-set-key (kbd "M-y") #'consult-yank-pop)
-
-;;; search
 
 (setq! isearch-lazy-count t)
 (setq! isearch-allow-scroll t)
@@ -443,14 +365,26 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! isearch-motion-changes-direction t)
 (setq! isearch-repeat-on-direction-change t)
 
+(setq! ivy-use-virtual-buffers t)
+
+(require 'ivy)
 (require 'swiper)
+(require 'counsel)
+
+(ivy-mode 1)
+(counsel-mode 1)
+
+(global-set-key (kbd "C-s") #'swiper-thing-at-point)
+
+(global-set-key (kbd "C-c b") #'ivy-resume)
 
 (define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
 
-(global-set-key (kbd "C-s") #'swiper)
-(global-set-key (kbd "C-r") #'swiper)
-(global-set-key (kbd "C-M-s") #'swiper-isearch)
-(global-set-key (kbd "C-M-r") #'swiper-isearch-backward)
+(evil-collection-define-key 'normal 'ivy-minibuffer-map
+  (kbd "gg")  #'ivy-beginning-of-buffer
+  (kbd "G")   #'ivy-end-of-buffer
+  (kbd "C-d") #'ivy-scroll-up-command
+  (kbd "C-u") #'ivy-scroll-down-command)
 
 (define-key swiper-isearch-map (kbd "TAB") #'swiper-isearch-toggle)
 (define-key isearch-mode-map (kbd "TAB") #'swiper-isearch-toggle)
@@ -472,11 +406,9 @@ FUNC and ARGS see `evil-set-cursor'."
 (advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
 (advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
 
-(evil-collection-define-key 'normal 'ivy-minibuffer-map
-  (kbd "gg")  #'ivy-beginning-of-buffer
-  (kbd "G")   #'ivy-end-of-buffer
-  (kbd "C-d") #'ivy-scroll-up-command
-  (kbd "C-u") #'ivy-scroll-down-command)
+(define-key counsel-mode-map [remap previous-matching-history-element] #'counsel-minibuffer-history)
+(define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
+(define-key counsel-mode-map [remap comint-history-isearch-backward-regexp] #'counsel-shell-history)
 
 ;;; help
 
@@ -487,6 +419,11 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! helpful-max-buffers nil)
 
 (require 'helpful)
+
+(setq! counsel-describe-symbol-function #'helpful-symbol)
+(setq! counsel-describe-variable-function #'helpful-variable)
+(setq! counsel-describe-function-function #'helpful-callable)
+(setq! counsel-descbinds-function #'helpful-callable)
 
 (defun init-lookup-setup-command (command)
   "Setup COMMAND as local help command."
@@ -518,8 +455,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (projectile-mode 1)
 
-(add-to-list 'marginalia-command-categories
-             '(projectile-find-file . project-file))
+(require 'counsel-projectile)
+
+(counsel-projectile-mode 1)
 
 ;;; prog
 
@@ -621,7 +559,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; eshell
 
-(defvar eshell-mode-map)
+(require 'eshell)
 
 (defun init-eshell-set-company ()
   "Clean company backends."
@@ -716,7 +654,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'god-mode)
 
-(define-key init-leader-map (kbd "SPC") #'consult-buffer)
+(define-key init-leader-map (kbd "SPC") #'ivy-switch-buffer)
 (define-key init-leader-map (kbd "u") #'init-leader-universal-argument)
 (define-key init-leader-map (kbd "c") #'god-mode-self-insert)
 (define-key init-leader-map (kbd "z") #'repeat)
@@ -752,12 +690,14 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "w <left>") #'winner-undo)
 (define-key init-leader-map (kbd "w <right>") #'winner-redo)
 
-(define-key init-leader-map (kbd "f") #'find-file)
 (define-key init-leader-map (kbd "b") #'switch-to-buffer)
+(define-key init-leader-map (kbd "f") #'find-file)
+(define-key init-leader-map (kbd "d") #'dired)
 (define-key init-leader-map (kbd "j") #'dired-jump)
 (define-key init-leader-map (kbd "k") #'kill-buffer)
-(define-key init-leader-map (kbd "4 f") #'find-file-other-window)
 (define-key init-leader-map (kbd "4 b") #'switch-to-buffer-other-window)
+(define-key init-leader-map (kbd "4 f") #'find-file-other-window)
+(define-key init-leader-map (kbd "4 d") #'dired-other-window)
 (define-key init-leader-map (kbd "4 j") #'dired-jump-other-window)
 (define-key init-leader-map (kbd "5 0") #'delete-frame)
 (define-key init-leader-map (kbd "5 1") #'delete-other-frames)
@@ -777,7 +717,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "r w") #'org-store-link)
 (define-key init-leader-map (kbd "r a") #'org-agenda)
 (define-key init-leader-map (kbd "r c") #'org-capture)
-(define-key init-leader-map (kbd "r A") #'consult-org-agenda)
+(define-key init-leader-map (kbd "r A") #'counsel-org-agenda-headlines)
+(define-key init-leader-map (kbd "r C") #'counsel-org-capture)
 
 (define-key init-leader-map (kbd "x g") #'revert-buffer-quick)
 (define-key init-leader-map (kbd "x G") #'revert-buffer)
@@ -789,11 +730,13 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (define-key init-leader-map (kbd "p p") #'projectile-switch-project)
 (define-key init-leader-map (kbd "p i") #'projectile-invalidate-cache)
-(define-key init-leader-map (kbd "p f") #'projectile-find-file)
 (define-key init-leader-map (kbd "p b") #'projectile-switch-to-buffer)
+(define-key init-leader-map (kbd "p f") #'projectile-find-file)
+(define-key init-leader-map (kbd "p d") #'projectile-find-dir)
 (define-key init-leader-map (kbd "p j") #'projectile-dired)
-(define-key init-leader-map (kbd "4 p f") #'projectile-find-file-other-window)
 (define-key init-leader-map (kbd "4 p b") #'projectile-switch-to-buffer-other-window)
+(define-key init-leader-map (kbd "4 p f") #'projectile-find-file-other-window)
+(define-key init-leader-map (kbd "4 p d") #'projectile-find-dir-other-window)
 (define-key init-leader-map (kbd "4 p j") #'projectile-dired-other-window)
 (define-key init-leader-map (kbd "p s") #'projectile-save-project-buffers)
 (define-key init-leader-map (kbd "p k") #'projectile-kill-buffers)
@@ -838,11 +781,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "g n") #'next-error)
 (define-key init-leader-map (kbd "g p") #'previous-error)
 
-(define-key init-leader-map (kbd "s") #'consult-line)
-(define-key init-leader-map (kbd "i") #'consult-imenu)
-(define-key init-leader-map (kbd "I") #'consult-imenu-multi)
-(define-key init-leader-map (kbd "F") #'consult-find)
-(define-key init-leader-map (kbd "S") #'consult-ripgrep)
+(define-key init-leader-map (kbd "s") #'swiper)
+(define-key init-leader-map (kbd "/") #'swiper-from-isearch)
+(define-key init-leader-map (kbd "l g") #'counsel-rg)
+(define-key init-leader-map (kbd "l f") #'counsel-file-jump)
 
 (define-key init-leader-map (kbd "=") #'apheleia-format-buffer)
 (define-key init-leader-map (kbd "%") #'query-replace-regexp)
@@ -850,6 +792,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "?") #'xref-find-references)
 (define-key init-leader-map (kbd ",") #'xref-go-back)
 (define-key init-leader-map (kbd "4 .") #'xref-find-definitions-other-window)
+(define-key init-leader-map (kbd "i") #'imenu)
 (define-key init-leader-map (kbd "(") #'sp-wrap-round)
 (define-key init-leader-map (kbd "[") #'sp-wrap-square)
 (define-key init-leader-map (kbd "{") #'sp-wrap-curly)
@@ -872,10 +815,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "h l") #'view-lossage)
 (define-key init-leader-map (kbd "h e") #'view-echo-area-messages)
 (define-key init-leader-map (kbd "h s") #'scratch-buffer)
-(define-key init-leader-map (kbd "h o") #'helpful-symbol)
-(define-key init-leader-map (kbd "h x") #'helpful-command)
-(define-key init-leader-map (kbd "h f") #'helpful-function)
-(define-key init-leader-map (kbd "h v") #'helpful-variable)
+(define-key init-leader-map (kbd "h o") #'describe-symbol)
+(define-key init-leader-map (kbd "h x") #'describe-command)
+(define-key init-leader-map (kbd "h f") #'describe-function)
+(define-key init-leader-map (kbd "h v") #'describe-variable)
 (define-key init-leader-map (kbd "h p") #'describe-package)
 (define-key init-leader-map (kbd "h m") #'describe-mode)
 (define-key init-leader-map (kbd "h b") #'describe-bindings)
@@ -885,7 +828,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "h c") #'describe-key-briefly)
 (define-key init-leader-map (kbd "h t l") #'load-library)
 (define-key init-leader-map (kbd "h t f") #'load-file)
-(define-key init-leader-map (kbd "h t t") #'consult-theme)
+(define-key init-leader-map (kbd "h t t") #'load-theme)
 (define-key init-leader-map (kbd "h L") #'find-library)
 (define-key init-leader-map (kbd "h F") #'find-function)
 (define-key init-leader-map (kbd "h V") #'find-variable)
