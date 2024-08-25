@@ -31,6 +31,7 @@
      (evil-snipe :type elpa)
      ;; completion
      (embark :type elpa)
+     (amx :type elpa)
      (ivy :type elpa)
      (ivy-hydra :type elpa)
      (swiper :type elpa)

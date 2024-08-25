@@ -367,10 +367,12 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (setq! ivy-use-virtual-buffers t)
 
+(require 'amx)
 (require 'ivy)
 (require 'swiper)
 (require 'counsel)
 
+(amx-mode 1)
 (ivy-mode 1)
 (counsel-mode 1)
 
@@ -783,8 +785,10 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (define-key init-leader-map (kbd "s") #'swiper)
 (define-key init-leader-map (kbd "/") #'swiper-from-isearch)
+(define-key init-leader-map (kbd "l l") #'counsel-outline)
 (define-key init-leader-map (kbd "l g") #'counsel-rg)
 (define-key init-leader-map (kbd "l f") #'counsel-file-jump)
+(define-key init-leader-map (kbd "l d") #'counsel-dired-jump)
 
 (define-key init-leader-map (kbd "=") #'apheleia-format-buffer)
 (define-key init-leader-map (kbd "%") #'query-replace-regexp)
