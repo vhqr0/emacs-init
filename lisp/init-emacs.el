@@ -157,25 +157,25 @@
 (smartparens-global-mode 1)
 (show-smartparens-global-mode 1)
 
-(global-set-key (kbd "C-M-f") #'sp-forward-sexp)
-(global-set-key (kbd "C-M-b") #'sp-backward-sexp)
-(global-set-key (kbd "C-M-d") #'sp-down-sexp)
-(global-set-key (kbd "C-M-u") #'sp-backward-up-sexp)
-(global-set-key (kbd "C-M-n") #'sp-next-sexp)
-(global-set-key (kbd "C-M-p") #'sp-previous-sexp)
-(global-set-key (kbd "C-M-k") #'sp-kill-sexp)
-(global-set-key (kbd "C-M-w") #'sp-copy-sexp)
-(global-set-key (kbd "C-M-SPC") #'sp-mark-sexp)
-(global-set-key (kbd "C-k") #'sp-kill-hybrid-sexp)
-(global-set-key (kbd "M-r") #'sp-splice-sexp-killing-around)
-(global-set-key (kbd "M-R") #'sp-splice-sexp-killing-backward)
-(global-set-key (kbd "M-s") #'sp-splice-sexp)
-(global-set-key (kbd "M-S") #'sp-split-sexp)
-(global-set-key (kbd "M-J") #'sp-join-sexp)
-(global-set-key (kbd "C-<right>") #'sp-forward-slurp-sexp)
-(global-set-key (kbd "C-<left>") #'sp-forward-barf-sexp)
-(global-set-key (kbd "C-M-<right>") #'sp-backward-barf-sexp)
-(global-set-key (kbd "C-M-<left>") #'sp-backward-slurp-sexp)
+(define-key smartparens-mode-map (kbd "C-M-f") #'sp-forward-sexp)
+(define-key smartparens-mode-map (kbd "C-M-b") #'sp-backward-sexp)
+(define-key smartparens-mode-map (kbd "C-M-d") #'sp-down-sexp)
+(define-key smartparens-mode-map (kbd "C-M-u") #'sp-backward-up-sexp)
+(define-key smartparens-mode-map (kbd "C-M-n") #'sp-next-sexp)
+(define-key smartparens-mode-map (kbd "C-M-p") #'sp-previous-sexp)
+(define-key smartparens-mode-map (kbd "C-M-k") #'sp-kill-sexp)
+(define-key smartparens-mode-map (kbd "C-M-w") #'sp-copy-sexp)
+(define-key smartparens-mode-map (kbd "C-M-SPC") #'sp-mark-sexp)
+(define-key smartparens-mode-map (kbd "C-k") #'sp-kill-hybrid-sexp)
+(define-key smartparens-mode-map (kbd "M-r") #'sp-splice-sexp-killing-around)
+(define-key smartparens-mode-map (kbd "M-R") #'sp-splice-sexp-killing-backward)
+(define-key smartparens-mode-map (kbd "M-s") #'sp-splice-sexp)
+(define-key smartparens-mode-map (kbd "M-S") #'sp-split-sexp)
+(define-key smartparens-mode-map (kbd "M-J") #'sp-join-sexp)
+(define-key smartparens-mode-map (kbd "C-<right>") #'sp-forward-slurp-sexp)
+(define-key smartparens-mode-map (kbd "C-<left>") #'sp-forward-barf-sexp)
+(define-key smartparens-mode-map (kbd "C-M-<right>") #'sp-backward-barf-sexp)
+(define-key smartparens-mode-map (kbd "C-M-<left>") #'sp-backward-slurp-sexp)
 
 ;;; evil
 
@@ -384,11 +384,21 @@ FUNC and ARGS see `evil-set-cursor'."
 (global-set-key (kbd "C-s") #'swiper-thing-at-point)
 (global-set-key (kbd "C-c b") #'ivy-resume)
 
-(define-key ivy-minibuffer-map (kbd "M-r") #'ivy-reverse-i-search)
 (define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
+(define-key ivy-minibuffer-map (kbd "M-r") #'ivy-reverse-i-search)
 (define-key counsel-find-file-map (kbd "C-l") #'counsel-up-directory)
 
-(evil-collection-define-key 'normal 'ivy-minibuffer-map
+(evil-define-key 'insert minibuffer-mode-map
+  (kbd "M-r") #'previous-matching-history-element)
+
+(evil-define-key 'insert ivy-minibuffer-map
+  (kbd "M-r") #'ivy-reverse-i-search)
+
+(evil-define-key '(insert normal) ivy-minibuffer-map
+  (kbd "C-M-n") #'ivy-next-line-and-call
+  (kbd "C-M-p") #'ivy-previous-line-and-call)
+
+(evil-define-key 'normal ivy-minibuffer-map
   (kbd "gg")  #'ivy-beginning-of-buffer
   (kbd "G")   #'ivy-end-of-buffer
   (kbd "C-d") #'ivy-scroll-up-command
@@ -419,6 +429,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key counsel-mode-map [remap previous-matching-history-element] #'counsel-minibuffer-history)
 (define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
 (define-key counsel-mode-map [remap comint-history-isearch-backward-regexp] #'counsel-shell-history)
+(define-key counsel-mode-map [remap company-search-candidates] #'counsel-company)
 
 (defun init-ivy--action-append (x)
   "Append X after point."
@@ -516,8 +527,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-set-key (kbd "C-c c") #'company-complete)
 
-(define-key counsel-mode-map [remap company-search-candidates] #'counsel-company)
-
 ;;;; yasnippet
 
 (setq! yas-alias-to-yas/prefix-p nil)
@@ -537,7 +546,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
 (define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error)
 
-(global-flycheck-mode 1)
+(add-hook 'prog-mode-hook #'flycheck-mode)
 
 ;;;; lsp
 
@@ -585,9 +594,17 @@ FUNC and ARGS see `evil-set-cursor'."
 (autoload 'rg-menu "rg" nil t)
 (declare-function rg-menu "rg")
 
+;;;; comint
+
+(require 'comint)
+
+(evil-define-key 'insert comint-mode-map
+  (kbd "M-r") #'comint-history-isearch-backward-regexp)
+
 ;;;; eshell
 
 (require 'eshell)
+(require 'em-hist)
 
 (defun init-eshell-set-company ()
   "Clean company backends."
@@ -598,6 +615,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
 (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
+
+(evil-define-key 'insert eshell-hist-mode-map
+  (kbd "M-r") #'eshell-previous-matching-input)
 
 ;;;; spell
 
