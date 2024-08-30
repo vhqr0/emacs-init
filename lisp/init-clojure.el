@@ -12,6 +12,11 @@
 (defvar init-clojure-modes '(clojurec-mode clojure-mode clojurescript-mode))
 (defvar init-clojure-mode-hooks '(clojurec-mode-hook clojure-mode-hook clojurescript-mode-hook))
 
+(require 'flycheck-clj-kondo)
+
+(dolist (mode init-clojure-modes)
+  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
+
 (require 'cider)
 
 (defun init-lookup-setup-cider ()
@@ -20,11 +25,6 @@
 
 (dolist (hook '(cider-mode-hook cider-repl-mode-hook))
   (add-hook hook #'init-lookup-setup-cider))
-
-(require 'flycheck-clj-kondo)
-
-(dolist (mode init-clojure-modes)
-  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
 (defun init-counsel-cider-repl-history ()
   "Browse Cider REPL history."
