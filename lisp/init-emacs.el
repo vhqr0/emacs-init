@@ -94,7 +94,7 @@
 (setq! tab-bar-tab-hints t)
 (setq! tab-bar-select-tab-modifiers '(meta))
 
-(global-set-key (kbd "C-S-T") #'tab-bar-new-tab)
+(global-set-key (kbd "C-S-T") #'tab-bar-duplicate-tab)
 (global-set-key (kbd "C-S-W") #'tab-bar-close-tab)
 
 (global-set-key (kbd "C--") #'text-scale-decrease)
@@ -342,18 +342,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-set-key (kbd "M-o") #'embark-act)
 
-(defun init-open-files (&optional files)
-  "Open FILES externally with `embark-open-externally'."
-  (interactive)
-  (let* ((files (cond (files)
-                      (buffer-file-name)
-                      ((eq major-mode 'dired-mode)
-                       (dired-get-marked-files))
-                      (default-directory)))
-         (files (if (listp files) files (list files))))
-    (dolist (file files)
-      (embark-open-externally file))))
-
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
@@ -594,6 +582,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (autoload 'rg-menu "rg" nil t)
 (declare-function rg-menu "rg")
 
+(defalias 'rg-dwim-current-project 'rg-dwim)
+
 ;;;; comint
 
 (require 'comint)
@@ -702,6 +692,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (define-key init-leader-map (kbd "SPC") #'ivy-switch-buffer)
 (define-key init-leader-map (kbd "u") #'init-leader-universal-argument)
+(define-key init-leader-map (kbd "x") #'god-mode-self-insert)
 (define-key init-leader-map (kbd "c") #'god-mode-self-insert)
 (define-key init-leader-map (kbd "z") #'repeat)
 (define-key init-leader-map (kbd ";") #'eval-expression)
@@ -750,12 +741,18 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "5 2") #'make-frame-command)
 (define-key init-leader-map (kbd "5 o") #'other-frame)
 (define-key init-leader-map (kbd "5 u") #'undelete-frame)
+(define-key init-leader-map (kbd "5 b") #'switch-to-buffer-other-frame)
+(define-key init-leader-map (kbd "5 f") #'find-file-other-frame)
+(define-key init-leader-map (kbd "5 d") #'dired-other-frame)
 (define-key init-leader-map (kbd "t 0") #'tab-bar-close-tab)
 (define-key init-leader-map (kbd "t 1") #'tab-bar-close-group-tabs)
 (define-key init-leader-map (kbd "t 2") #'tab-bar-new-tab)
 (define-key init-leader-map (kbd "t o") #'tab-bar-switch-to-next-tab)
 (define-key init-leader-map (kbd "t O") #'tab-bar-switch-to-prev-tab)
 (define-key init-leader-map (kbd "t u") #'tab-bar-undo-close-tab)
+(define-key init-leader-map (kbd "t b") #'switch-to-buffer-other-tab)
+(define-key init-leader-map (kbd "t f") #'find-file-other-tab)
+(define-key init-leader-map (kbd "t d") #'dired-other-tab)
 
 (define-key init-leader-map (kbd "r m") #'bookmark-set)
 (define-key init-leader-map (kbd "r b") #'bookmark-jump)
@@ -765,14 +762,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "r c") #'org-capture)
 (define-key init-leader-map (kbd "r A") #'counsel-org-agenda-headlines)
 (define-key init-leader-map (kbd "r C") #'counsel-org-capture)
-
-(define-key init-leader-map (kbd "x g") #'revert-buffer-quick)
-(define-key init-leader-map (kbd "x G") #'revert-buffer)
-(define-key init-leader-map (kbd "x v") #'vc-refresh-state)
-(define-key init-leader-map (kbd "x f") #'font-lock-update)
-(define-key init-leader-map (kbd "x o") #'init-open-files)
-(define-key init-leader-map (kbd "x <left>") #'previous-buffer)
-(define-key init-leader-map (kbd "x <right>") #'next-buffer)
 
 (define-key init-leader-map (kbd "p p") #'projectile-switch-project)
 (define-key init-leader-map (kbd "p i") #'projectile-invalidate-cache)
@@ -784,6 +773,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "4 p f") #'projectile-find-file-other-window)
 (define-key init-leader-map (kbd "4 p d") #'projectile-find-dir-other-window)
 (define-key init-leader-map (kbd "4 p j") #'projectile-dired-other-window)
+(define-key init-leader-map (kbd "5 p b") #'projectile-switch-to-buffer-other-frame)
+(define-key init-leader-map (kbd "5 p f") #'projectile-find-file-other-frame)
+(define-key init-leader-map (kbd "5 p d") #'projectile-find-dir-other-frame)
+(define-key init-leader-map (kbd "5 p j") #'projectile-dired-other-frame)
 (define-key init-leader-map (kbd "p s") #'projectile-save-project-buffers)
 (define-key init-leader-map (kbd "p k") #'projectile-kill-buffers)
 (define-key init-leader-map (kbd "p x") #'projectile-run-command-in-root)
@@ -820,12 +813,18 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "n p") #'narrow-to-page)
 
 (define-key init-leader-map (kbd "g g") #'rg-menu)
-(define-key init-leader-map (kbd "g d") #'rg-dwim)
+(define-key init-leader-map (kbd "g d") #'rg-dwim-current-project)
 (define-key init-leader-map (kbd "g c") #'rg-dwim-current-dir)
 (define-key init-leader-map (kbd "g f") #'rg-dwim-current-file)
 (define-key init-leader-map (kbd "g o") #'occur)
 (define-key init-leader-map (kbd "g n") #'next-error)
 (define-key init-leader-map (kbd "g p") #'previous-error)
+(define-key init-leader-map (kbd "g r") #'revert-buffer-quick)
+(define-key init-leader-map (kbd "g R") #'revert-buffer)
+(define-key init-leader-map (kbd "g v") #'vc-refresh-state)
+(define-key init-leader-map (kbd "g F") #'font-lock-update)
+(define-key init-leader-map (kbd "g <left>") #'previous-buffer)
+(define-key init-leader-map (kbd "g <right>") #'next-buffer)
 
 (define-key init-leader-map (kbd "s") #'swiper)
 (define-key init-leader-map (kbd "/") #'swiper-from-isearch)
@@ -867,6 +866,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "h L") #'view-lossage)
 (define-key init-leader-map (kbd "h e") #'view-echo-area-messages)
 (define-key init-leader-map (kbd "h s") #'scratch-buffer)
+(define-key init-leader-map (kbd "h a") #'apropos-command)
 (define-key init-leader-map (kbd "h o") #'describe-symbol)
 (define-key init-leader-map (kbd "h x") #'describe-command)
 (define-key init-leader-map (kbd "h f") #'describe-function)
