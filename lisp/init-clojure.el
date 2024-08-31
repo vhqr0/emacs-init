@@ -42,5 +42,16 @@
 (evil-define-key 'insert cider-repl-mode-map
   (kbd "M-r") #'init-counsel-cider-repl-history)
 
+(defvar-keymap init-cider-command-map
+  "n" cider-ns-map
+  "d" cider-doc-map
+  "=" cider-profile-map
+  "v" cider-eval-commands-map
+  "j" cider-insert-commands-map
+  "," cider-test-commands-map)
+
+(init-leader-define-context-map 'cider-mode init-cider-command-map)
+(init-leader-define-context-map 'cider-repl-mode init-cider-command-map)
+
 (provide 'init-clojure)
 ;;; init-clojure.el ends here

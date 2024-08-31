@@ -372,6 +372,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (global-set-key (kbd "C-s") #'swiper-thing-at-point)
 (global-set-key (kbd "C-c b") #'ivy-resume)
 
+(advice-add 'describe-bindings :override #'counsel-descbinds)
+
 (define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
 (define-key ivy-minibuffer-map (kbd "M-r") #'ivy-reverse-i-search)
 (define-key counsel-find-file-map (kbd "C-l") #'counsel-up-directory)
@@ -431,6 +433,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (ivy-add-actions t '(("a" init-ivy--action-append "append")))
 (ivy-add-actions 'counsel-describe-variable '(("s" init-counsel--set-variable "set")))
 (ivy-add-actions 'counsel-find-library '(("l" load-library "load")))
+(ivy-configure 'counsel-minor :initial-input "")
 
 ;;; help
 
@@ -854,6 +857,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "m v") #'visual-line-mode)
 (define-key init-leader-map (kbd "m s") #'lsp)
 (define-key init-leader-map (kbd "m c") #'company-mode)
+(define-key init-leader-map (kbd "m y") #'yas-minor-mode)
 (define-key init-leader-map (kbd "m f") #'flycheck-mode)
 (define-key init-leader-map (kbd "m =") #'apheleia-mode)
 (define-key init-leader-map (kbd "m m") #'counsel-minor)
@@ -886,6 +890,13 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "4 h F") #'find-function-other-window)
 (define-key init-leader-map (kbd "4 h V") #'find-variable-other-window)
 (define-key init-leader-map (kbd "4 h K") #'find-function-on-key-other-window)
+
+(defun init-leader-define-context-map (mode def)
+  "Define local context DEF for minor MODE."
+  (evil-define-minor-mode-key '(motion normal visual operator) mode
+    (kbd "SPC y") def))
+
+(init-leader-define-context-map 'lsp-mode lsp-command-map)
 
 ;;; end
 
