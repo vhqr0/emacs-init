@@ -141,10 +141,6 @@
 
 ;;; parens
 
-(require 'rainbow-delimiters)
-
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-
 (setq! sp-ignore-modes-list nil)
 
 (require 'smartparens)
@@ -177,7 +173,18 @@
 (define-key smartparens-mode-map (kbd "C-M-<right>") #'sp-backward-barf-sexp)
 (define-key smartparens-mode-map (kbd "C-M-<left>") #'sp-backward-slurp-sexp)
 
+(require 'rainbow-delimiters)
+(require 'rainbow-identifiers)
+
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+(add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
+(add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
+
 ;;; evil
+
+(require 'avy)
+
+(global-set-key (kbd "C-'") #'avy-goto-char-timer)
 
 (setq! evil-want-keybinding nil)
 (setq! evil-want-minibuffer t)
@@ -358,6 +365,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'amx)
 (require 'ivy)
+(require 'ivy-avy)
 (require 'ivy-hydra)
 (require 'swiper)
 (require 'counsel)
@@ -564,11 +572,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'dired)
 (require 'dired-x)
-(require 'diredfl)
 
 (put 'dired-jump 'repeat-map nil)
-
-(add-to-list 'dired-mode-hook #'diredfl-mode)
 
 (define-key dired-mode-map "O" #'dired-omit-mode)
 
@@ -587,8 +592,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (autoload 'rg-menu "rg" nil t)
 (declare-function rg-menu "rg")
-
-(defalias 'rg-dwim-current-project 'rg-dwim)
 
 ;;;; comint
 
@@ -667,16 +670,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key org-mode-map (kbd "C-c C-'") #'org-edit-special)
 (define-key org-src-mode-map (kbd "C-c C-'") #'org-edit-src-exit)
 (define-key org-src-mode-map (kbd "C-c C-c") #'org-edit-src-exit)
-
-(setq! evil-org-key-theme
-       '(navigation return textobjects additional calendar))
-
-(require 'evil-org)
-(require 'evil-org-agenda)
-
-(init-diminish-minor-mode 'evil-org-mode)
-
-(evil-org-agenda-set-keys)
 
 ;;; leaders
 
@@ -818,17 +811,18 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "n d") #'narrow-to-defun)
 (define-key init-leader-map (kbd "n p") #'narrow-to-page)
 
-(define-key init-leader-map (kbd "g g") #'rg-menu)
-(define-key init-leader-map (kbd "g d") #'rg-dwim-current-project)
-(define-key init-leader-map (kbd "g c") #'rg-dwim-current-dir)
-(define-key init-leader-map (kbd "g f") #'rg-dwim-current-file)
 (define-key init-leader-map (kbd "g o") #'occur)
 (define-key init-leader-map (kbd "g n") #'next-error)
 (define-key init-leader-map (kbd "g p") #'previous-error)
+(define-key init-leader-map (kbd "g g") #'rg-menu)
+(define-key init-leader-map (kbd "g d") #'rg-dwim)
+(define-key init-leader-map (kbd "g ;") #'avy-resume)
+(define-key init-leader-map (kbd "g j") #'avy-goto-line)
+(define-key init-leader-map (kbd "g f") #'avy-goto-char-timer)
 (define-key init-leader-map (kbd "g r") #'revert-buffer-quick)
 (define-key init-leader-map (kbd "g R") #'revert-buffer)
 (define-key init-leader-map (kbd "g v") #'vc-refresh-state)
-(define-key init-leader-map (kbd "g F") #'font-lock-update)
+(define-key init-leader-map (kbd "g =") #'font-lock-update)
 (define-key init-leader-map (kbd "g <left>") #'previous-buffer)
 (define-key init-leader-map (kbd "g <right>") #'next-buffer)
 
@@ -859,12 +853,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "m h") #'hl-line-mode)
 (define-key init-leader-map (kbd "m w") #'whitespace-mode)
 (define-key init-leader-map (kbd "m v") #'visual-line-mode)
+(define-key init-leader-map (kbd "m r d") #'rainbow-delimiters-mode)
+(define-key init-leader-map (kbd "m r i") #'rainbow-identifiers-mode)
 (define-key init-leader-map (kbd "m s") #'lsp)
 (define-key init-leader-map (kbd "m c") #'company-mode)
 (define-key init-leader-map (kbd "m y") #'yas-minor-mode)
 (define-key init-leader-map (kbd "m f") #'flycheck-mode)
 (define-key init-leader-map (kbd "m =") #'apheleia-mode)
 (define-key init-leader-map (kbd "m m") #'counsel-minor)
+(define-key init-leader-map (kbd "m M") #'counsel-major)
 
 (define-key init-leader-map (kbd "h h") #'help-for-help)
 (define-key init-leader-map (kbd "h .") #'display-local-help)

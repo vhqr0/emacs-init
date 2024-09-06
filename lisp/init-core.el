@@ -24,7 +24,9 @@
      ;; parens
      (smartparens :type elpa)
      (rainbow-delimiters :type elpa)
+     (rainbow-identifiers :type elpa)
      ;; evil
+     (avy :type elpa)
      (evil :type elpa)
      (evil-collection :type elpa)
      (evil-surround :type elpa)
@@ -33,6 +35,7 @@
      (embark :type elpa)
      (amx :type elpa)
      (ivy :type elpa)
+     (ivy-avy :type elpa)
      (ivy-hydra :type elpa)
      (swiper :type elpa)
      (counsel :type elpa)
@@ -41,6 +44,7 @@
      (helpful :type elpa)
      ;; project
      (projectile :type elpa)
+     (counsel-projectile :type elpa)
      ;; prog
      (company :type elpa)
      (yasnippet :type elpa)
@@ -50,10 +54,10 @@
      (lsp-mode :type elpa)
      (lsp-ui :type elpa)
      ;; tools
-     (diredfl :type elpa)
-     (git-modes :type elpa)
      (with-editor :type elpa)
+     (git-modes :type elpa)
      (magit :type elpa)
+     (orgit :type elpa)
      (rg :type elpa)
      (wgrep :type elpa)
      (eshell-dwim :type vc :url "https://github.com/vhqr0/eshell-dwim")
@@ -66,16 +70,14 @@
      (edit-indirect :type elpa)
      ;; org
      (htmlize :type elpa)
-     (orgit :type elpa)
-     (evil-org :type elpa)
      ;; leaders
      (god-mode :type elpa))
     (init-python
      (lsp-pyright :type elpa))
     (init-clojure
      (clojure-mode :type elpa)
-     (cider :type elpa)
-     (flycheck-clj-kondo :type elpa))
+     (flycheck-clj-kondo :type elpa)
+     (cider :type elpa))
     (init-pyim
      (pyim :type elpa)
      (pyim-basedict :type elpa)
