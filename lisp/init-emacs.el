@@ -369,6 +369,9 @@ FUNC and ARGS see `evil-set-cursor'."
 (ivy-mode 1)
 (counsel-mode 1)
 
+(init-diminish-minor-mode 'ivy-mode)
+(init-diminish-minor-mode 'counsel-mode)
+
 (global-set-key (kbd "C-s") #'swiper-thing-at-point)
 (global-set-key (kbd "C-c b") #'ivy-resume)
 
@@ -830,6 +833,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-leader-map (kbd "g <right>") #'next-buffer)
 
 (define-key init-leader-map (kbd "s") #'swiper)
+(define-key init-leader-map (kbd "S") #'swiper-all)
 (define-key init-leader-map (kbd "/") #'swiper-from-isearch)
 (define-key init-leader-map (kbd "l l") #'counsel-outline)
 (define-key init-leader-map (kbd "l g") #'counsel-rg)
