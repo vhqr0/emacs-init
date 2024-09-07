@@ -656,8 +656,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'org)
 
-(add-to-list 'org-modules 'org-tempo)
-
 (defun init-org-modify-syntax ()
   "Modify `org-mode' syntax table."
   (modify-syntax-entry ?< "." org-mode-syntax-table)
@@ -673,231 +671,269 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;; leaders
 
-(defvar init-leader-map (make-sparse-keymap))
+(defvar init-leader-key "SPC")
+(defvar init-leader-state '(motion normal visual operator))
 
-(evil-define-key '(motion normal visual operator) init-evil-override-mode-map
-  (kbd "SPC") init-leader-map)
+(defun init-leader-bindings (clauses)
+  "Transforms `define-key' CLAUSES to binding alist."
+  (->> clauses
+       (-partition 2)
+       (--map
+        (cons (kbd (concat init-leader-key " " (car it))) (cadr it)))))
+
+(defun init-leader-define-key (keymap &rest clauses)
+  "Define leader binding CLAUSES in KEYMAP."
+  (declare (indent defun))
+  (dolist (binding (init-leader-bindings clauses))
+    (evil-define-key* init-leader-state keymap (car binding) (cdr binding))))
+
+(defun init-leader-global-set-key (&rest clauses)
+  "Define leader binding CLAUSES in `init-evil-override-mode-map'."
+  (apply #'init-leader-define-key (cons init-evil-override-mode-map clauses)))
+
+(defun init-leader-define-minor-mode-key (mode &rest clauses)
+  "Define leader binding CLAUSES assoc with minor MODE."
+  (declare (indent defun))
+  (dolist (binding (init-leader-bindings clauses))
+    (evil-define-minor-mode-key init-leader-state mode (car binding) (cdr binding))))
 
 (defun init-leader-universal-argument ()
-  "Magic universal arguments for `init-leader-map'."
+  "Magic universal arguments for leader map."
   (interactive)
   (setq prefix-arg
         (list (if current-prefix-arg
                   (* 4 (prefix-numeric-value current-prefix-arg))
                 4)))
-  (set-transient-map init-leader-map))
+  (set-transient-map (key-binding " ")))
 
 (require 'god-mode)
 
-(define-key init-leader-map (kbd "SPC") #'ivy-switch-buffer)
-(define-key init-leader-map (kbd "u") #'init-leader-universal-argument)
-(define-key init-leader-map (kbd "x") #'god-mode-self-insert)
-(define-key init-leader-map (kbd "c") #'god-mode-self-insert)
-(define-key init-leader-map (kbd "z") #'repeat)
-(define-key init-leader-map (kbd ";") #'eval-expression)
-(define-key init-leader-map (kbd "!") #'shell-command)
-(define-key init-leader-map (kbd "&") #'async-shell-command)
-(define-key init-leader-map (kbd "0") #'delete-window)
-(define-key init-leader-map (kbd "1") #'delete-other-windows)
-(define-key init-leader-map (kbd "2") #'split-window-below)
-(define-key init-leader-map (kbd "3") #'split-window-right)
-(define-key init-leader-map (kbd "o") #'other-window)
-(define-key init-leader-map (kbd "q") #'quit-window)
-(define-key init-leader-map (kbd "`") #'tmm-menubar)
+(init-leader-global-set-key
+ "SPC" #'ivy-switch-buffer
+ "u" #'init-leader-universal-argument
+ "x" #'god-mode-self-insert
+ "c" #'god-mode-self-insert
+ "z" #'repeat
+ ";" #'eval-expression
+ "!" #'shell-command
+ "&" #'async-shell-command
+ "0" #'delete-window
+ "1" #'delete-other-windows
+ "2" #'split-window-below
+ "3" #'split-window-right
+ "o" #'other-window
+ "q" #'quit-window
+ "`" #'tmm-menubar)
 
-(define-key init-leader-map (kbd "w w") #'evil-window-next)
-(define-key init-leader-map (kbd "w W") #'evil-window-prev)
-(define-key init-leader-map (kbd "w q") #'evil-quit)
-(define-key init-leader-map (kbd "w c") #'evil-window-delete)
-(define-key init-leader-map (kbd "w 0") #'evil-window-delete)
-(define-key init-leader-map (kbd "w o") #'delete-other-windows)
-(define-key init-leader-map (kbd "w s") #'evil-window-split)
-(define-key init-leader-map (kbd "w v") #'evil-window-vsplit)
-(define-key init-leader-map (kbd "w =") #'balance-windows)
-(define-key init-leader-map (kbd "w x") #'evil-window-exchange)
-(define-key init-leader-map (kbd "w j") #'evil-window-down)
-(define-key init-leader-map (kbd "w k") #'evil-window-up)
-(define-key init-leader-map (kbd "w h") #'evil-window-left)
-(define-key init-leader-map (kbd "w l") #'evil-window-right)
-(define-key init-leader-map (kbd "w J") #'evil-window-move-very-bottom)
-(define-key init-leader-map (kbd "w K") #'evil-window-move-very-top)
-(define-key init-leader-map (kbd "w H") #'evil-window-move-far-left)
-(define-key init-leader-map (kbd "w L") #'evil-window-move-far-right)
-(define-key init-leader-map (kbd "w <left>") #'winner-undo)
-(define-key init-leader-map (kbd "w <right>") #'winner-redo)
+(init-leader-global-set-key
+ "w w" #'evil-window-next
+ "w W" #'evil-window-prev
+ "w q" #'evil-quit
+ "w c" #'evil-window-delete
+ "w 0" #'evil-window-delete
+ "w o" #'delete-other-windows
+ "w s" #'evil-window-split
+ "w v" #'evil-window-vsplit
+ "w =" #'balance-windows
+ "w x" #'evil-window-exchange
+ "w j" #'evil-window-down
+ "w k" #'evil-window-up
+ "w h" #'evil-window-left
+ "w l" #'evil-window-right
+ "w J" #'evil-window-move-very-bottom
+ "w K" #'evil-window-move-very-top
+ "w H" #'evil-window-move-far-left
+ "w L" #'evil-window-move-far-right
+ "w <left>" #'winner-undo
+ "w <right>" #'winner-redo)
 
-(define-key init-leader-map (kbd "b") #'switch-to-buffer)
-(define-key init-leader-map (kbd "f") #'find-file)
-(define-key init-leader-map (kbd "d") #'dired)
-(define-key init-leader-map (kbd "j") #'dired-jump)
-(define-key init-leader-map (kbd "k") #'kill-buffer)
-(define-key init-leader-map (kbd "4 b") #'switch-to-buffer-other-window)
-(define-key init-leader-map (kbd "4 f") #'find-file-other-window)
-(define-key init-leader-map (kbd "4 d") #'dired-other-window)
-(define-key init-leader-map (kbd "4 j") #'dired-jump-other-window)
-(define-key init-leader-map (kbd "5 0") #'delete-frame)
-(define-key init-leader-map (kbd "5 1") #'delete-other-frames)
-(define-key init-leader-map (kbd "5 2") #'make-frame-command)
-(define-key init-leader-map (kbd "5 o") #'other-frame)
-(define-key init-leader-map (kbd "5 u") #'undelete-frame)
-(define-key init-leader-map (kbd "5 b") #'switch-to-buffer-other-frame)
-(define-key init-leader-map (kbd "5 f") #'find-file-other-frame)
-(define-key init-leader-map (kbd "5 d") #'dired-other-frame)
-(define-key init-leader-map (kbd "t 0") #'tab-bar-close-tab)
-(define-key init-leader-map (kbd "t 1") #'tab-bar-close-group-tabs)
-(define-key init-leader-map (kbd "t 2") #'tab-bar-new-tab)
-(define-key init-leader-map (kbd "t o") #'tab-bar-switch-to-next-tab)
-(define-key init-leader-map (kbd "t O") #'tab-bar-switch-to-prev-tab)
-(define-key init-leader-map (kbd "t u") #'tab-bar-undo-close-tab)
-(define-key init-leader-map (kbd "t b") #'switch-to-buffer-other-tab)
-(define-key init-leader-map (kbd "t f") #'find-file-other-tab)
-(define-key init-leader-map (kbd "t d") #'dired-other-tab)
+(init-leader-global-set-key
+ "b" #'switch-to-buffer
+ "f" #'find-file
+ "d" #'dired
+ "j" #'dired-jump
+ "k" #'kill-buffer
+ "4 b" #'switch-to-buffer-other-window
+ "4 f" #'find-file-other-window
+ "4 d" #'dired-other-window
+ "4 j" #'dired-jump-other-window
+ "5 0" #'delete-frame
+ "5 1" #'delete-other-frames
+ "5 2" #'make-frame-command
+ "5 o" #'other-frame
+ "5 u" #'undelete-frame
+ "5 b" #'switch-to-buffer-other-frame
+ "5 f" #'find-file-other-frame
+ "5 d" #'dired-other-frame
+ "t 0" #'tab-bar-close-tab
+ "t 1" #'tab-bar-close-group-tabs
+ "t 2" #'tab-bar-new-tab
+ "t o" #'tab-bar-switch-to-next-tab
+ "t O" #'tab-bar-switch-to-prev-tab
+ "t u" #'tab-bar-undo-close-tab
+ "t b" #'switch-to-buffer-other-tab
+ "t f" #'find-file-other-tab
+ "t d" #'dired-other-tab)
 
-(define-key init-leader-map (kbd "r m") #'bookmark-set)
-(define-key init-leader-map (kbd "r b") #'bookmark-jump)
-(define-key init-leader-map (kbd "r e") #'recentf-open)
-(define-key init-leader-map (kbd "r w") #'org-store-link)
-(define-key init-leader-map (kbd "r a") #'org-agenda)
-(define-key init-leader-map (kbd "r c") #'org-capture)
-(define-key init-leader-map (kbd "r A") #'counsel-org-agenda-headlines)
-(define-key init-leader-map (kbd "r C") #'counsel-org-capture)
+(init-leader-global-set-key
+ "r m" #'bookmark-set
+ "r b" #'bookmark-jump
+ "r e" #'recentf-open
+ "r w" #'org-store-link
+ "r a" #'org-agenda
+ "r c" #'org-capture
+ "r A" #'counsel-org-agenda-headlines
+ "r C" #'counsel-org-capture)
 
-(define-key init-leader-map (kbd "p p") #'projectile-switch-project)
-(define-key init-leader-map (kbd "p i") #'projectile-invalidate-cache)
-(define-key init-leader-map (kbd "p b") #'projectile-switch-to-buffer)
-(define-key init-leader-map (kbd "p f") #'projectile-find-file)
-(define-key init-leader-map (kbd "p d") #'projectile-find-dir)
-(define-key init-leader-map (kbd "p j") #'projectile-dired)
-(define-key init-leader-map (kbd "4 p b") #'projectile-switch-to-buffer-other-window)
-(define-key init-leader-map (kbd "4 p f") #'projectile-find-file-other-window)
-(define-key init-leader-map (kbd "4 p d") #'projectile-find-dir-other-window)
-(define-key init-leader-map (kbd "4 p j") #'projectile-dired-other-window)
-(define-key init-leader-map (kbd "5 p b") #'projectile-switch-to-buffer-other-frame)
-(define-key init-leader-map (kbd "5 p f") #'projectile-find-file-other-frame)
-(define-key init-leader-map (kbd "5 p d") #'projectile-find-dir-other-frame)
-(define-key init-leader-map (kbd "5 p j") #'projectile-dired-other-frame)
-(define-key init-leader-map (kbd "p s") #'projectile-save-project-buffers)
-(define-key init-leader-map (kbd "p k") #'projectile-kill-buffers)
-(define-key init-leader-map (kbd "p x") #'projectile-run-command-in-root)
-(define-key init-leader-map (kbd "p c") #'projectile-compile-project)
-(define-key init-leader-map (kbd "p !") #'projectile-run-shell-command-in-root)
-(define-key init-leader-map (kbd "p &") #'projectile-run-async-shell-command-in-root)
-(define-key init-leader-map (kbd "p v") #'projectile-vc)
-(define-key init-leader-map (kbd "p g") #'projectile-ripgrep)
+(init-leader-global-set-key
+ "p p" #'projectile-switch-project
+ "p i" #'projectile-invalidate-cache
+ "p b" #'projectile-switch-to-buffer
+ "p f" #'projectile-find-file
+ "p d" #'projectile-find-dir
+ "p j" #'projectile-dired
+ "4 p b" #'projectile-switch-to-buffer-other-window
+ "4 p f" #'projectile-find-file-other-window
+ "4 p d" #'projectile-find-dir-other-window
+ "4 p j" #'projectile-dired-other-window
+ "5 p b" #'projectile-switch-to-buffer-other-frame
+ "5 p f" #'projectile-find-file-other-frame
+ "5 p d" #'projectile-find-dir-other-frame
+ "5 p j" #'projectile-dired-other-frame
+ "p s" #'projectile-save-project-buffers
+ "p k" #'projectile-kill-buffers
+ "p x" #'projectile-run-command-in-root
+ "p c" #'projectile-compile-project
+ "p !" #'projectile-run-shell-command-in-root
+ "p &" #'projectile-run-async-shell-command-in-root
+ "p v" #'projectile-vc
+ "p g" #'projectile-ripgrep)
 
-(define-key init-leader-map (kbd "v v") #'magit-status)
-(define-key init-leader-map (kbd "v V") #'magit-dispatch)
-(define-key init-leader-map (kbd "v ?") #'magit-file-dispatch)
-(define-key init-leader-map (kbd "v g") #'magit-status-here)
-(define-key init-leader-map (kbd "v G") #'magit-display-repository-buffer)
-(define-key init-leader-map (kbd "v s") #'magit-stage-buffer-file)
-(define-key init-leader-map (kbd "v u") #'magit-unstage-buffer-file)
-(define-key init-leader-map (kbd "v d") #'magit-diff-buffer-file)
-(define-key init-leader-map (kbd "v D") #'magit-diff)
-(define-key init-leader-map (kbd "v l") #'magit-log-buffer-file)
-(define-key init-leader-map (kbd "v L") #'magit-log)
-(define-key init-leader-map (kbd "v b") #'magit-blame-addition)
-(define-key init-leader-map (kbd "v B") #'magit-blame)
-(define-key init-leader-map (kbd "v f") #'magit-find-file)
-(define-key init-leader-map (kbd "v F") #'magit-blob-visit-file)
-(define-key init-leader-map (kbd "v n") #'magit-blob-next)
-(define-key init-leader-map (kbd "v p") #'magit-blob-previous)
+(init-leader-global-set-key
+ "v v" #'magit-status
+ "v V" #'magit-dispatch
+ "v ?" #'magit-file-dispatch
+ "v g" #'magit-status-here
+ "v G" #'magit-display-repository-buffer
+ "v s" #'magit-stage-buffer-file
+ "v u" #'magit-unstage-buffer-file
+ "v d" #'magit-diff-buffer-file
+ "v D" #'magit-diff
+ "v l" #'magit-log-buffer-file
+ "v L" #'magit-log
+ "v b" #'magit-blame-addition
+ "v B" #'magit-blame
+ "v f" #'magit-find-file
+ "v F" #'magit-blob-visit-file
+ "v n" #'magit-blob-next
+ "v p" #'magit-blob-previous)
 
-(define-key init-leader-map (kbd "e") #'eshell-dwim)
-(define-key init-leader-map (kbd "p e") #'eshell-dwim-project)
+(init-leader-global-set-key
+ "e" #'eshell-dwim
+ "p e" #'eshell-dwim-project)
 
-(define-key init-leader-map (kbd "n w") #'widen)
-(define-key init-leader-map (kbd "n n") #'narrow-to-region)
-(define-key init-leader-map (kbd "n d") #'narrow-to-defun)
-(define-key init-leader-map (kbd "n p") #'narrow-to-page)
+(init-leader-global-set-key
+ "n w" #'widen
+ "n n" #'narrow-to-region
+ "n d" #'narrow-to-defun
+ "n p" #'narrow-to-page)
 
-(define-key init-leader-map (kbd "g o") #'occur)
-(define-key init-leader-map (kbd "g n") #'next-error)
-(define-key init-leader-map (kbd "g p") #'previous-error)
-(define-key init-leader-map (kbd "g g") #'rg-menu)
-(define-key init-leader-map (kbd "g d") #'rg-dwim)
-(define-key init-leader-map (kbd "g ;") #'avy-resume)
-(define-key init-leader-map (kbd "g j") #'avy-goto-line)
-(define-key init-leader-map (kbd "g f") #'avy-goto-char-timer)
-(define-key init-leader-map (kbd "g r") #'revert-buffer-quick)
-(define-key init-leader-map (kbd "g R") #'revert-buffer)
-(define-key init-leader-map (kbd "g v") #'vc-refresh-state)
-(define-key init-leader-map (kbd "g =") #'font-lock-update)
-(define-key init-leader-map (kbd "g <left>") #'previous-buffer)
-(define-key init-leader-map (kbd "g <right>") #'next-buffer)
+(init-leader-define-key markdown-mode-map
+  "n b" #'markdown-narrow-to-block
+  "n s" #'markdown-narrow-to-subtree)
 
-(define-key init-leader-map (kbd "s") #'swiper)
-(define-key init-leader-map (kbd "S") #'swiper-all)
-(define-key init-leader-map (kbd "/") #'swiper-from-isearch)
-(define-key init-leader-map (kbd "l l") #'counsel-outline)
-(define-key init-leader-map (kbd "l g") #'counsel-rg)
-(define-key init-leader-map (kbd "l f") #'counsel-file-jump)
-(define-key init-leader-map (kbd "l d") #'counsel-dired-jump)
+(init-leader-define-key org-mode-map
+  "n b" #'org-narrow-to-block
+  "n s" #'org-narrow-to-subtree)
 
-(define-key init-leader-map (kbd "=") #'apheleia-format-buffer)
-(define-key init-leader-map (kbd "%") #'query-replace-regexp)
-(define-key init-leader-map (kbd ".") #'xref-find-definitions)
-(define-key init-leader-map (kbd "?") #'xref-find-references)
-(define-key init-leader-map (kbd ",") #'xref-go-back)
-(define-key init-leader-map (kbd "4 .") #'xref-find-definitions-other-window)
-(define-key init-leader-map (kbd "i") #'imenu)
-(define-key init-leader-map (kbd "(") #'sp-wrap-round)
-(define-key init-leader-map (kbd "[") #'sp-wrap-square)
-(define-key init-leader-map (kbd "{") #'sp-wrap-curly)
+(init-leader-global-set-key
+  "g o" #'occur
+  "g n" #'next-error
+  "g p" #'previous-error
+  "g g" #'rg-menu
+  "g d" #'rg-dwim
+  "g ;" #'avy-resume
+  "g j" #'avy-goto-line
+  "g f" #'avy-goto-char-timer
+  "g r" #'revert-buffer-quick
+  "g R" #'revert-buffer
+  "g v" #'vc-refresh-state
+  "g =" #'font-lock-update
+  "g <left>" #'previous-buffer
+  "g <right>" #'next-buffer)
 
-(define-key init-leader-map (kbd "m a") #'auto-save-visited-mode)
-(define-key init-leader-map (kbd "m A") #'auto-revert-mode)
-(define-key init-leader-map (kbd "m t") #'toggle-truncate-lines)
-(define-key init-leader-map (kbd "m l") #'display-line-numbers-mode)
-(define-key init-leader-map (kbd "m L") #'init-toggle-line-numbers-type)
-(define-key init-leader-map (kbd "m h") #'hl-line-mode)
-(define-key init-leader-map (kbd "m w") #'whitespace-mode)
-(define-key init-leader-map (kbd "m v") #'visual-line-mode)
-(define-key init-leader-map (kbd "m r d") #'rainbow-delimiters-mode)
-(define-key init-leader-map (kbd "m r i") #'rainbow-identifiers-mode)
-(define-key init-leader-map (kbd "m s") #'lsp)
-(define-key init-leader-map (kbd "m c") #'company-mode)
-(define-key init-leader-map (kbd "m y") #'yas-minor-mode)
-(define-key init-leader-map (kbd "m f") #'flycheck-mode)
-(define-key init-leader-map (kbd "m =") #'apheleia-mode)
-(define-key init-leader-map (kbd "m m") #'counsel-minor)
-(define-key init-leader-map (kbd "m M") #'counsel-major)
+(init-leader-global-set-key
+  "s" #'swiper
+  "S" #'swiper-all
+  "/" #'swiper-from-isearch
+  "l l" #'counsel-outline
+  "l g" #'counsel-rg
+  "l f" #'counsel-file-jump
+  "l d" #'counsel-dired-jump)
 
-(define-key init-leader-map (kbd "h h") #'help-for-help)
-(define-key init-leader-map (kbd "h .") #'display-local-help)
-(define-key init-leader-map (kbd "h i") #'info)
-(define-key init-leader-map (kbd "4 h i") #'info-other-window)
-(define-key init-leader-map (kbd "h S") #'info-lookup-symbol)
-(define-key init-leader-map (kbd "h L") #'view-lossage)
-(define-key init-leader-map (kbd "h e") #'view-echo-area-messages)
-(define-key init-leader-map (kbd "h s") #'scratch-buffer)
-(define-key init-leader-map (kbd "h a") #'apropos-command)
-(define-key init-leader-map (kbd "h o") #'describe-symbol)
-(define-key init-leader-map (kbd "h x") #'describe-command)
-(define-key init-leader-map (kbd "h f") #'describe-function)
-(define-key init-leader-map (kbd "h v") #'describe-variable)
-(define-key init-leader-map (kbd "h p") #'describe-package)
-(define-key init-leader-map (kbd "h m") #'describe-mode)
-(define-key init-leader-map (kbd "h b") #'describe-bindings)
-(define-key init-leader-map (kbd "h B") #'describe-keymap)
-(define-key init-leader-map (kbd "h l") #'find-library)
-(define-key init-leader-map (kbd "h w") #'where-is)
-(define-key init-leader-map (kbd "h k") #'helpful-key)
-(define-key init-leader-map (kbd "h c") #'describe-key-briefly)
-(define-key init-leader-map (kbd "h t l") #'load-library)
-(define-key init-leader-map (kbd "h t f") #'load-file)
-(define-key init-leader-map (kbd "h t t") #'load-theme)
-(define-key init-leader-map (kbd "4 h L") #'find-library-other-window)
-(define-key init-leader-map (kbd "4 h F") #'find-function-other-window)
-(define-key init-leader-map (kbd "4 h V") #'find-variable-other-window)
-(define-key init-leader-map (kbd "4 h K") #'find-function-on-key-other-window)
+(init-leader-global-set-key
+  "=" #'apheleia-format-buffer
+  "%" #'query-replace-regexp
+  "." #'xref-find-definitions
+  "?" #'xref-find-references
+  "," #'xref-go-back
+  "4 ." #'xref-find-definitions-other-window
+  "i" #'imenu
+  "(" #'sp-wrap-round
+  "[" #'sp-wrap-square
+  "{" #'sp-wrap-curly)
 
-(defun init-leader-define-context-map (mode def)
-  "Define local context DEF for minor MODE."
-  (evil-define-minor-mode-key '(motion normal visual operator) mode
-    (kbd "SPC y") def))
+(init-leader-define-minor-mode-key 'lsp-mode
+  "y" lsp-command-map)
 
-(init-leader-define-context-map 'lsp-mode lsp-command-map)
+(init-leader-global-set-key
+  "m a" #'auto-save-visited-mode
+  "m A" #'auto-revert-mode
+  "m t" #'toggle-truncate-lines
+  "m l" #'display-line-numbers-mode
+  "m L" #'init-toggle-line-numbers-type
+  "m h" #'hl-line-mode
+  "m w" #'whitespace-mode
+  "m v" #'visual-line-mode
+  "m r d" #'rainbow-delimiters-mode
+  "m r i" #'rainbow-identifiers-mode
+  "m s" #'lsp
+  "m c" #'company-mode
+  "m y" #'yas-minor-mode
+  "m f" #'flycheck-mode
+  "m =" #'apheleia-mode
+  "m m" #'counsel-minor
+  "m M" #'counsel-major)
+
+(init-leader-global-set-key
+  "h h" #'help-for-help
+  "h ." #'display-local-help
+  "h i" #'info
+  "4 h i" #'info-other-window
+  "h S" #'info-lookup-symbol
+  "h L" #'view-lossage
+  "h e" #'view-echo-area-messages
+  "h s" #'scratch-buffer
+  "h a" #'apropos-command
+  "h o" #'describe-symbol
+  "h x" #'describe-command
+  "h f" #'describe-function
+  "h v" #'describe-variable
+  "h p" #'describe-package
+  "h m" #'describe-mode
+  "h b" #'describe-bindings
+  "h B" #'describe-keymap
+  "h l" #'find-library
+  "h w" #'where-is
+  "h k" #'helpful-key
+  "h c" #'describe-key-briefly
+  "h t l" #'load-library
+  "h t f" #'load-file
+  "h t t" #'load-theme
+  "4 h L" #'find-library-other-window
+  "4 h F" #'find-function-other-window
+  "4 h V" #'find-variable-other-window
+  "4 h K" #'find-function-on-key-other-window)
 
 ;;; end
 
