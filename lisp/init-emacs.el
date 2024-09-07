@@ -361,6 +361,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! isearch-repeat-on-direction-change t)
 
 (setq! ivy-count-format "(%d/%d) ")
+(setq! ivy-use-selectable-prompt t)
 (setq! ivy-use-virtual-buffers t)
 
 (require 'amx)

@@ -17,18 +17,16 @@
 (org-roam-db-autosync-mode 1)
 
 (defvar-keymap init-roam-prefix-map
-  "f" #'org-roam-node-find
-  "c" #'org-roam-capture
-  "i" #'org-roam-node-insert
   "l" #'org-roam-buffer-toggle
-  "g" #'org-roam-graph
+  "f" #'org-roam-node-find
+  "i" #'org-roam-node-insert
+  "c" #'org-roam-capture
   "j" #'org-roam-dailies-capture-today)
 
 (global-set-key (kbd "C-c n") init-roam-prefix-map)
 
 (init-leader-global-set-key
- "n f" #'org-roam-node-find
- "n c" #'org-roam-capture)
+ "r n" #'org-roam-node-find)
 
 (provide 'init-roam)
 ;;; init-roam.el ends here
