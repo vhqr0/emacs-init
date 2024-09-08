@@ -25,8 +25,6 @@
 
 (setq! read-process-output-max (* 1024 1024))
 
-(setq! enable-recursive-minibuffers t)
-
 ;;; files
 
 (setq! vc-handled-backends '(Git))
@@ -35,15 +33,12 @@
 (setq! backup-by-copying t)
 (setq! delete-old-versions t)
 
-(eval-and-compile
-  (defun init-file-name-transforms (x)
-    `((".*" ,(expand-file-name x user-emacs-directory) t)))
-  (defun init-directory-alist (x)
-    `((".*" . ,(expand-file-name x user-emacs-directory)))))
-
-(setq! auto-save-file-name-transforms (init-file-name-transforms "save/"))
-(setq! lock-file-name-transforms      (init-file-name-transforms "lock/"))
-(setq! backup-directory-alist         (init-directory-alist      "backup/"))
+(setq! auto-save-file-name-transforms
+       `((".*" ,(expand-file-name "save/" user-emacs-directory) t)))
+(setq! lock-file-name-transforms
+       `((".*" ,(expand-file-name "lock/" user-emacs-directory) t)))
+(setq! backup-directory-alist
+       `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
 (setq! auto-save-visited-interval 1)
 
@@ -349,6 +344,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-set-key (kbd "M-o") #'embark-act)
 
+(setq! enable-recursive-minibuffers t)
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
