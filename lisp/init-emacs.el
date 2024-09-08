@@ -89,7 +89,7 @@
 (setq! tab-bar-tab-hints t)
 (setq! tab-bar-select-tab-modifiers '(meta))
 
-(global-set-key (kbd "C-S-T") #'tab-bar-duplicate-tab)
+(global-set-key (kbd "C-S-T") #'tab-bar-new-tab)
 (global-set-key (kbd "C-S-W") #'tab-bar-close-tab)
 
 (global-set-key (kbd "C--") #'text-scale-decrease)
@@ -177,7 +177,10 @@
 
 ;;; evil
 
+(setq! avy-all-windows nil)
+
 (require 'avy)
+(require 'ace-window)
 
 (global-set-key (kbd "C-'") #'avy-goto-char-timer)
 
@@ -499,6 +502,10 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;; prog
 
+;;;; eldoc
+
+(setq! eldoc-minor-mode-string nil)
+
 ;;;; company
 
 (setq! company-idle-delay 0.2)
@@ -592,6 +599,29 @@ FUNC and ARGS see `evil-set-cursor'."
 (autoload 'rg-menu "rg" nil t)
 (declare-function rg-menu "rg")
 
+
+;;;; treemacs
+
+(setq! treemacs-is-never-other-window t)
+
+(require 'treemacs)
+(require 'treemacs-evil)
+(require 'treemacs-projectile)
+(require 'treemacs-magit)
+(require 'treemacs-icons-dired)
+(require 'treemacs-tab-bar)
+
+(treemacs-set-scope-type 'Tabs)
+
+(treemacs-project-follow-mode 1)
+(treemacs-hide-gitignored-files-mode 1)
+
+(add-hook 'dired-mode-hook #'treemacs-icons-dired-enable-once)
+
+(global-set-key (kbd "M--") #'treemacs-select-window)
+
+(add-hook 'after-init-hook #'treemacs-start-on-boot)
+
 ;;;; comint
 
 (require 'comint)
@@ -620,6 +650,7 @@ FUNC and ARGS see `evil-set-cursor'."
 ;;;; spell
 
 (setq! ispell-dictionary "american")
+
 
 ;;; lang
 
@@ -768,7 +799,7 @@ FUNC and ARGS see `evil-set-cursor'."
  "5 f" #'find-file-other-frame
  "5 d" #'dired-other-frame
  "t 0" #'tab-bar-close-tab
- "t 1" #'tab-bar-close-group-tabs
+ "t 1" #'tab-bar-close-other-tabs
  "t 2" #'tab-bar-new-tab
  "t o" #'tab-bar-switch-to-next-tab
  "t O" #'tab-bar-switch-to-prev-tab
@@ -835,6 +866,10 @@ FUNC and ARGS see `evil-set-cursor'."
  "v p" #'magit-blob-previous)
 
 (init-leader-global-set-key
+ "-" #'treemacs
+ "p t" #'treemacs-projectile)
+
+(init-leader-global-set-key
  "e" #'eshell-dwim
  "p e" #'eshell-dwim-project)
 
@@ -861,6 +896,7 @@ FUNC and ARGS see `evil-set-cursor'."
   "g ;" #'avy-resume
   "g j" #'avy-goto-line
   "g f" #'avy-goto-char-timer
+  "g w" #'ace-window
   "g r" #'revert-buffer-quick
   "g R" #'revert-buffer
   "g v" #'vc-refresh-state
