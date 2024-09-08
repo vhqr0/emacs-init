@@ -384,8 +384,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (global-set-key (kbd "C-s") #'swiper-thing-at-point)
 (global-set-key (kbd "C-c b") #'ivy-resume)
 
-(advice-add 'describe-bindings :override #'counsel-descbinds)
-
 (define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
 (define-key ivy-minibuffer-map (kbd "M-r") #'ivy-reverse-i-search)
 (define-key counsel-find-file-map (kbd "C-l") #'counsel-up-directory)
@@ -427,6 +425,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
 (advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
 
+(define-key counsel-mode-map [remap describe-bindings] nil)
 (define-key counsel-mode-map [remap recentf-open] #'counsel-recentf)
 (define-key counsel-mode-map [remap previous-matching-history-element] #'counsel-minibuffer-history)
 (define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
@@ -458,9 +457,12 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'helpful)
 
 (setq! counsel-describe-symbol-function #'helpful-symbol)
-(setq! counsel-describe-variable-function #'helpful-variable)
 (setq! counsel-describe-function-function #'helpful-callable)
-(setq! counsel-descbinds-function #'helpful-callable)
+(setq! counsel-describe-variable-function #'helpful-variable)
+
+(define-key counsel-mode-map [remap helpful-symbol] #'counsel-describe-symbol)
+(define-key counsel-mode-map [remap helpful-callable] #'counsel-describe-function)
+(define-key counsel-mode-map [remap helpful-variable] #'counsel-describe-variable)
 
 (defun init-lookup-setup-command (command)
   "Setup COMMAND as local help command."
@@ -638,6 +640,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; markdown
 
+(setq! markdown-special-ctrl-a/e t)
 (setq! markdown-fontify-code-blocks-natively t)
 
 (require 'markdown-mode)
@@ -654,6 +657,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (setq! org-capture-templates
        '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
+
+(setq! org-special-ctrl-a/e t)
 
 (require 'org)
 
@@ -780,11 +785,15 @@ FUNC and ARGS see `evil-set-cursor'."
  "r m" #'bookmark-set
  "r b" #'bookmark-jump
  "r e" #'recentf-open
- "r w" #'org-store-link
+ "r i" #'insert-register
+ "r j" #'jump-to-register
+ "r x" #'copy-to-register
+ "r SPC" #'point-to-register
+ "r w" #'window-configuration-to-register
+ "r f" #'frameset-to-register
+ "r l" #'org-store-link
  "r a" #'org-agenda
- "r c" #'org-capture
- "r A" #'counsel-org-agenda-headlines
- "r C" #'counsel-org-capture)
+ "r c" #'org-capture)
 
 (init-leader-global-set-key
  "p p" #'projectile-switch-project
@@ -916,25 +925,22 @@ FUNC and ARGS see `evil-set-cursor'."
   "h e" #'view-echo-area-messages
   "h s" #'scratch-buffer
   "h a" #'apropos-command
-  "h o" #'describe-symbol
-  "h x" #'describe-command
-  "h f" #'describe-function
-  "h v" #'describe-variable
-  "h p" #'describe-package
-  "h m" #'describe-mode
-  "h b" #'describe-bindings
-  "h B" #'describe-keymap
-  "h l" #'find-library
-  "h w" #'where-is
+  "h o" #'helpful-symbol
+  "h f" #'helpful-callable
+  "h v" #'helpful-variable
+  "h x" #'helpful-command
   "h k" #'helpful-key
   "h c" #'describe-key-briefly
+  "h w" #'where-is
+  "h b" #'describe-bindings
+  "h B" #'describe-keymap
+  "h m" #'describe-mode
+  "h p" #'describe-package
+  "h l" #'find-library
+  "4 h l" #'find-library-other-window
   "h t l" #'load-library
   "h t f" #'load-file
-  "h t t" #'load-theme
-  "4 h L" #'find-library-other-window
-  "4 h F" #'find-function-other-window
-  "4 h V" #'find-variable-other-window
-  "4 h K" #'find-function-on-key-other-window)
+  "h t t" #'load-theme)
 
 ;;; end
 

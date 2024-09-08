@@ -85,7 +85,8 @@
      (popon :type elpa))
     (init-roam
      (org-roam :type elpa)
-     (org-roam-ui :type elpa))))
+     (org-roam-ui :type elpa)
+     (helm-roam :type elpa))))
 
 (defvar init-enabled-modules
   '(init-emacs

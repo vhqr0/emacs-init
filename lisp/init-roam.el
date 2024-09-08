@@ -26,7 +26,7 @@
 (global-set-key (kbd "C-c n") init-roam-prefix-map)
 
 (init-leader-global-set-key
- "r n" #'org-roam-node-find)
+ "r n" #'helm-roam)
 
 (provide 'init-roam)
 ;;; init-roam.el ends here
