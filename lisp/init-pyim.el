@@ -100,8 +100,8 @@
    :cregexp-support-p t
    :keymaps ,init-pyim-zirjma-keymaps))
 
-(define-key pyim-mode-map "." #'pyim-page-next-page)
-(define-key pyim-mode-map "," #'pyim-page-previous-page)
+(keymap-set pyim-mode-map "." #'pyim-page-next-page)
+(keymap-set pyim-mode-map "," #'pyim-page-previous-page)
 
 (pyim-basedict-enable)
 

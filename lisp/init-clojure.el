@@ -50,7 +50,7 @@
   "j" cider-insert-commands-map
   "," cider-test-commands-map)
 
-(init-leader-define-minor-mode-key 'cider-mode
+(init-leader-minor-mode-set 'cider-mode
   "y" init-cider-command-map)
 
 (provide 'init-clojure)

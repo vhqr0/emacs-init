@@ -9,14 +9,6 @@
 
 ;;; Code:
 
-;;; utils
-
-(defun init-diminish-minor-mode (mode)
-  "Diminish MODE lighter."
-  (setq minor-mode-alist
-        (->> minor-mode-alist
-             (--remove (eq (car it) mode)))))
-
 ;;; essentials
 
 (prefer-coding-system 'utf-8)
@@ -24,6 +16,14 @@
 (setq! system-time-locale "C")
 
 (setq! read-process-output-max (* 1024 1024))
+
+;;; utils
+
+(defun init-diminish-minor-mode (mode)
+  "Diminish MODE lighter."
+  (setq minor-mode-alist
+        (->> minor-mode-alist
+             (--remove (eq (car it) mode)))))
 
 ;;; files
 
@@ -51,6 +51,9 @@
 (require 'recentf)
 
 (recentf-mode 1)
+
+(keymap-set ctl-x-r-map "e" #'recentf-open)
+(keymap-set ctl-x-r-map "B" #'bookmark-bmenu-list)
 
 ;;; ui
 
@@ -89,15 +92,45 @@
 (setq! tab-bar-tab-hints t)
 (setq! tab-bar-select-tab-modifiers '(meta))
 
-(global-set-key (kbd "C-S-T") #'tab-bar-new-tab)
-(global-set-key (kbd "C-S-W") #'tab-bar-close-tab)
+(require 'tab-bar)
 
-(global-set-key (kbd "C--") #'text-scale-decrease)
-(global-set-key (kbd "C-=") #'text-scale-increase)
+(tab-bar-mode 1)
+
+(keymap-global-set "C-S-T" #'tab-bar-new-tab)
+(keymap-global-set "C-S-W" #'tab-bar-close-tab)
+
+(keymap-global-set "C--" #'text-scale-decrease)
+(keymap-global-set "C-=" #'text-scale-increase)
+
+;;; edit
+
+(setq-default indent-tabs-mode nil)
+
+(setq! word-wrap-by-category t)
+
+(setq! disabled-command-function nil)
+
+(require 'repeat)
+
+(repeat-mode 1)
+
+(keymap-global-set "C-SPC" #'toggle-input-method)
 
 ;;;; lines
 
 (setq-default truncate-lines t)
+
+(defun init-set-trailing-whitespace-display ()
+  "Set local display of trailing whitespace."
+  (setq-local show-trailing-whitespace t))
+
+(defun init-toggle-trailing-whitespace-display ()
+  "Toggle local trailing whitespace display."
+  (interactive)
+  (setq-local show-trailing-whitespace (not show-trailing-whitespace)))
+
+(add-hook 'text-mode-hook #'init-set-trailing-whitespace-display)
+(add-hook 'prog-mode-hook #'init-set-trailing-whitespace-display)
 
 (require 'display-line-numbers)
 
@@ -113,26 +146,26 @@
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
-(defun init-set-trailing-whitespace-display ()
-  "Set local display of trailing whitespace."
-  (setq-local show-trailing-whitespace t))
+(require 'rainbow-delimiters)
+(require 'rainbow-identifiers)
 
-(add-hook 'text-mode-hook #'init-set-trailing-whitespace-display)
-(add-hook 'prog-mode-hook #'init-set-trailing-whitespace-display)
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+(add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
+(add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
 
-;;; edit
+(defvar-keymap init-ctl-x-m-map
+  "a" #'auto-save-visited-mode
+  "A" #'auto-revert-mode
+  "t" #'toggle-truncate-lines
+  "l" #'init-toggle-line-numbers-type
+  "h" #'hl-line-mode
+  "w" #'whitespace-mode
+  "W" #'init-toggle-trailing-whitespace-display
+  "v" #'visual-line-mode
+  "r d" #'rainbow-delimiters-mode
+  "r i" #'rainbow-identifiers-mode)
 
-(setq-default indent-tabs-mode nil)
-
-(setq! word-wrap-by-category t)
-
-(setq! disabled-command-function nil)
-
-(require 'repeat)
-
-(repeat-mode 1)
-
-(global-set-key (kbd "C-SPC") #'toggle-input-method)
+(keymap-global-set "C-x m" init-ctl-x-m-map)
 
 ;;; parens
 
@@ -148,41 +181,27 @@
 (smartparens-global-mode 1)
 (show-smartparens-global-mode 1)
 
-(define-key smartparens-mode-map (kbd "C-M-f") #'sp-forward-sexp)
-(define-key smartparens-mode-map (kbd "C-M-b") #'sp-backward-sexp)
-(define-key smartparens-mode-map (kbd "C-M-d") #'sp-down-sexp)
-(define-key smartparens-mode-map (kbd "C-M-u") #'sp-backward-up-sexp)
-(define-key smartparens-mode-map (kbd "C-M-n") #'sp-next-sexp)
-(define-key smartparens-mode-map (kbd "C-M-p") #'sp-previous-sexp)
-(define-key smartparens-mode-map (kbd "C-M-k") #'sp-kill-sexp)
-(define-key smartparens-mode-map (kbd "C-M-w") #'sp-copy-sexp)
-(define-key smartparens-mode-map (kbd "C-M-SPC") #'sp-mark-sexp)
-(define-key smartparens-mode-map (kbd "C-k") #'sp-kill-hybrid-sexp)
-(define-key smartparens-mode-map (kbd "M-r") #'sp-splice-sexp-killing-around)
-(define-key smartparens-mode-map (kbd "M-R") #'sp-splice-sexp-killing-backward)
-(define-key smartparens-mode-map (kbd "M-s") #'sp-splice-sexp)
-(define-key smartparens-mode-map (kbd "M-S") #'sp-split-sexp)
-(define-key smartparens-mode-map (kbd "M-J") #'sp-join-sexp)
-(define-key smartparens-mode-map (kbd "C-<right>") #'sp-forward-slurp-sexp)
-(define-key smartparens-mode-map (kbd "C-<left>") #'sp-forward-barf-sexp)
-(define-key smartparens-mode-map (kbd "C-M-<right>") #'sp-backward-barf-sexp)
-(define-key smartparens-mode-map (kbd "C-M-<left>") #'sp-backward-slurp-sexp)
-
-(require 'rainbow-delimiters)
-(require 'rainbow-identifiers)
-
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-(add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
-(add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
+(keymap-set smartparens-mode-map "C-M-f" #'sp-forward-sexp)
+(keymap-set smartparens-mode-map "C-M-b" #'sp-backward-sexp)
+(keymap-set smartparens-mode-map "C-M-d" #'sp-down-sexp)
+(keymap-set smartparens-mode-map "C-M-u" #'sp-backward-up-sexp)
+(keymap-set smartparens-mode-map "C-M-n" #'sp-next-sexp)
+(keymap-set smartparens-mode-map "C-M-p" #'sp-previous-sexp)
+(keymap-set smartparens-mode-map "C-M-k" #'sp-kill-sexp)
+(keymap-set smartparens-mode-map "C-M-w" #'sp-copy-sexp)
+(keymap-set smartparens-mode-map "C-M-SPC" #'sp-mark-sexp)
+(keymap-set smartparens-mode-map "C-k" #'sp-kill-hybrid-sexp)
+(keymap-set smartparens-mode-map "M-r" #'sp-splice-sexp-killing-around)
+(keymap-set smartparens-mode-map "M-R" #'sp-splice-sexp-killing-backward)
+(keymap-set smartparens-mode-map "M-s" #'sp-splice-sexp)
+(keymap-set smartparens-mode-map "M-S" #'sp-split-sexp)
+(keymap-set smartparens-mode-map "M-J" #'sp-join-sexp)
+(keymap-set smartparens-mode-map "C-<right>" #'sp-forward-slurp-sexp)
+(keymap-set smartparens-mode-map "C-<left>" #'sp-forward-barf-sexp)
+(keymap-set smartparens-mode-map "C-M-<right>" #'sp-backward-barf-sexp)
+(keymap-set smartparens-mode-map "C-M-<left>" #'sp-backward-slurp-sexp)
 
 ;;; evil
-
-(setq! avy-all-windows nil)
-
-(require 'avy)
-(require 'ace-window)
-
-(global-set-key (kbd "C-'") #'avy-goto-char-timer)
 
 (setq! evil-want-keybinding nil)
 (setq! evil-want-minibuffer t)
@@ -209,11 +228,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (advice-add #'evil-set-cursor :override #'ignore)
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor)
 
-(define-key evil-insert-state-map (kbd "C-@") nil)
-(define-key evil-insert-state-map (kbd "C-a") nil)
-(define-key evil-insert-state-map (kbd "C-k") nil)
-(define-key evil-insert-state-map (kbd "C-w") nil)
-(define-key evil-normal-state-map [remap yank-pop] nil)
+(keymap-unset evil-insert-state-map "C-@" t)
+(keymap-unset evil-insert-state-map "C-a" t)
+(keymap-unset evil-insert-state-map "C-k" t)
+(keymap-unset evil-insert-state-map "C-w" t)
+
+(define-key evil-normal-state-map [remap yank-pop] nil t)
+
+(keymap-set evil-window-map "<left>" #'winner-undo)
+(keymap-set evil-window-map "<right>" #'winner-redo)
 
 (setq! evil-collection-setup-minibuffer t)
 
@@ -314,24 +337,24 @@ FUNC and ARGS see `evil-set-cursor'."
   (cl-destructuring-bind (beg . end) (sp-get-comment-bounds)
     (evil-range beg end 'exclusive)))
 
-(define-key evil-insert-state-map "j" #'init-evil-escape)
-(define-key evil-replace-state-map "j" #'init-evil-escape)
-(define-key evil-motion-state-map "%" #'init-evil-jump-item)
-(define-key evil-normal-state-map "gc" #'init-evil-operator-comment)
-(define-key evil-motion-state-map "g-" #'init-evil-operator-narrow)
-(define-key evil-motion-state-map "gy" #'init-evil-operator-eval)
-(define-key evil-inner-text-objects-map "l" #'init-evil-inner-line)
-(define-key evil-outer-text-objects-map "l" #'init-evil-a-line)
-(define-key evil-inner-text-objects-map "d" #'init-evil-inner-defun)
-(define-key evil-outer-text-objects-map "d" #'init-evil-a-defun)
-(define-key evil-inner-text-objects-map "c" #'init-evil-inner-comment)
-(define-key evil-outer-text-objects-map "c" #'init-evil-a-comment)
-(define-key evil-inner-text-objects-map "u" #'init-evil-text-object-url)
-(define-key evil-outer-text-objects-map "u" #'init-evil-text-object-url)
-(define-key evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
-(define-key evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
+(keymap-set evil-insert-state-map "j" #'init-evil-escape)
+(keymap-set evil-replace-state-map "j" #'init-evil-escape)
+(keymap-set evil-motion-state-map "%" #'init-evil-jump-item)
+(keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
+(keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
+(keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
+(keymap-set evil-inner-text-objects-map "l" #'init-evil-inner-line)
+(keymap-set evil-outer-text-objects-map "l" #'init-evil-a-line)
+(keymap-set evil-inner-text-objects-map "d" #'init-evil-inner-defun)
+(keymap-set evil-outer-text-objects-map "d" #'init-evil-a-defun)
+(keymap-set evil-inner-text-objects-map "c" #'init-evil-inner-comment)
+(keymap-set evil-outer-text-objects-map "c" #'init-evil-a-comment)
+(keymap-set evil-inner-text-objects-map "u" #'init-evil-text-object-url)
+(keymap-set evil-outer-text-objects-map "u" #'init-evil-text-object-url)
+(keymap-set evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
+(keymap-set evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
 
-(defvar init-evil-override-mode-map (make-sparse-keymap))
+(defvar-keymap init-evil-override-mode-map)
 
 (define-minor-mode init-evil-override-mode
   "Override leader prefix map."
@@ -345,19 +368,12 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'embark)
 
-(global-set-key (kbd "M-o") #'embark-act)
+(keymap-global-set "M-o" #'embark-act)
 
 (setq! enable-recursive-minibuffers t)
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
-
-(setq! isearch-lazy-count t)
-(setq! isearch-allow-scroll t)
-(setq! isearch-allow-motion t)
-(setq! isearch-yank-on-move t)
-(setq! isearch-motion-changes-direction t)
-(setq! isearch-repeat-on-direction-change t)
 
 (setq! ivy-count-format "(%d/%d) ")
 (setq! ivy-use-selectable-prompt t)
@@ -373,29 +389,24 @@ FUNC and ARGS see `evil-set-cursor'."
 (add-to-list 'ivy-completing-read-handlers-alist
              '(kill-buffer . completing-read-default))
 
+(init-diminish-minor-mode 'ivy-mode)
+(init-diminish-minor-mode 'counsel-mode)
+
 (amx-mode 1)
 (ivy-mode 1)
 (counsel-mode 1)
 
-(init-diminish-minor-mode 'ivy-mode)
-(init-diminish-minor-mode 'counsel-mode)
+(keymap-global-set "C-c b" #'ivy-resume)
 
-(global-set-key (kbd "C-s") #'swiper-thing-at-point)
-(global-set-key (kbd "C-c b") #'ivy-resume)
-
-(define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
-(define-key ivy-minibuffer-map (kbd "M-r") #'ivy-reverse-i-search)
-(define-key counsel-find-file-map (kbd "C-l") #'counsel-up-directory)
+(keymap-set ivy-minibuffer-map "C-x C-s" #'ivy-occur)
+(keymap-set ivy-minibuffer-map "M-r" #'ivy-reverse-i-search)
+(keymap-set counsel-find-file-map "C-l" #'counsel-up-directory)
 
 (evil-define-key 'insert minibuffer-mode-map
   (kbd "M-r") #'previous-matching-history-element)
 
 (evil-define-key 'insert ivy-minibuffer-map
   (kbd "M-r") #'ivy-reverse-i-search)
-
-(evil-define-key '(insert normal) ivy-minibuffer-map
-  (kbd "C-M-n") #'ivy-next-line-and-call
-  (kbd "C-M-p") #'ivy-previous-line-and-call)
 
 (evil-define-key 'normal ivy-minibuffer-map
   (kbd "gg")  #'ivy-beginning-of-buffer
@@ -404,14 +415,54 @@ FUNC and ARGS see `evil-set-cursor'."
   (kbd "C-u") #'ivy-scroll-down-command
   (kbd "C-o") #'hydra-ivy/body)
 
-(define-key swiper-isearch-map (kbd "TAB") #'swiper-isearch-toggle)
-(define-key isearch-mode-map (kbd "TAB") #'swiper-isearch-toggle)
+(evil-define-key '(insert normal) ivy-minibuffer-map
+  (kbd "C-M-n") #'ivy-next-line-and-call
+  (kbd "C-M-p") #'ivy-previous-line-and-call)
 
-(define-key evil-motion-state-map "/" #'swiper-isearch)
-(define-key evil-motion-state-map "?" #'swiper-isearch-backward)
+(defun init-ivy--action-append (x)
+  "Append X after point."
+  (unless (eolp) (forward-char))
+  (ivy--action-insert x))
 
-(define-key evil-operator-state-map "/" #'evil-search-forward)
-(define-key evil-operator-state-map "?" #'evil-search-backward)
+(ivy-add-actions t '(("a" init-ivy--action-append "append")))
+
+(define-key counsel-mode-map [remap recentf-open] #'counsel-recentf)
+(define-key counsel-mode-map [remap previous-matching-history-element] #'counsel-minibuffer-history)
+(define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
+(define-key counsel-mode-map [remap comint-history-isearch-backward-regexp] #'counsel-shell-history)
+
+(keymap-set search-map "g" #'counsel-rg)
+(keymap-set search-map "f" #'counsel-file-jump)
+(keymap-set search-map "d" #'counsel-dired-jump)
+
+(ivy-configure 'counsel-minor :initial-input "")
+
+(keymap-set init-ctl-x-m-map "m" #'counsel-minor)
+(keymap-set init-ctl-x-m-map "M" #'counsel-major)
+
+;;; search
+
+(setq! isearch-lazy-count t)
+(setq! isearch-allow-scroll t)
+(setq! isearch-allow-motion t)
+(setq! isearch-yank-on-move t)
+(setq! isearch-motion-changes-direction t)
+(setq! isearch-repeat-on-direction-change t)
+
+(keymap-global-set "C-s" #'swiper-thing-at-point)
+
+(keymap-set search-map "s" #'swiper)
+(keymap-set search-map "S" #'swiper-all)
+(keymap-set search-map "/" #'swiper-from-isearch)
+
+(keymap-set swiper-isearch-map "TAB" #'swiper-isearch-toggle)
+(keymap-set isearch-mode-map "TAB" #'swiper-isearch-toggle)
+
+(keymap-set evil-motion-state-map "/" #'swiper-isearch)
+(keymap-set evil-motion-state-map "?" #'swiper-isearch-backward)
+
+(keymap-set evil-operator-state-map "/" #'evil-search-forward)
+(keymap-set evil-operator-state-map "?" #'evil-search-backward)
 
 (defun init-after-swiper-isearch-forward (&rest _)
   "Reset `v/isearch-forward' after `swiper'."
@@ -424,26 +475,31 @@ FUNC and ARGS see `evil-set-cursor'."
 (advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
 (advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
 
-(define-key counsel-mode-map [remap describe-bindings] nil)
-(define-key counsel-mode-map [remap recentf-open] #'counsel-recentf)
-(define-key counsel-mode-map [remap previous-matching-history-element] #'counsel-minibuffer-history)
-(define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
-(define-key counsel-mode-map [remap comint-history-isearch-backward-regexp] #'counsel-shell-history)
-(define-key counsel-mode-map [remap company-search-candidates] #'counsel-company)
+;;; goto
 
-(defun init-ivy--action-append (x)
-  "Append X after point."
-  (unless (eolp) (forward-char))
-  (ivy--action-insert x))
+(require 'compile)
 
-(defun init-counsel--set-variable (x)
-  "Set variable X."
-  (counsel-set-variable (intern x)))
+(keymap-set goto-map "M-g" #'goto-line)
+(keymap-set goto-map "M-c" #'goto-char)
+(keymap-set goto-map "c" #'compile)
+(keymap-set goto-map "C" #'recompile)
+(keymap-set goto-map "r" #'revert-buffer-quick)
+(keymap-set goto-map "R" #'revert-buffer)
+(keymap-set goto-map "v" #'vc-refresh-state)
+(keymap-set goto-map "=" #'font-lock-update)
+(keymap-set goto-map "<left>" #'previous-buffer)
+(keymap-set goto-map "<right>" #'next-buffer)
 
-(ivy-add-actions t '(("a" init-ivy--action-append "append")))
-(ivy-add-actions 'counsel-describe-variable '(("s" init-counsel--set-variable "set")))
-(ivy-add-actions 'counsel-find-library '(("l" load-library "load")))
-(ivy-configure 'counsel-minor :initial-input "")
+(setq! avy-all-windows nil)
+
+(require 'avy)
+(require 'ace-window)
+
+(keymap-global-set "C-'" #'avy-goto-char-timer)
+
+(keymap-set goto-map "j" #'avy-goto-line)
+(keymap-set goto-map "f" #'avy-goto-char-timer)
+(keymap-set goto-map "w" #'ace-window)
 
 ;;; help
 
@@ -451,9 +507,28 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (find-function-setup-keys)
 
+(keymap-unset help-map "t" t)
+
+(keymap-set help-map "B" #'describe-keymap)
+(keymap-set help-map "p" #'describe-package)
+(keymap-set help-map "P" #'finder-by-keyword)
+(keymap-set help-map "L" #'view-lossage)
+(keymap-set help-map "l" #'find-library)
+(keymap-set help-map "4 l" #'find-library-other-window)
+(keymap-set help-map "5 l" #'find-library-other-frame)
+(keymap-set help-map "t l" #'load-library)
+(keymap-set help-map "t f" #'load-file)
+(keymap-set help-map "t t" #'load-theme)
+
 (setq! helpful-max-buffers nil)
 
 (require 'helpful)
+
+(keymap-set help-map "o" #'helpful-symbol)
+(keymap-set help-map "f" #'helpful-callable)
+(keymap-set help-map "v" #'helpful-variable)
+(keymap-set help-map "x" #'helpful-command)
+(keymap-set help-map "k" #'helpful-key)
 
 (setq! counsel-describe-symbol-function #'helpful-symbol)
 (setq! counsel-describe-function-function #'helpful-callable)
@@ -462,6 +537,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key counsel-mode-map [remap helpful-symbol] #'counsel-describe-symbol)
 (define-key counsel-mode-map [remap helpful-callable] #'counsel-describe-function)
 (define-key counsel-mode-map [remap helpful-variable] #'counsel-describe-variable)
+
+(define-key counsel-mode-map [remap describe-bindings] nil t)
+
+(defun init-counsel--set-variable (x)
+  "Set variable X."
+  (counsel-set-variable (intern x)))
+
+(ivy-add-actions 'counsel-describe-variable '(("s" init-counsel--set-variable "set")))
+(ivy-add-actions 'counsel-find-library '(("l" load-library "load")))
 
 (defun init-lookup-setup-command (command)
   "Setup COMMAND as local help command."
@@ -493,12 +577,45 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (projectile-mode 1)
 
+(keymap-set projectile-command-map "g" #'projectile-ripgrep)
+(keymap-set projectile-command-map "s" #'projectile-save-project-buffers)
+(keymap-set projectile-command-map "x" #'project-execute-extended-command)
+
+(keymap-global-set "C-x p" projectile-command-map)
+(keymap-global-set "C-x P" project-prefix-map)
+
 (require 'counsel-projectile)
 
 (define-key counsel-mode-map [remap projectile-switch-to-buffer] #'counsel-projectile-switch-to-buffer)
 (define-key counsel-mode-map [remap projectile-find-file] #'counsel-projectile-find-file)
 (define-key counsel-mode-map [remap projectile-find-dir] #'counsel-projectile-find-dir)
 (define-key counsel-mode-map [remap projectile-ripgrep] #'counsel-projectile-rg)
+
+;;; vc
+
+(require 'magit)
+
+(defvar-keymap init-magit-command-map
+  "v" #'magit-status
+  "V" #'magit-dispatch
+  "?" #'magit-file-dispatch
+  "g" #'magit-status-here
+  "G" #'magit-display-repository-buffer
+  "s" #'magit-stage-buffer-file
+  "u" #'magit-unstage-buffer-file
+  "d" #'magit-diff-buffer-file
+  "D" #'magit-diff
+  "l" #'magit-log-buffer-file
+  "L" #'magit-log
+  "b" #'magit-blame-addition
+  "B" #'magit-blame
+  "f" #'magit-find-file
+  "F" #'magit-blob-visit-file
+  "n" #'magit-blob-next
+  "p" #'magit-blob-previous)
+
+(keymap-global-set "C-x v" init-magit-command-map)
+(keymap-global-set "C-x V" vc-prefix-map)
 
 ;;; prog
 
@@ -533,7 +650,11 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-company-mode 1)
 
-(global-set-key (kbd "C-c c") #'company-complete)
+(keymap-global-set "C-c c" #'company-complete)
+
+(keymap-set init-ctl-x-m-map "c" #'company-mode)
+
+(define-key counsel-mode-map [remap company-search-candidates] #'counsel-company)
 
 ;;;; yasnippet
 
@@ -545,21 +666,35 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (yas-global-mode 1)
 
-(global-set-key (kbd "C-c y") #'yas-expand-from-trigger-key)
+(keymap-global-set "C-c y" #'yas-expand-from-trigger-key)
+
+(keymap-set init-ctl-x-m-map "y" #'yas-minor-mode)
 
 ;;;; flycheck
 
 (require 'flycheck)
 
-(define-key flycheck-mode-map (kbd "M-n") #'flycheck-next-error)
-(define-key flycheck-mode-map (kbd "M-p") #'flycheck-previous-error)
+(keymap-set flycheck-mode-map "M-n" #'flycheck-next-error)
+(keymap-set flycheck-mode-map "M-p" #'flycheck-previous-error)
 
 (add-hook 'prog-mode-hook #'flycheck-mode)
+
+(keymap-set init-ctl-x-m-map "f" #'flycheck-mode)
+
+;;;; apheleia
+
+(require 'apheleia)
+
+(keymap-global-set "C-c =" #'apheleia-format-buffer)
+
+(keymap-set init-ctl-x-m-map "=" #'apheleia-mode)
 
 ;;;; lsp
 
 (require 'lsp-mode)
 (require 'lsp-ui)
+
+(keymap-set init-ctl-x-m-map "s" #'lsp)
 
 (defun init-lookup-setup-lsp ()
   "Setup lsp ui doc."
@@ -583,22 +718,22 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (define-key dired-mode-map "O" #'dired-omit-mode)
 
-(evil-collection-define-key 'normal 'dired-mode-map
+(keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
+
+(evil-define-key 'normal 'dired-mode-map
   "O" #'dired-omit-mode)
-
-;;;; git
-
-(autoload 'magit-blob-next "magit" nil t)
-(autoload 'magit-blob-previous "magit" nil t)
 
 ;;;; grep
 
 (setq! wgrep-auto-save-buffer t)
 (setq! wgrep-change-readonly-file t)
 
-(autoload 'rg-menu "rg" nil t)
-(declare-function rg-menu "rg")
+(require 'wgrep)
 
+(require 'rg)
+
+(keymap-set goto-map "g" #'rg-menu)
+(keymap-set goto-map "d" #'rg-dwim)
 
 ;;;; treemacs
 
@@ -613,14 +748,12 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (treemacs-set-scope-type 'Tabs)
 
-(treemacs-project-follow-mode 1)
-(treemacs-hide-gitignored-files-mode 1)
-
 (add-hook 'dired-mode-hook #'treemacs-icons-dired-enable-once)
 
-(global-set-key (kbd "M--") #'treemacs-select-window)
+(keymap-global-set "M--" #'treemacs-select-window)
 
-(add-hook 'after-init-hook #'treemacs-start-on-boot)
+(keymap-set projectile-command-map "t" #'treemacs-add-and-display-current-project)
+(keymap-set projectile-command-map "T" #'treemacs-projectile)
 
 ;;;; comint
 
@@ -647,17 +780,20 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-key 'insert eshell-hist-mode-map
   (kbd "M-r") #'eshell-previous-matching-input)
 
+(require 'eshell-dwim)
+
+(keymap-set projectile-command-map "e" #'eshell-dwim-project)
+
 ;;;; spell
 
 (setq! ispell-dictionary "american")
-
 
 ;;; lang
 
 ;;;; elisp
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (define-key map (kbd "C-c e") #'macrostep-expand))
+  (keymap-set map "C-c e" #'macrostep-expand))
 
 (setq! flycheck-emacs-lisp-load-path load-path)
 
@@ -673,8 +809,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'markdown-mode)
 (require 'edit-indirect)
 
-(define-key markdown-mode-map (kbd "C-c C-'") #'markdown-edit-code-block)
-(define-key edit-indirect-mode-map (kbd "C-c C-'") #'edit-indirect-commit)
+(keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
+(keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
 
 ;;;; org
 
@@ -696,11 +832,15 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'org-mode-hook #'init-org-modify-syntax)
 
-(define-key org-mode-map (kbd "C-c l") #'org-toggle-link-display)
+(keymap-set org-mode-map "C-c l" #'org-toggle-link-display)
 
-(define-key org-mode-map (kbd "C-c C-'") #'org-edit-special)
-(define-key org-src-mode-map (kbd "C-c C-'") #'org-edit-src-exit)
-(define-key org-src-mode-map (kbd "C-c C-c") #'org-edit-src-exit)
+(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
+(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
+(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
+
+(keymap-set ctl-x-r-map "a" #'org-agenda)
+(keymap-set ctl-x-r-map "c" #'org-capture)
+(keymap-set ctl-x-r-map "l" #'org-store-link)
 
 ;;; leaders
 
@@ -714,17 +854,17 @@ FUNC and ARGS see `evil-set-cursor'."
        (--map
         (cons (kbd (concat init-leader-key " " (car it))) (cadr it)))))
 
-(defun init-leader-define-key (keymap &rest clauses)
+(defun init-leader-set (keymap &rest clauses)
   "Define leader binding CLAUSES in KEYMAP."
   (declare (indent defun))
   (dolist (binding (init-leader-bindings clauses))
     (evil-define-key* init-leader-state keymap (car binding) (cdr binding))))
 
-(defun init-leader-global-set-key (&rest clauses)
+(defun init-leader-global-set (&rest clauses)
   "Define leader binding CLAUSES in `init-evil-override-mode-map'."
-  (apply #'init-leader-define-key (cons init-evil-override-mode-map clauses)))
+  (apply #'init-leader-set (cons init-evil-override-mode-map clauses)))
 
-(defun init-leader-define-minor-mode-key (mode &rest clauses)
+(defun init-leader-minor-mode-set (mode &rest clauses)
   "Define leader binding CLAUSES assoc with minor MODE."
   (declare (indent defun))
   (dolist (binding (init-leader-bindings clauses))
@@ -741,7 +881,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'god-mode)
 
-(init-leader-global-set-key
+(init-leader-global-set
  "SPC" #'ivy-switch-buffer
  "u" #'init-leader-universal-argument
  "x" #'god-mode-self-insert
@@ -750,229 +890,59 @@ FUNC and ARGS see `evil-set-cursor'."
  ";" #'eval-expression
  "!" #'shell-command
  "&" #'async-shell-command
+ "`" #'tmm-menubar
  "0" #'delete-window
  "1" #'delete-other-windows
  "2" #'split-window-below
  "3" #'split-window-right
  "o" #'other-window
  "q" #'quit-window
- "`" #'tmm-menubar)
+ "w" evil-window-map
+ "4" ctl-x-4-map
+ "5" ctl-x-5-map
+ "t" tab-prefix-map)
 
-(init-leader-global-set-key
- "w w" #'evil-window-next
- "w W" #'evil-window-prev
- "w q" #'evil-quit
- "w c" #'evil-window-delete
- "w 0" #'evil-window-delete
- "w o" #'delete-other-windows
- "w s" #'evil-window-split
- "w v" #'evil-window-vsplit
- "w =" #'balance-windows
- "w x" #'evil-window-exchange
- "w j" #'evil-window-down
- "w k" #'evil-window-up
- "w h" #'evil-window-left
- "w l" #'evil-window-right
- "w J" #'evil-window-move-very-bottom
- "w K" #'evil-window-move-very-top
- "w H" #'evil-window-move-far-left
- "w L" #'evil-window-move-far-right
- "w <left>" #'winner-undo
- "w <right>" #'winner-redo)
-
-(init-leader-global-set-key
+(init-leader-global-set
  "b" #'switch-to-buffer
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
  "k" #'kill-buffer
- "4 b" #'switch-to-buffer-other-window
- "4 f" #'find-file-other-window
- "4 d" #'dired-other-window
- "4 j" #'dired-jump-other-window
- "5 0" #'delete-frame
- "5 1" #'delete-other-frames
- "5 2" #'make-frame-command
- "5 o" #'other-frame
- "5 u" #'undelete-frame
- "5 b" #'switch-to-buffer-other-frame
- "5 f" #'find-file-other-frame
- "5 d" #'dired-other-frame
- "t 0" #'tab-bar-close-tab
- "t 1" #'tab-bar-close-other-tabs
- "t 2" #'tab-bar-new-tab
- "t o" #'tab-bar-switch-to-next-tab
- "t O" #'tab-bar-switch-to-prev-tab
- "t u" #'tab-bar-undo-close-tab
- "t b" #'switch-to-buffer-other-tab
- "t f" #'find-file-other-tab
- "t d" #'dired-other-tab)
-
-(init-leader-global-set-key
- "r m" #'bookmark-set
- "r b" #'bookmark-jump
- "r e" #'recentf-open
- "r i" #'insert-register
- "r j" #'jump-to-register
- "r x" #'copy-to-register
- "r SPC" #'point-to-register
- "r w" #'window-configuration-to-register
- "r f" #'frameset-to-register
- "r l" #'org-store-link
- "r a" #'org-agenda
- "r c" #'org-capture)
-
-(init-leader-global-set-key
- "p p" #'projectile-switch-project
- "p i" #'projectile-invalidate-cache
- "p b" #'projectile-switch-to-buffer
- "p f" #'projectile-find-file
- "p d" #'projectile-find-dir
- "p j" #'projectile-dired
- "4 p b" #'projectile-switch-to-buffer-other-window
- "4 p f" #'projectile-find-file-other-window
- "4 p d" #'projectile-find-dir-other-window
- "4 p j" #'projectile-dired-other-window
- "5 p b" #'projectile-switch-to-buffer-other-frame
- "5 p f" #'projectile-find-file-other-frame
- "5 p d" #'projectile-find-dir-other-frame
- "5 p j" #'projectile-dired-other-frame
- "p s" #'projectile-save-project-buffers
- "p k" #'projectile-kill-buffers
- "p x" #'projectile-run-command-in-root
- "p c" #'projectile-compile-project
- "p !" #'projectile-run-shell-command-in-root
- "p &" #'projectile-run-async-shell-command-in-root
- "p v" #'projectile-vc
- "p g" #'projectile-ripgrep)
-
-(init-leader-global-set-key
- "v v" #'magit-status
- "v V" #'magit-dispatch
- "v ?" #'magit-file-dispatch
- "v g" #'magit-status-here
- "v G" #'magit-display-repository-buffer
- "v s" #'magit-stage-buffer-file
- "v u" #'magit-unstage-buffer-file
- "v d" #'magit-diff-buffer-file
- "v D" #'magit-diff
- "v l" #'magit-log-buffer-file
- "v L" #'magit-log
- "v b" #'magit-blame-addition
- "v B" #'magit-blame
- "v f" #'magit-find-file
- "v F" #'magit-blob-visit-file
- "v n" #'magit-blob-next
- "v p" #'magit-blob-previous)
-
-(init-leader-global-set-key
  "-" #'treemacs
- "p t" #'treemacs-projectile)
-
-(init-leader-global-set-key
  "e" #'eshell-dwim
- "p e" #'eshell-dwim-project)
+ "m" init-ctl-x-m-map
+ "r" ctl-x-r-map
+ "h" help-map
+ "g" goto-map
+ "s" search-map
+ "n" narrow-map)
 
-(init-leader-global-set-key
- "n w" #'widen
- "n n" #'narrow-to-region
- "n d" #'narrow-to-defun
- "n p" #'narrow-to-page)
-
-(init-leader-define-key markdown-mode-map
+(init-leader-set markdown-mode-map
   "n b" #'markdown-narrow-to-block
   "n s" #'markdown-narrow-to-subtree)
 
-(init-leader-define-key org-mode-map
+(init-leader-set org-mode-map
   "n b" #'org-narrow-to-block
   "n s" #'org-narrow-to-subtree)
 
-(init-leader-global-set-key
-  "g o" #'occur
-  "g n" #'next-error
-  "g p" #'previous-error
-  "g g" #'rg-menu
-  "g d" #'rg-dwim
-  "g ;" #'avy-resume
-  "g j" #'avy-goto-line
-  "g f" #'avy-goto-char-timer
-  "g w" #'ace-window
-  "g r" #'revert-buffer-quick
-  "g R" #'revert-buffer
-  "g v" #'vc-refresh-state
-  "g =" #'font-lock-update
-  "g <left>" #'previous-buffer
-  "g <right>" #'next-buffer)
+(init-leader-global-set
+ "p" projectile-command-map
+ "v" init-magit-command-map)
 
-(init-leader-global-set-key
-  "s" #'swiper
-  "S" #'swiper-all
-  "/" #'swiper-from-isearch
-  "l l" #'counsel-outline
-  "l g" #'counsel-rg
-  "l f" #'counsel-file-jump
-  "l d" #'counsel-dired-jump)
+(init-leader-global-set
+ "=" #'apheleia-format-buffer
+ "%" #'query-replace-regexp
+ "." #'xref-find-definitions
+ "?" #'xref-find-references
+ "," #'xref-go-back
+ "i" #'imenu
+ "l" #'counsel-outline
+ "(" #'sp-wrap-round
+ "[" #'sp-wrap-square
+ "{" #'sp-wrap-curly)
 
-(init-leader-global-set-key
-  "=" #'apheleia-format-buffer
-  "%" #'query-replace-regexp
-  "." #'xref-find-definitions
-  "?" #'xref-find-references
-  "," #'xref-go-back
-  "4 ." #'xref-find-definitions-other-window
-  "i" #'imenu
-  "(" #'sp-wrap-round
-  "[" #'sp-wrap-square
-  "{" #'sp-wrap-curly)
-
-(init-leader-define-minor-mode-key 'lsp-mode
+(init-leader-minor-mode-set 'lsp-mode
   "y" lsp-command-map)
-
-(init-leader-global-set-key
-  "m a" #'auto-save-visited-mode
-  "m A" #'auto-revert-mode
-  "m t" #'toggle-truncate-lines
-  "m l" #'display-line-numbers-mode
-  "m L" #'init-toggle-line-numbers-type
-  "m h" #'hl-line-mode
-  "m w" #'whitespace-mode
-  "m v" #'visual-line-mode
-  "m r d" #'rainbow-delimiters-mode
-  "m r i" #'rainbow-identifiers-mode
-  "m s" #'lsp
-  "m c" #'company-mode
-  "m y" #'yas-minor-mode
-  "m f" #'flycheck-mode
-  "m =" #'apheleia-mode
-  "m m" #'counsel-minor
-  "m M" #'counsel-major)
-
-(init-leader-global-set-key
-  "h h" #'help-for-help
-  "h ." #'display-local-help
-  "h i" #'info
-  "4 h i" #'info-other-window
-  "h S" #'info-lookup-symbol
-  "h L" #'view-lossage
-  "h e" #'view-echo-area-messages
-  "h s" #'scratch-buffer
-  "h a" #'apropos-command
-  "h o" #'helpful-symbol
-  "h f" #'helpful-callable
-  "h v" #'helpful-variable
-  "h x" #'helpful-command
-  "h k" #'helpful-key
-  "h c" #'describe-key-briefly
-  "h w" #'where-is
-  "h b" #'describe-bindings
-  "h B" #'describe-keymap
-  "h m" #'describe-mode
-  "h p" #'describe-package
-  "h l" #'find-library
-  "4 h l" #'find-library-other-window
-  "h t l" #'load-library
-  "h t f" #'load-file
-  "h t t" #'load-theme)
 
 ;;; end
 

@@ -16,12 +16,9 @@
 
 (org-roam-db-autosync-mode 1)
 
-(global-set-key (kbd "C-c n") #'helm-roam)
+(keymap-set ctl-x-r-map "n" #'helm-roam)
 
-(init-leader-global-set-key
- "r n" #'helm-roam)
-
-(init-leader-define-key org-mode-map
+(init-leader-set org-mode-map
   "y r" #'org-roam-buffer-toggle
   "y a a" #'org-roam-alias-add
   "y a t" #'org-roam-tag-add
