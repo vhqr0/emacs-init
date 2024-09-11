@@ -716,11 +716,11 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (put 'dired-jump 'repeat-map nil)
 
-(define-key dired-mode-map "O" #'dired-omit-mode)
-
 (keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
 
-(evil-define-key 'normal 'dired-mode-map
+(keymap-set dired-mode-map "O" #'dired-omit-mode)
+
+(evil-define-key 'normal dired-mode-map
   "O" #'dired-omit-mode)
 
 ;;;; grep
