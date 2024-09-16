@@ -47,9 +47,10 @@
      (projectile :type elpa)
      (counsel-projectile :type elpa)
      ;; prog
-     (company :type elpa)
      (yasnippet :type elpa)
      (yasnippet-snippets :type elpa)
+     (ivy-yasnippet :type elpa)
+     (company :type elpa)
      (flycheck :type elpa)
      (apheleia :type elpa)
      (lsp-mode :type elpa)

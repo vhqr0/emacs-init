@@ -124,11 +124,6 @@
   "Set local display of trailing whitespace."
   (setq-local show-trailing-whitespace t))
 
-(defun init-toggle-trailing-whitespace-display ()
-  "Toggle local trailing whitespace display."
-  (interactive)
-  (setq-local show-trailing-whitespace (not show-trailing-whitespace)))
-
 (add-hook 'text-mode-hook #'init-set-trailing-whitespace-display)
 (add-hook 'prog-mode-hook #'init-set-trailing-whitespace-display)
 
@@ -152,20 +147,6 @@
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
 (add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
-
-(defvar-keymap init-ctl-x-m-map
-  "a" #'auto-save-visited-mode
-  "A" #'auto-revert-mode
-  "t" #'toggle-truncate-lines
-  "l" #'init-toggle-line-numbers-type
-  "h" #'hl-line-mode
-  "w" #'whitespace-mode
-  "W" #'init-toggle-trailing-whitespace-display
-  "v" #'visual-line-mode
-  "r d" #'rainbow-delimiters-mode
-  "r i" #'rainbow-identifiers-mode)
-
-(keymap-global-set "C-x m" init-ctl-x-m-map)
 
 ;;; parens
 
@@ -431,15 +412,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
 (define-key counsel-mode-map [remap comint-history-isearch-backward-regexp] #'counsel-shell-history)
 
-(keymap-set search-map "g" #'counsel-rg)
-(keymap-set search-map "f" #'counsel-file-jump)
-(keymap-set search-map "d" #'counsel-dired-jump)
-
-(ivy-configure 'counsel-minor :initial-input "")
-
-(keymap-set init-ctl-x-m-map "m" #'counsel-minor)
-(keymap-set init-ctl-x-m-map "M" #'counsel-major)
-
 ;;; search
 
 (setq! isearch-lazy-count t)
@@ -454,6 +426,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set search-map "s" #'swiper)
 (keymap-set search-map "S" #'swiper-all)
 (keymap-set search-map "/" #'swiper-from-isearch)
+
+(keymap-set search-map "g" #'counsel-rg)
+(keymap-set search-map "f" #'counsel-file-jump)
+(keymap-set search-map "d" #'counsel-dired-jump)
 
 (keymap-set swiper-isearch-map "TAB" #'swiper-isearch-toggle)
 (keymap-set isearch-mode-map "TAB" #'swiper-isearch-toggle)
@@ -577,6 +553,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (projectile-mode 1)
 
+(keymap-set projectile-command-map "j" #'projectile-dired)
 (keymap-set projectile-command-map "g" #'projectile-ripgrep)
 (keymap-set projectile-command-map "s" #'projectile-save-project-buffers)
 (keymap-set projectile-command-map "x" #'project-execute-extended-command)
@@ -621,23 +598,56 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; eldoc
 
+(require 'eldoc)
+
 (setq! eldoc-minor-mode-string nil)
+
+;;;; abbrev
+
+(require 'abbrev)
+
+(setq! only-global-abbrevs t)
+
+(setq-default abbrev-mode t)
+
+(init-diminish-minor-mode 'abbrev-mode)
+
+;;;; yasnippet
+
+(setq! yas-alias-to-yas/prefix-p nil)
+
+(require 'yasnippet)
+
+(init-diminish-minor-mode 'yas-minor-mode)
+
+(yas-global-mode 1)
+
+(keymap-set yas-minor-mode-map "C-c y" #'yas-expand-from-trigger-key)
+
+(evil-define-key 'insert yas-minor-mode-map
+  (kbd "M-s") #'yas-insert-snippet)
+
+(keymap-set abbrev-map "n" #'yas-new-snippet)
+(keymap-set abbrev-map "s" #'yas-insert-snippet)
+(keymap-set abbrev-map "v" #'yas-visit-snippet-file)
+
+(add-hook 'snippet-mode-hook #'whitespace-mode)
+
+(require 'ivy-yasnippet)
+
+(define-key counsel-mode-map [remap yas-insert-snippet] #'ivy-yasnippet)
 
 ;;;; company
 
-(setq! company-idle-delay 0.2)
-(setq! company-minimum-prefix-length 2)
 (setq! company-selection-wrap-around t)
 (setq! company-show-quick-access t)
-(setq! company-tooltip-width-grow-only t)
-(setq! company-tooltip-align-annotations t)
 (setq! company-dabbrev-downcase nil)
 (setq! company-dabbrev-ignore-case t)
 (setq! company-dabbrev-code-ignore-case t)
 
 (setq! company-frontends
        '(company-pseudo-tooltip-frontend
-         company-preview-if-just-one-frontend
+         company-preview-common-frontend
          company-echo-metadata-frontend))
 
 (setq! company-backends
@@ -650,25 +660,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-company-mode 1)
 
-(keymap-global-set "C-c c" #'company-complete)
-
-(keymap-set init-ctl-x-m-map "c" #'company-mode)
+(keymap-set company-mode-map "C-c c" #'company-complete)
 
 (define-key counsel-mode-map [remap company-search-candidates] #'counsel-company)
-
-;;;; yasnippet
-
-(setq! yas-alias-to-yas/prefix-p nil)
-
-(require 'yasnippet)
-
-(init-diminish-minor-mode 'yas-minor-mode)
-
-(yas-global-mode 1)
-
-(keymap-global-set "C-c y" #'yas-expand-from-trigger-key)
-
-(keymap-set init-ctl-x-m-map "y" #'yas-minor-mode)
 
 ;;;; flycheck
 
@@ -679,22 +673,16 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'prog-mode-hook #'flycheck-mode)
 
-(keymap-set init-ctl-x-m-map "f" #'flycheck-mode)
-
 ;;;; apheleia
 
 (require 'apheleia)
 
 (keymap-global-set "C-c =" #'apheleia-format-buffer)
 
-(keymap-set init-ctl-x-m-map "=" #'apheleia-mode)
-
 ;;;; lsp
 
 (require 'lsp-mode)
 (require 'lsp-ui)
-
-(keymap-set init-ctl-x-m-map "s" #'lsp)
 
 (defun init-lookup-setup-lsp ()
   "Setup lsp ui doc."
@@ -752,8 +740,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-global-set "M--" #'treemacs-select-window)
 
-(keymap-set projectile-command-map "t" #'treemacs-add-and-display-current-project)
-(keymap-set projectile-command-map "T" #'treemacs-projectile)
+(keymap-set projectile-command-map "-" #'treemacs-add-and-display-current-project)
+(keymap-set projectile-command-map "_" #'treemacs-projectile)
 
 ;;;; comint
 
@@ -769,7 +757,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (defun init-eshell-set-company ()
   "Clean company backends."
-  (setq-local company-backends '(company-files)))
+  (setq-local company-backends '(company-files (company-dabbrev company-yasnippet))))
 
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'init-eshell-set-company)
@@ -792,8 +780,12 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; elisp
 
-(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (keymap-set map "C-c e" #'macrostep-expand))
+(dash-register-info-lookup)
+
+(global-dash-fontify-mode 1)
+
+(keymap-set emacs-lisp-mode-map "C-c e" #'macrostep-expand)
+(keymap-set lisp-interaction-mode-map "C-c e" #'macrostep-expand)
 
 (setq! flycheck-emacs-lisp-load-path load-path)
 
@@ -834,13 +826,29 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set org-mode-map "C-c l" #'org-toggle-link-display)
 
-(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
-(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
-(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
-
 (keymap-set ctl-x-r-map "a" #'org-agenda)
 (keymap-set ctl-x-r-map "c" #'org-capture)
 (keymap-set ctl-x-r-map "l" #'org-store-link)
+
+;;; minors
+
+(defvar-keymap init-minor-map
+  "a s" #'auto-save-visited-mode
+  "a r" #'auto-revert-mode
+  "f s" #'flyspell-mode
+  "f c" #'flycheck-mode
+  "f =" #'apheleia-mode
+  "r d" #'rainbow-delimiters-mode
+  "r i" #'rainbow-identifiers-mode
+  "t" #'toggle-truncate-lines
+  "v" #'visual-line-mode
+  "h" #'hl-line-mode
+  "w" #'whitespace-mode
+  "l" #'display-line-numbers-mode
+  "L" #'init-toggle-line-numbers-type
+  "s" #'lsp)
+
+(keymap-global-set "C-x m" init-minor-map)
 
 ;;; leaders
 
@@ -910,11 +918,12 @@ FUNC and ARGS see `evil-set-cursor'."
  "k" #'kill-buffer
  "-" #'treemacs
  "e" #'eshell-dwim
- "m" init-ctl-x-m-map
+ "m" init-minor-map
  "r" ctl-x-r-map
  "h" help-map
  "g" goto-map
  "s" search-map
+ "a" abbrev-map
  "n" narrow-map)
 
 (init-leader-set markdown-mode-map
