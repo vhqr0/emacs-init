@@ -21,10 +21,15 @@
 (defvar init-deps
   '((init-emacs
      (dash :type elpa)
-     ;; parens
-     (smartparens :type elpa)
+     ;; edit
+     (embark :type elpa)
+     ;; visual
+     (page-break-lines :type elpa)
      (rainbow-delimiters :type elpa)
      (rainbow-identifiers :type elpa)
+     (goggles :type elpa)
+     ;; parens
+     (smartparens :type elpa)
      ;; evil
      (avy :type elpa)
      (ace-window :type elpa)
@@ -33,7 +38,6 @@
      (evil-surround :type elpa)
      (evil-snipe :type elpa)
      ;; completion
-     (embark :type elpa)
      (amx :type elpa)
      (ivy :type elpa)
      (ivy-avy :type elpa)

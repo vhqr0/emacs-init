@@ -42,7 +42,7 @@
 
 (setq! auto-save-visited-interval 1)
 
-(add-to-list 'minor-mode-alist '(auto-save-visited-mode " AS"))
+(add-to-list 'minor-mode-alist '(auto-save-visited-mode " ASave"))
 
 (auto-save-visited-mode 1)
 
@@ -116,7 +116,11 @@
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
 
-;;;; lines
+(require 'embark)
+
+(keymap-global-set "M-o" #'embark-act)
+
+;;; visual
 
 (setq-default truncate-lines t)
 
@@ -141,12 +145,25 @@
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
+(require 'page-break-lines)
+
+(init-diminish-minor-mode 'page-break-lines-mode)
+
+(global-page-break-lines-mode 1)
+
 (require 'rainbow-delimiters)
 (require 'rainbow-identifiers)
 
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
 (add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
+
+(require 'goggles)
+
+(init-diminish-minor-mode 'goggles-mode)
+
+(add-hook 'text-mode-hook #'goggles-mode)
+(add-hook 'prog-mode-hook #'goggles-mode)
 
 ;;; parens
 
@@ -346,10 +363,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (init-evil-override-mode 1)
 
 ;;; completion
-
-(require 'embark)
-
-(keymap-global-set "M-o" #'embark-act)
 
 (setq! enable-recursive-minibuffers t)
 (setq! completion-ignore-case t)
@@ -622,7 +635,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (yas-global-mode 1)
 
-(keymap-set yas-minor-mode-map "C-c y" #'yas-expand-from-trigger-key)
+(keymap-set yas-minor-mode-map "C-c s" #'yas-expand-from-trigger-key)
 
 (evil-define-key 'insert yas-minor-mode-map
   (kbd "M-s") #'yas-insert-snippet)
@@ -639,6 +652,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; company
 
+(setq! company-lighter-base "Company")
 (setq! company-selection-wrap-around t)
 (setq! company-show-quick-access t)
 (setq! company-dabbrev-downcase nil)
