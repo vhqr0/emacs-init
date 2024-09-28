@@ -738,6 +738,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set goto-map "g" #'rg-menu)
 (keymap-set goto-map "d" #'rg-dwim)
 
+;;;; diff
+
+(setq ediff-window-setup-function #'ediff-setup-windows-plain)
+
 ;;;; comint
 
 (require 'comint)
@@ -820,6 +824,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (add-hook 'org-mode-hook #'init-org-modify-syntax)
 
 (keymap-set org-mode-map "C-c l" #'org-toggle-link-display)
+
+(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
+(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
+(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
 
 (keymap-set ctl-x-r-map "a" #'org-agenda)
 (keymap-set ctl-x-r-map "c" #'org-capture)
