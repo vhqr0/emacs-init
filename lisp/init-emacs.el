@@ -198,6 +198,11 @@
 (keymap-set smartparens-mode-map "C-M-<right>" #'sp-backward-barf-sexp)
 (keymap-set smartparens-mode-map "C-M-<left>" #'sp-backward-slurp-sexp)
 
+(defun init-sp-wrap-pair ()
+  "Wrap following sexp with pairs."
+  (interactive)
+  (sp-wrap-with-pair (char-to-string last-command-event)))
+
 ;;; evil
 
 (setq! evil-want-keybinding nil)
@@ -879,7 +884,6 @@ FUNC and ARGS see `evil-set-cursor'."
  ";" #'eval-expression
  "!" #'shell-command
  "&" #'async-shell-command
- "`" #'tmm-menubar
  "0" #'delete-window
  "1" #'delete-other-windows
  "2" #'split-window-below
@@ -919,16 +923,20 @@ FUNC and ARGS see `evil-set-cursor'."
  "v" init-magit-command-map)
 
 (init-leader-global-set
- "=" #'apheleia-format-buffer
  "%" #'query-replace-regexp
+ "=" #'apheleia-format-buffer
  "." #'xref-find-definitions
  "?" #'xref-find-references
  "," #'xref-go-back
  "i" #'imenu
  "l" #'counsel-outline
- "(" #'sp-wrap-round
- "[" #'sp-wrap-square
- "{" #'sp-wrap-curly)
+ "(" #'init-sp-wrap-pair
+ "[" #'init-sp-wrap-pair
+ "{" #'init-sp-wrap-pair
+ "'" #'init-sp-wrap-pair
+ "`" #'init-sp-wrap-pair
+ "\"" #'init-sp-wrap-pair
+ "<" #'init-sp-wrap-pair)
 
 (init-leader-minor-mode-set 'lsp-mode
   "y" lsp-command-map)
