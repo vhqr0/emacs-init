@@ -740,7 +740,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; diff
 
-(setq ediff-window-setup-function #'ediff-setup-windows-plain)
+(require 'ediff)
+
+(setq! ediff-window-setup-function #'ediff-setup-windows-plain)
 
 ;;;; comint
 
