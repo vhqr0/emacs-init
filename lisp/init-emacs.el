@@ -223,7 +223,6 @@ FUNC and ARGS see `evil-set-cursor'."
   (unless (memq this-command init-evil-adjust-cursor-disabled-commands)
     (apply func args)))
 
-(advice-add #'evil-set-cursor :override #'ignore)
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor)
 
 (keymap-unset evil-insert-state-map "C-@" t)
@@ -309,7 +308,7 @@ FUNC and ARGS see `evil-set-cursor'."
    'exclusive))
 
 (evil-define-text-object init-evil-a-line (count &optional _beg _end _type)
-  (evil-range (line-beginning-position) (line-end-position) 'line))
+  (evil-range (line-beginning-position) (line-end-position) 'inclusive))
 
 (evil-define-text-object init-evil-inner-defun (count &optional beg end _type)
   (evil-select-inner-object 'evil-defun beg end type count t))
@@ -478,6 +477,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set goto-map "=" #'font-lock-update)
 (keymap-set goto-map "<left>" #'previous-buffer)
 (keymap-set goto-map "<right>" #'next-buffer)
+
+(keymap-set goto-map "l" #'counsel-outline)
 
 (setq! avy-all-windows nil)
 
@@ -737,26 +738,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set goto-map "g" #'rg-menu)
 (keymap-set goto-map "d" #'rg-dwim)
 
-;;;; treemacs
-
-(setq! treemacs-is-never-other-window t)
-
-(require 'treemacs)
-(require 'treemacs-evil)
-(require 'treemacs-projectile)
-(require 'treemacs-magit)
-(require 'treemacs-icons-dired)
-(require 'treemacs-tab-bar)
-
-(treemacs-set-scope-type 'Tabs)
-
-(add-hook 'dired-mode-hook #'treemacs-icons-dired-enable-once)
-
-(keymap-global-set "M--" #'treemacs-select-window)
-
-(keymap-set projectile-command-map "-" #'treemacs-add-and-display-current-project)
-(keymap-set projectile-command-map "_" #'treemacs-projectile)
-
 ;;;; comint
 
 (require 'comint)
@@ -930,7 +911,6 @@ FUNC and ARGS see `evil-set-cursor'."
  "d" #'dired
  "j" #'dired-jump
  "k" #'kill-buffer
- "-" #'treemacs
  "e" #'eshell-dwim
  "m" init-minor-map
  "r" ctl-x-r-map

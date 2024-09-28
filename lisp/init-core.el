@@ -66,11 +66,6 @@
      (orgit :type elpa)
      (rg :type elpa)
      (wgrep :type elpa)
-     (treemacs :type elpa)
-     (treemacs-evil :type elpa)
-     (treemacs-projectile :type elpa)
-     (treemacs-magit :type elpa)
-     (treemacs-icons-dired :type elpa)
      (eshell-dwim :type vc :url "https://github.com/vhqr0/eshell-dwim")
      ;; elisp
      (macrostep :type elpa)
