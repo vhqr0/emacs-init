@@ -53,7 +53,6 @@
 (recentf-mode 1)
 
 (keymap-set ctl-x-r-map "e" #'recentf-open)
-(keymap-set ctl-x-r-map "B" #'bookmark-bmenu-list)
 
 ;;; ui
 
@@ -497,36 +496,21 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (find-function-setup-keys)
 
-(keymap-unset help-map "t" t)
-
 (keymap-set help-map "B" #'describe-keymap)
+
 (keymap-set help-map "p" #'describe-package)
 (keymap-set help-map "P" #'finder-by-keyword)
-(keymap-set help-map "L" #'view-lossage)
+
 (keymap-set help-map "l" #'find-library)
 (keymap-set help-map "4 l" #'find-library-other-window)
 (keymap-set help-map "5 l" #'find-library-other-frame)
+
+(keymap-set help-map "L" #'view-lossage)
+
+(keymap-unset help-map "t" t)
 (keymap-set help-map "t l" #'load-library)
 (keymap-set help-map "t f" #'load-file)
 (keymap-set help-map "t t" #'load-theme)
-
-(setq! helpful-max-buffers nil)
-
-(require 'helpful)
-
-(keymap-set help-map "o" #'helpful-symbol)
-(keymap-set help-map "f" #'helpful-callable)
-(keymap-set help-map "v" #'helpful-variable)
-(keymap-set help-map "x" #'helpful-command)
-(keymap-set help-map "k" #'helpful-key)
-
-(setq! counsel-describe-symbol-function #'helpful-symbol)
-(setq! counsel-describe-function-function #'helpful-callable)
-(setq! counsel-describe-variable-function #'helpful-variable)
-
-(define-key counsel-mode-map [remap helpful-symbol] #'counsel-describe-symbol)
-(define-key counsel-mode-map [remap helpful-callable] #'counsel-describe-function)
-(define-key counsel-mode-map [remap helpful-variable] #'counsel-describe-variable)
 
 (define-key counsel-mode-map [remap describe-bindings] nil t)
 
@@ -537,27 +521,19 @@ FUNC and ARGS see `evil-set-cursor'."
 (ivy-add-actions 'counsel-describe-variable '(("s" init-counsel--set-variable "set")))
 (ivy-add-actions 'counsel-find-library '(("l" load-library "load")))
 
+(defun init-describe-symbol-at-point ()
+  "Describe symbol at point."
+  (interactive)
+  (-if-let (symbol (symbol-at-point))
+      (describe-symbol symbol)
+    (user-error "No symbol at point")))
+
+(setq! evil-lookup-func #'init-describe-symbol-at-point)
+
 (defun init-lookup-setup-command (command)
   "Setup COMMAND as local help command."
   (setq-local evil-lookup-func command)
   (local-set-key [remap display-local-help] command))
-
-(defun init-lookup-setup-helpful ()
-  "Setup helpful."
-  (init-lookup-setup-command #'helpful-at-point))
-
-(defvar init-lookup-helpful-mode-hooks
-  '(emacs-lisp-mode-hook
-    lisp-interaction-mode-hook
-    ielm-mode-hook
-    eshell-mode-hook
-    org-mode-hook
-    help-mode-hook
-    helpful-mode-hook
-    Info-mode-hook))
-
-(dolist (hook init-lookup-helpful-mode-hooks)
-  (add-hook hook #'init-lookup-setup-helpful))
 
 ;;; project
 
@@ -740,9 +716,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; diff
 
-(require 'ediff)
-
 (setq! ediff-window-setup-function #'ediff-setup-windows-plain)
+
+(require 'ediff)
 
 ;;;; comint
 

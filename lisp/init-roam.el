@@ -16,7 +16,7 @@
 
 (org-roam-db-autosync-mode 1)
 
-(keymap-set ctl-x-r-map "n" #'helm-roam)
+(keymap-set ctl-x-r-map "n" #'org-roam-node-find)
 
 (init-leader-set org-mode-map
   "y r" #'org-roam-buffer-toggle

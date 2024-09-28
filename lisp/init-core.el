@@ -44,9 +44,6 @@
      (ivy-hydra :type elpa)
      (swiper :type elpa)
      (counsel :type elpa)
-     ;; help
-     (elisp-refs :type elpa)
-     (helpful :type elpa)
      ;; project
      (projectile :type elpa)
      (counsel-projectile :type elpa)
@@ -91,8 +88,7 @@
      (popon :type elpa))
     (init-roam
      (org-roam :type elpa)
-     (org-roam-ui :type elpa)
-     (helm-roam :type elpa))))
+     (org-roam-ui :type elpa))))
 
 (defvar init-enabled-modules
   '(init-emacs

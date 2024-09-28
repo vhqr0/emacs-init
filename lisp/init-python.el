@@ -10,6 +10,8 @@
 (setq! python-shell-interpreter "ipython")
 (setq! python-shell-interpreter-args "--simple-prompt")
 
+(require 'python)
+
 (defvar init-python-modes '(python-mode python-ts-mode inferior-python-mode))
 (defvar init-python-mode-hooks '(python-base-mode-hook inferior-python-mode-hook))
 
