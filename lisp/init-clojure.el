@@ -17,6 +17,8 @@
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
+(setq! cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
+
 (require 'cider)
 
 (defun init-lookup-setup-cider ()

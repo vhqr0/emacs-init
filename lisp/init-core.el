@@ -37,6 +37,7 @@
      (evil-collection :type elpa)
      (evil-surround :type elpa)
      (evil-snipe :type elpa)
+     (evil-goggles :type elpa)
      ;; completion
      (amx :type elpa)
      (ivy :type elpa)

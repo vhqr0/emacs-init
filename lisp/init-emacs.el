@@ -260,6 +260,24 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-snipe-mode 1)
 (evil-snipe-override-mode 1)
 
+(require 'evil-goggles)
+
+(add-to-list 'evil-goggles--commands
+             '(init-evil-operator-comment
+               :face evil-goggles-commentary-face
+               :switch evil-goggles-enable-commentary
+               :advice evil-goggles--generic-async-advice))
+
+(add-to-list 'evil-goggles--commands
+             '(init-evil-operator-eval
+               :face evil-goggles-commentary-face
+               :switch evil-goggles-enable-commentary
+               :advice evil-goggles--generic-async-advice))
+
+(init-diminish-minor-mode 'evil-goggles-mode)
+
+(evil-goggles-mode 1)
+
 (defun init-evil-escape ()
   ":imap jk <esc>."
   (interactive)
@@ -925,6 +943,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (init-leader-global-set
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
+ "+" #'delete-trailing-whitespace
  "." #'xref-find-definitions
  "?" #'xref-find-references
  "," #'xref-go-back
