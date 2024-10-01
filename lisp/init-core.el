@@ -31,7 +31,6 @@
      ;; parens
      (smartparens :type elpa)
      ;; evil
-     (expand-region :type elpa)
      (evil :type elpa)
      (evil-collection :type elpa)
      (evil-surround :type elpa)

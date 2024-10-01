@@ -237,21 +237,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-unset evil-insert-state-map "C-w" t)
 
 (keymap-set evil-motion-state-map "-" #'negative-argument)
-(keymap-set evil-motion-state-map "z q" #'evil-record-macro)
+(keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
 (keymap-set evil-motion-state-map "q" #'quit-window)
 (keymap-set evil-normal-state-map "q" #'quit-window)
 
 (keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
-(keymap-set evil-operator-state-map "O" #'evil-a-symbol)
 (keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
-(keymap-set evil-operator-state-map "P" #'evil-a-paragraph)
 
 (keymap-set evil-window-map "<left>" #'winner-undo)
 (keymap-set evil-window-map "<right>" #'winner-redo)
-
-(require 'expand-region)
-
-(keymap-set evil-motion-state-map "g =" #'er/expand-region)
 
 (setq! evil-collection-setup-minibuffer t)
 
@@ -503,31 +497,40 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set goto-map "M-g" #'goto-line)
 (keymap-set goto-map "M-c" #'goto-char)
+
 (keymap-set goto-map "c" #'compile)
 (keymap-set goto-map "C" #'recompile)
+
 (keymap-set goto-map "r" #'revert-buffer-quick)
 (keymap-set goto-map "R" #'revert-buffer)
 (keymap-set goto-map "v" #'vc-refresh-state)
 (keymap-set goto-map "=" #'font-lock-update)
+
 (keymap-set goto-map "<left>" #'previous-buffer)
 (keymap-set goto-map "<right>" #'next-buffer)
 
 (keymap-set goto-map "l" #'counsel-outline)
 
+(setq! avy-style 'words)
+(setq! avy-background t)
 (setq! avy-all-windows nil)
+(setq! avy-all-windows-alt t)
+(setq! avy-single-candidate-jump nil)
 
 (require 'avy)
-(require 'ace-window)
 
 (avy-setup-default)
 
 (keymap-global-set "C-'" #'avy-goto-char-timer)
 
+(keymap-set goto-map ";" #'avy-resume)
 (keymap-set goto-map "j" #'avy-goto-line)
 (keymap-set goto-map "f" #'avy-goto-char-timer)
-(keymap-set goto-map "." #'avy-resume)
-(keymap-set goto-map ";" #'avy-next)
-(keymap-set goto-map "," #'avy-prev)
+
+(setq! aw-dispatch-when-more-than 1)
+
+(require 'ace-window)
+
 (keymap-set goto-map "w" #'ace-window)
 
 ;;; help
@@ -770,13 +773,20 @@ FUNC and ARGS see `evil-set-cursor'."
 ;;;; eshell
 
 (require 'eshell)
+(require 'em-prompt)
 (require 'em-hist)
+
+(defun init-eshell-set-outline ()
+  "Set outline vars."
+  (setq-local outline-regexp eshell-prompt-regexp)
+  (setq-local outline-level (lambda () 1)))
 
 (defun init-eshell-set-company ()
   "Clean company backends."
   (setq-local company-backends '(company-files (company-dabbrev company-yasnippet))))
 
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
+(add-hook 'eshell-mode-hook #'init-eshell-set-outline)
 (add-hook 'eshell-mode-hook #'init-eshell-set-company)
 
 (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
@@ -858,7 +868,6 @@ FUNC and ARGS see `evil-set-cursor'."
   "a r" #'auto-revert-mode
   "f s" #'flyspell-mode
   "f c" #'flycheck-mode
-  "f =" #'apheleia-mode
   "r d" #'rainbow-delimiters-mode
   "r i" #'rainbow-identifiers-mode
   "t" #'toggle-truncate-lines
@@ -966,13 +975,14 @@ FUNC and ARGS see `evil-set-cursor'."
  "," #'xref-go-back
  "i" #'imenu
  "l" #'counsel-outline
+ "9" #'sp-wrap-round
  "(" #'init-sp-wrap-pair
  "[" #'init-sp-wrap-pair
  "{" #'init-sp-wrap-pair
+ "<" #'init-sp-wrap-pair
  "'" #'init-sp-wrap-pair
  "`" #'init-sp-wrap-pair
- "\"" #'init-sp-wrap-pair
- "<" #'init-sp-wrap-pair)
+ "\"" #'init-sp-wrap-pair)
 
 (init-leader-minor-mode-set 'lsp-mode
   "y" lsp-command-map)
