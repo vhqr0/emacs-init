@@ -236,6 +236,11 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-unset evil-insert-state-map "C-k" t)
 (keymap-unset evil-insert-state-map "C-w" t)
 
+(keymap-set evil-motion-state-map "-" #'negative-argument)
+(keymap-set evil-motion-state-map "z q" #'evil-record-macro)
+(keymap-set evil-motion-state-map "q" #'quit-window)
+(keymap-set evil-normal-state-map "q" #'quit-window)
+
 (keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
 (keymap-set evil-operator-state-map "O" #'evil-a-symbol)
 (keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
@@ -413,6 +418,11 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-global-set "C-c b" #'ivy-resume)
 
+(require 'delsel)
+
+(define-key minibuffer-local-map [remap quit-window] #'minibuffer-keyboard-quit)
+(define-key ivy-minibuffer-map [remap quit-window] #'minibuffer-keyboard-quit)
+
 (keymap-set ivy-minibuffer-map "C-x C-s" #'ivy-occur)
 (keymap-set ivy-minibuffer-map "M-r" #'ivy-reverse-i-search)
 (keymap-set counsel-find-file-map "C-l" #'counsel-up-directory)
@@ -468,12 +478,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set swiper-isearch-map "TAB" #'swiper-isearch-toggle)
 (keymap-set isearch-mode-map "TAB" #'swiper-isearch-toggle)
 
-(keymap-set evil-motion-state-map "/" #'swiper-isearch)
-(keymap-set evil-motion-state-map "?" #'swiper-isearch-backward)
-
-(keymap-set evil-operator-state-map "/" #'evil-search-forward)
-(keymap-set evil-operator-state-map "?" #'evil-search-backward)
-
 (defun init-after-swiper-isearch-forward (&rest _)
   "Reset `v/isearch-forward' after `swiper'."
   (setq isearch-forward t isearch-regexp t))
@@ -507,10 +511,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'avy)
 (require 'ace-window)
 
+(avy-setup-default)
+
 (keymap-global-set "C-'" #'avy-goto-char-timer)
 
 (keymap-set goto-map "j" #'avy-goto-line)
 (keymap-set goto-map "f" #'avy-goto-char-timer)
+(keymap-set goto-map "." #'avy-resume)
+(keymap-set goto-map ";" #'avy-next)
+(keymap-set goto-map "," #'avy-prev)
 (keymap-set goto-map "w" #'ace-window)
 
 ;;; help
