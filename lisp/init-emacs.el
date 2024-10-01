@@ -249,6 +249,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-window-map "<left>" #'winner-undo)
 (keymap-set evil-window-map "<right>" #'winner-redo)
 
+(require 'expand-region)
+
+(keymap-set evil-motion-state-map "g =" #'er/expand-region)
+
 (setq! evil-collection-setup-minibuffer t)
 
 (require 'evil-collection)
@@ -395,11 +399,14 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
 
+(require 'amx)
+
+(amx-mode 1)
+
 (setq! ivy-count-format "(%d/%d) ")
 (setq! ivy-use-selectable-prompt t)
 (setq! ivy-use-virtual-buffers t)
 
-(require 'amx)
 (require 'ivy)
 (require 'ivy-avy)
 (require 'ivy-hydra)
@@ -412,7 +419,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (init-diminish-minor-mode 'ivy-mode)
 (init-diminish-minor-mode 'counsel-mode)
 
-(amx-mode 1)
 (ivy-mode 1)
 (counsel-mode 1)
 
