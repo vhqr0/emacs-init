@@ -229,12 +229,17 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor)
 
+(define-key evil-normal-state-map [remap yank-pop] nil t)
+
 (keymap-unset evil-insert-state-map "C-@" t)
 (keymap-unset evil-insert-state-map "C-a" t)
 (keymap-unset evil-insert-state-map "C-k" t)
 (keymap-unset evil-insert-state-map "C-w" t)
 
-(define-key evil-normal-state-map [remap yank-pop] nil t)
+(keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
+(keymap-set evil-operator-state-map "O" #'evil-a-symbol)
+(keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
+(keymap-set evil-operator-state-map "P" #'evil-a-paragraph)
 
 (keymap-set evil-window-map "<left>" #'winner-undo)
 (keymap-set evil-window-map "<right>" #'winner-redo)
@@ -249,9 +254,19 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'evil-surround)
 
+(add-to-list 'evil-surround-pairs-alist '(?r . ("[" . "]")))
+(add-to-list 'evil-surround-pairs-alist '(?a . ("<" . ">")))
+
+(keymap-set evil-inner-text-objects-map "r" #'evil-inner-bracket)
+(keymap-set evil-outer-text-objects-map "r" #'evil-a-bracket)
+(keymap-set evil-inner-text-objects-map "a" #'evil-inner-angle)
+(keymap-set evil-outer-text-objects-map "a" #'evil-an-angle)
+
 (global-evil-surround-mode 1)
 
 (setq! evil-snipe-repeat-keys nil)
+(setq! evil-snipe-smart-case t)
+(setq! evil-snipe-skip-leading-whitespace t)
 
 (require 'evil-snipe)
 
@@ -319,13 +334,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-operator init-evil-operator-eval (beg end)
   :move-point nil
   (interactive "<r>")
-  (let ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
-    (when eval-function
-      (funcall eval-function beg end))))
+  (when-let ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
+    (funcall eval-function beg end)))
 
 (evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
   (evil-range
-   (save-excursion (goto-char (line-beginning-position)) (back-to-indentation) (point))
+   (save-excursion
+     (goto-char (line-beginning-position))
+     (back-to-indentation)
+     (point))
    (line-end-position)
    'exclusive))
 
