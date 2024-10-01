@@ -338,27 +338,14 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-text-object init-evil-a-defun (count &optional beg end _type)
   (evil-select-an-object 'evil-defun beg end type count t))
 
-(evil-define-text-object init-evil-text-object-url (count &optional _beg _end _type)
-  (cl-destructuring-bind (beg . end) (bounds-of-thing-at-point 'filename)
-    (evil-range beg end 'inclusive)))
-
 (evil-define-text-object init-evil-text-object-entire (count &optional _beg _end _type)
   (evil-range (point-min) (point-max) 'line))
-
-(evil-define-text-object init-evil-inner-comment (count &optional _beg _end _type)
-  (cl-destructuring-bind (beg . end) (sp-get-comment-bounds)
-    (evil-range
-     (save-excursion (goto-char beg) (forward-word 1) (forward-word -1) (point))
-     (save-excursion (goto-char end) (evil-end-of-line) (point))
-     'block)))
-
-(evil-define-text-object init-evil-a-comment (count &optional _beg _end _type)
-  (cl-destructuring-bind (beg . end) (sp-get-comment-bounds)
-    (evil-range beg end 'exclusive)))
 
 (keymap-set evil-insert-state-map "j" #'init-evil-escape)
 (keymap-set evil-replace-state-map "j" #'init-evil-escape)
 (keymap-set evil-motion-state-map "%" #'init-evil-jump-item)
+(keymap-set evil-visual-state-map "m" #'init-evil-jump-item)
+(keymap-set evil-operator-state-map "m" #'init-evil-jump-item)
 (keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
 (keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
 (keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
@@ -366,10 +353,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-outer-text-objects-map "l" #'init-evil-a-line)
 (keymap-set evil-inner-text-objects-map "d" #'init-evil-inner-defun)
 (keymap-set evil-outer-text-objects-map "d" #'init-evil-a-defun)
-(keymap-set evil-inner-text-objects-map "c" #'init-evil-inner-comment)
-(keymap-set evil-outer-text-objects-map "c" #'init-evil-a-comment)
-(keymap-set evil-inner-text-objects-map "u" #'init-evil-text-object-url)
-(keymap-set evil-outer-text-objects-map "u" #'init-evil-text-object-url)
 (keymap-set evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
 (keymap-set evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
 
@@ -535,15 +518,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set help-map "t f" #'load-file)
 (keymap-set help-map "t t" #'load-theme)
 
-(define-key counsel-mode-map [remap describe-bindings] nil t)
-
-(defun init-counsel--set-variable (x)
-  "Set variable X."
-  (counsel-set-variable (intern x)))
-
-(ivy-add-actions 'counsel-describe-variable '(("s" init-counsel--set-variable "set")))
-(ivy-add-actions 'counsel-find-library '(("l" load-library "load")))
-
 (defun init-describe-symbol-at-point ()
   "Describe symbol at point."
   (interactive)
@@ -557,6 +531,15 @@ FUNC and ARGS see `evil-set-cursor'."
   "Setup COMMAND as local help command."
   (setq-local evil-lookup-func command)
   (local-set-key [remap display-local-help] command))
+
+(define-key counsel-mode-map [remap describe-bindings] nil t)
+
+(defun init-counsel--set-variable (x)
+  "Set variable X."
+  (counsel-set-variable (intern x)))
+
+(ivy-add-actions 'counsel-describe-variable '(("s" init-counsel--set-variable "set")))
+(ivy-add-actions 'counsel-find-library '(("l" load-library "load")))
 
 ;;; project
 
