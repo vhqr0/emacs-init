@@ -298,6 +298,8 @@ FUNC and ARGS see `evil-set-cursor'."
                :switch evil-goggles-enable-commentary
                :advice evil-goggles--generic-async-advice))
 
+(evil-goggles-use-diff-faces)
+
 (init-diminish-minor-mode 'evil-goggles-mode)
 
 (evil-goggles-mode 1)

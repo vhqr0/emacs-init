@@ -31,14 +31,15 @@
      ;; parens
      (smartparens :type elpa)
      ;; evil
-     (avy :type elpa)
-     (ace-window :type elpa)
      (expand-region :type elpa)
      (evil :type elpa)
      (evil-collection :type elpa)
      (evil-surround :type elpa)
      (evil-snipe :type elpa)
      (evil-goggles :type elpa)
+     ;; goto
+     (avy :type elpa)
+     (ace-window :type elpa)
      ;; completion
      (amx :type elpa)
      (ivy :type elpa)
