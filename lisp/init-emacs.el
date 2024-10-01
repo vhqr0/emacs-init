@@ -516,6 +516,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! avy-all-windows nil)
 (setq! avy-all-windows-alt t)
 (setq! avy-single-candidate-jump nil)
+(setq! avy-goto-word-0-regexp "\\_<\\(\\sw\\|\\s_\\)")
 
 (require 'avy)
 
@@ -525,13 +526,16 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set goto-map ";" #'avy-resume)
 (keymap-set goto-map "j" #'avy-goto-line)
+(keymap-set goto-map "w" #'avy-goto-word-0)
 (keymap-set goto-map "f" #'avy-goto-char-timer)
 
 (setq! aw-dispatch-when-more-than 1)
 
 (require 'ace-window)
 
-(keymap-set goto-map "w" #'ace-window)
+(keymap-set goto-map "o" #'ace-window)
+
+(ace-window-posframe-mode 1)
 
 ;;; help
 
