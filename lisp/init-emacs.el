@@ -815,64 +815,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (setq! ispell-dictionary "american")
 
-;;; lang
-
-;;;; elisp
-
-(dash-register-info-lookup)
-
-(global-dash-fontify-mode 1)
-
-(keymap-set emacs-lisp-mode-map "C-c e" #'macrostep-expand)
-(keymap-set lisp-interaction-mode-map "C-c e" #'macrostep-expand)
-
-(setq! flycheck-emacs-lisp-load-path load-path)
-
-(require 'flycheck-package)
-
-(flycheck-package-setup)
-
-;;;; markdown
-
-(setq! markdown-special-ctrl-a/e t)
-(setq! markdown-fontify-code-blocks-natively t)
-
-(require 'markdown-mode)
-(require 'edit-indirect)
-
-(keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
-(keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
-
-;;;; org
-
-(setq! org-directory (expand-file-name "org" user-emacs-directory))
-(setq! org-agenda-files (list org-directory))
-(setq! org-default-notes-file (expand-file-name "inbox.org" org-directory))
-
-(setq! org-capture-templates
-       '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
-
-(setq! org-special-ctrl-a/e t)
-
-(require 'org)
-
-(defun init-org-modify-syntax ()
-  "Modify `org-mode' syntax table."
-  (modify-syntax-entry ?< "." org-mode-syntax-table)
-  (modify-syntax-entry ?> "." org-mode-syntax-table))
-
-(add-hook 'org-mode-hook #'init-org-modify-syntax)
-
-(keymap-set org-mode-map "C-c l" #'org-toggle-link-display)
-
-(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
-(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
-(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
-
-(keymap-set ctl-x-r-map "a" #'org-agenda)
-(keymap-set ctl-x-r-map "c" #'org-capture)
-(keymap-set ctl-x-r-map "l" #'org-store-link)
-
 ;;; minors
 
 (defvar-keymap init-minor-map
@@ -895,7 +837,7 @@ FUNC and ARGS see `evil-set-cursor'."
 ;;; leaders
 
 (defvar init-leader-key "SPC")
-(defvar init-leader-state '(motion normal visual operator))
+(defvar init-leader-state '(motion normal))
 
 (defun init-leader-bindings (clauses)
   "Transforms `define-key' CLAUSES to binding alist."
@@ -966,14 +908,6 @@ FUNC and ARGS see `evil-set-cursor'."
  "a" abbrev-map
  "n" narrow-map)
 
-(init-leader-set markdown-mode-map
-  "n b" #'markdown-narrow-to-block
-  "n s" #'markdown-narrow-to-subtree)
-
-(init-leader-set org-mode-map
-  "n b" #'org-narrow-to-block
-  "n s" #'org-narrow-to-subtree)
-
 (init-leader-global-set
  "p" projectile-command-map
  "v" init-magit-command-map)
@@ -998,6 +932,74 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (init-leader-minor-mode-set 'lsp-mode
   "y" lsp-command-map)
+
+;;; lang
+
+;;;; elisp
+
+(dash-register-info-lookup)
+
+(global-dash-fontify-mode 1)
+
+(require 'macrostep)
+
+(init-leader-set emacs-lisp-mode-map "y e" #'macrostep-expand)
+(init-leader-set lisp-interaction-mode-map "y e" #'macrostep-expand)
+
+(setq! flycheck-emacs-lisp-load-path load-path)
+
+(require 'flycheck-package)
+
+(flycheck-package-setup)
+
+;;;; markdown
+
+(setq! markdown-special-ctrl-a/e t)
+(setq! markdown-fontify-code-blocks-natively t)
+
+(require 'markdown-mode)
+(require 'edit-indirect)
+
+(keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
+(keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
+
+(init-leader-set markdown-mode-map
+  "n b" #'markdown-narrow-to-block
+  "n s" #'markdown-narrow-to-subtree)
+
+;;;; org
+
+(setq! org-directory (expand-file-name "org" user-emacs-directory))
+(setq! org-agenda-files (list org-directory))
+(setq! org-default-notes-file (expand-file-name "inbox.org" org-directory))
+
+(setq! org-capture-templates
+       '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
+
+(setq! org-special-ctrl-a/e t)
+
+(require 'org)
+
+(defun init-org-modify-syntax ()
+  "Modify `org-mode' syntax table."
+  (modify-syntax-entry ?< "." org-mode-syntax-table)
+  (modify-syntax-entry ?> "." org-mode-syntax-table))
+
+(add-hook 'org-mode-hook #'init-org-modify-syntax)
+
+(keymap-set org-mode-map "C-c l" #'org-toggle-link-display)
+
+(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
+(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
+(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
+
+(keymap-set ctl-x-r-map "a" #'org-agenda)
+(keymap-set ctl-x-r-map "c" #'org-capture)
+(keymap-set ctl-x-r-map "l" #'org-store-link)
+
+(init-leader-set org-mode-map
+  "n b" #'org-narrow-to-block
+  "n s" #'org-narrow-to-subtree)
 
 ;;; end
 

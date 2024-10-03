@@ -69,6 +69,8 @@
      (rg :type elpa)
      (wgrep :type elpa)
      (eshell-dwim :type vc :url "https://github.com/vhqr0/eshell-dwim")
+     ;; leaders
+     (god-mode :type elpa)
      ;; elisp
      (macrostep :type elpa)
      (package-lint :type elpa)
@@ -77,9 +79,7 @@
      (markdown-mode :type elpa)
      (edit-indirect :type elpa)
      ;; org
-     (htmlize :type elpa)
-     ;; leaders
-     (god-mode :type elpa))
+     (htmlize :type elpa))
     (init-python
      (lsp-pyright :type elpa))
     (init-clojure

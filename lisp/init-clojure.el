@@ -44,6 +44,7 @@
 (evil-define-key 'insert cider-repl-mode-map
   (kbd "M-r") #'init-counsel-cider-repl-history)
 
+;; co-work with lsp-mode, inhibit these keys: wghra=FTG
 (defvar-keymap init-cider-command-map
   "n" cider-ns-map
   "d" cider-doc-map
