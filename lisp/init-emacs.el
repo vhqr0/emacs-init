@@ -473,10 +473,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set search-map "S" #'swiper-all)
 (keymap-set search-map "/" #'swiper-from-isearch)
 
-(keymap-set search-map "g" #'counsel-rg)
-(keymap-set search-map "f" #'counsel-file-jump)
-(keymap-set search-map "d" #'counsel-dired-jump)
-
 (keymap-set swiper-isearch-map "TAB" #'swiper-isearch-toggle)
 (keymap-set isearch-mode-map "TAB" #'swiper-isearch-toggle)
 
@@ -490,6 +486,10 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
 (advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
+
+(keymap-set search-map "g" #'counsel-rg)
+(keymap-set search-map "f" #'counsel-file-jump)
+(keymap-set search-map "d" #'counsel-dired-jump)
 
 ;;; goto
 
@@ -511,12 +511,11 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set goto-map "l" #'counsel-outline)
 
-(setq! avy-style 'words)
+(setq! avy-style 'de-bruijn)
 (setq! avy-background t)
 (setq! avy-all-windows nil)
 (setq! avy-all-windows-alt t)
 (setq! avy-single-candidate-jump nil)
-(setq! avy-goto-word-0-regexp "\\_<\\(\\sw\\|\\s_\\)")
 
 (require 'avy)
 
@@ -526,16 +525,13 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set goto-map ";" #'avy-resume)
 (keymap-set goto-map "j" #'avy-goto-line)
-(keymap-set goto-map "w" #'avy-goto-word-0)
 (keymap-set goto-map "f" #'avy-goto-char-timer)
 
 (setq! aw-dispatch-when-more-than 1)
 
 (require 'ace-window)
 
-(keymap-set goto-map "o" #'ace-window)
-
-(ace-window-posframe-mode 1)
+(keymap-set goto-map "w" #'ace-window)
 
 ;;; help
 
@@ -579,8 +575,15 @@ FUNC and ARGS see `evil-set-cursor'."
   "Set variable X."
   (counsel-set-variable (intern x)))
 
-(ivy-add-actions 'counsel-describe-variable '(("s" init-counsel--set-variable "set")))
-(ivy-add-actions 'counsel-find-library '(("l" load-library "load")))
+(ivy-add-actions 'counsel-M-x
+                 '(("I" counsel-info-lookup-symbol "info")))
+
+(ivy-add-actions 'counsel-describe-variable
+                 '(("s" init-counsel--set-variable "set")))
+
+(ivy-add-actions 'counsel-find-library
+                 '(("l" load-library "load")
+                   ("d" counsel--find-symbol "definition")))
 
 ;;; project
 
@@ -617,6 +620,8 @@ FUNC and ARGS see `evil-set-cursor'."
   "G" #'magit-display-repository-buffer
   "s" #'magit-stage-buffer-file
   "u" #'magit-unstage-buffer-file
+  "c" #'magit-commit
+  "e" #'magit-edit-line-commit
   "d" #'magit-diff-buffer-file
   "D" #'magit-diff
   "l" #'magit-log-buffer-file

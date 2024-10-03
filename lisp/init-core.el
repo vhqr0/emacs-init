@@ -21,6 +21,7 @@
 (defvar init-deps
   '((init-emacs
      (dash :type elpa)
+     (popon :type elpa)
      (posframe :type elpa)
      ;; edit
      (embark :type elpa)
@@ -86,8 +87,7 @@
      (cider :type elpa))
     (init-pyim
      (pyim :type elpa)
-     (pyim-basedict :type elpa)
-     (popon :type elpa))
+     (pyim-basedict :type elpa))
     (init-roam
      (org-roam :type elpa)
      (org-roam-ui :type elpa))))
