@@ -60,6 +60,7 @@
      (apheleia :type elpa)
      (lsp-mode :type elpa)
      (lsp-ui :type elpa)
+     (lsp-ivy :type elpa)
      ;; tools
      (with-editor :type elpa)
      (git-modes :type elpa)

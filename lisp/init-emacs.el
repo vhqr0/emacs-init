@@ -727,6 +727,9 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'lsp-mode)
 (require 'lsp-ui)
 
+(lsp-define-conditional-key lsp-command-map
+  "gs" lsp-ivy-workspace-symbol "find workspace symbol" (lsp-feature? "workspace/symbol"))
+
 (defun init-lookup-setup-lsp ()
   "Setup lsp ui doc."
   (init-lookup-setup-command #'lsp-ui-doc-glance))
