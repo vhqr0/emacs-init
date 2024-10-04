@@ -564,11 +564,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (setq! evil-lookup-func #'init-describe-symbol-at-point)
 
-(defun init-lookup-setup-command (command)
-  "Setup COMMAND as local help command."
-  (setq-local evil-lookup-func command)
-  (local-set-key [remap display-local-help] command))
-
 (define-key counsel-mode-map [remap describe-bindings] nil t)
 
 (defun init-counsel--set-variable (x)
@@ -720,8 +715,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'apheleia)
 
-(keymap-global-set "C-c =" #'apheleia-format-buffer)
-
 ;;;; lsp
 
 (require 'lsp-mode)
@@ -730,11 +723,11 @@ FUNC and ARGS see `evil-set-cursor'."
 (lsp-define-conditional-key lsp-command-map
   "gs" lsp-ivy-workspace-symbol "find workspace symbol" (lsp-feature? "workspace/symbol"))
 
-(defun init-lookup-setup-lsp ()
-  "Setup lsp ui doc."
-  (init-lookup-setup-command #'lsp-ui-doc-glance))
+(defun init-lsp-setup-lookup-command ()
+  "Setup lookup command for LSP mode."
+  (setq-local evil-lookup-func #'lsp-ui-doc-glance))
 
-(add-hook 'lsp-ui-mode-hook #'init-lookup-setup-lsp)
+(add-hook 'lsp-ui-mode-hook #'lsp-ui-doc-glance)
 
 ;;; tools
 
@@ -987,8 +980,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'org-mode-hook #'init-org-modify-syntax)
 
-(keymap-set org-mode-map "C-c l" #'org-toggle-link-display)
-
 (keymap-set org-mode-map "C-c C-'" #'org-edit-special)
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
 (keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
@@ -999,7 +990,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (init-leader-set org-mode-map
   "n b" #'org-narrow-to-block
-  "n s" #'org-narrow-to-subtree)
+  "n s" #'org-narrow-to-subtree
+  "y l" #'org-toggle-link-display)
 
 ;;; end
 

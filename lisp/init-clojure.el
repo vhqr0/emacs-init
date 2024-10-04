@@ -27,12 +27,12 @@
 
 (require 'cider)
 
-(defun init-lookup-setup-cider ()
-  "Setup cider doc."
-  (init-lookup-setup-command #'cider-doc))
+(defun init-cider-set-lookup-command ()
+  "Set lookup command for Cider."
+  (setq-local evil-lookup-func #'cider-doc))
 
 (dolist (hook '(cider-mode-hook cider-repl-mode-hook))
-  (add-hook hook #'init-lookup-setup-cider))
+  (add-hook hook #'init-cider-set-lookup-command))
 
 (defun init-cider-eval-sexp-to-comment ()
   "Eval sexp and insert result as comment."
@@ -50,7 +50,7 @@
     (sp-forward-sexp)
     (cider-format-edn-last-sexp)))
 
-(keymap-set cider-mode-map "C-x C-e" #'cider-pprint-eval-last-sexp-to-comment)
+(keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
 (keymap-set cider-mode-map "C-M-q" #'init-cider-format-sexp)
 (keymap-set cider-repl-mode-map "C-M-q" #'init-cider-format-sexp)
 
@@ -76,6 +76,10 @@
 
 (require 'cider-macroexpansion)
 
+(defun init-cider-macrostep-macro-form-p (_sexp _env)
+  "Macro?"
+  t)
+
 (defun init-cider-macrostep-sexp-bounds ()
   "Find bounds of macro sexp."
   (interactive)
@@ -83,12 +87,12 @@
     (cons (sp-get thing :beg) (sp-get thing :end))))
 
 (defun init-cider-macrostep-expand (sexp _env)
-  "Expand SEXP using cider."
+  "Expand SEXP using Cider."
   (or (cider-sync-request:macroexpand "macroexpand" sexp)
       (user-error "Macro expansion failed")))
 
 (defun init-cider-macrostep-expand-1 (sexp _env)
-  "Expand SEXP using cider."
+  "Expand SEXP using Cider."
   (or (cider-sync-request:macroexpand "macroexpand-1" sexp)
       (user-error "Macro expansion failed")))
 
@@ -97,8 +101,9 @@
   (insert (propertize sexp 'face 'macrostep-expansion-highlight-face)))
 
 (defun init-cider-set-macrostep ()
-  "Set cider macroexpand backends."
+  "Set Cider macroexpand backends."
   (setq-local macrostep-environment-at-point-function #'ignore)
+  (setq-local macrostep-macro-form-p-function #'init-cider-macrostep-macro-form-p)
   (setq-local macrostep-sexp-bounds-function #'init-cider-macrostep-sexp-bounds)
   (setq-local macrostep-sexp-at-point-function #'buffer-substring-no-properties)
   (setq-local macrostep-expand-function #'init-cider-macrostep-expand)
