@@ -34,6 +34,26 @@
 (dolist (hook '(cider-mode-hook cider-repl-mode-hook))
   (add-hook hook #'init-lookup-setup-cider))
 
+(defun init-cider-eval-sexp-to-comment ()
+  "Eval sexp and insert result as comment."
+  (interactive)
+  (save-excursion
+    (sp-forward-sexp)
+    (unless (eolp)
+      (newline-and-indent))
+    (cider-pprint-eval-last-sexp-to-comment)))
+
+(defun init-cider-format-sexp ()
+  "Format sexp."
+  (interactive)
+  (save-excursion
+    (sp-forward-sexp)
+    (cider-format-edn-last-sexp)))
+
+(keymap-set cider-mode-map "C-x C-e" #'cider-pprint-eval-last-sexp-to-comment)
+(keymap-set cider-mode-map "C-M-q" #'init-cider-format-sexp)
+(keymap-set cider-repl-mode-map "C-M-q" #'init-cider-format-sexp)
+
 ;;; repl history
 
 (defun init-counsel-cider-repl-history ()
@@ -89,15 +109,6 @@
   (add-hook hook #'init-cider-set-macrostep))
 
 ;;; context leader
-
-(defun init-cider-eval-sexp-to-comment ()
-  "Eval sexp and insert result as comment."
-  (interactive)
-  (save-excursion
-    (sp-forward-sexp)
-    (unless (eolp)
-      (newline-and-indent))
-    (cider-pprint-eval-last-sexp-to-comment)))
 
 ;; co-work with lsp-mode, inhibit these keys: wghra=FTG
 (defvar-keymap init-cider-command-map
