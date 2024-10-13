@@ -43,6 +43,12 @@
       (newline-and-indent))
     (cider-pprint-eval-last-sexp-to-comment)))
 
+(defun init-cider-insert-sexp-to-repl (arg)
+  "Insert sexp to repl.  ARG see `cider-insert-last-sexp-in-repl'."
+  (interactive "P")
+  (sp-forward-sexp)
+  (cider-insert-last-sexp-in-repl arg))
+
 (defun init-cider-format-sexp ()
   "Format sexp."
   (interactive)
@@ -51,6 +57,7 @@
     (cider-format-edn-last-sexp)))
 
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
+(keymap-set cider-mode-map "C-c C-i" #'init-cider-insert-sexp-to-repl)
 (keymap-set cider-mode-map "C-M-q" #'init-cider-format-sexp)
 (keymap-set cider-repl-mode-map "C-M-q" #'init-cider-format-sexp)
 
