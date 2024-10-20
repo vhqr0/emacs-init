@@ -25,6 +25,26 @@
         (->> minor-mode-alist
              (--remove (eq (car it) mode)))))
 
+(defun init-dwim-goto-buffer (buffer arg)
+  "Do goto BUFFER smartly, with interactive ARG.
+Without universal ARG, open in split window.
+With one universal ARG, open other window.
+With two or more universal ARG, open in current window."
+  (cond ((> (prefix-numeric-value arg) 4)
+         (switch-to-buffer buffer))
+        (arg
+         (switch-to-buffer-other-window buffer))
+        (t
+         (let ((parent (window-parent (selected-window))))
+           (cond ((window-left-child parent)
+                  (select-window (split-window-vertically))
+                  (switch-to-buffer buffer))
+                 ((window-top-child parent)
+                  (select-window (split-window-horizontally))
+                  (switch-to-buffer buffer))
+                 (t
+                  (switch-to-buffer-other-window buffer)))))))
+
 ;;; files
 
 (setq! vc-handled-backends '(Git))
@@ -32,6 +52,7 @@
 (setq! version-control t)
 (setq! backup-by-copying t)
 (setq! delete-old-versions t)
+(setq! delete-by-moving-to-trash t)
 
 (setq! auto-save-file-name-transforms
        `((".*" ,(expand-file-name "save/" user-emacs-directory) t)))
@@ -780,6 +801,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'eshell)
 (require 'em-prompt)
 (require 'em-hist)
+(require 'em-dirs)
 
 (defun init-eshell-set-outline ()
   "Set outline vars."
@@ -800,9 +822,44 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-key 'insert eshell-hist-mode-map
   (kbd "M-r") #'eshell-previous-matching-input)
 
-(require 'eshell-dwim)
+(defun init-eshell-dwim-find-buffer ()
+  "Find eshell dwim buffer."
+  (->> (buffer-list)
+       (--first
+        (and (eq (buffer-local-value 'major-mode it) 'eshell-mode)
+             (string-prefix-p eshell-buffer-name (buffer-name it))
+             (not (get-buffer-process it))
+             (not (get-buffer-window it))))))
 
-(keymap-set projectile-command-map "e" #'eshell-dwim-project)
+(defun init-eshell-dwim-get-buffer ()
+  "Get eshell dwim buffer, create if not exist."
+  (-if-let (buffer (init-eshell-dwim-find-buffer))
+      (let ((dir default-directory))
+        (with-current-buffer buffer
+          (eshell/cd dir)
+          (eshell-reset)
+          (current-buffer)))
+    (with-current-buffer (generate-new-buffer eshell-buffer-name)
+      (eshell-mode)
+      (current-buffer))))
+
+(defun init-eshell-dwim (&optional arg)
+  "Do open eshell smartly.
+ARG see `init-dwim-goto-buffer'."
+  (interactive "P")
+  (-> (init-eshell-dwim-get-buffer)
+      (init-dwim-goto-buffer arg)))
+
+(defun init-eshell-dwim-project (&optional arg)
+  "Do open eshell smartly in project.
+ARG see `init-dwim-goto-buffer'."
+  (interactive "P")
+  (let* ((project (project-current))
+         (default-directory (if project (project-root project) default-directory))
+         (eshell-buffer-name (project-prefixed-buffer-name "eshell")))
+    (init-eshell-dwim arg)))
+
+(keymap-set projectile-command-map "e" #'init-eshell-dwim-project)
 
 ;;;; spell
 
@@ -892,7 +949,7 @@ FUNC and ARGS see `evil-set-cursor'."
  "d" #'dired
  "j" #'dired-jump
  "k" #'kill-buffer
- "e" #'eshell-dwim
+ "e" #'init-eshell-dwim
  "m" init-minor-map
  "r" ctl-x-r-map
  "h" help-map

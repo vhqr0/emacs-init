@@ -20,78 +20,77 @@
 
 (defvar init-deps
   '((init-emacs
-     (dash :type elpa)
-     (popon :type elpa)
-     (posframe :type elpa)
+     dash
+     popon
+     posframe
      ;; edit
-     (embark :type elpa)
+     embark
      ;; visual
-     (page-break-lines :type elpa)
-     (rainbow-delimiters :type elpa)
-     (rainbow-identifiers :type elpa)
-     (goggles :type elpa)
+     page-break-lines
+     rainbow-delimiters
+     rainbow-identifiers
+     goggles
      ;; parens
-     (smartparens :type elpa)
+     smartparens
      ;; evil
-     (evil :type elpa)
-     (evil-collection :type elpa)
-     (evil-surround :type elpa)
-     (evil-snipe :type elpa)
-     (evil-goggles :type elpa)
+     evil
+     evil-collection
+     evil-surround
+     evil-snipe
+     evil-goggles
      ;; goto
-     (avy :type elpa)
-     (ace-window :type elpa)
+     avy
+     ace-window
      ;; completion
-     (amx :type elpa)
-     (ivy :type elpa)
-     (ivy-avy :type elpa)
-     (ivy-hydra :type elpa)
-     (swiper :type elpa)
-     (counsel :type elpa)
+     amx
+     ivy
+     ivy-avy
+     ivy-hydra
+     swiper
+     counsel
      ;; project
-     (projectile :type elpa)
-     (counsel-projectile :type elpa)
+     projectile
+     counsel-projectile
      ;; prog
-     (yasnippet :type elpa)
-     (yasnippet-snippets :type elpa)
-     (ivy-yasnippet :type elpa)
-     (company :type elpa)
-     (flycheck :type elpa)
-     (apheleia :type elpa)
-     (lsp-mode :type elpa)
-     (lsp-ui :type elpa)
-     (lsp-ivy :type elpa)
+     yasnippet
+     yasnippet-snippets
+     ivy-yasnippet
+     company
+     flycheck
+     apheleia
+     lsp-mode
+     lsp-ui
+     lsp-ivy
      ;; tools
-     (with-editor :type elpa)
-     (git-modes :type elpa)
-     (magit :type elpa)
-     (orgit :type elpa)
-     (rg :type elpa)
-     (wgrep :type elpa)
-     (eshell-dwim :type vc :url "https://github.com/vhqr0/eshell-dwim")
+     with-editor
+     git-modes
+     magit
+     orgit
+     rg
+     wgrep
      ;; leaders
-     (god-mode :type elpa)
+     god-mode
      ;; elisp
-     (macrostep :type elpa)
-     (package-lint :type elpa)
-     (flycheck-package :type elpa)
+     macrostep
+     package-lint
+     flycheck-package
      ;; markdown
-     (markdown-mode :type elpa)
-     (edit-indirect :type elpa)
+     markdown-mode
+     edit-indirect
      ;; org
-     (htmlize :type elpa))
+     htmlize)
     (init-python
-     (lsp-pyright :type elpa))
+     lsp-pyright)
     (init-clojure
-     (clojure-mode :type elpa)
-     (flycheck-clj-kondo :type elpa)
-     (cider :type elpa))
+     clojure-mode
+     flycheck-clj-kondo
+     cider)
     (init-pyim
-     (pyim :type elpa)
-     (pyim-basedict :type elpa))
+     pyim
+     pyim-basedict)
     (init-roam
-     (org-roam :type elpa)
-     (org-roam-ui :type elpa))))
+     org-roam
+     org-roam-ui)))
 
 (defvar init-enabled-modules
   '(init-emacs
@@ -131,24 +130,17 @@
          ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
          ("melpa"  . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
+(setq! package-check-signature nil)
+
 (setq! package-quickstart t)
 
 (require 'package)
-(require 'package-vc)
-
-(defun init-install-package (package)
-  "Install PACKAGE."
-  (if (eq (plist-get (cdr package) :type) 'elpa)
-      (package-install (car package))
-    (package-vc-install package)))
 
 (defun init-select-packages ()
   "Add required packages to selected packages."
   (interactive)
   (dolist (package (init-required-packages))
-    (if (eq (plist-get (cdr package) :type) 'elpa)
-        (add-to-list 'package-selected-packages (car package))
-      (add-to-list 'package-vc-selected-packages package)))
+    (add-to-list 'package-selected-packages package))
   (custom-save-all))
 
 ;;; commands
@@ -157,8 +149,8 @@
   "Install all required packages.  FORCE reinstall."
   (interactive "P")
   (dolist (package (init-required-packages))
-    (when (or force (not (package-installed-p (car package))))
-      (init-install-package package))))
+    (when (or force (not (package-installed-p package)))
+      (package-install package))))
 
 (defun init-compile (&optional force)
   "Compile all module files.  FORCE recompile."
