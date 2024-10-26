@@ -785,9 +785,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; diff
 
-(setq! ediff-window-setup-function #'ediff-setup-windows-plain)
-
 (require 'ediff)
+
+(setq! ediff-window-setup-function #'ediff-setup-windows-plain)
 
 ;;;; comint
 
@@ -799,13 +799,12 @@ FUNC and ARGS see `evil-set-cursor'."
 ;;;; eshell
 
 (require 'eshell)
-(require 'em-prompt)
 (require 'em-hist)
 (require 'em-dirs)
 
 (defun init-eshell-set-outline ()
   "Set outline vars."
-  (setq-local outline-regexp eshell-prompt-regexp)
+  (setq-local outline-regexp "^[^#$\n]* [#$] ")
   (setq-local outline-level (lambda () 1)))
 
 (defun init-eshell-set-company ()
