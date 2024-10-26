@@ -21,8 +21,6 @@
 (defvar init-deps
   '((init-emacs
      dash
-     popon
-     posframe
      ;; edit
      embark
      ;; visual
@@ -86,6 +84,7 @@
      flycheck-clj-kondo
      cider)
     (init-pyim
+     posframe
      pyim
      pyim-basedict)
     (init-roam

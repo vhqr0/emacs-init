@@ -6,10 +6,9 @@
 ;;; Code:
 
 (require 'init-emacs)
+(require 'posframe)
 (require 'pyim)
 (require 'pyim-basedict)
-(require 'posframe)
-(require 'popon)
 
 (setq! default-input-method "pyim")
 
