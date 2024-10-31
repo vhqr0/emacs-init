@@ -47,6 +47,7 @@ With two or more universal ARG, open in current window."
 
 ;;; files
 
+(setq! project-mode-line t)
 (setq! vc-handled-backends '(Git))
 (setq! vc-make-backup-files t)
 (setq! version-control t)
@@ -411,75 +412,117 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;; completion
 
+(require 'delsel)
+
+(define-key minibuffer-local-map [remap quit-window] #'minibuffer-keyboard-quit)
+
 (setq! enable-recursive-minibuffers t)
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
 
-(require 'amx)
+(require 'orderless)
 
-(amx-mode 1)
+(defun init-orderless-setup ()
+  "Setup orderless."
+  (setq-local completion-category-defaults nil)
+  (setq-local completion-styles '(orderless)))
 
-(setq! ivy-count-format "(%d/%d) ")
-(setq! ivy-use-selectable-prompt t)
-(setq! ivy-use-virtual-buffers t)
+(add-hook 'minibuffer-setup-hook #'init-orderless-setup)
 
-(require 'ivy)
-(require 'ivy-avy)
-(require 'ivy-hydra)
-(require 'swiper)
-(require 'counsel)
+(require 'marginalia)
 
-(add-to-list 'ivy-completing-read-handlers-alist
-             '(kill-buffer . completing-read-default))
+(marginalia-mode 1)
 
-(init-diminish-minor-mode 'ivy-mode)
-(init-diminish-minor-mode 'counsel-mode)
+;;;; vertico
 
-(ivy-mode 1)
-(counsel-mode 1)
+(require 'vertico)
+(require 'vertico-multiform)
+(require 'vertico-directory)
+(require 'vertico-repeat)
+(require 'vertico-suspend)
 
-(keymap-global-set "C-c b" #'ivy-resume)
+(vertico-mode 1)
+(vertico-multiform-mode 1)
 
-(require 'delsel)
+(add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
-(define-key minibuffer-local-map [remap quit-window] #'minibuffer-keyboard-quit)
-(define-key ivy-minibuffer-map [remap quit-window] #'minibuffer-keyboard-quit)
+(keymap-global-set "C-c b" #'vertico-repeat)
+(keymap-global-set "C-c z" #'vertico-suspend)
 
-(keymap-set ivy-minibuffer-map "C-x C-s" #'ivy-occur)
-(keymap-set ivy-minibuffer-map "M-r" #'ivy-reverse-i-search)
-(keymap-set counsel-find-file-map "C-l" #'counsel-up-directory)
+(keymap-set vertico-map "C-l" #'vertico-directory-up)
+(keymap-set vertico-map "RET" #'vertico-directory-enter)
+(keymap-set vertico-map "DEL" #'vertico-directory-delete-char)
+(keymap-set vertico-map "M-DEL" #'vertico-directory-delete-word)
 
-(evil-define-key 'insert minibuffer-mode-map
-  (kbd "M-r") #'previous-matching-history-element)
+(add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
 
-(evil-define-key 'insert ivy-minibuffer-map
-  (kbd "M-r") #'ivy-reverse-i-search)
+(evil-collection-define-key 'normal 'vertico-map
+  "gg" #'vertico-first
+  "G"  #'vertico-last)
 
-(evil-define-key 'normal ivy-minibuffer-map
-  (kbd "gg")  #'ivy-beginning-of-buffer
-  (kbd "G")   #'ivy-end-of-buffer
-  (kbd "C-d") #'ivy-scroll-up-command
-  (kbd "C-u") #'ivy-scroll-down-command
-  (kbd "C-o") #'hydra-ivy/body)
+(defun init-vertico-embark-preview ()
+  "Previews candidate in vertico buffer."
+  (interactive)
+  (save-selected-window
+    (let ((embark-quit-after-action nil))
+      (embark-dwim))))
 
-(evil-define-key '(insert normal) ivy-minibuffer-map
-  (kbd "C-M-n") #'ivy-next-line-and-call
-  (kbd "C-M-p") #'ivy-previous-line-and-call)
+(keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
+(keymap-set vertico-map "C-x C-s" #'embark-export)
 
-(defun init-ivy--action-append (x)
-  "Append X after point."
-  (unless (eolp) (forward-char))
-  (ivy--action-insert x))
+;;;; consult
 
-(ivy-add-actions t '(("a" init-ivy--action-append "append")))
+(setq! consult-preview-key '(:debounce 0.3 any))
 
-(define-key counsel-mode-map [remap recentf-open] #'counsel-recentf)
-(define-key counsel-mode-map [remap previous-matching-history-element] #'counsel-minibuffer-history)
-(define-key counsel-mode-map [remap eshell-previous-matching-input] #'counsel-esh-history)
-(define-key counsel-mode-map [remap comint-history-isearch-backward-regexp] #'counsel-shell-history)
+(require 'consult)
 
-;;; search
+(consult-customize
+ consult-line
+ consult-line-multi
+ consult-imenu
+ consult-imenu-multi
+ consult-outline
+ :preview-key 'any)
+
+(setq! completion-in-region-function #'consult-completion-in-region)
+
+(defvar-keymap init-consult-override-mode-map)
+
+(define-minor-mode init-consult-override-mode
+  "Override consult commands."
+  :group 'init
+  :global t
+  :keymap init-consult-override-mode-map)
+
+(init-consult-override-mode 1)
+
+(define-key init-consult-override-mode-map [remap previous-matching-history-element] #'consult-history)
+(define-key init-consult-override-mode-map [remap eshell-previous-matching-input] #'consult-history)
+(define-key init-consult-override-mode-map [remap comint-history-isearch-backward-regexp] #'consult-history)
+(define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
+(define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
+(define-key init-consult-override-mode-map [remap load-theme] #'consult-theme)
+
+(defun init-consult-symbol-at-point (&optional start)
+  "Consult line of symbol at point.
+START see `consult-line'."
+  (interactive (list (not (not current-prefix-arg))))
+  (consult-line (thing-at-point 'symbol) start))
+
+(consult-customize init-consult-symbol-at-point :preview-key 'any)
+
+(keymap-global-set "C-s" #'init-consult-symbol-at-point)
+
+(keymap-set search-map "s" #'consult-line)
+(keymap-set search-map "S" #'consult-line-multi)
+(keymap-set search-map "i" #'consult-imenu)
+(keymap-set search-map "I" #'consult-imenu-multi)
+(keymap-set search-map "l" #'consult-outline)
+(keymap-set search-map "g" #'consult-ripgrep)
+(keymap-set search-map "f" #'consult-fd)
+
+;;;; isearch
 
 (setq! isearch-lazy-count t)
 (setq! isearch-allow-scroll t)
@@ -488,71 +531,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! isearch-motion-changes-direction t)
 (setq! isearch-repeat-on-direction-change t)
 
-(keymap-global-set "C-s" #'swiper-thing-at-point)
-
-(keymap-set search-map "s" #'swiper)
-(keymap-set search-map "S" #'swiper-all)
-(keymap-set search-map "/" #'swiper-from-isearch)
-
-(keymap-set swiper-isearch-map "TAB" #'swiper-isearch-toggle)
-(keymap-set isearch-mode-map "TAB" #'swiper-isearch-toggle)
-
-(defun init-after-swiper-isearch-forward (&rest _)
-  "Reset `v/isearch-forward' after `swiper'."
-  (setq isearch-forward t isearch-regexp t))
-
-(defun init-after-swiper-isearch-backward (&rest _)
-  "Reset `v/isearch-forward' after `swiper'."
-  (setq isearch-forward nil isearch-regexp t))
-
-(advice-add #'swiper-isearch :after #'init-after-swiper-isearch-forward)
-(advice-add #'swiper-isearch-backward :after #'init-after-swiper-isearch-backward)
-
-(keymap-set search-map "g" #'counsel-rg)
-(keymap-set search-map "f" #'counsel-file-jump)
-(keymap-set search-map "d" #'counsel-dired-jump)
-
-;;; goto
-
-(require 'compile)
-
-(keymap-set goto-map "M-g" #'goto-line)
-(keymap-set goto-map "M-c" #'goto-char)
-
-(keymap-set goto-map "c" #'compile)
-(keymap-set goto-map "C" #'recompile)
+;;;; goto
 
 (keymap-set goto-map "r" #'revert-buffer-quick)
 (keymap-set goto-map "R" #'revert-buffer)
 (keymap-set goto-map "v" #'vc-refresh-state)
-(keymap-set goto-map "=" #'font-lock-update)
+(keymap-set goto-map "f" #'font-lock-update)
 
 (keymap-set goto-map "<left>" #'previous-buffer)
 (keymap-set goto-map "<right>" #'next-buffer)
-
-(keymap-set goto-map "l" #'counsel-outline)
-
-(setq! avy-style 'de-bruijn)
-(setq! avy-background t)
-(setq! avy-all-windows nil)
-(setq! avy-all-windows-alt t)
-(setq! avy-single-candidate-jump nil)
-
-(require 'avy)
-
-(avy-setup-default)
-
-(keymap-global-set "C-'" #'avy-goto-char-timer)
-
-(keymap-set goto-map ";" #'avy-resume)
-(keymap-set goto-map "j" #'avy-goto-line)
-(keymap-set goto-map "f" #'avy-goto-char-timer)
-
-(setq! aw-dispatch-when-more-than 1)
-
-(require 'ace-window)
-
-(keymap-set goto-map "w" #'ace-window)
 
 ;;; help
 
@@ -585,74 +572,37 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (setq! evil-lookup-func #'init-describe-symbol-at-point)
 
-(define-key counsel-mode-map [remap describe-bindings] nil t)
+;;; prog
 
-(defun init-counsel--set-variable (x)
-  "Set variable X."
-  (counsel-set-variable (intern x)))
+;;;; project
 
-(ivy-add-actions 'counsel-M-x
-                 '(("I" counsel-info-lookup-symbol "info")))
+(require 'project)
 
-(ivy-add-actions 'counsel-describe-variable
-                 '(("s" init-counsel--set-variable "set")))
+(defun init-replace-project-switch-command (orig after)
+  "Replace ORIG with AFTER in `project-switch-commands'."
+  (setq project-switch-commands
+        (->> project-switch-commands
+             (--map
+              (if (eq (car it) orig) (cons after (cdr it)) it)))))
 
-(ivy-add-actions 'counsel-find-library
-                 '(("l" load-library "load")
-                   ("d" counsel--find-symbol "definition")))
-
-;;; project
-
-(setq! projectile-current-project-on-switch 'move-to-end)
-
-(require 'projectile)
-
-(projectile-mode 1)
-
-(keymap-set projectile-command-map "j" #'projectile-dired)
-(keymap-set projectile-command-map "g" #'projectile-ripgrep)
-(keymap-set projectile-command-map "s" #'projectile-save-project-buffers)
-(keymap-set projectile-command-map "x" #'project-execute-extended-command)
-
-(keymap-global-set "C-x p" projectile-command-map)
-(keymap-global-set "C-x P" project-prefix-map)
-
-(require 'counsel-projectile)
-
-(define-key counsel-mode-map [remap projectile-switch-to-buffer] #'counsel-projectile-switch-to-buffer)
-(define-key counsel-mode-map [remap projectile-find-file] #'counsel-projectile-find-file)
-(define-key counsel-mode-map [remap projectile-find-dir] #'counsel-projectile-find-dir)
-(define-key counsel-mode-map [remap projectile-ripgrep] #'counsel-projectile-rg)
-
-;;; vc
+;;;; vc
 
 (require 'magit)
 
-(defvar-keymap init-magit-command-map
-  "v" #'magit-status
-  "V" #'magit-dispatch
-  "?" #'magit-file-dispatch
-  "g" #'magit-status-here
-  "G" #'magit-display-repository-buffer
-  "s" #'magit-stage-buffer-file
-  "u" #'magit-unstage-buffer-file
-  "c" #'magit-commit
-  "e" #'magit-edit-line-commit
-  "d" #'magit-diff-buffer-file
-  "D" #'magit-diff
-  "l" #'magit-log-buffer-file
-  "L" #'magit-log
-  "b" #'magit-blame-addition
-  "B" #'magit-blame
-  "f" #'magit-find-file
-  "F" #'magit-blob-visit-file
-  "n" #'magit-blob-next
-  "p" #'magit-blob-previous)
+(keymap-set vc-prefix-map "v" #'magit-status)
+(keymap-set vc-prefix-map "V" #'magit-status-here)
+(keymap-set vc-prefix-map "b" #'magit-blame-addition)
+(keymap-set vc-prefix-map "n" #'magit-blob-next)
+(keymap-set vc-prefix-map "p" #'magit-blob-previous)
+(keymap-set vc-prefix-map "d" #'magit-diff-buffer-file)
+(keymap-set vc-prefix-map "D" #'magit-diff)
+(keymap-set vc-prefix-map "l" #'magit-log-buffer-file)
+(keymap-set vc-prefix-map "L" #'magit-log)
+(keymap-set vc-prefix-map "?" #'magit-file-dispatch)
 
-(keymap-global-set "C-x v" init-magit-command-map)
-(keymap-global-set "C-x V" vc-prefix-map)
+(keymap-set project-prefix-map "v" #'magit-project-status)
 
-;;; prog
+(init-replace-project-switch-command 'project-vc-dir 'magit-project-status)
 
 ;;;; eldoc
 
@@ -691,9 +641,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'snippet-mode-hook #'whitespace-mode)
 
-(require 'ivy-yasnippet)
+(require 'consult-yasnippet)
 
-(define-key counsel-mode-map [remap yas-insert-snippet] #'ivy-yasnippet)
+(define-key init-consult-override-mode-map [remap yas-insert-snippet] #'consult-yasnippet)
 
 ;;;; company
 
@@ -721,7 +671,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set company-mode-map "C-c c" #'company-complete)
 
-(define-key counsel-mode-map [remap company-search-candidates] #'counsel-company)
+(require 'consult-company)
+
+(define-key init-consult-override-mode-map [remap company-search-candidates] #'consult-company)
 
 ;;;; flycheck
 
@@ -740,9 +692,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'lsp-mode)
 (require 'lsp-ui)
-
-(lsp-define-conditional-key lsp-command-map
-  "gs" lsp-ivy-workspace-symbol "find workspace symbol" (lsp-feature? "workspace/symbol"))
 
 (defun init-lsp-setup-lookup-command ()
   "Setup lookup command for LSP mode."
@@ -777,11 +726,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! wgrep-change-readonly-file t)
 
 (require 'wgrep)
-
-(require 'rg)
-
-(keymap-set goto-map "g" #'rg-menu)
-(keymap-set goto-map "d" #'rg-dwim)
 
 ;;;; diff
 
@@ -858,7 +802,9 @@ ARG see `init-dwim-goto-buffer'."
          (eshell-buffer-name (project-prefixed-buffer-name "eshell")))
     (init-eshell-dwim arg)))
 
-(keymap-set projectile-command-map "e" #'init-eshell-dwim-project)
+(keymap-set project-prefix-map "e" #'init-eshell-dwim-project)
+
+(init-replace-project-switch-command 'project-eshell 'init-eshell-dwim-project)
 
 ;;;; spell
 
@@ -923,7 +869,7 @@ ARG see `init-dwim-goto-buffer'."
 (require 'god-mode)
 
 (init-leader-global-set
- "SPC" #'ivy-switch-buffer
+ "SPC" #'consult-buffer
  "u" #'init-leader-universal-argument
  "x" #'god-mode-self-insert
  "c" #'god-mode-self-insert
@@ -937,18 +883,18 @@ ARG see `init-dwim-goto-buffer'."
  "3" #'split-window-right
  "o" #'other-window
  "q" #'quit-window
- "w" evil-window-map
- "4" ctl-x-4-map
- "5" ctl-x-5-map
- "t" tab-prefix-map)
-
-(init-leader-global-set
  "b" #'switch-to-buffer
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
  "k" #'kill-buffer
  "e" #'init-eshell-dwim
+ "w" evil-window-map
+ "4" ctl-x-4-map
+ "5" ctl-x-5-map
+ "t" tab-prefix-map
+ "p" project-prefix-map
+ "v" vc-prefix-map
  "m" init-minor-map
  "r" ctl-x-r-map
  "h" help-map
@@ -958,18 +904,14 @@ ARG see `init-dwim-goto-buffer'."
  "n" narrow-map)
 
 (init-leader-global-set
- "p" projectile-command-map
- "v" init-magit-command-map)
-
-(init-leader-global-set
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
  "+" #'delete-trailing-whitespace
  "." #'xref-find-definitions
  "?" #'xref-find-references
  "," #'xref-go-back
- "i" #'imenu
- "l" #'counsel-outline
+ "i" #'consult-imenu
+ "l" #'consult-outline
  "9" #'sp-wrap-round
  "(" #'init-sp-wrap-pair
  "[" #'init-sp-wrap-pair
@@ -985,6 +927,23 @@ ARG see `init-dwim-goto-buffer'."
 ;;; lang
 
 ;;;; elisp
+
+(defvar init-elisp-hooks
+  '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
+
+(defun init-elisp-outline-level ()
+  "Return level of current outline heading."
+  (if (looking-at ";;\\([;*]+\\)")
+      (- (match-end 1) (match-beginning 1))
+    (funcall outline-level)))
+
+(defun init-elisp-set-outline ()
+  "Set outline vars."
+  (setq-local outline-regexp ";;[;*]+[\s\t]+")
+  (setq-local outline-level #'init-elisp-outline-level))
+
+(dolist (hook init-elisp-hooks)
+  (add-hook hook #'init-elisp-set-outline))
 
 (dash-register-info-lookup)
 

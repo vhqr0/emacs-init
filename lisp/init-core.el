@@ -36,35 +36,27 @@
      evil-surround
      evil-snipe
      evil-goggles
-     ;; goto
-     avy
-     ace-window
      ;; completion
-     amx
-     ivy
-     ivy-avy
-     ivy-hydra
-     swiper
-     counsel
-     ;; project
-     projectile
-     counsel-projectile
+     orderless
+     marginalia
+     vertico
+     consult
+     embark-consult
      ;; prog
      yasnippet
      yasnippet-snippets
-     ivy-yasnippet
+     consult-yasnippet
      company
+     consutl-company
      flycheck
      apheleia
      lsp-mode
      lsp-ui
-     lsp-ivy
      ;; tools
      with-editor
      git-modes
      magit
      orgit
-     rg
      wgrep
      ;; leaders
      god-mode
