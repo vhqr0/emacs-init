@@ -47,7 +47,7 @@
      yasnippet-snippets
      consult-yasnippet
      company
-     consutl-company
+     consult-company
      flycheck
      apheleia
      lsp-mode
