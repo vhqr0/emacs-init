@@ -48,12 +48,8 @@
      consult-yasnippet
      company
      consult-company
-     flycheck
-     consult-flycheck
      apheleia
-     lsp-mode
-     lsp-ui
-     consult-lsp
+     consult-eglot
      ;; tools
      with-editor
      git-modes
@@ -63,19 +59,17 @@
      ;; leaders
      god-mode
      ;; elisp
-     macrostep
      package-lint
-     flycheck-package
+     package-lint-flymake
+     macrostep
      ;; markdown
      markdown-mode
      edit-indirect
      ;; org
      htmlize)
-    (init-python
-     lsp-pyright)
     (init-clojure
      clojure-mode
-     flycheck-clj-kondo
+     flymake-kondor
      cider)
     (init-pyim
      posframe

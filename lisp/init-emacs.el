@@ -478,6 +478,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! consult-preview-key '(:debounce 0.3 any))
 
 (require 'consult)
+(require 'consult-imenu)
 
 (consult-customize
  consult-line
@@ -689,39 +690,23 @@ START see `consult-line'."
 
 (define-key init-consult-override-mode-map [remap company-search-candidates] #'consult-company)
 
-;;;; flycheck
+;;;; flymake
 
-(require 'flycheck)
+(require 'flymake)
+(require 'flymake-proc)
 
-(keymap-set flycheck-mode-map "M-n" #'flycheck-next-error)
-(keymap-set flycheck-mode-map "M-p" #'flycheck-previous-error)
+(remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
 
-(add-hook 'prog-mode-hook #'flycheck-mode)
+(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
+(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
+
+(require 'consult-flymake)
+
+(keymap-set search-map "v" #'consult-flymake)
 
 ;;;; apheleia
 
 (require 'apheleia)
-
-;;;; lsp
-
-(require 'lsp-mode)
-(require 'lsp-ui)
-
-(defun init-lsp-set-lookup-command ()
-  "Setup lookup command for LSP mode."
-  (setq-local evil-lookup-func #'lsp-ui-doc-glance))
-
-(add-hook 'lsp-ui-mode-hook #'init-lsp-set-lookup-command)
-
-(defun init-toggle-lsp-mode ()
-  "Toggle LSP mode."
-  (interactive)
-  (if lsp-mode (lsp-disconnect) (lsp)))
-
-(require 'consult-lsp)
-
-(lsp-define-conditional-key lsp-command-map
-  "gs" consult-lsp-symbols "query workspace symbols" (lsp-feature? "workspace/symbol"))
 
 ;;; tools
 
@@ -840,7 +825,7 @@ ARG see `init-dwim-goto-buffer'."
   "a s" #'auto-save-visited-mode
   "a r" #'auto-revert-mode
   "f s" #'flyspell-mode
-  "f c" #'flycheck-mode
+  "f m" #'flymake-mode
   "r d" #'rainbow-delimiters-mode
   "r i" #'rainbow-identifiers-mode
   "t" #'toggle-truncate-lines
@@ -848,8 +833,7 @@ ARG see `init-dwim-goto-buffer'."
   "h" #'hl-line-mode
   "w" #'whitespace-mode
   "l" #'display-line-numbers-mode
-  "L" #'init-toggle-line-numbers-type
-  "s" #'init-toggle-lsp-mode)
+  "L" #'init-toggle-line-numbers-type)
 
 (keymap-global-set "C-x m" init-minor-map)
 
@@ -928,7 +912,6 @@ ARG see `init-dwim-goto-buffer'."
  "n" narrow-map)
 
 (init-leader-global-set
- "y" lsp-command-map
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
  "+" #'delete-trailing-whitespace
@@ -971,16 +954,16 @@ ARG see `init-dwim-goto-buffer'."
 
 (global-dash-fontify-mode 1)
 
+(setq! elisp-flymake-byte-compile-load-path load-path)
+
+(require 'package-lint-flymake)
+
+(add-hook 'emacs-lisp-mode-hook #'package-lint-flymake-setup)
+
 (require 'macrostep)
 
 (keymap-set emacs-lisp-mode-map "C-c e" #'macrostep-expand)
 (keymap-set lisp-interaction-mode-map "C-c e" #'macrostep-expand)
-
-(setq! flycheck-emacs-lisp-load-path load-path)
-
-(require 'flycheck-package)
-
-(flycheck-package-setup)
 
 ;;;; markdown
 
