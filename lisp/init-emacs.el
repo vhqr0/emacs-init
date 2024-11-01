@@ -315,8 +315,6 @@ FUNC and ARGS see `evil-set-cursor'."
                :switch evil-goggles-enable-commentary
                :advice evil-goggles--generic-async-advice))
 
-(evil-goggles-use-diff-faces)
-
 (init-diminish-minor-mode 'evil-goggles-mode)
 
 (evil-goggles-mode 1)
@@ -417,6 +415,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (define-key minibuffer-local-map [remap quit-window] #'minibuffer-keyboard-quit)
 
+(evil-define-key 'insert minibuffer-mode-map
+  (kbd "M-r") #'previous-matching-history-element)
+
 (setq! enable-recursive-minibuffers t)
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
@@ -503,7 +504,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (define-key init-consult-override-mode-map [remap comint-history-isearch-backward-regexp] #'consult-history)
 (define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
 (define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
-(define-key init-consult-override-mode-map [remap load-theme] #'consult-theme)
 
 (defun init-consult-symbol-at-point (&optional start)
   "Consult line of symbol at point.
@@ -559,10 +559,11 @@ START see `consult-line'."
 
 (keymap-set help-map "L" #'view-lossage)
 
-(keymap-unset help-map "t" t)
-(keymap-set help-map "t l" #'load-library)
-(keymap-set help-map "t f" #'load-file)
-(keymap-set help-map "t t" #'load-theme)
+(keymap-set help-map "t" #'load-theme)
+
+(consult-customize consult-theme :preview-key '(:debounce 0.5 any))
+
+(define-key init-consult-override-mode-map [remap load-theme] #'consult-theme)
 
 (defun init-describe-symbol-at-point ()
   "Describe symbol at point."
