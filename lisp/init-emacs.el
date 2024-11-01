@@ -605,21 +605,27 @@ START see `consult-line'."
 
 (init-replace-project-switch-command 'project-vc-dir 'magit-project-status)
 
-;;;; eldoc
+;;;; xref
 
-(require 'eldoc)
+(setq! xref-search-program 'ripgrep)
+
+(require 'xref)
+
+;;;; eldoc
 
 (setq! eldoc-minor-mode-string nil)
 
-;;;; abbrev
+(require 'eldoc)
 
-(require 'abbrev)
+;;;; abbrev
 
 (setq! only-global-abbrevs t)
 
-(setq-default abbrev-mode t)
+(require 'abbrev)
 
 (init-diminish-minor-mode 'abbrev-mode)
+
+(setq-default abbrev-mode t)
 
 ;;;; yasnippet
 
