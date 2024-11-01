@@ -425,12 +425,12 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'orderless)
 
-(defun init-orderless-setup ()
+(defun init-minibuffer-set-orderless ()
   "Setup orderless."
   (setq-local completion-category-defaults nil)
   (setq-local completion-styles '(orderless)))
 
-(add-hook 'minibuffer-setup-hook #'init-orderless-setup)
+(add-hook 'minibuffer-setup-hook #'init-minibuffer-set-orderless)
 
 (require 'marginalia)
 
@@ -707,11 +707,21 @@ START see `consult-line'."
 (require 'lsp-mode)
 (require 'lsp-ui)
 
-(defun init-lsp-setup-lookup-command ()
+(defun init-lsp-set-lookup-command ()
   "Setup lookup command for LSP mode."
   (setq-local evil-lookup-func #'lsp-ui-doc-glance))
 
-(add-hook 'lsp-ui-mode-hook #'lsp-ui-doc-glance)
+(add-hook 'lsp-ui-mode-hook #'init-lsp-set-lookup-command)
+
+(defun init-toggle-lsp-mode ()
+  "Toggle LSP mode."
+  (interactive)
+  (if lsp-mode (lsp-disconnect) (lsp)))
+
+(require 'consult-lsp)
+
+(lsp-define-conditional-key lsp-command-map
+  "gs" consult-lsp-symbols "query workspace symbols" (lsp-feature? "workspace/symbol"))
 
 ;;; tools
 
@@ -839,7 +849,7 @@ ARG see `init-dwim-goto-buffer'."
   "w" #'whitespace-mode
   "l" #'display-line-numbers-mode
   "L" #'init-toggle-line-numbers-type
-  "s" #'lsp)
+  "s" #'init-toggle-lsp-mode)
 
 (keymap-global-set "C-x m" init-minor-map)
 
@@ -918,6 +928,7 @@ ARG see `init-dwim-goto-buffer'."
  "n" narrow-map)
 
 (init-leader-global-set
+ "y" lsp-command-map
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
  "+" #'delete-trailing-whitespace
@@ -934,9 +945,6 @@ ARG see `init-dwim-goto-buffer'."
  "'" #'init-sp-wrap-pair
  "`" #'init-sp-wrap-pair
  "\"" #'init-sp-wrap-pair)
-
-(init-leader-minor-mode-set 'lsp-mode
-  "y" lsp-command-map)
 
 ;;; lang
 

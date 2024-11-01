@@ -49,9 +49,11 @@
      company
      consult-company
      flycheck
+     consult-flycheck
      apheleia
      lsp-mode
      lsp-ui
+     consult-lsp
      ;; tools
      with-editor
      git-modes
