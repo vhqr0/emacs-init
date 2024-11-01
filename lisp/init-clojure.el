@@ -58,26 +58,18 @@
 
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
 (keymap-set cider-mode-map "C-c C-i" #'init-cider-insert-sexp-to-repl)
+(keymap-set cider-mode-map "C-c C-;" #'init-cider-eval-sexp-to-comment)
+(keymap-set cider-mode-map "C-c ;" #'init-cider-eval-sexp-to-comment)
 (keymap-set cider-mode-map "C-M-q" #'init-cider-format-sexp)
 (keymap-set cider-repl-mode-map "C-M-q" #'init-cider-format-sexp)
 
 ;;; repl history
 
-(defun init-counsel-cider-repl-history ()
-  "Browse Cider REPL history."
-  (interactive)
-  (let ((beg (line-beginning-position))
-        (end (line-end-position)))
-    (setq ivy-completion-beg beg)
-    (setq ivy-completion-end end)
-    (ivy-read "History: " (ivy-history-contents cider-repl-input-history)
-              :keymap ivy-reverse-i-search-map
-              :initial-input (buffer-substring beg end)
-              :action #'counsel--browse-history-action
-              :caller #'init-counsel-cider-repl-history)))
+(add-to-list 'consult-mode-histories
+             '(cider-repl-mode cider-repl-input-history cider-repl-input-history-position cider-repl-bol-mark))
 
 (evil-define-key 'insert cider-repl-mode-map
-  (kbd "M-r") #'init-counsel-cider-repl-history)
+  (kbd "M-r") #'consult-history)
 
 ;;; macrostep
 
@@ -117,19 +109,11 @@
   (setq-local macrostep-expand-1-function #'init-cider-macrostep-expand-1)
   (setq-local macrostep-print-function #'init-cider-macrostep-insert))
 
-(dolist (hook init-clojure-mode-hooks)
+(dolist (hook (cons 'cider-repl-mode-hook init-clojure-mode-hooks))
   (add-hook hook #'init-cider-set-macrostep))
 
-;;; context leader
-
-;; co-work with lsp-mode, inhibit these keys: wghra=FTG
-(defvar-keymap init-cider-command-map
-  "e" #'macrostep-expand
-  "n" #'cider-repl-set-ns
-  ";" #'init-cider-eval-sexp-to-comment)
-
-(init-leader-minor-mode-set 'cider-mode
-  "y" init-cider-command-map)
+(keymap-set cider-mode-map "C-c e" #'macrostep-expand)
+(keymap-set cider-repl-mode-map "C-c e" #'macrostep-expand)
 
 (provide 'init-clojure)
 ;;; init-clojure.el ends here

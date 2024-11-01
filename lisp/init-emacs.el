@@ -233,6 +233,7 @@ With two or more universal ARG, open in current window."
 (setq! evil-want-Y-yank-to-eol t)
 (setq! evil-want-fine-undo t)
 (setq! evil-undo-system 'undo-redo)
+(setq! evil-search-module 'evil-search)
 (setq! evil-symbol-word-search t)
 (setq! evil-respect-visual-line-mode t)
 
@@ -325,7 +326,7 @@ FUNC and ARGS see `evil-set-cursor'."
   (interactive)
   (if (or executing-kbd-macro
           defining-kbd-macro
-          (sit-for 0.15 'no-redisplay))
+          (sit-for 0.15 t))
       (insert ?j)
     (let ((event (read-event)))
       (if (= event ?k)
@@ -951,8 +952,8 @@ ARG see `init-dwim-goto-buffer'."
 
 (require 'macrostep)
 
-(init-leader-set emacs-lisp-mode-map "y e" #'macrostep-expand)
-(init-leader-set lisp-interaction-mode-map "y e" #'macrostep-expand)
+(keymap-set emacs-lisp-mode-map "C-c e" #'macrostep-expand)
+(keymap-set lisp-interaction-mode-map "C-c e" #'macrostep-expand)
 
 (setq! flycheck-emacs-lisp-load-path load-path)
 
