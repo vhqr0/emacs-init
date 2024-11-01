@@ -577,7 +577,13 @@ START see `consult-line'."
 
 ;;;; project
 
+(setq! project-switch-use-entire-map t)
+
 (require 'project)
+
+(keymap-set project-prefix-map "j" #'project-dired)
+
+(add-to-list 'project-switch-commands '(project-dired "Dired jump"))
 
 (defun init-replace-project-switch-command (orig after)
   "Replace ORIG with AFTER in `project-switch-commands'."
