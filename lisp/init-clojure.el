@@ -30,6 +30,8 @@
 (setq! cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
 (require 'cider)
+(require 'cider-format)
+(require 'cider-macroexpansion)
 
 (defun init-cider-set-lookup-command ()
   "Set lookup command for Cider."
@@ -76,8 +78,6 @@
   (kbd "M-r") #'consult-history)
 
 ;;; macrostep
-
-(require 'cider-macroexpansion)
 
 (defun init-cider-macrostep-macro-form-p (_sexp _env)
   "Macro?"

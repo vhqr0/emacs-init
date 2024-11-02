@@ -50,6 +50,7 @@
      consult-company
      apheleia
      consult-eglot
+     consult-eglot-embark
      ;; tools
      with-editor
      git-modes

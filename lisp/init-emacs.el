@@ -25,7 +25,7 @@
         (->> minor-mode-alist
              (--remove (eq (car it) mode)))))
 
-(defun init-dwim-goto-buffer (buffer arg)
+(defun init-dwim-switch-to-buffer (buffer arg)
   "Do goto BUFFER smartly, with interactive ARG.
 Without universal ARG, open in split window.
 With one universal ARG, open other window.
@@ -797,14 +797,14 @@ START see `consult-line'."
 
 (defun init-eshell-dwim (&optional arg)
   "Do open eshell smartly.
-ARG see `init-dwim-goto-buffer'."
+ARG see `init-dwim-switch-to-buffer'."
   (interactive "P")
   (-> (init-eshell-dwim-get-buffer)
-      (init-dwim-goto-buffer arg)))
+      (init-dwim-switch-to-buffer arg)))
 
 (defun init-eshell-dwim-project (&optional arg)
   "Do open eshell smartly in project.
-ARG see `init-dwim-goto-buffer'."
+ARG see `init-dwim-switch-to-buffer'."
   (interactive "P")
   (let* ((project (project-current))
          (default-directory (if project (project-root project) default-directory))
@@ -949,6 +949,9 @@ ARG see `init-dwim-goto-buffer'."
 
 (dolist (hook init-elisp-hooks)
   (add-hook hook #'init-elisp-set-outline))
+
+(keymap-set emacs-lisp-mode-map "C-c C-k" #'eval-buffer)
+(keymap-set lisp-interaction-mode-map "C-c C-k" #'eval-buffer)
 
 (dash-register-info-lookup)
 
