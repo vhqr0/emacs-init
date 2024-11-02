@@ -18,14 +18,13 @@
 
 (keymap-set ctl-x-r-map "n" #'org-roam-node-find)
 
-(init-leader-set org-mode-map
-  "y r" #'org-roam-buffer-toggle
-  "y a a" #'org-roam-alias-add
-  "y a t" #'org-roam-tag-add
-  "y a r" #'org-roam-ref-add
-  "y d a" #'org-roam-alias-remove
-  "y d t" #'org-roam-tag-remove
-  "y d r" #'org-roam-ref-remove)
+(keymap-set org-mode-map "C-c r" #'org-roam-buffer-toggle)
+(keymap-set org-mode-map "C-c a t" #'org-roam-tag-add)
+(keymap-set org-mode-map "C-c a a" #'org-roam-alias-add)
+(keymap-set org-mode-map "C-c a r" #'org-roam-ref-add)
+(keymap-set org-mode-map "C-c d t" #'org-roam-tag-remove)
+(keymap-set org-mode-map "C-c d a" #'org-roam-alias-remove)
+(keymap-set org-mode-map "C-c d r" #'org-roam-ref-remove)
 
 (provide 'init-roam)
 ;;; init-roam.el ends here

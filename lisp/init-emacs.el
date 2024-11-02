@@ -991,6 +991,8 @@ ARG see `init-dwim-switch-to-buffer'."
 
 (add-hook 'org-mode-hook #'init-org-modify-syntax)
 
+(keymap-set org-mode-map "C-c l" #'org-toggle-link-display)
+
 (keymap-set org-mode-map "C-c C-'" #'org-edit-special)
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
 (keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
@@ -998,11 +1000,6 @@ ARG see `init-dwim-switch-to-buffer'."
 (keymap-set ctl-x-r-map "a" #'org-agenda)
 (keymap-set ctl-x-r-map "c" #'org-capture)
 (keymap-set ctl-x-r-map "l" #'org-store-link)
-
-(init-leader-set org-mode-map
-  "n b" #'org-narrow-to-block
-  "n s" #'org-narrow-to-subtree
-  "y l" #'org-toggle-link-display)
 
 ;;; end
 
