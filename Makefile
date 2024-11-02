@@ -17,4 +17,4 @@ compile:
 
 .PHONY: clean
 clean:
-	rm -f lisp/*.elc site/*.elc
+	rm -f lisp/*.elc
