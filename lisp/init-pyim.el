@@ -63,7 +63,7 @@
 (setq! pyim-enable-shortcode nil)
 (setq! pyim-candidates-search-buffer-p nil)
 (setq! pyim-indicator-list nil)
-(setq! pyim-page-tooltip '(posframe popon))
+(setq! pyim-page-tooltip '(posframe))
 
 (setq! pyim-punctuation-dict
        '(("'"  "‘"  "’")
@@ -87,7 +87,8 @@
          ("\\" "、"    )))
 
 (setq-default pyim-english-input-switch-functions
-              '(pyim-probe-program-mode))
+              '(pyim-probe-program-mode
+                pyim-probe-isearch-mode))
 
 (pyim-scheme-add
  `(zirjma

@@ -53,16 +53,17 @@
      magit
      orgit
      wgrep
-     ;; leaders
+     ;; bindings
      god-mode
-     ;; elisp
+     ;; lang
+     ;;; elisp
      package-lint
      package-lint-flymake
      macrostep
-     ;; markdown
+     ;;; markdown
      markdown-mode
      edit-indirect
-     ;; org
+     ;;; org
      htmlize)
     (init-clojure
      clojure-mode

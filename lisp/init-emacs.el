@@ -814,7 +814,9 @@ ARG see `init-dwim-switch-to-buffer'."
 
 (setq! ispell-dictionary "american")
 
-;;; minors
+;;; bindings
+
+;;;; minors
 
 (defvar-keymap init-minor-map
   "a s" #'auto-save-visited-mode
@@ -832,7 +834,7 @@ ARG see `init-dwim-switch-to-buffer'."
 
 (keymap-global-set "C-x m" init-minor-map)
 
-;;; leaders
+;;;; leaders
 
 (defvar init-leader-key "SPC")
 (defvar init-leader-state '(motion normal))
