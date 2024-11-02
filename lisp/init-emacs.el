@@ -125,9 +125,7 @@ With two or more universal ARG, open in current window."
 
 ;;; edit
 
-(setq-default indent-tabs-mode nil)
-
-(setq! word-wrap-by-category t)
+;;;; commands
 
 (setq! disabled-command-function nil)
 
@@ -135,15 +133,56 @@ With two or more universal ARG, open in current window."
 
 (repeat-mode 1)
 
-(keymap-global-set "C-SPC" #'toggle-input-method)
-
 (require 'embark)
 
 (keymap-global-set "M-o" #'embark-act)
 
-;;; visual
+(keymap-global-set "C-SPC" #'toggle-input-method)
+
+;;;; indent
+
+(setq-default indent-tabs-mode nil)
 
 (setq-default truncate-lines t)
+
+(setq! word-wrap-by-category t)
+
+;;;; parens
+
+(require 'elec-pair)
+
+(electric-pair-mode 1)
+
+(require 'paren)
+
+(show-paren-mode 1)
+
+(require 'paredit)
+
+(keymap-global-set "M-r" #'raise-sexp)
+(keymap-global-set "M-R" #'paredit-splice-sexp-killing-backward)
+(keymap-global-set "M-K" #'paredit-splice-sexp-killing-forward)
+(keymap-global-set "M-s" #'paredit-splice-sexp)
+(keymap-global-set "M-S" #'paredit-split-sexp)
+(keymap-global-set "M-J" #'paredit-join-sexps)
+(keymap-global-set "C-<left>" #'paredit-forward-barf-sexp)
+(keymap-global-set "C-<right>" #'paredit-forward-slurp-sexp)
+(keymap-global-set "C-M-<left>" #'paredit-backward-slurp-sexp)
+(keymap-global-set "C-M-<right>" #'paredit-backward-barf-sexp)
+
+(defun init-wrap-pair (&optional arg)
+  "Insert pair, ARG see `insert-pair'."
+  (interactive "P")
+  (insert-pair (or arg 1)))
+
+;;;; visual
+
+(require 'goggles)
+
+(init-diminish-minor-mode 'goggles-mode)
+
+(add-hook 'text-mode-hook #'goggles-mode)
+(add-hook 'prog-mode-hook #'goggles-mode)
 
 (defun init-set-trailing-whitespace-display ()
   "Set local display of trailing whitespace."
@@ -179,52 +218,6 @@ With two or more universal ARG, open in current window."
 (add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
 (add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
 
-(require 'goggles)
-
-(init-diminish-minor-mode 'goggles-mode)
-
-(add-hook 'text-mode-hook #'goggles-mode)
-(add-hook 'prog-mode-hook #'goggles-mode)
-
-;;; parens
-
-(setq! sp-ignore-modes-list nil)
-
-(require 'smartparens)
-(require 'smartparens-config)
-
-(sp-local-pair 'minibuffer-mode "'" nil :actions nil)
-
-(init-diminish-minor-mode 'smartparens-mode)
-
-(smartparens-global-mode 1)
-(show-smartparens-global-mode 1)
-
-(keymap-set smartparens-mode-map "C-M-f" #'sp-forward-sexp)
-(keymap-set smartparens-mode-map "C-M-b" #'sp-backward-sexp)
-(keymap-set smartparens-mode-map "C-M-d" #'sp-down-sexp)
-(keymap-set smartparens-mode-map "C-M-u" #'sp-backward-up-sexp)
-(keymap-set smartparens-mode-map "C-M-n" #'sp-next-sexp)
-(keymap-set smartparens-mode-map "C-M-p" #'sp-previous-sexp)
-(keymap-set smartparens-mode-map "C-M-k" #'sp-kill-sexp)
-(keymap-set smartparens-mode-map "C-M-w" #'sp-copy-sexp)
-(keymap-set smartparens-mode-map "C-M-SPC" #'sp-mark-sexp)
-(keymap-set smartparens-mode-map "C-k" #'sp-kill-hybrid-sexp)
-(keymap-set smartparens-mode-map "M-r" #'sp-splice-sexp-killing-around)
-(keymap-set smartparens-mode-map "M-R" #'sp-splice-sexp-killing-backward)
-(keymap-set smartparens-mode-map "M-s" #'sp-splice-sexp)
-(keymap-set smartparens-mode-map "M-S" #'sp-split-sexp)
-(keymap-set smartparens-mode-map "M-J" #'sp-join-sexp)
-(keymap-set smartparens-mode-map "C-<right>" #'sp-forward-slurp-sexp)
-(keymap-set smartparens-mode-map "C-<left>" #'sp-forward-barf-sexp)
-(keymap-set smartparens-mode-map "C-M-<right>" #'sp-backward-barf-sexp)
-(keymap-set smartparens-mode-map "C-M-<left>" #'sp-backward-slurp-sexp)
-
-(defun init-sp-wrap-pair ()
-  "Wrap following sexp with pairs."
-  (interactive)
-  (sp-wrap-with-pair (char-to-string last-command-event)))
-
 ;;; evil
 
 (setq! evil-want-keybinding nil)
@@ -242,7 +235,7 @@ With two or more universal ARG, open in current window."
 (evil-mode 1)
 
 (defvar init-evil-adjust-cursor-disabled-commands
-  '(sp-forward-sexp sp-previous-sexp forward-sexp forward-list))
+  '(forward-sexp forward-list))
 
 (defun init-around-evil-adjust-cursor (func &rest args)
   "Dont adjust cursor after certain commands.
@@ -264,8 +257,13 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-motion-state-map "q" #'quit-window)
 (keymap-set evil-normal-state-map "q" #'quit-window)
 
+(keymap-set evil-visual-state-map "m" #'evil-jump-item)
+(keymap-set evil-operator-state-map "m" #'evil-jump-item)
 (keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
 (keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
+
+(keymap-set evil-normal-state-map "M-r" #'raise-sexp)
+(keymap-set evil-normal-state-map "M-s" #'paredit-splice-sexp)
 
 (keymap-set evil-window-map "<left>" #'winner-undo)
 (keymap-set evil-window-map "<right>" #'winner-redo)
@@ -282,6 +280,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-to-list 'evil-surround-pairs-alist '(?r . ("[" . "]")))
 (add-to-list 'evil-surround-pairs-alist '(?a . ("<" . ">")))
+(add-to-list 'evil-surround-pairs-alist '(?$ . ("$" . "$")))
+(add-to-list 'evil-surround-pairs-alist '(?# . ("#{" . "}")))
 
 (keymap-set evil-inner-text-objects-map "r" #'evil-inner-bracket)
 (keymap-set evil-outer-text-objects-map "r" #'evil-a-bracket)
@@ -335,14 +335,6 @@ FUNC and ARGS see `evil-set-cursor'."
         (insert ?j)
         (push event unread-command-events)))))
 
-(evil-define-motion init-evil-jump-item ()
-  :jump t
-  :type inclusive
-  (let* ((thing (sp-get-thing))
-         (beg (sp-get thing :beg))
-         (end (1- (sp-get thing :end))))
-    (goto-char (if (= (point) end) beg end))))
-
 (evil-define-operator init-evil-operator-comment (beg end)
   :move-point nil
   (interactive "<r>")
@@ -386,9 +378,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set evil-insert-state-map "j" #'init-evil-escape)
 (keymap-set evil-replace-state-map "j" #'init-evil-escape)
-(keymap-set evil-motion-state-map "%" #'init-evil-jump-item)
-(keymap-set evil-visual-state-map "m" #'init-evil-jump-item)
-(keymap-set evil-operator-state-map "m" #'init-evil-jump-item)
 (keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
 (keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
 (keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
@@ -920,14 +909,13 @@ ARG see `init-dwim-switch-to-buffer'."
  "," #'xref-go-back
  "i" #'consult-imenu
  "l" #'consult-outline
- "9" #'sp-wrap-round
- "(" #'init-sp-wrap-pair
- "[" #'init-sp-wrap-pair
- "{" #'init-sp-wrap-pair
- "<" #'init-sp-wrap-pair
- "'" #'init-sp-wrap-pair
- "`" #'init-sp-wrap-pair
- "\"" #'init-sp-wrap-pair)
+ "(" #'init-wrap-pair
+ "[" #'init-wrap-pair
+ "{" #'init-wrap-pair
+ "<" #'init-wrap-pair
+ "'" #'init-wrap-pair
+ "`" #'init-wrap-pair
+ "\"" #'init-wrap-pair)
 
 ;;; lang
 

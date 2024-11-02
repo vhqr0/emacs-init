@@ -12,7 +12,6 @@
 (require 'clojure-mode)
 
 (defvar init-clojure-modes '(clojurec-mode clojure-mode clojurescript-mode))
-(defvar init-clojure-mode-hooks '(clojurec-mode-hook clojure-mode-hook clojurescript-mode-hook))
 
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
@@ -21,9 +20,8 @@
 
 (require 'flymake-kondor)
 
-(dolist (hook init-clojure-mode-hooks)
-  (add-hook hook #'flymake-kondor-setup)
-  (add-hook hook #'flymake-mode))
+(add-hook 'clojure-mode-hook #'flymake-kondor-setup)
+(add-hook 'clojure-mode-hook #'flymake-mode)
 
 ;;; cider
 
@@ -44,7 +42,7 @@
   "Eval sexp and insert result as comment."
   (interactive)
   (save-excursion
-    (sp-forward-sexp)
+    (forward-sexp)
     (unless (eolp)
       (newline-and-indent))
     (cider-pprint-eval-last-sexp-to-comment)))
@@ -52,20 +50,19 @@
 (defun init-cider-insert-sexp-to-repl (arg)
   "Insert sexp to repl.  ARG see `cider-insert-last-sexp-in-repl'."
   (interactive "P")
-  (sp-forward-sexp)
+  (forward-sexp)
   (cider-insert-last-sexp-in-repl arg))
 
 (defun init-cider-format-sexp ()
   "Format sexp."
   (interactive)
   (save-excursion
-    (sp-forward-sexp)
+    (forward-sexp)
     (cider-format-edn-last-sexp)))
 
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
 (keymap-set cider-mode-map "C-c C-i" #'init-cider-insert-sexp-to-repl)
 (keymap-set cider-mode-map "C-c C-;" #'init-cider-eval-sexp-to-comment)
-(keymap-set cider-mode-map "C-c ;" #'init-cider-eval-sexp-to-comment)
 (keymap-set cider-mode-map "C-M-q" #'init-cider-format-sexp)
 (keymap-set cider-repl-mode-map "C-M-q" #'init-cider-format-sexp)
 
@@ -86,8 +83,7 @@
 (defun init-cider-macrostep-sexp-bounds ()
   "Find bounds of macro sexp."
   (interactive)
-  (let ((thing (sp-get-thing)))
-    (cons (sp-get thing :beg) (sp-get thing :end))))
+  (bounds-of-thing-at-point 'sexp))
 
 (defun init-cider-macrostep-expand (sexp _env)
   "Expand SEXP using Cider."
@@ -113,8 +109,8 @@
   (setq-local macrostep-expand-1-function #'init-cider-macrostep-expand-1)
   (setq-local macrostep-print-function #'init-cider-macrostep-insert))
 
-(dolist (hook (cons 'cider-repl-mode-hook init-clojure-mode-hooks))
-  (add-hook hook #'init-cider-set-macrostep))
+(add-hook 'cider-mode-hook #'init-cider-set-macrostep)
+(add-hook 'cider-repl-mode-hook #'init-cider-set-macrostep)
 
 (keymap-set cider-mode-map "C-c e" #'macrostep-expand)
 (keymap-set cider-repl-mode-map "C-c e" #'macrostep-expand)

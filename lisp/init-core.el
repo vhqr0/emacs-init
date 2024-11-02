@@ -23,13 +23,11 @@
      dash
      ;; edit
      embark
-     ;; visual
+     paredit
+     goggles
      page-break-lines
      rainbow-delimiters
      rainbow-identifiers
-     goggles
-     ;; parens
-     smartparens
      ;; evil
      evil
      evil-collection
@@ -49,8 +47,6 @@
      company
      consult-company
      apheleia
-     consult-eglot
-     consult-eglot-embark
      ;; tools
      with-editor
      git-modes
