@@ -25,6 +25,11 @@
         (->> minor-mode-alist
              (--remove (eq (car it) mode)))))
 
+(defun init-symbol-at-point ()
+  "Get symbol at point."
+  (interactive)
+  (or (symbol-at-point) (user-error "No symbol at point")))
+
 (defun init-dwim-switch-to-buffer (buffer arg)
   "Do goto BUFFER smartly, with interactive ARG.
 Without universal ARG, open in split window.
@@ -499,7 +504,7 @@ FUNC and ARGS see `evil-set-cursor'."
   "Consult line of symbol at point.
 START see `consult-line'."
   (interactive (list (not (not current-prefix-arg))))
-  (consult-line (thing-at-point 'symbol) start))
+  (-> (init-symbol-at-point) symbol-name (consult-line start)))
 
 (consult-customize init-consult-symbol-at-point :preview-key 'any)
 
@@ -512,6 +517,9 @@ START see `consult-line'."
 (keymap-set search-map "l" #'consult-outline)
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
+
+(keymap-set search-map "m" 'evil-collection-consult-mark)
+(keymap-set search-map "j" 'evil-collection-consult-jump-list)
 
 ;;;; isearch
 
@@ -558,9 +566,7 @@ START see `consult-line'."
 (defun init-describe-symbol-at-point ()
   "Describe symbol at point."
   (interactive)
-  (-if-let (symbol (symbol-at-point))
-      (describe-symbol symbol)
-    (user-error "No symbol at point")))
+  (describe-symbol (init-symbol-at-point)))
 
 (setq! evil-lookup-func #'init-describe-symbol-at-point)
 
