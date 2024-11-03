@@ -543,6 +543,7 @@ START see `consult-line'."
   (-> (init-symbol-at-point) symbol-name (consult-line start)))
 
 (consult-customize
+ consult-goto-line
  consult-line
  consult-line-multi
  init-consult-symbol-at-point
@@ -550,6 +551,8 @@ START see `consult-line'."
  consult-imenu-multi
  consult-outline
  :preview-key 'any)
+
+(define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
 
 (keymap-global-set "C-s" #'init-consult-symbol-at-point)
 
@@ -560,14 +563,6 @@ START see `consult-line'."
 (keymap-set search-map "l" #'consult-outline)
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
-
-(define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
-
-;;;; compile
-
-(require 'consult-compile)
-
-(keymap-set search-map "c" #'consult-compile-error)
 
 ;;;; history
 
@@ -626,6 +621,12 @@ START see `consult-line'."
 (setq! evil-lookup-func #'init-describe-symbol-at-point)
 
 ;;; prog
+
+;;;; compile
+
+(require 'consult-compile)
+
+(keymap-set search-map "c" #'consult-compile-error)
 
 ;;;; xref
 
@@ -721,7 +722,7 @@ START see `consult-line'."
 
 (require 'consult-flymake)
 
-(keymap-set search-map "v" #'consult-flymake)
+(keymap-set search-map "m" #'consult-flymake)
 
 ;;;; apheleia
 
