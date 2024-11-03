@@ -513,21 +513,12 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
 (keymap-set vertico-map "C-x C-s" #'embark-export)
 
-;;;; consult
+;;; consult
 
 (setq! consult-preview-key '(:debounce 0.3 any))
 
 (require 'consult)
-(require 'consult-imenu)
 (require 'embark-consult)
-
-(consult-customize
- consult-line
- consult-line-multi
- consult-imenu
- consult-imenu-multi
- consult-outline
- :preview-key 'any)
 
 (setq! completion-in-region-function #'consult-completion-in-region)
 
@@ -541,11 +532,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (init-consult-override-mode 1)
 
-(define-key init-consult-override-mode-map [remap previous-matching-history-element] #'consult-history)
-(define-key init-consult-override-mode-map [remap eshell-previous-matching-input] #'consult-history)
-(define-key init-consult-override-mode-map [remap comint-history-isearch-backward-regexp] #'consult-history)
-(define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
-(define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
+;;;; search
+
+(require 'consult-imenu)
 
 (defun init-consult-symbol-at-point (&optional start)
   "Consult line of symbol at point.
@@ -553,7 +542,14 @@ START see `consult-line'."
   (interactive (list (not (not current-prefix-arg))))
   (-> (init-symbol-at-point) symbol-name (consult-line start)))
 
-(consult-customize init-consult-symbol-at-point :preview-key 'any)
+(consult-customize
+ consult-line
+ consult-line-multi
+ init-consult-symbol-at-point
+ consult-imenu
+ consult-imenu-multi
+ consult-outline
+ :preview-key 'any)
 
 (keymap-global-set "C-s" #'init-consult-symbol-at-point)
 
@@ -565,8 +561,39 @@ START see `consult-line'."
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
 
-(keymap-set search-map "m" 'evil-collection-consult-mark)
-(keymap-set search-map "j" 'evil-collection-consult-jump-list)
+(define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
+
+;;;; compile
+
+(require 'consult-compile)
+
+(keymap-set search-map "c" #'consult-compile-error)
+
+;;;; history
+
+(define-key init-consult-override-mode-map [remap previous-matching-history-element] #'consult-history)
+(define-key init-consult-override-mode-map [remap eshell-previous-matching-input] #'consult-history)
+(define-key init-consult-override-mode-map [remap comint-history-isearch-backward-regexp] #'consult-history)
+
+;;;; yank
+
+(define-key init-consult-override-mode-map [remap yank] #'consult-yank-from-kill-ring)
+(define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
+
+;;;; register
+
+(require 'consult-register)
+
+(keymap-set ctl-x-r-map "r" #'consult-register)
+(keymap-set ctl-x-r-map "SPC" #'consult-register-store)
+(keymap-set ctl-x-r-map "C-SPC" #'consult-register-store)
+(keymap-set ctl-x-r-map "C-@" #'consult-register-store)
+(keymap-set ctl-x-r-map "j" #'consult-register-load)
+
+;;;; evil
+
+(keymap-set goto-map "m" 'evil-collection-consult-mark)
+(keymap-set goto-map "M" 'evil-collection-consult-jump-list)
 
 ;;; help
 
@@ -605,6 +632,11 @@ START see `consult-line'."
 (setq! xref-search-program 'ripgrep)
 
 (require 'xref)
+
+(require 'consult-xref)
+
+(setq! xref-show-definitions-function #'consult-xref)
+(setq! xref-show-xrefs-function #'consult-xref)
 
 ;;;; eldoc
 
