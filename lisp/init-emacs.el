@@ -3,7 +3,6 @@
 ;;; Commentary:
 ;; Various init configuration for Emacs itself.
 
-(require 'cl-lib)
 (require 'dash)
 (require 'init-core)
 
@@ -30,6 +29,12 @@
   (interactive)
   (or (symbol-at-point) (user-error "No symbol at point")))
 
+(defun init-project-directory ()
+  "Get current project directory."
+  (-if-let (project (project-current))
+      (project-root project)
+    default-directory))
+
 (defun init-dwim-switch-to-buffer (buffer arg)
   "Do goto BUFFER smartly, with interactive ARG.
 Without universal ARG, open in split window.
@@ -52,6 +57,11 @@ With two or more universal ARG, open in current window."
 
 ;;; files
 
+(require 'files)
+(require 'vc-hooks)
+(require 'vc-git)
+(require 'project)
+
 (setq! project-mode-line t)
 (setq! vc-handled-backends '(Git))
 (setq! vc-make-backup-files t)
@@ -67,11 +77,15 @@ With two or more universal ARG, open in current window."
 (setq! backup-directory-alist
        `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
+;;;; auto save visited
+
 (setq! auto-save-visited-interval 1)
 
 (add-to-list 'minor-mode-alist '(auto-save-visited-mode " ASave"))
 
 (auto-save-visited-mode 1)
+
+;;;; recentf
 
 (setq! recentf-max-saved-items 200)
 
@@ -80,6 +94,16 @@ With two or more universal ARG, open in current window."
 (recentf-mode 1)
 
 (keymap-set ctl-x-r-map "e" #'recentf-open)
+
+;;;; revert
+
+(keymap-set goto-map "r" #'revert-buffer-quick)
+(keymap-set goto-map "R" #'revert-buffer)
+(keymap-set goto-map "v" #'vc-refresh-state)
+(keymap-set goto-map "f" #'font-lock-update)
+
+(keymap-set goto-map "<left>" #'previous-buffer)
+(keymap-set goto-map "<right>" #'next-buffer)
 
 ;;; ui
 
@@ -273,6 +297,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-window-map "<left>" #'winner-undo)
 (keymap-set evil-window-map "<right>" #'winner-redo)
 
+;;;; evil collection
+
 (setq! evil-collection-setup-minibuffer t)
 
 (require 'evil-collection)
@@ -281,11 +307,12 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (init-diminish-minor-mode 'evil-collection-unimpaired-mode)
 
+;;;; evil surround
+
 (require 'evil-surround)
 
 (add-to-list 'evil-surround-pairs-alist '(?r . ("[" . "]")))
 (add-to-list 'evil-surround-pairs-alist '(?a . ("<" . ">")))
-(add-to-list 'evil-surround-pairs-alist '(?$ . ("$" . "$")))
 (add-to-list 'evil-surround-pairs-alist '(?# . ("#{" . "}")))
 
 (keymap-set evil-inner-text-objects-map "r" #'evil-inner-bracket)
@@ -294,6 +321,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-outer-text-objects-map "a" #'evil-an-angle)
 
 (global-evil-surround-mode 1)
+
+;;;; evil snipe
 
 (setq! evil-snipe-repeat-keys nil)
 (setq! evil-snipe-smart-case t)
@@ -305,6 +334,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (evil-snipe-mode 1)
 (evil-snipe-override-mode 1)
+
+;;;; evil goggles
 
 (require 'evil-goggles)
 
@@ -323,6 +354,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (init-diminish-minor-mode 'evil-goggles-mode)
 
 (evil-goggles-mode 1)
+
+;;;; evil extra
 
 (defun init-evil-escape ()
   ":imap jk <esc>."
@@ -412,6 +445,17 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-key 'insert minibuffer-mode-map
   (kbd "M-r") #'previous-matching-history-element)
 
+;;;; isearch
+
+(setq! isearch-lazy-count t)
+(setq! isearch-allow-scroll t)
+(setq! isearch-allow-motion t)
+(setq! isearch-yank-on-move t)
+(setq! isearch-motion-changes-direction t)
+(setq! isearch-repeat-on-direction-change t)
+
+;;;; completion style
+
 (setq! enable-recursive-minibuffers t)
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
@@ -425,6 +469,8 @@ FUNC and ARGS see `evil-set-cursor'."
   (setq-local completion-styles '(orderless)))
 
 (add-hook 'minibuffer-setup-hook #'init-minibuffer-set-orderless)
+
+;;;; marginalia
 
 (require 'marginalia)
 
@@ -473,6 +519,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'consult)
 (require 'consult-imenu)
+(require 'embark-consult)
 
 (consult-customize
  consult-line
@@ -521,25 +568,6 @@ START see `consult-line'."
 (keymap-set search-map "m" 'evil-collection-consult-mark)
 (keymap-set search-map "j" 'evil-collection-consult-jump-list)
 
-;;;; isearch
-
-(setq! isearch-lazy-count t)
-(setq! isearch-allow-scroll t)
-(setq! isearch-allow-motion t)
-(setq! isearch-yank-on-move t)
-(setq! isearch-motion-changes-direction t)
-(setq! isearch-repeat-on-direction-change t)
-
-;;;; goto
-
-(keymap-set goto-map "r" #'revert-buffer-quick)
-(keymap-set goto-map "R" #'revert-buffer)
-(keymap-set goto-map "v" #'vc-refresh-state)
-(keymap-set goto-map "f" #'font-lock-update)
-
-(keymap-set goto-map "<left>" #'previous-buffer)
-(keymap-set goto-map "<right>" #'next-buffer)
-
 ;;; help
 
 (require 'find-func)
@@ -571,42 +599,6 @@ START see `consult-line'."
 (setq! evil-lookup-func #'init-describe-symbol-at-point)
 
 ;;; prog
-
-;;;; project
-
-(setq! project-switch-use-entire-map t)
-
-(require 'project)
-
-(keymap-set project-prefix-map "j" #'project-dired)
-
-(add-to-list 'project-switch-commands '(project-dired "Dired jump"))
-
-(defun init-replace-project-switch-command (orig after)
-  "Replace ORIG with AFTER in `project-switch-commands'."
-  (setq project-switch-commands
-        (->> project-switch-commands
-             (--map
-              (if (eq (car it) orig) (cons after (cdr it)) it)))))
-
-;;;; vc
-
-(require 'magit)
-
-(keymap-set vc-prefix-map "v" #'magit-status)
-(keymap-set vc-prefix-map "V" #'magit-status-here)
-(keymap-set vc-prefix-map "b" #'magit-blame-addition)
-(keymap-set vc-prefix-map "n" #'magit-blob-next)
-(keymap-set vc-prefix-map "p" #'magit-blob-previous)
-(keymap-set vc-prefix-map "d" #'magit-diff-buffer-file)
-(keymap-set vc-prefix-map "D" #'magit-diff)
-(keymap-set vc-prefix-map "l" #'magit-log-buffer-file)
-(keymap-set vc-prefix-map "L" #'magit-log)
-(keymap-set vc-prefix-map "?" #'magit-file-dispatch)
-
-(keymap-set project-prefix-map "v" #'magit-project-status)
-
-(init-replace-project-switch-command 'project-vc-dir 'magit-project-status)
 
 ;;;; xref
 
@@ -759,7 +751,6 @@ START see `consult-line'."
   "Clean company backends."
   (setq-local company-backends '(company-files (company-dabbrev company-yasnippet))))
 
-(add-hook 'eshell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
 (add-hook 'eshell-mode-hook #'init-eshell-set-company)
 
@@ -801,20 +792,51 @@ ARG see `init-dwim-switch-to-buffer'."
   "Do open eshell smartly in project.
 ARG see `init-dwim-switch-to-buffer'."
   (interactive "P")
-  (let* ((project (project-current))
-         (default-directory (if project (project-root project) default-directory))
-         (eshell-buffer-name (project-prefixed-buffer-name "eshell")))
+  (let ((default-directory (init-project-directory))
+        (eshell-buffer-name (project-prefixed-buffer-name "eshell")))
     (init-eshell-dwim arg)))
 
-(keymap-set project-prefix-map "e" #'init-eshell-dwim-project)
+;;;; editor
 
-(init-replace-project-switch-command 'project-eshell 'init-eshell-dwim-project)
+(require 'with-editor)
+
+(add-hook 'shell-mode-hook #'with-editor-export-editor)
+(add-hook 'eshell-mode-hook #'with-editor-export-editor)
+
+;;;; magit
+
+(require 'magit)
+
+(keymap-set vc-prefix-map "v" #'magit-status)
+(keymap-set vc-prefix-map "V" #'magit-status-here)
+(keymap-set vc-prefix-map "b" #'magit-blame-addition)
+(keymap-set vc-prefix-map "n" #'magit-blob-next)
+(keymap-set vc-prefix-map "p" #'magit-blob-previous)
+(keymap-set vc-prefix-map "d" #'magit-diff-buffer-file)
+(keymap-set vc-prefix-map "D" #'magit-diff)
+(keymap-set vc-prefix-map "l" #'magit-log-buffer-file)
+(keymap-set vc-prefix-map "L" #'magit-log)
+(keymap-set vc-prefix-map "?" #'magit-file-dispatch)
 
 ;;;; spell
 
 (setq! ispell-dictionary "american")
 
 ;;; bindings
+
+;;;; project
+
+(keymap-set project-prefix-map "j" #'project-dired)
+(keymap-set project-prefix-map "v" #'magit-project-status)
+(keymap-set project-prefix-map "e" #'init-eshell-dwim-project)
+
+(setq! project-switch-commands
+       '((project-find-file "Find File")
+         (project-find-dir "Find Dir")
+         (project-switch-to-buffer "Switch To Buffer")
+         (project-dired "Dired")
+         (magit-project-status "Magit")
+         (init-eshell-dwim-project "Eshell")))
 
 ;;;; minors
 
@@ -909,6 +931,7 @@ ARG see `init-dwim-switch-to-buffer'."
  "n" narrow-map)
 
 (init-leader-global-set
+ "$" #'ispell-word
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
  "+" #'delete-trailing-whitespace
