@@ -35,6 +35,13 @@
       (project-root project)
     default-directory))
 
+(defun init-dwim-directory (arg prompt)
+  "Get directory smartly.
+With universal ARG read directory with PROMPT."
+  (if arg
+      (read-directory-name prompt)
+    (init-project-directory)))
+
 (defun init-dwim-switch-to-buffer (buffer arg)
   "Do goto BUFFER smartly, with interactive ARG.
 Without universal ARG, open in split window.
@@ -744,6 +751,8 @@ START see `consult-line'."
 
 (keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
 
+(keymap-set project-prefix-map "j" #'project-dired)
+
 (keymap-set dired-mode-map "O" #'dired-omit-mode)
 
 (evil-define-key 'normal dired-mode-map
@@ -755,6 +764,15 @@ START see `consult-line'."
 (setq! wgrep-change-readonly-file t)
 
 (require 'wgrep)
+
+(require 'rg)
+
+(defun init-grep-dwim (arg)
+  "Grep dwim.  ARG see `init-dwim-directory'."
+  (interactive "P")
+  (let ((directory (init-dwim-directory arg "Search in directory: "))
+        (pattern (rg-read-pattern nil)))
+    (rg-run pattern "everything" directory)))
 
 ;;;; diff
 
@@ -829,6 +847,8 @@ ARG see `init-dwim-switch-to-buffer'."
         (eshell-buffer-name (project-prefixed-buffer-name "eshell")))
     (init-eshell-dwim arg)))
 
+(keymap-set project-prefix-map "e" #'init-eshell-dwim-project)
+
 ;;;; editor
 
 (require 'with-editor)
@@ -851,6 +871,8 @@ ARG see `init-dwim-switch-to-buffer'."
 (keymap-set vc-prefix-map "L" #'magit-log)
 (keymap-set vc-prefix-map "?" #'magit-file-dispatch)
 
+(keymap-set project-prefix-map "v" #'magit-project-status)
+
 ;;;; spell
 
 (setq! ispell-dictionary "american")
@@ -858,10 +880,6 @@ ARG see `init-dwim-switch-to-buffer'."
 ;;; bindings
 
 ;;;; project
-
-(keymap-set project-prefix-map "j" #'project-dired)
-(keymap-set project-prefix-map "v" #'magit-project-status)
-(keymap-set project-prefix-map "e" #'init-eshell-dwim-project)
 
 (setq! project-switch-commands
        '((project-find-file "Find File")
@@ -949,6 +967,7 @@ ARG see `init-dwim-switch-to-buffer'."
  "j" #'dired-jump
  "k" #'kill-buffer
  "e" #'init-eshell-dwim
+ "G" #'init-grep-dwim
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
