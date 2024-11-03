@@ -53,7 +53,6 @@
      magit
      orgit
      wgrep
-     rg
      ;; bindings
      god-mode
      ;; lang

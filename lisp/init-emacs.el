@@ -765,14 +765,26 @@ START see `consult-line'."
 
 (require 'wgrep)
 
-(require 'rg)
+(defvar init-rg-program "rg")
 
-(defun init-grep-dwim (arg)
-  "Grep dwim.  ARG see `init-dwim-directory'."
+(defun init-rg-dwim (arg)
+  "RG dwim.
+Without universal ARG, rg in project directory.
+With one universal ARG, prompt for rg directory.
+With two universal ARG, edit rg command."
   (interactive "P")
-  (let ((directory (init-dwim-directory arg "Search in directory: "))
-        (pattern (rg-read-pattern nil)))
-    (rg-run pattern "everything" directory)))
+  (let* ((default-directory (init-dwim-directory arg "Search directory: "))
+         (pattern-default (thing-at-point 'symbol))
+         (pattern-prompt (if pattern-default
+                             (format "Search pattern (%s): " pattern-default)
+                           "Search pattern: "))
+         (pattern (read-regexp pattern-prompt pattern-default))
+         (command-default (format "%s -n --no-heading --color=always %s ." init-rg-program pattern))
+         (command (if (> (prefix-numeric-value arg) 4)
+                      (read-string "Search command: " command-default 'grep-history)
+                    command-default)))
+    (grep--save-buffers)
+    (compilation-start command 'grep-mode)))
 
 ;;;; diff
 
@@ -967,7 +979,7 @@ ARG see `init-dwim-switch-to-buffer'."
  "j" #'dired-jump
  "k" #'kill-buffer
  "e" #'init-eshell-dwim
- "G" #'init-grep-dwim
+ "G" #'init-rg-dwim
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
