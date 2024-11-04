@@ -779,7 +779,7 @@ With two universal ARG, edit rg command."
                              (format "Search pattern (%s): " pattern-default)
                            "Search pattern: "))
          (pattern (read-regexp pattern-prompt pattern-default))
-         (command-default (format "%s -n --no-heading --color=always %s ." init-rg-program pattern))
+         (command-default (format "%s -n --no-heading --color=always -S %s ." init-rg-program pattern))
          (command (if (> (prefix-numeric-value arg) 4)
                       (read-string "Search command: " command-default 'grep-history)
                     command-default)))
