@@ -16,6 +16,22 @@
 
 (org-roam-db-autosync-mode 1)
 
+(defun init-org-roam-ref-browse (ref)
+  "Browse org roam REF."
+  (let* ((type (get-text-property 0 'type ref))
+         (path-end (->> (-iota (length ref))
+                        (--first (get-text-property it 'invisible ref))))
+         (path (substring ref 0 path-end))
+         (url (concat type ":" path)))
+    (message "Browse org roam ref: %s" url)
+    (browse-url url)))
+
+(defvar-keymap init-org-roam-ref-map
+  :parent embark-general-map
+  "x" #'init-org-roam-ref-browse)
+
+(add-to-list 'embark-keymap-alist '(org-roam-ref init-org-roam-ref-map))
+
 (keymap-set init-app-map "n" #'org-roam-node-find)
 (keymap-set init-app-map "r" #'org-roam-ref-find)
 
