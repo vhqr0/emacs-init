@@ -10,6 +10,7 @@
 ;;; directories
 
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
+(defvar priv-directory (expand-file-name "emacs-priv" user-emacs-directory))
 
 (defvar init-lisp-directory (expand-file-name "lisp" init-directory))
 (defvar init-misc-directory (expand-file-name "misc" init-directory))

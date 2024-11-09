@@ -7,7 +7,7 @@
 
 (require 'init-emacs)
 
-(setq! org-roam-directory (expand-file-name "notes" user-emacs-directory))
+(setq! org-roam-directory (expand-file-name "notes" priv-directory))
 
 (setq! org-roam-node-display-template
        (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
@@ -16,7 +16,8 @@
 
 (org-roam-db-autosync-mode 1)
 
-(keymap-set ctl-x-r-map "n" #'org-roam-node-find)
+(keymap-set init-app-map "n" #'org-roam-node-find)
+(keymap-set init-app-map "r" #'org-roam-ref-find)
 
 (keymap-set org-mode-map "C-c r" #'org-roam-buffer-toggle)
 (keymap-set org-mode-map "C-c a t" #'org-roam-tag-add)

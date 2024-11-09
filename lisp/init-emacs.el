@@ -654,15 +654,45 @@ START see `consult-line'."
 
 ;;;; abbrev
 
+(setq! abbrev-file-name (expand-file-name "abbrevs.el" priv-directory))
+
 (setq! only-global-abbrevs t)
 
 (require 'abbrev)
+
+(defvar init-abbrev-write-count nil)
+
+(defmacro init-abbrev-write-attr (sym attr)
+  "Write ATTR of abbrev SYM."
+  `(progn
+     (insert ,(concat " " (symbol-name attr) " "))
+     (prin1 (abbrev-get ,sym ,attr))))
+
+(defun init-override-abbrev-write (sym)
+  "Override `abbrev--write'.  SYM see `abbrev--write'."
+  (insert "    (")
+  (prin1 (symbol-name sym))
+  (insert " ")
+  (prin1 (symbol-value sym))
+  (insert " ")
+  (prin1 (symbol-function sym))
+  (when (and init-abbrev-write-count (abbrev-get sym :count))
+    (init-abbrev-write-attr sym :count))
+  (when (abbrev-get sym :case-fixed)
+    (init-abbrev-write-attr sym :case-fixed))
+  (when (abbrev-get sym :enable-function)
+    (init-abbrev-write-attr sym :enable-function))
+  (insert ")\n"))
+
+(advice-add 'abbrev--write :override #'init-override-abbrev-write)
 
 (init-diminish-minor-mode 'abbrev-mode)
 
 (setq-default abbrev-mode t)
 
 ;;;; yasnippet
+
+(setq! yas-snippet-dirs (list (expand-file-name "snippets" priv-directory)))
 
 (setq! yas-alias-to-yas/prefix-p nil)
 
@@ -801,9 +831,12 @@ With two universal ARG, edit rg command."
 
 ;;;; eshell
 
+(setq! eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
+
 (require 'eshell)
 (require 'em-hist)
 (require 'em-dirs)
+(require 'em-alias)
 
 (defun init-eshell-set-outline ()
   "Set outline vars."
@@ -874,6 +907,7 @@ ARG see `init-dwim-switch-to-buffer'."
 
 (keymap-set vc-prefix-map "v" #'magit-status)
 (keymap-set vc-prefix-map "V" #'magit-status-here)
+(keymap-set vc-prefix-map "f" #'magit-find-file)
 (keymap-set vc-prefix-map "b" #'magit-blame-addition)
 (keymap-set vc-prefix-map "n" #'magit-blob-next)
 (keymap-set vc-prefix-map "p" #'magit-blob-previous)
@@ -918,6 +952,10 @@ ARG see `init-dwim-switch-to-buffer'."
   "L" #'init-toggle-line-numbers-type)
 
 (keymap-global-set "C-x m" init-minor-map)
+
+;;;; apps
+
+(defvar-keymap init-app-map)
 
 ;;;; leaders
 
@@ -986,13 +1024,14 @@ ARG see `init-dwim-switch-to-buffer'."
  "t" tab-prefix-map
  "p" project-prefix-map
  "v" vc-prefix-map
- "m" init-minor-map
  "r" ctl-x-r-map
  "h" help-map
  "g" goto-map
  "s" search-map
  "a" abbrev-map
- "n" narrow-map)
+ "n" narrow-map
+ "m" init-minor-map
+ "\\" init-app-map)
 
 (init-leader-global-set
  "$" #'ispell-word
@@ -1092,9 +1131,9 @@ ARG see `init-dwim-switch-to-buffer'."
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
 (keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
 
-(keymap-set ctl-x-r-map "a" #'org-agenda)
-(keymap-set ctl-x-r-map "c" #'org-capture)
-(keymap-set ctl-x-r-map "l" #'org-store-link)
+(keymap-set init-app-map "a" #'org-agenda)
+(keymap-set init-app-map "c" #'org-capture)
+(keymap-set init-app-map "w" #'org-store-link)
 
 ;;; end
 
