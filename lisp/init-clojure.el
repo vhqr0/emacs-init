@@ -50,8 +50,9 @@
 (defun init-cider-insert-sexp-to-repl (arg)
   "Insert sexp to repl.  ARG see `cider-insert-last-sexp-in-repl'."
   (interactive "P")
-  (forward-sexp)
-  (cider-insert-last-sexp-in-repl arg))
+  (save-excursion
+    (forward-sexp)
+    (cider-insert-last-sexp-in-repl arg)))
 
 (defun init-cider-format-sexp ()
   "Format sexp."
