@@ -47,6 +47,7 @@
 (keymap-set init-app-map "r" #'org-roam-ref-find)
 
 (keymap-set org-mode-map "C-c r" #'org-roam-buffer-toggle)
+(keymap-set org-mode-map "C-c i" #'org-roam-node-insert)
 (keymap-set org-mode-map "C-c a t" #'org-roam-tag-add)
 (keymap-set org-mode-map "C-c a a" #'org-roam-alias-add)
 (keymap-set org-mode-map "C-c a r" #'org-roam-ref-add)
