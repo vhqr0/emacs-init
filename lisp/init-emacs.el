@@ -1090,21 +1090,6 @@ ARG see `init-dwim-switch-to-buffer'."
 (keymap-set emacs-lisp-mode-map "C-c e" #'macrostep-expand)
 (keymap-set lisp-interaction-mode-map "C-c e" #'macrostep-expand)
 
-;;;; markdown
-
-(setq! markdown-special-ctrl-a/e t)
-(setq! markdown-fontify-code-blocks-natively t)
-
-(require 'markdown-mode)
-(require 'edit-indirect)
-
-(keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
-(keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
-
-(init-leader-set markdown-mode-map
-  "n b" #'markdown-narrow-to-block
-  "n s" #'markdown-narrow-to-subtree)
-
 ;;;; org
 
 (setq! org-directory (expand-file-name "org" user-emacs-directory))
@@ -1134,6 +1119,21 @@ ARG see `init-dwim-switch-to-buffer'."
 (keymap-set init-app-map "a" #'org-agenda)
 (keymap-set init-app-map "c" #'org-capture)
 (keymap-set init-app-map "w" #'org-store-link)
+
+;;;; markdown
+
+(setq! markdown-special-ctrl-a/e t)
+(setq! markdown-fontify-code-blocks-natively t)
+
+(require 'markdown-mode)
+(require 'edit-indirect)
+
+(keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
+(keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
+
+(init-leader-set markdown-mode-map
+  "n b" #'markdown-narrow-to-block
+  "n s" #'markdown-narrow-to-subtree)
 
 ;;; end
 

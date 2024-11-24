@@ -61,11 +61,12 @@
      package-lint
      package-lint-flymake
      macrostep
+     ;;; org
+     htmlize
+     org-contrib
      ;;; markdown
      markdown-mode
-     edit-indirect
-     ;;; org
-     htmlize)
+     edit-indirect)
     (init-clojure
      clojure-mode
      flymake-kondor
