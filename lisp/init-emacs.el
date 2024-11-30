@@ -176,6 +176,8 @@ With two or more universal ARG, open in current window."
 
 (setq-default indent-tabs-mode nil)
 
+(setq! tab-always-indent 'complete)
+
 (setq-default truncate-lines t)
 
 (setq! word-wrap-by-category t)
