@@ -1069,6 +1069,12 @@ ARG see `init-dwim-switch-to-buffer'."
 (defvar init-elisp-hooks
   '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
 
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
+  (keymap-set map "C-c C-k" #'eval-buffer)
+  (keymap-set map "C-C C-l" #'load-file))
+
+;;;;; outline
+
 (defun init-elisp-outline-level ()
   "Return level of current outline heading."
   (if (looking-at ";;\\([;*]+\\)")
@@ -1083,18 +1089,21 @@ ARG see `init-dwim-switch-to-buffer'."
 (dolist (hook init-elisp-hooks)
   (add-hook hook #'init-elisp-set-outline))
 
-(keymap-set emacs-lisp-mode-map "C-c C-k" #'eval-buffer)
-(keymap-set lisp-interaction-mode-map "C-c C-k" #'eval-buffer)
+;;;;; dash
 
 (dash-register-info-lookup)
 
 (global-dash-fontify-mode 1)
+
+;;;;; flymake
 
 (setq! elisp-flymake-byte-compile-load-path load-path)
 
 (require 'package-lint-flymake)
 
 (add-hook 'emacs-lisp-mode-hook #'package-lint-flymake-setup)
+
+;;;;; macrostep
 
 (require 'macrostep)
 
