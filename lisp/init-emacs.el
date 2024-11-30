@@ -1136,6 +1136,10 @@ ARG see `init-dwim-switch-to-buffer'."
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
 (keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
 
+(init-leader-set org-mode-map
+  "n b" #'org-narrow-to-block
+  "n s" #'org-narrow-to-subtree)
+
 (keymap-set init-app-map "a" #'org-agenda)
 (keymap-set init-app-map "c" #'org-capture)
 (keymap-set init-app-map "w" #'org-store-link)
