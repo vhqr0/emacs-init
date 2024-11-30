@@ -848,12 +848,12 @@ With two universal ARG, edit rg command."
 (require 'em-alias)
 
 (defun init-eshell-set-outline ()
-  "Set outline vars."
+  "Set outline vars for Eshell."
   (setq-local outline-regexp "^[^#$\n]* [#$] ")
   (setq-local outline-level (lambda () 1)))
 
 (defun init-eshell-set-company ()
-  "Clean company backends."
+  "Set company vars for Eshell."
   (setq-local company-backends '(company-files (company-dabbrev company-yasnippet))))
 
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
@@ -1069,9 +1069,18 @@ ARG see `init-dwim-switch-to-buffer'."
 (defvar init-elisp-hooks
   '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
 
+(require 'ielm)
+
+(defun init-ielm-other-window ()
+  "Switch to elisp repl other window."
+  (interactive)
+  (pop-to-buffer (get-buffer-create "*ielm*"))
+  (ielm))
+
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-k" #'eval-buffer)
-  (keymap-set map "C-C C-l" #'load-file))
+  (keymap-set map "C-C C-l" #'load-file)
+  (keymap-set map "C-c C-z" #'init-ielm-other-window))
 
 ;;;;; outline
 
@@ -1107,8 +1116,8 @@ ARG see `init-dwim-switch-to-buffer'."
 
 (require 'macrostep)
 
-(keymap-set emacs-lisp-mode-map "C-c e" #'macrostep-expand)
-(keymap-set lisp-interaction-mode-map "C-c e" #'macrostep-expand)
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map inferior-emacs-lisp-mode-map))
+  (keymap-set map "C-c e" #'macrostep-expand))
 
 ;;;; org
 
