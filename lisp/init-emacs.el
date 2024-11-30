@@ -517,12 +517,12 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
 (keymap-set vertico-map "C-x C-s" #'embark-export)
 
-(defvar init-vertico-disable-commands '(kill-buffer))
+(defvar init-vertico-disabled-commands '(kill-buffer))
 
 (defun init-around-vertico-setup (func &rest args)
-  "Disable vertico around `init-vertico-disable-commands'.
+  "Disable vertico around `init-vertico-disabled-commands'.
 FUNC ARGS see `vertico--setup'."
-  (unless (memq this-command init-vertico-disable-commands)
+  (unless (memq this-command init-vertico-disabled-commands)
     (apply func args)))
 
 (advice-add 'vertico--setup :around #'init-around-vertico-setup)
