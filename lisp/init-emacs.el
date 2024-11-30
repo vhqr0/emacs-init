@@ -109,9 +109,6 @@ With two or more universal ARG, open in current window."
 (keymap-set goto-map "v" #'vc-refresh-state)
 (keymap-set goto-map "f" #'font-lock-update)
 
-(keymap-set goto-map "<left>" #'previous-buffer)
-(keymap-set goto-map "<right>" #'next-buffer)
-
 ;;; ui
 
 ;;;; graphic elements
@@ -519,6 +516,16 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
 (keymap-set vertico-map "C-x C-s" #'embark-export)
+
+(defvar init-vertico-disable-commands '(kill-buffer))
+
+(defun init-around-vertico-setup (func &rest args)
+  "Disable vertico around `init-vertico-disable-commands'.
+FUNC ARGS see `vertico--setup'."
+  (unless (memq this-command init-vertico-disable-commands)
+    (apply func args)))
+
+(advice-add 'vertico--setup :around #'init-around-vertico-setup)
 
 ;;; consult
 
@@ -1011,6 +1018,8 @@ ARG see `init-dwim-switch-to-buffer'."
  "3" #'split-window-right
  "o" #'other-window
  "q" #'quit-window
+ "<left>" #'previous-buffer
+ "<right>" #'next-buffer
  "b" #'switch-to-buffer
  "f" #'find-file
  "d" #'dired
