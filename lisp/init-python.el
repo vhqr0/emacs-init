@@ -1,4 +1,4 @@
-;;; init-python --- Init Python -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-python.el --- Init Python -*- lexical-binding: t; no-native-compile: t -*-
 
 ;;; Commentary:
 ;; Various init configuration for Python language.

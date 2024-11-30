@@ -1,4 +1,4 @@
-;;; init-clojure --- Init Clojure -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-clojure.el --- Init Clojure -*- lexical-binding: t; no-native-compile: t -*-
 
 ;;; Commentary:
 ;; Various init configuration for Clojure language.

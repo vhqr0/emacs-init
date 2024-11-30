@@ -1,4 +1,4 @@
-;;; init-roam --- Init Org Roam -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-roam.el --- Init Org Roam -*- lexical-binding: t; no-native-compile: t -*-
 
 ;;; Commentary:
 ;; Init configuration to use Org Roam note taking tool.

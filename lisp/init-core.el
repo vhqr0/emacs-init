@@ -1,4 +1,4 @@
-;;; init-core --- Core Framework -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-core.el --- Core Framework -*- lexical-binding: t; no-native-compile: t -*-
 
 ;;; Commentary:
 ;; Core framework for Emacs init files.

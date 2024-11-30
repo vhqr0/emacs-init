@@ -1,4 +1,4 @@
-;;; init-pyim --- Init PY Input Method -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-pyim.el --- Init PY Input Method -*- lexical-binding: t; no-native-compile: t -*-
 
 ;;; Commentary:
 ;; Init configuration to use PY Input Method.
