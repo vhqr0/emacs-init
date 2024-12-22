@@ -466,6 +466,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
+(setq! suggest-key-bindings nil)
 
 (require 'orderless)
 
