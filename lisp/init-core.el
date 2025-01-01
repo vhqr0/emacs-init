@@ -69,7 +69,6 @@
      edit-indirect)
     (init-clojure
      clojure-mode
-     flymake-kondor
      cider)
     (init-pyim
      posframe
