@@ -84,6 +84,7 @@
     ;; init-clojure
     ;; init-pyim
     ;; init-roam
+    ;; init-wsl
     ))
 
 (defun init-required-packages ()
