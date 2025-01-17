@@ -396,7 +396,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-operator init-evil-operator-eval (beg end)
   :move-point nil
   (interactive "<r>")
-  (when-let ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
+  (-when-let (eval-function (cdr (assq major-mode init-evil-eval-function-alist)))
     (funcall eval-function beg end)))
 
 (evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
@@ -609,26 +609,44 @@ START see `consult-line'."
 
 ;;; help
 
-(require 'find-func)
-
-(find-function-setup-keys)
+(keymap-set help-map "L" #'view-lossage)
 
 (keymap-set help-map "B" #'describe-keymap)
 
 (keymap-set help-map "p" #'describe-package)
 (keymap-set help-map "P" #'finder-by-keyword)
 
-(keymap-set help-map "l" #'find-library)
-(keymap-set help-map "4 l" #'find-library-other-window)
-(keymap-set help-map "5 l" #'find-library-other-frame)
+;;;; load
 
-(keymap-set help-map "L" #'view-lossage)
+(keymap-unset help-map "t")
 
-(keymap-set help-map "t" #'load-theme)
+(keymap-set help-map "t f" #'load-file)
+(keymap-set help-map "t l" #'load-library)
+(keymap-set help-map "t t" #'load-theme)
 
 (consult-customize consult-theme :preview-key '(:debounce 0.5 any))
 
 (define-key init-consult-override-mode-map [remap load-theme] #'consult-theme)
+
+;;;; find func
+
+(require 'find-func)
+
+(find-function-mode 1)
+
+(keymap-set help-map "l" #'find-library)
+(keymap-set help-map "4 l" #'find-library-other-window)
+(keymap-set help-map "5 l" #'find-library-other-frame)
+
+(keymap-set help-map "F" #'find-function)
+(keymap-set help-map "4 F" #'find-function-other-window)
+(keymap-set help-map "5 F" #'find-function-other-frame)
+
+(keymap-set help-map "V" #'find-variable)
+(keymap-set help-map "4 V" #'find-variable-other-window)
+(keymap-set help-map "5 V" #'find-variable-other-frame)
+
+;;;; elisp lookup
 
 (defun init-describe-symbol-at-point ()
   "Describe symbol at point."
@@ -640,6 +658,11 @@ START see `consult-line'."
 ;;; prog
 
 ;;;; compile
+
+(require 'compile)
+(require 'ansi-color)
+
+(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
 (require 'consult-compile)
 
@@ -774,6 +797,12 @@ START see `consult-line'."
 ;;;; apheleia
 
 (require 'apheleia)
+
+;;;; breadcrumb
+
+(require 'breadcrumb)
+
+(breadcrumb-mode 1)
 
 ;;; tools
 
