@@ -104,6 +104,10 @@ With two or more universal ARG, open in current window."
 
 ;;;; revert
 
+;; r: revert buffer
+;; v: update vc state
+;; f: update font lock state
+
 (keymap-set goto-map "r" #'revert-buffer-quick)
 (keymap-set goto-map "R" #'revert-buffer)
 (keymap-set goto-map "v" #'vc-refresh-state)
@@ -570,6 +574,7 @@ START see `consult-line'."
  :preview-key 'any)
 
 (define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
+(define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
 
 (keymap-global-set "C-s" #'init-consult-symbol-at-point)
 
@@ -601,11 +606,6 @@ START see `consult-line'."
 (keymap-set ctl-x-r-map "C-SPC" #'consult-register-store)
 (keymap-set ctl-x-r-map "C-@" #'consult-register-store)
 (keymap-set ctl-x-r-map "j" #'consult-register-load)
-
-;;;; evil
-
-(keymap-set goto-map "m" 'evil-collection-consult-mark)
-(keymap-set goto-map "M" 'evil-collection-consult-jump-list)
 
 ;;; help
 
@@ -666,7 +666,27 @@ START see `consult-line'."
 
 (require 'consult-compile)
 
-(keymap-set search-map "c" #'consult-compile-error)
+(keymap-set goto-map "e" #'consult-compile-error)
+
+;;;; flymake
+
+(require 'flymake)
+(require 'flymake-proc)
+
+(remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
+
+(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
+(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
+
+(require 'consult-flymake)
+
+(keymap-set goto-map "m" #'consult-flymake)
+
+;;;; eldoc
+
+(setq! eldoc-minor-mode-string nil)
+
+(require 'eldoc)
 
 ;;;; xref
 
@@ -678,12 +698,6 @@ START see `consult-line'."
 
 (setq! xref-show-definitions-function #'consult-xref)
 (setq! xref-show-xrefs-function #'consult-xref)
-
-;;;; eldoc
-
-(setq! eldoc-minor-mode-string nil)
-
-(require 'eldoc)
 
 ;;;; abbrev
 
@@ -779,20 +793,6 @@ START see `consult-line'."
 (require 'consult-company)
 
 (define-key init-consult-override-mode-map [remap company-search-candidates] #'consult-company)
-
-;;;; flymake
-
-(require 'flymake)
-(require 'flymake-proc)
-
-(remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
-
-(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
-(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
-
-(require 'consult-flymake)
-
-(keymap-set search-map "m" #'consult-flymake)
 
 ;;;; apheleia
 
