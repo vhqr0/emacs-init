@@ -24,26 +24,29 @@
         (->> minor-mode-alist
              (--remove (eq (car it) mode)))))
 
-(defun init-symbol-at-point ()
-  "Get symbol at point."
-  (interactive)
-  (or (symbol-at-point) (user-error "No symbol at point")))
+(defun init-region-content ()
+  "Get region content or nil."
+  (when (region-active-p)
+    (buffer-substring (region-beginning) (region-end))))
 
-(defun init-project-directory ()
-  "Get current project directory."
-  (-if-let (project (project-current))
-      (project-root project)
-    default-directory))
+(defun init-dwim-thing-at-point ()
+  "Get thing at point dwim."
+  (or (init-region-content) (thing-at-point 'symbol)))
 
-(defun init-dwim-directory (arg prompt)
-  "Get directory smartly.
-With universal ARG read directory with PROMPT."
-  (if arg
-      (read-directory-name prompt)
-    (init-project-directory)))
+(defun init-switch-to-buffer-split-window (buffer)
+  "Switch to BUFFER split at this window."
+  (let ((parent (window-parent (selected-window))))
+    (cond ((window-left-child parent)
+           (select-window (split-window-vertically))
+           (switch-to-buffer buffer))
+          ((window-top-child parent)
+           (select-window (split-window-horizontally))
+           (switch-to-buffer buffer))
+          (t
+           (switch-to-buffer-other-window buffer)))))
 
-(defun init-dwim-switch-to-buffer (buffer arg)
-  "Do goto BUFFER smartly, with interactive ARG.
+(defun init-dwim-switch-to-buffer-split-window (arg buffer)
+  "Do switch to BUFFER in split window smartly, with interactive ARG.
 Without universal ARG, open in split window.
 With one universal ARG, open other window.
 With two or more universal ARG, open in current window."
@@ -52,15 +55,50 @@ With two or more universal ARG, open in current window."
         (arg
          (switch-to-buffer-other-window buffer))
         (t
-         (let ((parent (window-parent (selected-window))))
-           (cond ((window-left-child parent)
-                  (select-window (split-window-vertically))
-                  (switch-to-buffer buffer))
-                 ((window-top-child parent)
-                  (select-window (split-window-horizontally))
-                  (switch-to-buffer buffer))
-                 (t
-                  (switch-to-buffer-other-window buffer)))))))
+         (init-switch-to-buffer-split-window buffer))))
+
+(defun init-dwim-switch-to-buffer (arg buffer)
+  "Do switch to BUFFER smartly, with interactive ARG.
+Without universal ARG, open in current window.
+With one or more universal ARG, open in other window."
+  (if arg
+      (switch-to-buffer-other-window buffer)
+    (switch-to-buffer buffer)))
+
+(defun init-dwim-find-file (arg file)
+  "Do find FILE smartly, with interactive ARG.
+Without universal ARG, open in current window.
+With one or more universal ARG, open in other window."
+  (if arg
+      (find-file-other-window file)
+    (find-file file)))
+
+(defun init-project-directory ()
+  "Get current project directory."
+  (-when-let (project (project-current))
+    (project-root project)))
+
+(defun init-project-or-default-directory ()
+  "Get current project directory or default directory."
+  (or (init-project-directory) default-directory))
+
+(defun init-dwim-directory (arg prompt)
+  "Get directory smartly.
+With universal ARG read directory with PROMPT."
+  (if arg
+      (read-directory-name prompt)
+    (init-project-or-default-directory)))
+
+(defun init-project-file-relative-name (file)
+  "Get relative FILE of project, or nil."
+  (-when-let (directory (init-project-directory))
+    (file-relative-name file directory)))
+
+(defun init-dwim-project-find-file (arg file)
+  "Find FILE in project.
+ARG see `init-dwim-find-file'."
+  (let ((default-directory (init-project-or-default-directory)))
+    (init-dwim-find-file arg file)))
 
 ;;; files
 
@@ -557,17 +595,18 @@ FUNC ARGS see `vertico--setup'."
 
 (require 'consult-imenu)
 
-(defun init-consult-symbol-at-point (&optional start)
+(defun init-consult-line-dwim (&optional start)
   "Consult line of symbol at point.
 START see `consult-line'."
   (interactive (list (not (not current-prefix-arg))))
-  (-> (init-symbol-at-point) symbol-name (consult-line start)))
+  (-when-let (thing (init-dwim-thing-at-point))
+    (consult-line thing start)))
 
 (consult-customize
  consult-goto-line
  consult-line
  consult-line-multi
- init-consult-symbol-at-point
+ init-consult-line-dwim
  consult-imenu
  consult-imenu-multi
  consult-outline
@@ -576,7 +615,7 @@ START see `consult-line'."
 (define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
 (define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
 
-(keymap-global-set "C-s" #'init-consult-symbol-at-point)
+(keymap-global-set "C-s" #'init-consult-line-dwim)
 
 (keymap-set search-map "s" #'consult-line)
 (keymap-set search-map "S" #'consult-line-multi)
@@ -648,12 +687,13 @@ START see `consult-line'."
 
 ;;;; elisp lookup
 
-(defun init-describe-symbol-at-point ()
+(defun init-describe-symbol-dwim ()
   "Describe symbol at point."
   (interactive)
-  (describe-symbol (init-symbol-at-point)))
+  (-when-let (thing (init-dwim-thing-at-point))
+    (describe-symbol (intern thing))))
 
-(setq! evil-lookup-func #'init-describe-symbol-at-point)
+(setq! evil-lookup-func #'init-describe-symbol-dwim)
 
 ;;; prog
 
@@ -843,7 +883,7 @@ With one universal ARG, prompt for rg directory.
 With two universal ARG, edit rg command."
   (interactive "P")
   (let* ((default-directory (init-dwim-directory arg "Search directory: "))
-         (pattern-default (thing-at-point 'symbol))
+         (pattern-default (init-dwim-thing-at-point))
          (pattern-prompt (if pattern-default
                              (format "Search pattern (%s): " pattern-default)
                            "Search pattern: "))
@@ -918,20 +958,9 @@ With two universal ARG, edit rg command."
 
 (defun init-eshell-dwim (&optional arg)
   "Do open eshell smartly.
-ARG see `init-dwim-switch-to-buffer'."
+ARG see `init-dwim-switch-to-buffer-split-window'."
   (interactive "P")
-  (-> (init-eshell-dwim-get-buffer)
-      (init-dwim-switch-to-buffer arg)))
-
-(defun init-eshell-dwim-project (&optional arg)
-  "Do open eshell smartly in project.
-ARG see `init-dwim-switch-to-buffer'."
-  (interactive "P")
-  (let ((default-directory (init-project-directory))
-        (eshell-buffer-name (project-prefixed-buffer-name "eshell")))
-    (init-eshell-dwim arg)))
-
-(keymap-set project-prefix-map "e" #'init-eshell-dwim-project)
+  (init-dwim-switch-to-buffer-split-window arg (init-eshell-dwim-get-buffer)))
 
 ;;;; editor
 
@@ -971,8 +1000,8 @@ ARG see `init-dwim-switch-to-buffer'."
          (project-find-dir "Find Dir")
          (project-switch-to-buffer "Switch To Buffer")
          (project-dired "Dired")
-         (magit-project-status "Magit")
-         (init-eshell-dwim-project "Eshell")))
+         (project-eshell "Eshell")
+         (magit-project-status "Magit")))
 
 ;;;; minors
 

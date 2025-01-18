@@ -18,6 +18,25 @@
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
+;;; test jump
+
+(defun init-clojure-test-file (file)
+  "Get test or src of FILE, or nil."
+  (cond
+   ((string-match "^src/\\(.*\\)\\(\\.clj.?\\)$" file) (concat "test/" (match-string 1 file) "_test" (match-string 2 file)))
+   ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file) (concat "src/" (match-string 1 file) (match-string 2 file)))))
+
+(defun init-clojure-test-jump (&optional arg)
+  "Jump to test or src of current file.
+ARG see `init-dwim-project-find-file'."
+  (interactive "P")
+  (-when-let (file (buffer-file-name))
+    (-when-let (file (init-project-file-relative-name file))
+      (-when-let (file (init-clojure-test-file file))
+        (init-dwim-project-find-file arg file)))))
+
+(keymap-set clojure-mode-map "C-c t" #'init-clojure-test-jump)
+
 ;;; flymake
 
 ;; Ref: flymake-kondor https://github.com/turbo-cafe/flymake-kondor
