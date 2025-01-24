@@ -971,6 +971,24 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 ;;;; magit
 
+(defvar init-git-program "git")
+(defvar init-git-user-name "vhqr0")
+(defvar init-git-user-email "zq_cmd@163.com")
+
+(defun init-git-config-user ()
+  "Init git repo."
+  (interactive)
+  (let ((directory default-directory)
+        (buffer (get-buffer-create "*git-init*")))
+    (save-window-excursion
+      (with-current-buffer buffer
+        (setq default-directory directory)
+        (erase-buffer)
+        (async-shell-command
+         (format "%s config --local user.name %s && %s config --local user.email %s"
+                 init-git-program init-git-user-name init-git-program init-git-user-email)
+         (current-buffer))))))
+
 (require 'magit)
 
 (keymap-set vc-prefix-map "v" #'magit-status)
