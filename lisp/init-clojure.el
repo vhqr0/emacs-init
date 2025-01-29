@@ -196,5 +196,13 @@ ARG see `init-dwim-project-find-file'."
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-c e" #'macrostep-expand))
 
+;;; refactor
+
+(require 'clj-refactor)
+
+(cljr-add-keybindings-with-prefix "C-c C-m")
+
+(add-hook 'clojure-mode-hook #'clj-refactor-mode)
+
 (provide 'init-clojure)
 ;;; init-clojure.el ends here

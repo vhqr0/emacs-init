@@ -70,7 +70,8 @@
      edit-indirect)
     (init-clojure
      clojure-mode
-     cider)
+     cider
+     clj-refactor)
     (init-pyim
      posframe
      pyim
