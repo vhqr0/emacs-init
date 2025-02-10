@@ -496,9 +496,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;; completion
 
-(require 'delsel)
-
-(define-key minibuffer-local-map [remap quit-window] #'minibuffer-keyboard-quit)
+(define-key minibuffer-local-map [remap quit-window] #'abort-recursive-edit)
 
 (evil-define-key 'insert minibuffer-mode-map
   (kbd "M-r") #'previous-matching-history-element)
