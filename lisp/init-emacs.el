@@ -124,9 +124,17 @@ ARG see `init-dwim-find-file'."
 
 ;;;; auto save visited
 
-(setq! auto-save-visited-interval 1)
+(setq! auto-save-visited-interval 0.5)
 
 (add-to-list 'minor-mode-alist '(auto-save-visited-mode " ASave"))
+
+(defvar init-disable-auto-save-visited-predicates nil)
+
+(defun init-auto-save-visited-predicate ()
+  "Predication of `auto-save-visited-mode'."
+  (not (run-hook-with-args-until-success 'init-disable-auto-save-visited-predicates)))
+
+(setq! auto-save-visited-predicate #'init-auto-save-visited-predicate)
 
 (auto-save-visited-mode 1)
 
@@ -344,6 +352,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set evil-window-map "<left>" #'winner-undo)
 (keymap-set evil-window-map "<right>" #'winner-redo)
+
+(add-to-list 'init-disable-auto-save-visited-predicates #'evil-insert-state-p)
 
 ;;;; evil collection
 
