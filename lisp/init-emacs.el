@@ -350,6 +350,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-normal-state-map "M-r" #'raise-sexp)
 (keymap-set evil-normal-state-map "M-s" #'paredit-splice-sexp)
 
+(set-keymap-parent evil-command-line-map minibuffer-local-map)
+
 (keymap-set evil-window-map "<left>" #'winner-undo)
 (keymap-set evil-window-map "<right>" #'winner-redo)
 
