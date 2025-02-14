@@ -41,14 +41,11 @@
      orderless
      marginalia
      vertico
+     corfu
+     cape
      consult
      embark-consult
      ;; prog
-     yasnippet
-     yasnippet-snippets
-     consult-yasnippet
-     company
-     consult-company
      apheleia
      breadcrumb
      ;; tools

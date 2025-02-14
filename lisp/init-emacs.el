@@ -148,6 +148,18 @@ ARG see `init-dwim-find-file'."
 
 (keymap-set ctl-x-r-map "e" #'recentf-open)
 
+;;;; saveplace
+
+(require 'saveplace)
+
+(save-place-mode 1)
+
+;;;; so-long
+
+(require 'so-long)
+
+(global-so-long-mode 1)
+
 ;;;; revert
 
 ;; r: revert buffer
@@ -211,6 +223,11 @@ ARG see `init-dwim-find-file'."
 ;;;; commands
 
 (setq! disabled-command-function nil)
+(setq! suggest-key-bindings nil)
+
+(setq! enable-recursive-minibuffers t)
+
+(keymap-global-set "C-SPC" #'toggle-input-method)
 
 (require 'repeat)
 
@@ -219,8 +236,7 @@ ARG see `init-dwim-find-file'."
 (require 'embark)
 
 (keymap-global-set "M-o" #'embark-act)
-
-(keymap-global-set "C-SPC" #'toggle-input-method)
+(keymap-global-set "M-O" #'embark-act-all)
 
 ;;;; indent
 
@@ -501,6 +517,12 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-key 'insert minibuffer-mode-map
   (kbd "M-r") #'previous-matching-history-element)
 
+;;;; savehist
+
+(require 'savehist)
+
+(savehist-mode 1)
+
 ;;;; isearch
 
 (setq! isearch-lazy-count t)
@@ -512,22 +534,18 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; completion style
 
-(setq! enable-recursive-minibuffers t)
 (setq! completion-ignore-case t)
 (setq! read-buffer-completion-ignore-case t)
 (setq! read-file-name-completion-ignore-case t)
-(setq! suggest-key-bindings nil)
+(setq! read-extended-command-predicate #'command-completion-default-include-p)
 
 (require 'orderless)
 
-(defun init-minibuffer-set-orderless ()
-  "Setup orderless."
-  (setq-local completion-category-defaults nil)
-  (setq-local completion-styles '(orderless)))
+(setq! completion-styles '(orderless basic))
+(setq! completion-category-defaults nil)
+(setq! completion-category-overrides nil)
 
-(add-hook 'minibuffer-setup-hook #'init-minibuffer-set-orderless)
-
-;;;; marginalia
+;;;; completion meta
 
 (require 'marginalia)
 
@@ -540,6 +558,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'vertico-repeat)
 (require 'vertico-suspend)
 (require 'vertico-directory)
+
+(setq! vertico-resize nil)
 
 (vertico-mode 1)
 (vertico-multiform-mode 1)
@@ -560,16 +580,6 @@ FUNC and ARGS see `evil-set-cursor'."
   "gg" #'vertico-first
   "G"  #'vertico-last)
 
-(defun init-vertico-embark-preview ()
-  "Previews candidate in vertico buffer."
-  (interactive)
-  (save-selected-window
-    (let ((embark-quit-after-action nil))
-      (embark-dwim))))
-
-(keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
-(keymap-set vertico-map "C-x C-s" #'embark-export)
-
 (defvar init-vertico-disabled-commands '(kill-buffer))
 
 (defun init-around-vertico-setup (func &rest args)
@@ -580,14 +590,66 @@ FUNC ARGS see `vertico--setup'."
 
 (advice-add 'vertico--setup :around #'init-around-vertico-setup)
 
-;;; consult
+(defun init-vertico-embark-preview ()
+  "Previews candidate in vertico buffer."
+  (interactive)
+  (save-selected-window
+    (let ((embark-quit-after-action nil))
+      (embark-dwim))))
 
-(setq! consult-preview-key '(:debounce 0.3 any))
+(keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
+(keymap-set vertico-map "C-x C-s" #'embark-export)
+
+;;;; corfu
+
+(require 'corfu)
+(require 'corfu-history)
+
+(setq! corfu-auto t)
+
+(global-corfu-mode 1)
+(corfu-history-mode 1)
+
+(add-to-list 'savehist-additional-variables 'corfu-history)
+
+(defun init-corfu-move-to-minibuffer ()
+  "Move corfu completions to minibuffer."
+  (interactive)
+  (pcase completion-in-region--data
+    (`(,beg ,end ,table ,pred ,extras)
+     (let ((completion-extra-properties extras)
+           completion-cycle-threshold completion-cycling)
+       (consult-completion-in-region beg end table pred)))))
+
+(add-to-list 'corfu-continue-commands #'init-corfu-move-to-minibuffer)
+
+(keymap-set corfu-map "TAB" #'corfu-expand)
+(keymap-set corfu-map "C-M-i" #'init-corfu-move-to-minibuffer)
+
+(defun init-disable-corfu-auto ()
+  "Disable `corfu-auto' in current buffer."
+  (setq-local corfu-auto nil))
+
+(add-hook 'text-mode-hook #'init-disable-corfu-auto)
+
+;;;; cape
+
+(require 'cape)
+
+(add-hook 'completion-at-point-functions #'cape-file)
+
+(defvar-keymap init-cape-prefix-map
+  "f" #'cape-file
+  "r" #'cape-history)
+
+(keymap-global-set "C-c p" init-cape-prefix-map)
+
+;;;; consult
 
 (require 'consult)
 (require 'embark-consult)
 
-(setq! completion-in-region-function #'consult-completion-in-region)
+(setq! consult-preview-key '(:debounce 0.3 any))
 
 (defvar-keymap init-consult-override-mode-map)
 
@@ -599,9 +661,11 @@ FUNC ARGS see `vertico--setup'."
 
 (init-consult-override-mode 1)
 
-;;;; search
+;;;;; search
 
 (require 'consult-imenu)
+
+(setq! consult-line-start-from-top t)
 
 (defun init-consult-line-dwim (&optional start)
   "Consult line of symbol at point.
@@ -633,46 +697,29 @@ START see `consult-line'."
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
 
-;;;; history
+;;;;; history
 
+(define-key init-consult-override-mode-map [remap yank] #'consult-yank-from-kill-ring)
+(define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
 (define-key init-consult-override-mode-map [remap previous-matching-history-element] #'consult-history)
 (define-key init-consult-override-mode-map [remap eshell-previous-matching-input] #'consult-history)
 (define-key init-consult-override-mode-map [remap comint-history-isearch-backward-regexp] #'consult-history)
 
-;;;; yank
-
-(define-key init-consult-override-mode-map [remap yank] #'consult-yank-from-kill-ring)
-(define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
-
-;;;; register
-
-(require 'consult-register)
-
-(keymap-set ctl-x-r-map "r" #'consult-register)
-(keymap-set ctl-x-r-map "SPC" #'consult-register-store)
-(keymap-set ctl-x-r-map "C-SPC" #'consult-register-store)
-(keymap-set ctl-x-r-map "C-@" #'consult-register-store)
-(keymap-set ctl-x-r-map "j" #'consult-register-load)
-
 ;;; help
 
 (keymap-set help-map "L" #'view-lossage)
-
 (keymap-set help-map "B" #'describe-keymap)
-
 (keymap-set help-map "p" #'describe-package)
 (keymap-set help-map "P" #'finder-by-keyword)
 
 ;;;; load
 
 (keymap-unset help-map "t")
-
 (keymap-set help-map "t f" #'load-file)
 (keymap-set help-map "t l" #'load-library)
 (keymap-set help-map "t t" #'load-theme)
 
 (consult-customize consult-theme :preview-key '(:debounce 0.5 any))
-
 (define-key init-consult-override-mode-map [remap load-theme] #'consult-theme)
 
 ;;;; find func
@@ -684,11 +731,9 @@ START see `consult-line'."
 (keymap-set help-map "l" #'find-library)
 (keymap-set help-map "4 l" #'find-library-other-window)
 (keymap-set help-map "5 l" #'find-library-other-frame)
-
 (keymap-set help-map "F" #'find-function)
 (keymap-set help-map "4 F" #'find-function-other-window)
 (keymap-set help-map "5 F" #'find-function-other-frame)
-
 (keymap-set help-map "V" #'find-variable)
 (keymap-set help-map "4 V" #'find-variable-other-window)
 (keymap-set help-map "5 V" #'find-variable-other-frame)
@@ -712,10 +757,6 @@ START see `consult-line'."
 
 (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
-(require 'consult-compile)
-
-(keymap-set goto-map "e" #'consult-compile-error)
-
 ;;;; flymake
 
 (require 'flymake)
@@ -726,121 +767,53 @@ START see `consult-line'."
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
-(require 'consult-flymake)
-
-(keymap-set goto-map "m" #'consult-flymake)
-
 ;;;; eldoc
-
-(setq! eldoc-minor-mode-string nil)
 
 (require 'eldoc)
 
-;;;; xref
+(setq! eldoc-minor-mode-string nil)
 
-(setq! xref-search-program 'ripgrep)
+;;;; xref
 
 (require 'xref)
 
-(require 'consult-xref)
-
-(setq! xref-show-definitions-function #'consult-xref)
-(setq! xref-show-xrefs-function #'consult-xref)
+(setq! xref-search-program 'ripgrep)
 
 ;;;; abbrev
+
+(require 'abbrev)
 
 (setq! abbrev-file-name (expand-file-name "abbrevs.el" priv-directory))
 
 (setq! only-global-abbrevs t)
 
-(require 'abbrev)
-
-(defvar init-abbrev-write-count nil)
-
-(defmacro init-abbrev-write-attr (sym attr)
-  "Write ATTR of abbrev SYM."
-  `(progn
-     (insert ,(concat " " (symbol-name attr) " "))
-     (prin1 (abbrev-get ,sym ,attr))))
-
-(defun init-override-abbrev-write (sym)
-  "Override `abbrev--write'.  SYM see `abbrev--write'."
-  (insert "    (")
-  (prin1 (symbol-name sym))
-  (insert " ")
-  (prin1 (symbol-value sym))
-  (insert " ")
-  (prin1 (symbol-function sym))
-  (when (and init-abbrev-write-count (abbrev-get sym :count))
-    (init-abbrev-write-attr sym :count))
-  (when (abbrev-get sym :case-fixed)
-    (init-abbrev-write-attr sym :case-fixed))
-  (when (abbrev-get sym :enable-function)
-    (init-abbrev-write-attr sym :enable-function))
-  (insert ")\n"))
-
-(advice-add 'abbrev--write :override #'init-override-abbrev-write)
-
 (init-diminish-minor-mode 'abbrev-mode)
 
 (setq-default abbrev-mode t)
 
-;;;; yasnippet
+(defmacro init-abbrev-write-attr (sym attr)
+  "Write ATTR of abbrev SYM."
+  `(when (abbrev-get ,sym ,attr)
+     (insert ,(concat " " (symbol-name attr) " "))
+     (prin1 (abbrev-get ,sym ,attr))))
 
-(setq! yas-snippet-dirs (list (expand-file-name "snippets" priv-directory)))
+(defun init-abbrev-write-sym (sym)
+  "Write abbrev SYM."
+  (prin1 (symbol-name sym))
+  (insert " ")
+  (prin1 (symbol-value sym))
+  (insert " ")
+  (prin1 (symbol-function sym)))
 
-(setq! yas-alias-to-yas/prefix-p nil)
+(defun init-override-abbrev-write (sym)
+  "Override `abbrev--write'.  SYM see `abbrev--write'."
+  (insert "    (")
+  (init-abbrev-write-sym sym)
+  (init-abbrev-write-attr sym :case-fixed)
+  (init-abbrev-write-attr sym :enable-function)
+  (insert ")\n"))
 
-(require 'yasnippet)
-
-(init-diminish-minor-mode 'yas-minor-mode)
-
-(yas-global-mode 1)
-
-(keymap-set yas-minor-mode-map "C-c s" #'yas-expand-from-trigger-key)
-
-(evil-define-key 'insert yas-minor-mode-map
-  (kbd "M-s") #'yas-insert-snippet)
-
-(keymap-set abbrev-map "n" #'yas-new-snippet)
-(keymap-set abbrev-map "s" #'yas-insert-snippet)
-(keymap-set abbrev-map "v" #'yas-visit-snippet-file)
-
-(add-hook 'snippet-mode-hook #'whitespace-mode)
-
-(require 'consult-yasnippet)
-
-(define-key init-consult-override-mode-map [remap yas-insert-snippet] #'consult-yasnippet)
-
-;;;; company
-
-(setq! company-lighter-base "Company")
-(setq! company-selection-wrap-around t)
-(setq! company-show-quick-access t)
-(setq! company-dabbrev-downcase nil)
-(setq! company-dabbrev-ignore-case t)
-(setq! company-dabbrev-code-ignore-case t)
-
-(setq! company-frontends
-       '(company-pseudo-tooltip-frontend
-         company-preview-common-frontend
-         company-echo-metadata-frontend))
-
-(setq! company-backends
-       '(company-files
-         (company-capf :with company-yasnippet)
-         (company-dabbrev-code company-keywords :with company-yasnippet)
-         (company-dabbrev company-yasnippet)))
-
-(require 'company)
-
-(global-company-mode 1)
-
-(keymap-set company-mode-map "C-c c" #'company-complete)
-
-(require 'consult-company)
-
-(define-key init-consult-override-mode-map [remap company-search-candidates] #'consult-company)
+(advice-add 'abbrev--write :override #'init-override-abbrev-write)
 
 ;;;; apheleia
 
@@ -930,12 +903,7 @@ With two universal ARG, edit rg command."
   (setq-local outline-regexp "^[^#$\n]* [#$] ")
   (setq-local outline-level (lambda () 1)))
 
-(defun init-eshell-set-company ()
-  "Set company vars for Eshell."
-  (setq-local company-backends '(company-files (company-dabbrev company-yasnippet))))
-
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
-(add-hook 'eshell-mode-hook #'init-eshell-set-company)
 
 (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
 (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
