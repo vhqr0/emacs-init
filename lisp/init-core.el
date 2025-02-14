@@ -22,6 +22,8 @@
 (defvar init-deps
   '((init-emacs
      dash
+     ;; ui
+     posframe
      ;; edit
      embark
      paredit
@@ -73,7 +75,6 @@
      cider
      clj-refactor)
     (init-pyim
-     posframe
      pyim
      pyim-basedict)
     (init-roam

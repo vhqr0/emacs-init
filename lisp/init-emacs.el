@@ -226,8 +226,6 @@ ARG see `init-dwim-find-file'."
 
 (setq-default indent-tabs-mode nil)
 
-(setq! tab-always-indent 'complete)
-
 (setq-default truncate-lines t)
 
 (setq! word-wrap-by-category t)
@@ -539,9 +537,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'vertico)
 (require 'vertico-multiform)
-(require 'vertico-directory)
 (require 'vertico-repeat)
 (require 'vertico-suspend)
+(require 'vertico-directory)
 
 (vertico-mode 1)
 (vertico-multiform-mode 1)
@@ -610,13 +608,13 @@ FUNC ARGS see `vertico--setup'."
 START see `consult-line'."
   (interactive (list (not (not current-prefix-arg))))
   (-when-let (thing (init-dwim-thing-at-point))
+    (setq this-command 'consult-line)
     (consult-line thing start)))
 
 (consult-customize
  consult-goto-line
  consult-line
  consult-line-multi
- init-consult-line-dwim
  consult-imenu
  consult-imenu-multi
  consult-outline
@@ -1192,6 +1190,8 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 (global-dash-fontify-mode 1)
 
 ;;;;; flymake
+
+(setq! trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
 
 (setq! elisp-flymake-byte-compile-load-path load-path)
 
