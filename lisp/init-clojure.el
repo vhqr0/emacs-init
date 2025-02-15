@@ -87,7 +87,7 @@ ARG see `init-dwim-project-find-file'."
       (push (init-clojure-make-kondo-diag buffer) diags))
     (nreverse diags)))
 
-(defun init-clojure-kondo-sentinel (buffer proc report-fn)
+(defun init-clojure-kondo-sentinel (proc buffer report-fn)
   "The clj-kondo sentinel of BUFFER and PROC for Flymake with REPORT-FN."
   (when (memq (process-status proc) '(exit signal))
     (let ((proc-buffer (process-buffer proc)))
@@ -102,7 +102,7 @@ ARG see `init-dwim-project-find-file'."
 (defun init-clojure-make-kondo-sentinel (buffer report-fn)
   "Build the clj-kondo process sentinel of BUFFER for Flymake with REPORT-FN."
   (lambda (proc _event)
-    (init-clojure-kondo-sentinel buffer proc report-fn)))
+    (init-clojure-kondo-sentinel proc buffer report-fn)))
 
 (defun init-clojure-make-kondo-proc (buffer report-fn)
   "Build the clj-kondo process of BUFFER for Flymake with REPORT-FN."
@@ -146,6 +146,8 @@ ARG see `init-dwim-project-find-file'."
   (define-key map [remap evil-lookup] #'cider-doc)
   (define-key map [remap evil-goto-definition] #'cider-find-var))
 
+;;;; extra commands
+
 (defun init-cider-eval-sexp-to-comment ()
   "Eval sexp and insert result as comment."
   (interactive)
@@ -176,13 +178,15 @@ ARG see `init-dwim-project-find-file'."
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-M-q" #'init-cider-format-sexp))
 
+;;;; history
+
 (add-to-list 'consult-mode-histories
              '(cider-repl-mode cider-repl-input-history cider-repl-input-history-position cider-repl-bol-mark))
 
 (evil-define-key 'insert cider-repl-mode-map
   (kbd "M-r") #'consult-history)
 
-;;; macrostep
+;;;; macrostep
 
 (defun init-cider-macrostep-macro-form-p (_sexp _env)
   "Macro?"
@@ -222,14 +226,6 @@ ARG see `init-dwim-project-find-file'."
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-c e" #'macrostep-expand))
-
-;;; refactor
-
-(require 'clj-refactor)
-
-(cljr-add-keybindings-with-prefix "C-c C-m")
-
-(add-hook 'clojure-mode-hook #'clj-refactor-mode)
 
 (provide 'init-clojure)
 ;;; init-clojure.el ends here

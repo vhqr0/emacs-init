@@ -71,8 +71,7 @@
      edit-indirect)
     (init-clojure
      clojure-mode
-     cider
-     clj-refactor)
+     cider)
     (init-pyim
      pyim
      pyim-basedict)
