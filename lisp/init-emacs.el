@@ -659,7 +659,7 @@ FUNC ARGS see `vertico--setup'."
   "f" #'cape-file
   "r" #'cape-history)
 
-(keymap-global-set "C-c p" init-cape-prefix-map)
+(keymap-global-set "C-c c" init-cape-prefix-map)
 
 ;;;; consult
 
