@@ -56,8 +56,6 @@
      magit
      orgit
      wgrep
-     ;; bindings
-     god-mode
      ;; lang
      ;;; elisp
      package-lint

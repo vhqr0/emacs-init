@@ -1093,8 +1093,39 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
   (dolist (binding (init-leader-bindings clauses))
     (evil-define-minor-mode-key init-leader-state mode (car binding) (cdr binding))))
 
-(defun init-leader-universal-argument ()
-  "Magic universal arguments for leader map."
+(defun init-magic (prefix)
+  "Magically read and execute command on PREFIX."
+  (let ((char (read-char (concat prefix " C-"))))
+    (if (= char ?\C-h)
+        (describe-keymap (key-binding (kbd prefix)))
+      (let* ((new-prefix (concat prefix " C-" (char-to-string char)))
+             (binding (key-binding (kbd new-prefix))))
+        (unless binding
+          (setq new-prefix (concat prefix " " (char-to-string char))
+                binding (key-binding (kbd new-prefix))))
+        (cond ((and binding (commandp binding))
+               (setq this-command binding
+                     real-this-command binding)
+               (if (commandp binding t)
+                   (call-interactively binding)
+                 (execute-kbd-macro binding)))
+              ((and binding (keymapp binding))
+               (init-magic new-prefix))
+              (t
+               (user-error "No magic key binding found on %s %c" prefix char)))))))
+
+(defun init-magic-C-x ()
+  "Magic control X."
+  (interactive)
+  (init-magic "C-x"))
+
+(defun init-magic-C-c ()
+  "Magic control C."
+  (interactive)
+  (init-magic "C-c"))
+
+(defun init-magic-C-u ()
+  "Magic control U."
   (interactive)
   (setq prefix-arg
         (list (if current-prefix-arg
@@ -1102,13 +1133,11 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
                 4)))
   (set-transient-map (key-binding " ")))
 
-(require 'god-mode)
-
 (init-leader-global-set
  "SPC" #'consult-buffer
- "u" #'init-leader-universal-argument
- "x" #'god-mode-self-insert
- "c" #'god-mode-self-insert
+ "x" #'init-magic-C-x
+ "c" #'init-magic-C-c
+ "u" #'init-magic-C-u
  "z" #'repeat
  ";" #'eval-expression
  "!" #'shell-command
