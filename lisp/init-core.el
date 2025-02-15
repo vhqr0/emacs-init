@@ -25,6 +25,7 @@
      ;; ui
      posframe
      ;; edit
+     keycast
      embark
      paredit
      goggles

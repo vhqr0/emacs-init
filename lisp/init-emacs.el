@@ -233,6 +233,10 @@ ARG see `init-dwim-find-file'."
 
 (repeat-mode 1)
 
+(require 'keycast)
+
+(keycast-tab-bar-mode 1)
+
 (require 'embark)
 
 (keymap-global-set "M-o" #'embark-act)
