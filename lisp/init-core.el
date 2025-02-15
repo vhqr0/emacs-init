@@ -46,6 +46,7 @@
      consult
      embark-consult
      ;; prog
+     tempel
      apheleia
      breadcrumb
      ;; tools

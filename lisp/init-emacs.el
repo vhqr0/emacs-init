@@ -623,11 +623,16 @@ FUNC ARGS see `vertico--setup'."
 (require 'corfu-history)
 
 (setq corfu-auto t)
+(setq corfu-on-exact-match 'show)
 
 (global-corfu-mode 1)
 (corfu-history-mode 1)
 
 (add-to-list 'savehist-additional-variables 'corfu-history)
+
+(keymap-unset corfu-map "M-n")
+(keymap-unset corfu-map "M-p")
+(keymap-set corfu-map "TAB" #'corfu-expand)
 
 (defun init-corfu-move-to-minibuffer ()
   "Move corfu completions to minibuffer."
@@ -640,16 +645,15 @@ FUNC ARGS see `vertico--setup'."
 
 (add-to-list 'corfu-continue-commands #'init-corfu-move-to-minibuffer)
 
-(keymap-set corfu-map "TAB" #'corfu-expand)
 (keymap-set corfu-map "C-M-i" #'init-corfu-move-to-minibuffer)
 
 (defun init-disable-corfu-auto ()
   "Disable `corfu-auto' in current buffer."
   (setq-local corfu-auto nil))
 
-(add-hook 'text-mode-hook #'init-disable-corfu-auto)
-
 ;;;; cape
+
+(setq text-mode-ispell-word-completion nil)
 
 (require 'cape)
 
@@ -802,11 +806,9 @@ START see `consult-line'."
 
 (setq abbrev-file-name (expand-file-name "abbrevs.el" priv-directory))
 
-(setq only-global-abbrevs t)
+(setq-default abbrev-mode t)
 
 (init-diminish-minor-mode 'abbrev-mode)
-
-(setq-default abbrev-mode t)
 
 (defmacro init-abbrev-write-attr (sym attr)
   "Write ATTR of abbrev SYM."
@@ -831,6 +833,25 @@ START see `consult-line'."
   (insert ")\n"))
 
 (advice-add 'abbrev--write :override #'init-override-abbrev-write)
+
+;;;; tempel
+
+(require 'tempel)
+
+(setq tempel-path (expand-file-name "templates.eld" priv-directory))
+
+(global-tempel-abbrev-mode 1)
+
+(keymap-set tempel-map "M-n" #'tempel-next)
+(keymap-set tempel-map "M-p" #'tempel-previous)
+
+(defun init-set-tempel-capf ()
+  "Set tempel completion at point function."
+  (setq-local completion-at-point-functions
+              (cons #'tempel-complete completion-at-point-functions)))
+
+(add-hook 'text-mode-hook #'init-set-tempel-capf)
+(add-hook 'prog-mode-hook #'init-set-tempel-capf)
 
 ;;;; apheleia
 
