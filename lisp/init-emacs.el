@@ -634,19 +634,6 @@ FUNC ARGS see `vertico--setup'."
 (keymap-unset corfu-map "M-p")
 (keymap-set corfu-map "TAB" #'corfu-expand)
 
-(defun init-corfu-move-to-minibuffer ()
-  "Move corfu completions to minibuffer."
-  (interactive)
-  (pcase completion-in-region--data
-    (`(,beg ,end ,table ,pred ,extras)
-     (let ((completion-extra-properties extras)
-           completion-cycle-threshold completion-cycling)
-       (consult-completion-in-region beg end table pred)))))
-
-(add-to-list 'corfu-continue-commands #'init-corfu-move-to-minibuffer)
-
-(keymap-set corfu-map "C-M-i" #'init-corfu-move-to-minibuffer)
-
 (defun init-disable-corfu-auto ()
   "Disable `corfu-auto' in current buffer."
   (setq-local corfu-auto nil))
@@ -681,6 +668,14 @@ FUNC ARGS see `vertico--setup'."
   :keymap init-consult-override-mode-map)
 
 (init-consult-override-mode 1)
+
+;;;;; history
+
+(define-key init-consult-override-mode-map [remap yank] #'consult-yank-from-kill-ring)
+(define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
+(define-key init-consult-override-mode-map [remap previous-matching-history-element] #'consult-history)
+(define-key init-consult-override-mode-map [remap eshell-previous-matching-input] #'consult-history)
+(define-key init-consult-override-mode-map [remap comint-history-isearch-backward-regexp] #'consult-history)
 
 ;;;;; search
 
@@ -718,13 +713,20 @@ START see `consult-line'."
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
 
-;;;;; history
+;;;;; corfu
 
-(define-key init-consult-override-mode-map [remap yank] #'consult-yank-from-kill-ring)
-(define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
-(define-key init-consult-override-mode-map [remap previous-matching-history-element] #'consult-history)
-(define-key init-consult-override-mode-map [remap eshell-previous-matching-input] #'consult-history)
-(define-key init-consult-override-mode-map [remap comint-history-isearch-backward-regexp] #'consult-history)
+(defun init-consult-corfu ()
+  "Move corfu completions to minibuffer."
+  (interactive)
+  (pcase completion-in-region--data
+    (`(,beg ,end ,table ,pred ,extras)
+     (let ((completion-extra-properties extras)
+           completion-cycle-threshold completion-cycling)
+       (consult-completion-in-region beg end table pred)))))
+
+(add-to-list 'corfu-continue-commands #'init-consult-corfu)
+
+(keymap-set corfu-map "C-M-i" #'init-consult-corfu)
 
 ;;; help
 
