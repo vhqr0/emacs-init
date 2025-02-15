@@ -97,31 +97,18 @@
            init-enabled-modules))
    :test #'equal))
 
-;;; custom set
-
-(eval-and-compile
-  (defvar init-override-variables nil))
-
-(defmacro setq! (sym val)
-  "`setq' SYM VAL that can be overridden via `init-override-variables'."
-  (let ((val (or (cdr (assq sym init-override-variables)) val)))
-    `(eval-and-compile
-       (progn
-         (defvar ,sym)
-         (setq ,sym ,val)))))
-
 ;;; packages
 
-(setq! package-archives
-       '(("gnu"    . "https://elpa.gnu.org/packages/")
-         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-         ("melpa"  . "https://melpa.org/packages/")))
-
-(setq! package-check-signature nil)
-
-(setq! package-quickstart t)
-
 (require 'package)
+
+(setq package-archives
+      '(("gnu"    . "https://elpa.gnu.org/packages/")
+        ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+        ("melpa"  . "https://melpa.org/packages/")))
+
+(setq package-check-signature nil)
+
+(setq package-quickstart t)
 
 (defun init-select-packages ()
   "Add required packages to selected packages."

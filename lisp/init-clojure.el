@@ -11,7 +11,8 @@
 
 (require 'clojure-mode)
 
-(defvar init-clojure-modes '(clojurec-mode clojure-mode clojurescript-mode))
+(defvar init-clojure-modes
+  '(clojurec-mode clojure-mode clojurescript-mode))
 
 (add-hook 'clojure-mode-hook #'init-elisp-set-outline)
 
@@ -23,8 +24,10 @@
 (defun init-clojure-test-file (file)
   "Get test or src of FILE, or nil."
   (cond
-   ((string-match "^src/\\(.*\\)\\(\\.clj.?\\)$" file) (concat "test/" (match-string 1 file) "_test" (match-string 2 file)))
-   ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file) (concat "src/" (match-string 1 file) (match-string 2 file)))))
+   ((string-match "^src/\\(.*\\)\\(\\.clj.?\\)$" file)
+    (concat "test/" (match-string 1 file) "_test" (match-string 2 file)))
+   ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file)
+    (concat "src/" (match-string 1 file) (match-string 2 file)))))
 
 (defun init-clojure-test-jump (&optional arg)
   "Jump to test or src of current file.
@@ -43,7 +46,8 @@ ARG see `init-dwim-project-find-file'."
 
 (defvar init-clojure-kondo-program "clj-kondo")
 
-(defconst init-clojure-kondo-diag-regexp "^.+:\\([[:digit:]]+\\):\\([[:digit:]]+\\): \\([[:alpha:]]+\\): \\(.+\\)$")
+(defconst init-clojure-kondo-diag-regexp
+  "^.+:\\([[:digit:]]+\\):\\([[:digit:]]+\\): \\([[:alpha:]]+\\): \\(.+\\)$")
 
 (defvar-local init-clojure-kondo-proc nil)
 
@@ -52,7 +56,9 @@ ARG see `init-dwim-project-find-file'."
   (let* ((row (string-to-number (match-string 1)))
          (col (string-to-number (match-string 2)))
          (type (let ((type (match-string 3)))
-                 (cond ((string= type "error") :error) ((string= type "warning") :warning) (t :none))))
+                 (cond ((string= type "error") :error)
+                       ((string= type "warning") :warning)
+                       (t :none))))
          (msg (match-string 4))
          (region (flymake-diag-region buffer row col)))
     (flymake-make-diagnostic buffer (car region) (cdr region) type msg)))
@@ -109,11 +115,11 @@ ARG see `init-dwim-project-find-file'."
 
 ;;; cider
 
-(setq! cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
-
 (require 'cider)
 (require 'cider-format)
 (require 'cider-macroexpansion)
+
+(setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (define-key map [remap evil-lookup] #'cider-doc)

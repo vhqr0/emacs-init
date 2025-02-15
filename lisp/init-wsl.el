@@ -7,9 +7,9 @@
 
 (require 'init-emacs)
 
-(setq! browse-url-generic-program "/mnt/c/Windows/System32/cmd.exe")
-(setq! browse-url-generic-args '("/c" "start"))
-(setq! browse-url-browser-function 'browse-url-generic)
+(setq browse-url-generic-program "/mnt/c/Windows/System32/cmd.exe")
+(setq browse-url-generic-args '("/c" "start"))
+(setq browse-url-browser-function 'browse-url-generic)
 
 (defun init-wsl-eshell-remove-windows-path ()
   "Remove windows path."

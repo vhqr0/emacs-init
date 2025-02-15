@@ -12,9 +12,9 @@
 
 (prefer-coding-system 'utf-8)
 
-(setq! system-time-locale "C")
+(setq system-time-locale "C")
 
-(setq! read-process-output-max (* 1024 1024))
+(setq read-process-output-max (* 1024 1024))
 
 ;;; utils
 
@@ -107,24 +107,24 @@ ARG see `init-dwim-find-file'."
 (require 'vc-git)
 (require 'project)
 
-(setq! project-mode-line t)
-(setq! vc-handled-backends '(Git))
-(setq! vc-make-backup-files t)
-(setq! version-control t)
-(setq! backup-by-copying t)
-(setq! delete-old-versions t)
-(setq! delete-by-moving-to-trash t)
+(setq project-mode-line t)
+(setq vc-handled-backends '(Git))
+(setq vc-make-backup-files t)
+(setq version-control t)
+(setq backup-by-copying t)
+(setq delete-old-versions t)
+(setq delete-by-moving-to-trash t)
 
-(setq! auto-save-file-name-transforms
-       `((".*" ,(expand-file-name "save/" user-emacs-directory) t)))
-(setq! lock-file-name-transforms
-       `((".*" ,(expand-file-name "lock/" user-emacs-directory) t)))
-(setq! backup-directory-alist
-       `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
+(setq auto-save-file-name-transforms
+      `((".*" ,(expand-file-name "save/" user-emacs-directory) t))
+      lock-file-name-transforms
+      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t))
+      backup-directory-alist
+      `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
 ;;;; auto save visited
 
-(setq! auto-save-visited-interval 0.5)
+(setq auto-save-visited-interval 0.5)
 
 (add-to-list 'minor-mode-alist '(auto-save-visited-mode " ASave"))
 
@@ -134,15 +134,15 @@ ARG see `init-dwim-find-file'."
   "Predication of `auto-save-visited-mode'."
   (not (run-hook-with-args-until-success 'init-disable-auto-save-visited-predicates)))
 
-(setq! auto-save-visited-predicate #'init-auto-save-visited-predicate)
+(setq auto-save-visited-predicate #'init-auto-save-visited-predicate)
 
 (auto-save-visited-mode 1)
 
 ;;;; recentf
 
-(setq! recentf-max-saved-items 200)
-
 (require 'recentf)
+
+(setq recentf-max-saved-items 200)
 
 (recentf-mode 1)
 
@@ -175,13 +175,13 @@ ARG see `init-dwim-find-file'."
 
 ;;;; graphic elements
 
-(setq! inhibit-startup-screen t)
-(setq! initial-scratch-message nil)
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message nil)
 
-(setq! use-dialog-box nil)
-(setq! use-file-dialog nil)
+(setq use-dialog-box nil)
+(setq use-file-dialog nil)
 
-(setq! ring-bell-function #'ignore)
+(setq ring-bell-function #'ignore)
 
 (defvar init-disabled-ui-modes
   '(blink-cursor-mode tooltip-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
@@ -205,10 +205,10 @@ ARG see `init-dwim-find-file'."
 
 (windmove-default-keybindings)
 
-(setq! tab-bar-tab-hints t)
-(setq! tab-bar-select-tab-modifiers '(meta))
-
 (require 'tab-bar)
+
+(setq tab-bar-tab-hints t)
+(setq tab-bar-select-tab-modifiers '(meta))
 
 (tab-bar-mode 1)
 
@@ -222,10 +222,10 @@ ARG see `init-dwim-find-file'."
 
 ;;;; commands
 
-(setq! disabled-command-function nil)
-(setq! suggest-key-bindings nil)
+(setq disabled-command-function nil)
+(setq suggest-key-bindings nil)
 
-(setq! enable-recursive-minibuffers t)
+(setq enable-recursive-minibuffers t)
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
 
@@ -244,7 +244,7 @@ ARG see `init-dwim-find-file'."
 
 (setq-default truncate-lines t)
 
-(setq! word-wrap-by-category t)
+(setq word-wrap-by-category t)
 
 ;;;; parens
 
@@ -319,17 +319,31 @@ ARG see `init-dwim-find-file'."
 
 ;;; evil
 
-(setq! evil-want-keybinding nil)
-(setq! evil-want-minibuffer t)
-(setq! evil-want-C-u-scroll t)
-(setq! evil-want-Y-yank-to-eol t)
-(setq! evil-want-fine-undo t)
-(setq! evil-undo-system 'undo-redo)
-(setq! evil-search-module 'evil-search)
-(setq! evil-symbol-word-search t)
-(setq! evil-respect-visual-line-mode t)
+;; keybinding related options, must be set before evil loaded.
+
+(defvar evil-want-keybinding)
+(defvar evil-want-minibuffer)
+(defvar evil-want-C-u-scroll)
+(defvar evil-want-C-w-delete)
+(defvar evil-want-Y-yank-to-eol)
+(setq evil-want-keybinding nil)
+(setq evil-want-minibuffer t)
+(setq evil-want-C-u-scroll t)
+(setq evil-want-C-w-delete t)
+(setq evil-want-Y-yank-to-eol t)
+
+;; system related options, must be set before evil loaded.
+
+(defvar evil-undo-system)
+(defvar evil-search-module)
+(setq evil-undo-system 'undo-redo)
+(setq evil-search-module 'evil-search)
 
 (require 'evil)
+
+(setq evil-want-fine-undo t)
+(setq evil-symbol-word-search t)
+(setq evil-respect-visual-line-mode t)
 
 (evil-mode 1)
 
@@ -373,7 +387,10 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; evil collection
 
-(setq! evil-collection-setup-minibuffer t)
+;; must be set before evil collection loaded.
+
+(defvar evil-collection-setup-minibuffer)
+(setq evil-collection-setup-minibuffer t)
 
 (require 'evil-collection)
 
@@ -398,11 +415,11 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; evil snipe
 
-(setq! evil-snipe-repeat-keys nil)
-(setq! evil-snipe-smart-case t)
-(setq! evil-snipe-skip-leading-whitespace t)
-
 (require 'evil-snipe)
+
+(setq evil-snipe-repeat-keys nil)
+(setq evil-snipe-smart-case t)
+(setq evil-snipe-skip-leading-whitespace t)
 
 (init-diminish-minor-mode 'evil-snipe-local-mode)
 
@@ -525,25 +542,25 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; isearch
 
-(setq! isearch-lazy-count t)
-(setq! isearch-allow-scroll t)
-(setq! isearch-allow-motion t)
-(setq! isearch-yank-on-move t)
-(setq! isearch-motion-changes-direction t)
-(setq! isearch-repeat-on-direction-change t)
+(setq isearch-lazy-count t)
+(setq isearch-allow-scroll t)
+(setq isearch-allow-motion t)
+(setq isearch-yank-on-move t)
+(setq isearch-motion-changes-direction t)
+(setq isearch-repeat-on-direction-change t)
 
 ;;;; completion style
 
-(setq! completion-ignore-case t)
-(setq! read-buffer-completion-ignore-case t)
-(setq! read-file-name-completion-ignore-case t)
-(setq! read-extended-command-predicate #'command-completion-default-include-p)
+(setq completion-ignore-case t)
+(setq read-buffer-completion-ignore-case t)
+(setq read-file-name-completion-ignore-case t)
+(setq read-extended-command-predicate #'command-completion-default-include-p)
 
 (require 'orderless)
 
-(setq! completion-styles '(orderless basic))
-(setq! completion-category-defaults nil)
-(setq! completion-category-overrides nil)
+(setq completion-styles '(orderless basic))
+(setq completion-category-defaults nil)
+(setq completion-category-overrides nil)
 
 ;;;; completion meta
 
@@ -559,7 +576,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (require 'vertico-suspend)
 (require 'vertico-directory)
 
-(setq! vertico-resize nil)
+(setq vertico-resize nil)
 
 (vertico-mode 1)
 (vertico-multiform-mode 1)
@@ -605,7 +622,7 @@ FUNC ARGS see `vertico--setup'."
 (require 'corfu)
 (require 'corfu-history)
 
-(setq! corfu-auto t)
+(setq corfu-auto t)
 
 (global-corfu-mode 1)
 (corfu-history-mode 1)
@@ -649,7 +666,7 @@ FUNC ARGS see `vertico--setup'."
 (require 'consult)
 (require 'embark-consult)
 
-(setq! consult-preview-key '(:debounce 0.3 any))
+(setq consult-preview-key '(:debounce 0.3 any))
 
 (defvar-keymap init-consult-override-mode-map)
 
@@ -665,7 +682,7 @@ FUNC ARGS see `vertico--setup'."
 
 (require 'consult-imenu)
 
-(setq! consult-line-start-from-top t)
+(setq consult-line-start-from-top t)
 
 (defun init-consult-line-dwim (&optional start)
   "Consult line of symbol at point.
@@ -746,7 +763,7 @@ START see `consult-line'."
   (-when-let (thing (init-dwim-thing-at-point))
     (describe-symbol (intern thing))))
 
-(setq! evil-lookup-func #'init-describe-symbol-dwim)
+(setq evil-lookup-func #'init-describe-symbol-dwim)
 
 ;;; prog
 
@@ -771,21 +788,21 @@ START see `consult-line'."
 
 (require 'eldoc)
 
-(setq! eldoc-minor-mode-string nil)
+(setq eldoc-minor-mode-string nil)
 
 ;;;; xref
 
 (require 'xref)
 
-(setq! xref-search-program 'ripgrep)
+(setq xref-search-program 'ripgrep)
 
 ;;;; abbrev
 
 (require 'abbrev)
 
-(setq! abbrev-file-name (expand-file-name "abbrevs.el" priv-directory))
+(setq abbrev-file-name (expand-file-name "abbrevs.el" priv-directory))
 
-(setq! only-global-abbrevs t)
+(setq only-global-abbrevs t)
 
 (init-diminish-minor-mode 'abbrev-mode)
 
@@ -829,13 +846,13 @@ START see `consult-line'."
 
 ;;;; dired
 
-(setq! dired-dwim-target t)
-(setq! dired-auto-revert-buffer t)
-(setq! dired-kill-when-opening-new-dired-buffer t)
-(setq! dired-listing-switches "-lha")
-
 (require 'dired)
 (require 'dired-x)
+
+(setq dired-dwim-target t)
+(setq dired-auto-revert-buffer t)
+(setq dired-kill-when-opening-new-dired-buffer t)
+(setq dired-listing-switches "-lha")
 
 (put 'dired-jump 'repeat-map nil)
 
@@ -850,10 +867,10 @@ START see `consult-line'."
 
 ;;;; grep
 
-(setq! wgrep-auto-save-buffer t)
-(setq! wgrep-change-readonly-file t)
-
 (require 'wgrep)
+
+(setq wgrep-auto-save-buffer t)
+(setq wgrep-change-readonly-file t)
 
 (defvar init-rg-program "rg")
 
@@ -880,7 +897,7 @@ With two universal ARG, edit rg command."
 
 (require 'ediff)
 
-(setq! ediff-window-setup-function #'ediff-setup-windows-plain)
+(setq ediff-window-setup-function #'ediff-setup-windows-plain)
 
 ;;;; comint
 
@@ -891,12 +908,12 @@ With two universal ARG, edit rg command."
 
 ;;;; eshell
 
-(setq! eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
-
 (require 'eshell)
 (require 'em-hist)
 (require 'em-dirs)
 (require 'em-alias)
+
+(setq eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
 
 (defun init-eshell-set-outline ()
   "Set outline vars for Eshell."
@@ -983,19 +1000,21 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 ;;;; spell
 
-(setq! ispell-dictionary "american")
+(require 'ispell)
+
+(setq ispell-dictionary "american")
 
 ;;; bindings
 
 ;;;; project
 
-(setq! project-switch-commands
-       '((project-find-file "Find File")
-         (project-find-dir "Find Dir")
-         (project-switch-to-buffer "Switch To Buffer")
-         (project-dired "Dired")
-         (project-eshell "Eshell")
-         (magit-project-status "Magit")))
+(setq project-switch-commands
+      '((project-find-file "Find File")
+        (project-find-dir "Find Dir")
+        (project-switch-to-buffer "Switch To Buffer")
+        (project-dired "Dired")
+        (project-eshell "Eshell")
+        (magit-project-status "Magit")))
 
 ;;;; minors
 
@@ -1159,9 +1178,9 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 ;;;;; flymake
 
-(setq! trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
+(setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
 
-(setq! elisp-flymake-byte-compile-load-path load-path)
+(setq elisp-flymake-byte-compile-load-path load-path)
 
 (require 'package-lint-flymake)
 
@@ -1176,16 +1195,17 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 ;;;; org
 
-(setq! org-directory (expand-file-name "org" user-emacs-directory))
-(setq! org-agenda-files (list org-directory))
-(setq! org-default-notes-file (expand-file-name "inbox.org" org-directory))
-
-(setq! org-capture-templates
-       '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
-
-(setq! org-special-ctrl-a/e t)
-
 (require 'org)
+(require 'org-capture)
+
+(setq org-directory (expand-file-name "org" user-emacs-directory))
+(setq org-agenda-files (list org-directory))
+(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
+
+(setq org-capture-templates
+      '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
+
+(setq org-special-ctrl-a/e t)
 
 (defun init-org-modify-syntax ()
   "Modify `org-mode' syntax table."
@@ -1210,11 +1230,11 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 ;;;; markdown
 
-(setq! markdown-special-ctrl-a/e t)
-(setq! markdown-fontify-code-blocks-natively t)
-
 (require 'markdown-mode)
 (require 'edit-indirect)
+
+(setq markdown-special-ctrl-a/e t)
+(setq markdown-fontify-code-blocks-natively t)
 
 (keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
 (keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)

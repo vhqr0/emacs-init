@@ -6,13 +6,12 @@
 ;;; Code:
 
 (require 'init-emacs)
-
-(setq! org-roam-directory (expand-file-name "notes" priv-directory))
-
-(setq! org-roam-node-display-template
-       (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
-
 (require 'org-roam)
+
+(setq org-roam-directory (expand-file-name "notes" priv-directory))
+
+(setq org-roam-node-display-template
+      (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
 
 (org-roam-db-autosync-mode 1)
 

@@ -10,7 +10,7 @@
 (require 'pyim)
 (require 'pyim-basedict)
 
-(setq! default-input-method "pyim")
+(setq default-input-method "pyim")
 
 (defvar init-pyim-zirjma-keymaps
   '(("a"    "a"    "a"          )
@@ -58,37 +58,36 @@
     ("oo"   "o"                 )
     ("ou"   "ou"                )))
 
-(setq! pyim-default-scheme 'zirjma)
-(setq! pyim-pinyin-fuzzy-alist nil)
-(setq! pyim-enable-shortcode nil)
-(setq! pyim-candidates-search-buffer-p nil)
-(setq! pyim-indicator-list nil)
-(setq! pyim-page-tooltip '(posframe))
+(setq pyim-default-scheme 'zirjma)
+(setq pyim-pinyin-fuzzy-alist nil)
+(setq pyim-enable-shortcode nil)
+(setq pyim-candidates-search-buffer-p nil)
+(setq pyim-indicator-list nil)
+(setq pyim-page-tooltip '(posframe))
 
-(setq! pyim-punctuation-dict
-       '(("'"  "‘"  "’")
-         ("\"" "“"  "”")
-         ("^"  "…"     )
-         ("$"  "¥"     )
-         ("("  "（"    )
-         (")"  "）"    )
-         ("["  "【"    )
-         ("]"  "】"    )
-         ("{"  "「"    )
-         ("}"  "」"    )
-         ("<"  "《"    )
-         (">"  "》"    )
-         ("?"  "？"    )
-         ("!"  "！"    )
-         (","  "，"    )
-         ("."  "。"    )
-         (";"  "；"    )
-         (":"  "："    )
-         ("\\" "、"    )))
+(setq pyim-punctuation-dict
+      '(("'"  "‘"  "’")
+        ("\"" "“"  "”")
+        ("^"  "…"     )
+        ("$"  "¥"     )
+        ("("  "（"    )
+        (")"  "）"    )
+        ("["  "【"    )
+        ("]"  "】"    )
+        ("{"  "「"    )
+        ("}"  "」"    )
+        ("<"  "《"    )
+        (">"  "》"    )
+        ("?"  "？"    )
+        ("!"  "！"    )
+        (","  "，"    )
+        ("."  "。"    )
+        (";"  "；"    )
+        (":"  "："    )
+        ("\\" "、"    )))
 
 (setq-default pyim-english-input-switch-functions
-              '(pyim-probe-program-mode
-                pyim-probe-isearch-mode))
+              '(pyim-probe-program-mode))
 
 (pyim-scheme-add
  `(zirjma
