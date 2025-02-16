@@ -8,6 +8,8 @@
 
 ;;; Code:
 
+
+
 ;;; essentials
 
 (prefer-coding-system 'utf-8)
@@ -15,6 +17,8 @@
 (setq system-time-locale "C")
 
 (setq read-process-output-max (* 1024 1024))
+
+
 
 ;;; utils
 
@@ -100,6 +104,8 @@ ARG see `init-dwim-find-file'."
   (let ((default-directory (init-project-or-default-directory)))
     (init-dwim-find-file arg file)))
 
+
+
 ;;; files
 
 (require 'files)
@@ -171,6 +177,8 @@ ARG see `init-dwim-find-file'."
 (keymap-set goto-map "v" #'vc-refresh-state)
 (keymap-set goto-map "f" #'font-lock-update)
 
+
+
 ;;; ui
 
 ;;;; graphic elements
@@ -217,6 +225,8 @@ ARG see `init-dwim-find-file'."
 
 (keymap-global-set "C--" #'text-scale-decrease)
 (keymap-global-set "C-=" #'text-scale-increase)
+
+
 
 ;;; edit
 
@@ -316,6 +326,8 @@ ARG see `init-dwim-find-file'."
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
 (add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
+
+
 
 ;;; evil
 
@@ -527,6 +539,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (init-evil-override-mode 1)
 
+
+
 ;;; completion
 
 (define-key minibuffer-local-map [remap quit-window] #'abort-recursive-edit)
@@ -728,6 +742,8 @@ START see `consult-line'."
 
 (keymap-set corfu-map "C-M-i" #'init-consult-corfu)
 
+
+
 ;;; help
 
 (keymap-set help-map "L" #'view-lossage)
@@ -770,6 +786,8 @@ START see `consult-line'."
     (describe-symbol (intern thing))))
 
 (setq evil-lookup-func #'init-describe-symbol-dwim)
+
+
 
 ;;; prog
 
@@ -853,6 +871,8 @@ FUNC, SYM and NAME see `abbrev-get'."
 ;;;; apheleia
 
 (require 'apheleia)
+
+
 
 ;;; tools
 
@@ -1016,6 +1036,8 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 (setq ispell-dictionary "american")
 
+
+
 ;;; bindings
 
 ;;;; project
@@ -1177,6 +1199,8 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
  "`" #'init-wrap-pair
  "\"" #'init-wrap-pair)
 
+
+
 ;;; lang
 
 ;;;; elisp
@@ -1297,6 +1321,8 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 (init-leader-set markdown-mode-map
   "n b" #'markdown-narrow-to-block
   "n s" #'markdown-narrow-to-subtree)
+
+
 
 ;;; end
 
