@@ -974,7 +974,7 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 
-;;;; magit
+;;;; git
 
 (defvar init-git-program "git")
 (defvar init-git-user-name "vhqr0")

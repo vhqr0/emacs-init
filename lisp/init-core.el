@@ -49,11 +49,11 @@
      tempel
      apheleia
      ;; tools
+     wgrep
      with-editor
      git-modes
      magit
      orgit
-     wgrep
      ;; lang
      ;;; elisp
      package-lint
