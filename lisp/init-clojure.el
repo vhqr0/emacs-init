@@ -38,7 +38,10 @@ ARG see `init-dwim-project-find-file'."
       (-when-let (file (init-clojure-test-file file))
         (init-dwim-project-find-file arg file)))))
 
-(keymap-set clojure-mode-map "C-c t" #'init-clojure-test-jump)
+(keymap-set clojure-mode-map "C-x p t" #'init-clojure-test-jump)
+
+(init-leader-set clojure-mode-map
+  "p t" #'init-clojure-test-jump)
 
 ;;; flymake
 
@@ -146,37 +149,41 @@ ARG see `init-dwim-project-find-file'."
   (define-key map [remap evil-lookup] #'cider-doc)
   (define-key map [remap evil-goto-definition] #'cider-find-var))
 
-;;;; extra commands
-
-(defun init-cider-eval-sexp-to-comment ()
-  "Eval sexp and insert result as comment."
-  (interactive)
+(defun init-cider-around-last-sexp (func &rest args)
+  "Around Cider *-last-sexp command.
+Save point and forward sexp before command if looking at an open paren.
+FUNC and ARGS see specific command."
   (save-excursion
-    (forward-sexp)
-    (unless (eolp)
-      (newline-and-indent))
-    (cider-pprint-eval-last-sexp-to-comment)))
+    (when (looking-at-p "(")
+      (forward-sexp))
+    (apply func args)))
 
-(defun init-cider-insert-sexp-to-repl (arg)
-  "Insert sexp to repl.  ARG see `cider-insert-last-sexp-in-repl'."
-  (interactive "P")
-  (save-excursion
-    (forward-sexp)
-    (cider-insert-last-sexp-in-repl arg)))
+(defvar init-cider-around-last-sexp-commands
+  (list #'cider-eval-last-sexp
+        #'cider-eval-last-sexp-to-repl
+        #'cider-eval-last-sexp-in-context
+        #'cider-eval-last-sexp-and-replace
+        #'cider-pprint-eval-last-sexp
+        #'cider-pprint-eval-last-sexp-to-repl
+        #'cider-pprint-eval-last-sexp-to-comment
+        #'cider-insert-last-sexp-in-repl
+        #'cider-tap-last-sexp
+        #'cider-format-edn-last-sexp
+        #'cider-inspect-last-sexp
+        #'cider-macroexpand-1
+        #'cider-macroexpand-all
+        #'cider-macroexpand-1-inplace
+        #'cider-macroexpand-all-inplace))
 
-(defun init-cider-format-sexp ()
-  "Format sexp."
-  (interactive)
-  (save-excursion
-    (forward-sexp)
-    (cider-format-edn-last-sexp)))
+(dolist (command init-cider-around-last-sexp-commands)
+  (advice-add command :around #'init-cider-around-last-sexp))
 
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
-(keymap-set cider-mode-map "C-c C-i" #'init-cider-insert-sexp-to-repl)
-(keymap-set cider-mode-map "C-c C-;" #'init-cider-eval-sexp-to-comment)
+(keymap-set cider-mode-map "C-c C-i" #'cider-insert-last-sexp-in-repl)
+(keymap-set cider-mode-map "C-c C-;" #'cider-pprint-eval-last-sexp-to-comment)
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
-  (keymap-set map "C-M-q" #'init-cider-format-sexp))
+  (keymap-set map "C-M-q" #'cider-format-edn-last-sexp))
 
 ;;;; history
 
