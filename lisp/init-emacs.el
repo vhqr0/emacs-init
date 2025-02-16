@@ -1107,8 +1107,13 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
   (let ((char (read-char (concat prefix " C-"))))
     (if (= char ?\C-h)
         (describe-keymap (key-binding (kbd prefix)))
-      (let* ((new-prefix (concat prefix " C-" (char-to-string char)))
-             (binding (key-binding (kbd new-prefix))))
+      (let ((literal (= char ? ))
+            new-prefix binding)
+        (when literal
+          (setq char (read-char prefix)))
+        (unless literal
+          (setq new-prefix (concat prefix " C-" (char-to-string char))
+                binding (key-binding (kbd new-prefix))))
         (unless binding
           (setq new-prefix (concat prefix " " (char-to-string char))
                 binding (key-binding (kbd new-prefix))))
