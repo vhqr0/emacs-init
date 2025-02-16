@@ -49,7 +49,6 @@
      ;; prog
      tempel
      apheleia
-     breadcrumb
      ;; tools
      with-editor
      git-modes

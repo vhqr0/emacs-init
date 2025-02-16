@@ -652,7 +652,7 @@ FUNC ARGS see `vertico--setup'."
 
 (defvar-keymap init-cape-prefix-map
   "f" #'cape-file
-  "r" #'cape-history)
+  "h" #'cape-history)
 
 (keymap-global-set "C-c c" init-cape-prefix-map)
 
@@ -816,29 +816,24 @@ START see `consult-line'."
 
 (init-diminish-minor-mode 'abbrev-mode)
 
-(defmacro init-abbrev-write-attr (sym attr)
-  "Write ATTR of abbrev SYM."
-  `(when (abbrev-get ,sym ,attr)
-     (insert ,(concat " " (symbol-name attr) " "))
-     (prin1 (abbrev-get ,sym ,attr))))
+(defvar init-abbrev-writing-file nil)
 
-(defun init-abbrev-write-sym (sym)
-  "Write abbrev SYM."
-  (prin1 (symbol-name sym))
-  (insert " ")
-  (prin1 (symbol-value sym))
-  (insert " ")
-  (prin1 (symbol-function sym)))
+(defun init-around-write-abbrev-file (func &rest args)
+  "Set `init-abbrev-writing-file' around `write-abbrev-file'.
+FUNC and ARGS see `write-abbrev-file'."
+  (let ((init-abbrev-writing-file t))
+    (apply func args)))
 
-(defun init-override-abbrev-write (sym)
-  "Override `abbrev--write'.  SYM see `abbrev--write'."
-  (insert "    (")
-  (init-abbrev-write-sym sym)
-  (init-abbrev-write-attr sym :case-fixed)
-  (init-abbrev-write-attr sym :enable-function)
-  (insert ")\n"))
+(defun init-around-abbrev-get (func sym name)
+  "Check `init-abbrev-writing-file' around `abbrev-get'.
+Return 0 for abbrev count while writing abbrevs file.
+FUNC, SYM and NAME see `abbrev-get'."
+  (if (and init-abbrev-writing-file (eq name :count))
+      0
+    (funcall func sym name)))
 
-(advice-add 'abbrev--write :override #'init-override-abbrev-write)
+(advice-add #'write-abbrev-file :around #'init-around-write-abbrev-file)
+(advice-add #'abbrev-get :around #'init-around-abbrev-get)
 
 ;;;; tempel
 
@@ -862,12 +857,6 @@ START see `consult-line'."
 ;;;; apheleia
 
 (require 'apheleia)
-
-;;;; breadcrumb
-
-(require 'breadcrumb)
-
-(breadcrumb-mode 1)
 
 ;;; tools
 
@@ -1253,6 +1242,7 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 (require 'org)
 (require 'org-capture)
+(require 'embark-org)
 
 (setq org-directory (expand-file-name "org" user-emacs-directory))
 (setq org-agenda-files (list org-directory))
@@ -1270,8 +1260,6 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 (add-hook 'org-mode-hook #'init-org-modify-syntax)
 
-(keymap-set org-mode-map "C-c l" #'org-toggle-link-display)
-
 (keymap-set org-mode-map "C-c C-'" #'org-edit-special)
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
 (keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
@@ -1283,6 +1271,8 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 (keymap-set init-app-map "a" #'org-agenda)
 (keymap-set init-app-map "c" #'org-capture)
 (keymap-set init-app-map "w" #'org-store-link)
+
+(keymap-set embark-org-link-map "l" #'org-toggle-link-display)
 
 ;;;; markdown
 
