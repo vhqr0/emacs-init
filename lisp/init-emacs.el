@@ -1050,6 +1050,8 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 
 (defvar-keymap init-app-map)
 
+(keymap-global-set "C-c \\" init-app-map)
+
 ;;;; leaders
 
 (defvar init-leader-key "SPC")
@@ -1267,8 +1269,19 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
 (keymap-set init-app-map "a" #'org-agenda)
 (keymap-set init-app-map "c" #'org-capture)
 (keymap-set init-app-map "w" #'org-store-link)
+(keymap-set init-app-map "o" #'org-open-at-point-global)
 
-(keymap-set embark-org-link-map "l" #'org-toggle-link-display)
+(keymap-global-set "C-c l" #'org-insert-link-global)
+(keymap-global-set "C-c C-l" #'org-insert-link-global)
+
+(defun init-org-echo-link ()
+  "Echo org link in minibuffer."
+  (interactive)
+  (when (org-in-regexp org-link-any-re)
+    (let (message-log-max)
+      (message (match-string-no-properties 0)))))
+
+(keymap-set embark-org-link-map "e" #'init-org-echo-link)
 
 ;;;; markdown
 
