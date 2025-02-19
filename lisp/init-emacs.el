@@ -855,18 +855,29 @@ FUNC, SYM and NAME see `abbrev-get'."
 
 (setq tempel-path (expand-file-name "templates.eld" priv-directory))
 
-(global-tempel-abbrev-mode 1)
+(keymap-set init-cape-prefix-map "s" #'tempel-complete)
 
 (keymap-set tempel-map "M-n" #'tempel-next)
 (keymap-set tempel-map "M-p" #'tempel-previous)
 
-(defun init-set-tempel-capf ()
-  "Set tempel completion at point function."
-  (setq-local completion-at-point-functions
-              (cons #'tempel-complete completion-at-point-functions)))
+(global-tempel-abbrev-mode 1)
 
-(add-hook 'text-mode-hook #'init-set-tempel-capf)
-(add-hook 'prog-mode-hook #'init-set-tempel-capf)
+(defvar init-tempel-prefixes '("dd" "kk"))
+
+(defun init-around-tempel-templates-wrap-prefixes (func)
+  "Wrap `tempel--templates' by adding `init-tempel-prefixes'.
+FUNC see `tempel--templates'."
+  (->> (funcall func)
+       (-mapcat
+        (lambda (template)
+          (let ((name (symbol-name (car template)))
+                (snippet (cdr template)))
+            (->> init-tempel-prefixes
+                 (-map
+                  (lambda (prefix)
+                    (cons (intern (concat prefix name)) snippet)))))))))
+
+(advice-add #'tempel--templates :around #'init-around-tempel-templates-wrap-prefixes)
 
 ;;;; apheleia
 
