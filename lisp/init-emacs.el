@@ -740,7 +740,7 @@ START see `consult-line'."
 
 (add-to-list 'corfu-continue-commands #'init-consult-corfu)
 
-(keymap-set corfu-map "C-M-i" #'init-consult-corfu)
+(keymap-set corfu-map "C-s" #'init-consult-corfu)
 
 
 
@@ -964,6 +964,7 @@ With two universal ARG, edit rg command."
 
 (require 'eshell)
 (require 'em-hist)
+(require 'em-cmpl)
 (require 'em-dirs)
 (require 'em-alias)
 
@@ -975,6 +976,8 @@ With two universal ARG, edit rg command."
   (setq-local outline-level (lambda () 1)))
 
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
+
+(keymap-unset eshell-cmpl-mode-map "C-M-i")
 
 (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
 (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
