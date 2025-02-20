@@ -636,7 +636,6 @@ FUNC ARGS see `vertico--setup'."
 (require 'corfu)
 (require 'corfu-history)
 
-(setq corfu-auto t)
 (setq corfu-on-exact-match 'show)
 
 (global-corfu-mode 1)
@@ -644,13 +643,18 @@ FUNC ARGS see `vertico--setup'."
 
 (add-to-list 'savehist-additional-variables 'corfu-history)
 
+(defun init-set-corfu-auto ()
+  "Set `corfu-auto'."
+  (setq-local corfu-auto t))
+
+(add-hook 'prog-mode-hook #'init-set-corfu-auto)
+(add-hook 'eval-expression-minibuffer-setup-hook #'init-set-corfu-auto)
+
 (keymap-unset corfu-map "M-n")
 (keymap-unset corfu-map "M-p")
 (keymap-set corfu-map "TAB" #'corfu-expand)
 
 ;;;; cape
-
-(setq text-mode-ispell-word-completion nil)
 
 (require 'cape)
 
