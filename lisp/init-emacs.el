@@ -648,10 +648,6 @@ FUNC ARGS see `vertico--setup'."
 (keymap-unset corfu-map "M-p")
 (keymap-set corfu-map "TAB" #'corfu-expand)
 
-(defun init-disable-corfu-auto ()
-  "Disable `corfu-auto' in current buffer."
-  (setq-local corfu-auto nil))
-
 ;;;; cape
 
 (setq text-mode-ispell-word-completion nil)
@@ -849,6 +845,17 @@ FUNC, SYM and NAME see `abbrev-get'."
 (advice-add #'write-abbrev-file :around #'init-around-write-abbrev-file)
 (advice-add #'abbrev-get :around #'init-around-abbrev-get)
 
+(defvar init-abbrev-blacklist nil)
+
+(defun init-around-abbrev-before-point (func)
+  "Check `init-abbrev-blacklist' after get abbrev before point.
+FUNC see `abbrev--before-point'."
+  (-when-let (res (funcall func))
+    (unless (member (symbol-name (car res)) init-abbrev-blacklist)
+      res)))
+
+(advice-add #'abbrev--before-point :around #'init-around-abbrev-before-point)
+
 ;;;; tempel
 
 (require 'tempel)
@@ -862,7 +869,7 @@ FUNC, SYM and NAME see `abbrev-get'."
 
 (global-tempel-abbrev-mode 1)
 
-(defvar init-tempel-prefixes '("dd" "kk"))
+(defvar init-tempel-prefixes '("d" "k"))
 
 (defun init-around-tempel-templates-wrap-prefixes (func)
   "Wrap `tempel--templates' by adding `init-tempel-prefixes'.
