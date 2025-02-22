@@ -704,8 +704,8 @@ FUNC ARGS see `vertico--setup'."
 (add-hook 'prog-mode-hook #'init-set-corfu-auto)
 (add-hook 'eval-expression-minibuffer-setup-hook #'init-set-corfu-auto)
 
-(keymap-unset corfu-map "M-n")
-(keymap-unset corfu-map "M-p")
+(keymap-unset corfu-map "M-n" t)
+(keymap-unset corfu-map "M-p" t)
 (keymap-set corfu-map "TAB" #'corfu-expand)
 
 ;;;; cape
@@ -807,7 +807,7 @@ START see `consult-line'."
 
 ;;;; load
 
-(keymap-unset help-map "t")
+(keymap-unset help-map "t" t)
 (keymap-set help-map "t f" #'load-file)
 (keymap-set help-map "t l" #'load-library)
 (keymap-set help-map "t t" #'load-theme)
@@ -973,6 +973,9 @@ With two universal ARG, edit rg command."
     (grep--save-buffers)
     (compilation-start command 'grep-mode)))
 
+(keymap-set embark-symbol-map "g" #'init-rg-dwim)
+(keymap-set embark-symbol-map "G" #'init-rg-dwim)
+
 ;;;; diff
 
 (require 'ediff)
@@ -1003,7 +1006,7 @@ With two universal ARG, edit rg command."
 
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
 
-(keymap-unset eshell-cmpl-mode-map "C-M-i")
+(keymap-unset eshell-cmpl-mode-map "C-M-i" t)
 
 (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
 (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
