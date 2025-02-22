@@ -284,6 +284,12 @@ ARG see `init-dwim-find-file'."
   (interactive "P")
   (insert-pair (or arg 1)))
 
+(defun init-wrap-pair-common (&optional arg)
+  "Insert pair (, ARG see `init-wrap-pair'."
+  (interactive "P")
+  (let ((last-command-event ?\())
+    (init-wrap-pair arg)))
+
 ;;;; visual
 
 (require 'goggles)
@@ -362,7 +368,6 @@ ARG see `init-dwim-find-file'."
     (call-interactively #'self-insert-command)))
 
 (defvar-keymap init-qwerty-prog-mode-map)
-
 
 (dolist (binding init-qwerty-prog-bindings)
   (define-key init-qwerty-prog-mode-map (vector (car binding)) #'init-qwerty-prog-self-insert))
@@ -1114,7 +1119,7 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
   "c" #'init-capslock-mode
   "n" #'init-qwerty-prog-mode)
 
-(keymap-global-set "C-x m" init-minor-map)
+(keymap-global-set "C-c m" init-minor-map)
 
 ;;;; apps
 
@@ -1244,6 +1249,7 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
  "," #'xref-go-back
  "i" #'consult-imenu
  "l" #'consult-outline
+ "9" #'init-wrap-pair-common
  "(" #'init-wrap-pair
  "[" #'init-wrap-pair
  "{" #'init-wrap-pair
