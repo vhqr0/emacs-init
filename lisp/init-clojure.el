@@ -7,9 +7,14 @@
 
 (require 'init-emacs)
 
+
+
 ;;; major mode
 
 (require 'clojure-mode)
+
+(keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
+(keymap-set clojure-refactor-map "SPC" #'clojure-align)
 
 (evil-define-key 'normal clojure-mode-map
   "gr" clojure-refactor-map)
@@ -22,7 +27,7 @@
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
-;;; test jump
+;;;; test jump
 
 (defun init-clojure-test-file (file)
   "Get test or src of FILE, or nil."
@@ -45,6 +50,8 @@ ARG see `init-dwim-project-find-file'."
 
 (init-leader-set clojure-mode-map
   "p t" #'init-clojure-test-jump)
+
+
 
 ;;; flymake
 
@@ -140,6 +147,8 @@ ARG see `init-dwim-project-find-file'."
 (add-hook 'clojure-mode-hook #'init-clojure-set-flymake)
 (add-hook 'clojure-mode-hook #'flymake-mode)
 
+
+
 ;;; cider
 
 (require 'cider)
@@ -190,7 +199,7 @@ FUNC and ARGS see specific command."
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-M-q" #'cider-format-edn-last-sexp))
 
-;;;; history
+;;;; consult history
 
 (add-to-list 'consult-mode-histories
              '(cider-repl-mode cider-repl-input-history cider-repl-input-history-position cider-repl-bol-mark))
