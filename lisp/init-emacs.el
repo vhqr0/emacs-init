@@ -327,6 +327,55 @@ ARG see `init-dwim-find-file'."
 (add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
 (add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
 
+;;;; keyboard
+
+(defun init-capslock-self-insert ()
+  "Self insert with upcase lower case char."
+  (interactive)
+  (let ((last-command-event (if (numberp last-command-event)
+                                (upcase last-command-event)
+                              last-command-event)))
+    (setq this-command #'self-insert-command)
+    (call-interactively #'self-insert-command)))
+
+(defvar-keymap init-capslock-mode-map)
+
+(define-key init-capslock-mode-map [remap self-insert-command] #'init-capslock-self-insert)
+
+(define-minor-mode init-capslock-mode
+  "Upcase lower case key."
+  :group 'init
+  :global t
+  :lighter " Capslock"
+  :keymap init-capslock-mode-map)
+
+(defvar init-qwerty-prog-bindings
+  '((?1 . ?!) (?2 . ?@) (?3 . ?#) (?4 . ?$) (?5 . ?%) (?6 . ?^) (?7 . ?&) (?8 . ?*) (?9 . ?\() (?0 . ?\))
+    (?! . ?1) (?@ . ?2) (?# . ?3) (?$ . ?4) (?% . ?5) (?^ . ?6) (?& . ?7) (?* . ?8) (?\( . ?9) (?\) . ?0)))
+
+(defun init-qwerty-prog-self-insert ()
+  "Self insert with qwerty prog keyboard translation."
+  (interactive)
+  (let* ((binding (assq last-command-event init-qwerty-prog-bindings))
+         (last-command-event (or (cdr binding) last-command-event)))
+    (setq this-command #'self-insert-command)
+    (call-interactively #'self-insert-command)))
+
+(defvar-keymap init-qwerty-prog-mode-map)
+
+
+(dolist (binding init-qwerty-prog-bindings)
+  (define-key init-qwerty-prog-mode-map (vector (car binding)) #'init-qwerty-prog-self-insert))
+
+(define-minor-mode init-qwerty-prog-mode
+  "Invert number key in qwerty keyboard."
+  :group 'init
+  :global t
+  :lighter " QwertyProg"
+  :keymap init-qwerty-prog-mode-map)
+
+(init-qwerty-prog-mode 1)
+
 
 
 ;;; evil
@@ -466,14 +515,14 @@ FUNC and ARGS see `evil-set-cursor'."
   (if (or executing-kbd-macro
           defining-kbd-macro
           (sit-for 0.15 t))
-      (insert ?j)
+      (insert (if init-capslock-mode ?J ?j))
     (let ((event (read-event)))
       (if (= event ?k)
           (progn
             (setq this-command 'ignore
                   real-this-command 'ignore)
             (push 'escape unread-command-events))
-        (insert ?j)
+        (insert (if init-capslock-mode ?J ?j))
         (push event unread-command-events)))))
 
 (evil-define-operator init-evil-operator-comment (beg end)
@@ -1061,7 +1110,9 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
   "h" #'hl-line-mode
   "w" #'whitespace-mode
   "l" #'display-line-numbers-mode
-  "L" #'init-toggle-line-numbers-type)
+  "L" #'init-toggle-line-numbers-type
+  "c" #'init-capslock-mode
+  "n" #'init-qwerty-prog-mode)
 
 (keymap-global-set "C-x m" init-minor-map)
 
