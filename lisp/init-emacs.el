@@ -849,17 +849,6 @@ FUNC, SYM and NAME see `abbrev-get'."
 (advice-add #'write-abbrev-file :around #'init-around-write-abbrev-file)
 (advice-add #'abbrev-get :around #'init-around-abbrev-get)
 
-(defvar init-abbrev-blacklist nil)
-
-(defun init-around-abbrev-before-point (func)
-  "Check `init-abbrev-blacklist' after get abbrev before point.
-FUNC see `abbrev--before-point'."
-  (-when-let (res (funcall func))
-    (unless (member (symbol-name (car res)) init-abbrev-blacklist)
-      res)))
-
-(advice-add #'abbrev--before-point :around #'init-around-abbrev-before-point)
-
 ;;;; tempel
 
 (require 'tempel)
@@ -872,23 +861,6 @@ FUNC see `abbrev--before-point'."
 (keymap-set tempel-map "M-p" #'tempel-previous)
 
 (global-tempel-abbrev-mode 1)
-
-(defvar init-tempel-prefixes '("d" "k"))
-
-(defun init-around-tempel-templates-wrap-prefixes (func)
-  "Wrap `tempel--templates' by adding `init-tempel-prefixes'.
-FUNC see `tempel--templates'."
-  (->> (funcall func)
-       (-mapcat
-        (lambda (template)
-          (let ((name (symbol-name (car template)))
-                (snippet (cdr template)))
-            (->> init-tempel-prefixes
-                 (-map
-                  (lambda (prefix)
-                    (cons (intern (concat prefix name)) snippet)))))))))
-
-(advice-add #'tempel--templates :around #'init-around-tempel-templates-wrap-prefixes)
 
 ;;;; apheleia
 

@@ -11,6 +11,9 @@
 
 (require 'clojure-mode)
 
+(evil-define-key 'normal clojure-mode-map
+  "gr" clojure-refactor-map)
+
 (defvar init-clojure-modes
   '(clojurec-mode clojure-mode clojurescript-mode))
 
@@ -142,6 +145,8 @@ ARG see `init-dwim-project-find-file'."
 (require 'cider)
 (require 'cider-format)
 (require 'cider-macroexpansion)
+
+(add-hook 'cider-repl-mode-hook #'init-set-corfu-auto)
 
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
