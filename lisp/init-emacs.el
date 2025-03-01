@@ -248,6 +248,11 @@ ARG see `init-dwim-find-file'."
 (keymap-global-set "M-o" #'embark-act)
 (keymap-global-set "M-O" #'embark-act-all)
 
+(keymap-unset embark-command-map "g" t)
+(keymap-unset embark-command-map "l" t)
+(keymap-set embark-command-map "G" #'global-set-key)
+(keymap-set embark-command-map "L" #'local-set-key)
+
 ;;;; indent
 
 (setq-default indent-tabs-mode nil)
@@ -335,12 +340,14 @@ ARG see `init-dwim-find-file'."
 
 ;;;; keyboard
 
+(defun init-capslock-event (event)
+  "Convert capslock last command EVENT."
+  (if (numberp event) (upcase event) event))
+
 (defun init-capslock-self-insert ()
   "Self insert with upcase lower case char."
   (interactive)
-  (let ((last-command-event (if (numberp last-command-event)
-                                (upcase last-command-event)
-                              last-command-event)))
+  (let ((last-command-event (init-capslock-event last-command-event)))
     (setq this-command #'self-insert-command)
     (call-interactively #'self-insert-command)))
 
@@ -359,11 +366,15 @@ ARG see `init-dwim-find-file'."
   '((?1 . ?!) (?2 . ?@) (?3 . ?#) (?4 . ?$) (?5 . ?%) (?6 . ?^) (?7 . ?&) (?8 . ?*) (?9 . ?\() (?0 . ?\))
     (?! . ?1) (?@ . ?2) (?# . ?3) (?$ . ?4) (?% . ?5) (?^ . ?6) (?& . ?7) (?* . ?8) (?\( . ?9) (?\) . ?0)))
 
+(defun init-qwerty-prog-event (event)
+  "Convert qwerty prog last command EVENT."
+  (let ((binding (assq event init-qwerty-prog-bindings)))
+    (or (cdr binding) event)))
+
 (defun init-qwerty-prog-self-insert ()
   "Self insert with qwerty prog keyboard translation."
   (interactive)
-  (let* ((binding (assq last-command-event init-qwerty-prog-bindings))
-         (last-command-event (or (cdr binding) last-command-event)))
+  (let ((last-command-event (init-qwerty-prog-event last-command-event)))
     (setq this-command #'self-insert-command)
     (call-interactively #'self-insert-command)))
 
@@ -976,7 +987,6 @@ With two universal ARG, edit rg command."
     (compilation-start command 'grep-mode)))
 
 (keymap-set embark-symbol-map "g" #'init-rg-dwim)
-(keymap-set embark-symbol-map "G" #'init-rg-dwim)
 
 ;;;; diff
 
