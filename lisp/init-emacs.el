@@ -819,7 +819,9 @@ START see `consult-line'."
 
 (require 'find-func)
 
-(find-function-mode 1)
+;; TODO replace with `find-function-mode' after 30.1
+;; (find-function-mode 1)
+(find-function-setup-keys)
 
 (keymap-set help-map "l" #'find-library)
 (keymap-set help-map "4 l" #'find-library-other-window)
