@@ -161,7 +161,7 @@ ARG see `init-dwim-project-find-file'."
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (define-key map [remap evil-lookup] #'cider-doc)
-  (define-key map [remap evil-goto-definition] #'cider-find-var))
+  (define-key map [remap evil-goto-definition] #'xref-find-definitions))
 
 (defun init-cider-around-last-sexp (func &rest args)
   "Around Cider *-last-sexp command.
