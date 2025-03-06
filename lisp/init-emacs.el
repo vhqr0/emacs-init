@@ -987,6 +987,7 @@ With two universal ARG, edit rg command."
     (compilation-start command 'grep-mode)))
 
 (keymap-set embark-symbol-map "g" #'init-rg-dwim)
+(keymap-set embark-identifier-map "g" #'init-rg-dwim)
 
 ;;;; diff
 
