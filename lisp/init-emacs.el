@@ -223,8 +223,8 @@ ARG see `init-dwim-find-file'."
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
 (keymap-global-set "C-S-W" #'tab-bar-close-tab)
 
-(keymap-global-set "C--" #'text-scale-decrease)
-(keymap-global-set "C-=" #'text-scale-increase)
+(keymap-global-set "C--" #'global-text-scale-adjust)
+(keymap-global-set "C-=" #'global-text-scale-adjust)
 
 
 
