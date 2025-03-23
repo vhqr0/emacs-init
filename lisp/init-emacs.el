@@ -419,6 +419,7 @@ ARG see `init-dwim-find-file'."
 (require 'evil)
 
 (setq evil-want-fine-undo t)
+(setq evil-search-wrap nil)
 (setq evil-symbol-word-search t)
 (setq evil-respect-visual-line-mode t)
 
@@ -708,12 +709,12 @@ FUNC ARGS see `vertico--setup'."
 
 (add-to-list 'savehist-additional-variables 'corfu-history)
 
-(defun init-set-corfu-auto ()
+(defun init-corfu-set-auto ()
   "Set `corfu-auto'."
   (setq-local corfu-auto t))
 
-(add-hook 'prog-mode-hook #'init-set-corfu-auto)
-(add-hook 'eval-expression-minibuffer-setup-hook #'init-set-corfu-auto)
+(add-hook 'prog-mode-hook #'init-corfu-set-auto)
+(add-hook 'eval-expression-minibuffer-setup-hook #'init-corfu-set-auto)
 
 (keymap-unset corfu-map "M-n" t)
 (keymap-unset corfu-map "M-p" t)
@@ -1020,6 +1021,8 @@ With two universal ARG, edit rg command."
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
+
+(add-hook 'eshell-mode-hook #'init-corfu-set-auto)
 
 (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
 (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
