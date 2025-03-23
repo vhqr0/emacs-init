@@ -155,7 +155,7 @@ ARG see `init-dwim-project-find-file'."
 (require 'cider-format)
 (require 'cider-macroexpansion)
 
-(add-hook 'cider-repl-mode-hook #'init-set-corfu-auto)
+(add-hook 'cider-repl-mode-hook #'init-corfu-set-auto)
 
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
