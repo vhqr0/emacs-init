@@ -536,8 +536,8 @@ FUNC and ARGS see `evil-set-cursor'."
     (let ((event (read-event)))
       (if (= event ?k)
           (progn
-            (setq this-command 'ignore
-                  real-this-command 'ignore)
+            (setq this-command #'ignore
+                  real-this-command #'ignore)
             (push 'escape unread-command-events))
         (insert (if init-capslock-mode ?J ?j))
         (push event unread-command-events)))))
