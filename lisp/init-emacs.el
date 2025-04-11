@@ -453,10 +453,14 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (set-keymap-parent evil-command-line-map minibuffer-local-map)
 
-(keymap-set evil-window-map "<left>" #'winner-undo)
-(keymap-set evil-window-map "<right>" #'winner-redo)
+(keymap-set embark-symbol-map "n" #'evil-ex-search-forward)
+(keymap-set embark-symbol-map "p" #'evil-ex-search-backward)
+(keymap-set embark-symbol-map "N" #'evil-ex-search-backward)
 
 (add-to-list 'init-disable-auto-save-visited-predicates #'evil-insert-state-p)
+
+(keymap-set evil-window-map "<left>" #'winner-undo)
+(keymap-set evil-window-map "<right>" #'winner-redo)
 
 ;;;; evil collection
 
