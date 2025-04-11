@@ -831,6 +831,14 @@ DIR see `consult-ripgrep'."
 (keymap-set embark-general-map "C" 'init-embark-consult-search-map)
 (cl-pushnew 'init-embark-consult-async-search-map embark-become-keymaps)
 
+(defun init-set-search-after-consult-line (&rest _args)
+  "Set `evil-ex-search-pattern' after `consult-line'."
+  (let ((pattern (car consult--line-history)))
+    (setq evil-ex-search-pattern (list pattern t t))
+    (evil-ex-nohighlight)))
+
+(advice-add #'consult-line :after #'init-set-search-after-consult-line)
+
 ;;;;; corfu
 
 (defun init-consult-corfu ()
