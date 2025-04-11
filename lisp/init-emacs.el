@@ -771,6 +771,22 @@ START see `consult-line'."
     (setq this-command 'consult-line)
     (consult-line thing start)))
 
+(defun init-consult-line-multi-dwim (&optional query)
+  "Consult line of symbol at point.
+QUERY see `consult-line-multi'."
+  (interactive "P")
+  (-when-let (thing (init-dwim-thing-at-point))
+    (setq this-command 'consult-line-multi)
+    (consult-line-multi query thing)))
+
+(defun init-consult-ripgrep-dwim (&optional dir)
+  "Consult line of symbol at point.
+DIR see `consult-ripgrep'."
+  (interactive "P")
+  (-when-let (thing (init-dwim-thing-at-point))
+    (setq this-command 'consult-ripgrep)
+    (consult-ripgrep dir thing)))
+
 (consult-customize
  consult-goto-line
  consult-line
@@ -784,6 +800,10 @@ START see `consult-line'."
 (define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
 
 (keymap-global-set "C-s" #'init-consult-line-dwim)
+(keymap-global-set "C-M-s" #'init-consult-line-multi-dwim)
+(keymap-global-set "C-M-g" #'init-consult-ripgrep-dwim)
+
+(keymap-set goto-map "l" #'consult-outline)
 
 (keymap-set search-map "s" #'consult-line)
 (keymap-set search-map "S" #'consult-line-multi)
@@ -792,6 +812,29 @@ START see `consult-line'."
 (keymap-set search-map "l" #'consult-outline)
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
+
+(defvar-keymap init-embark-consult-sync-search-map
+  "s" #'consult-line
+  "S" #'consult-line-multi
+  "i" #'consult-imenu
+  "I" #'consult-imenu-multi
+  "l" #'consult-outline)
+
+(defvar-keymap init-embark-consult-async-search-map
+  "g" #'consult-ripgrep
+  "f" #'consult-fd)
+
+(defvar init-embark-consult-search-map
+  (keymap-canonicalize
+   (make-composed-keymap
+    init-embark-consult-sync-search-map
+    init-embark-consult-async-search-map)))
+
+(fset 'init-embark-consult-sync-search-map init-embark-consult-sync-search-map)
+(keymap-set embark-become-match-map "c" 'init-embark-consult-sync-search-map)
+(fset 'init-embark-consult-search-map init-embark-consult-search-map)
+(keymap-set embark-general-map "c" 'init-embark-consult-search-map)
+(cl-pushnew 'init-embark-consult-async-search-map embark-become-keymaps)
 
 ;;;;; corfu
 
@@ -987,8 +1030,7 @@ With two universal ARG, edit rg command."
     (grep--save-buffers)
     (compilation-start command 'grep-mode)))
 
-(keymap-set embark-symbol-map "g" #'init-rg-dwim)
-(keymap-set embark-identifier-map "g" #'init-rg-dwim)
+(defalias 'rg 'init-rg-dwim)
 
 ;;;; diff
 
@@ -1242,7 +1284,6 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
  "j" #'dired-jump
  "k" #'kill-buffer
  "e" #'init-eshell-dwim
- "G" #'init-rg-dwim
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
