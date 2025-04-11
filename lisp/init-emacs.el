@@ -248,11 +248,6 @@ ARG see `init-dwim-find-file'."
 (keymap-global-set "M-o" #'embark-act)
 (keymap-global-set "M-O" #'embark-act-all)
 
-(keymap-unset embark-command-map "g" t)
-(keymap-unset embark-command-map "l" t)
-(keymap-set embark-command-map "G" #'global-set-key)
-(keymap-set embark-command-map "L" #'local-set-key)
-
 ;;;; indent
 
 (setq-default indent-tabs-mode nil)
@@ -831,9 +826,9 @@ DIR see `consult-ripgrep'."
     init-embark-consult-async-search-map)))
 
 (fset 'init-embark-consult-sync-search-map init-embark-consult-sync-search-map)
-(keymap-set embark-become-match-map "c" 'init-embark-consult-sync-search-map)
+(keymap-set embark-become-match-map "C" 'init-embark-consult-sync-search-map)
 (fset 'init-embark-consult-search-map init-embark-consult-search-map)
-(keymap-set embark-general-map "c" 'init-embark-consult-search-map)
+(keymap-set embark-general-map "C" 'init-embark-consult-search-map)
 (cl-pushnew 'init-embark-consult-async-search-map embark-become-keymaps)
 
 ;;;;; corfu
