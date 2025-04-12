@@ -16,6 +16,16 @@
 (keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
 (keymap-set clojure-refactor-map "SPC" #'clojure-align)
 
+(defun init-clojure-remove-comma-dwim ()
+  "Remove comma dwim."
+  (interactive)
+  (let ((region (if (region-active-p)
+                    (cons (region-beginning) (region-end))
+                  (cons (line-beginning-position) (line-end-position)))))
+    (replace-string-in-region "," "" (car region) (cdr region))))
+
+(keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
+
 (evil-define-key 'normal clojure-mode-map
   "gr" clojure-refactor-map)
 
