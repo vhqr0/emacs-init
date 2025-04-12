@@ -86,9 +86,6 @@
         (":"  "："    )
         ("\\" "、"    )))
 
-(setq-default pyim-english-input-switch-functions
-              '(pyim-probe-program-mode))
-
 (pyim-scheme-add
  `(zirjma
    :document "zirjma"

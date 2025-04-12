@@ -758,30 +758,6 @@ FUNC ARGS see `vertico--setup'."
 
 (setq consult-line-start-from-top t)
 
-(defun init-consult-line-dwim (&optional start)
-  "Consult line of symbol at point.
-START see `consult-line'."
-  (interactive (list (not (not current-prefix-arg))))
-  (-when-let (thing (init-dwim-thing-at-point))
-    (setq this-command 'consult-line)
-    (consult-line thing start)))
-
-(defun init-consult-line-multi-dwim (&optional query)
-  "Consult line of symbol at point.
-QUERY see `consult-line-multi'."
-  (interactive "P")
-  (-when-let (thing (init-dwim-thing-at-point))
-    (setq this-command 'consult-line-multi)
-    (consult-line-multi query thing)))
-
-(defun init-consult-ripgrep-dwim (&optional dir)
-  "Consult line of symbol at point.
-DIR see `consult-ripgrep'."
-  (interactive "P")
-  (-when-let (thing (init-dwim-thing-at-point))
-    (setq this-command 'consult-ripgrep)
-    (consult-ripgrep dir thing)))
-
 (consult-customize
  consult-goto-line
  consult-line
@@ -794,10 +770,6 @@ DIR see `consult-ripgrep'."
 (define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
 (define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
 
-(keymap-global-set "C-s" #'init-consult-line-dwim)
-(keymap-global-set "C-M-s" #'init-consult-line-multi-dwim)
-(keymap-global-set "C-M-g" #'init-consult-ripgrep-dwim)
-
 (keymap-set goto-map "l" #'consult-outline)
 
 (keymap-set search-map "s" #'consult-line)
@@ -807,6 +779,8 @@ DIR see `consult-ripgrep'."
 (keymap-set search-map "l" #'consult-outline)
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
+
+(advice-add #'consult-line :after #'init-set-search-after-consult-line)
 
 (defvar-keymap init-embark-consult-sync-search-map
   "s" #'consult-line
@@ -837,7 +811,33 @@ DIR see `consult-ripgrep'."
     (setq evil-ex-search-pattern (list pattern t t))
     (evil-ex-nohighlight)))
 
-(advice-add #'consult-line :after #'init-set-search-after-consult-line)
+(defun init-consult-line-dwim (&optional start)
+  "Consult line of symbol at point.
+START see `consult-line'."
+  (interactive (list (not (not current-prefix-arg))))
+  (-when-let (thing (init-dwim-thing-at-point))
+    (setq this-command 'consult-line)
+    (consult-line thing start)))
+
+(defun init-consult-line-multi-dwim (&optional query)
+  "Consult line of symbol at point.
+QUERY see `consult-line-multi'."
+  (interactive "P")
+  (-when-let (thing (init-dwim-thing-at-point))
+    (setq this-command 'consult-line-multi)
+    (consult-line-multi query thing)))
+
+(defun init-consult-ripgrep-dwim (&optional dir)
+  "Consult line of symbol at point.
+DIR see `consult-ripgrep'."
+  (interactive "P")
+  (-when-let (thing (init-dwim-thing-at-point))
+    (setq this-command 'consult-ripgrep)
+    (consult-ripgrep dir thing)))
+
+(keymap-global-set "C-s"   #'init-consult-line-dwim)
+(keymap-global-set "C-M-s" #'init-consult-line-multi-dwim)
+(keymap-global-set "C-M-g" #'init-consult-ripgrep-dwim)
 
 ;;;;; corfu
 
