@@ -764,11 +764,12 @@ FUNC ARGS see `vertico--setup'."
   "Collect outline headings."
   (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
         (stack-level 0)
-        stack cands name level marker)
+        stack cands line name level marker)
     (save-excursion
       (goto-char (point-min))
       (while (re-search-forward bol-regex nil t)
         (save-excursion
+          (setq line (line-number-at-pos))
           (setq name (buffer-substring-no-properties (point) (line-end-position)))
           (goto-char (match-beginning 0))
           (setq marker (point-marker))
@@ -780,8 +781,10 @@ FUNC ARGS see `vertico--setup'."
             (push "" stack)
             (setq stack-level (1+ stack-level)))
           (setq stack (cons name (cdr stack)))
-          (setq name (mapconcat #'identity (reverse stack) "/"))
-          (push (cons name marker) cands))))
+          (let ((name (concat
+                       (format "%5d " line)
+                       (mapconcat #'identity (reverse stack) "/"))))
+            (push (cons name marker) cands)))))
     (nreverse cands)))
 
 (defun init-consult-outline-state ()
