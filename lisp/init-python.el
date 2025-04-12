@@ -14,8 +14,6 @@
 (setq python-shell-interpreter "python")
 (setq python-shell-interpreter-args "-m IPython --simple-prompt")
 
-(add-hook 'inferior-python-mode-hook #'init-corfu-set-auto)
-
 (dolist (mode init-python-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
 

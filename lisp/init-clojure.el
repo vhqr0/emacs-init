@@ -16,16 +16,6 @@
 (keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
 (keymap-set clojure-refactor-map "SPC" #'clojure-align)
 
-(defun init-clojure-remove-comma-dwim ()
-  "Remove comma dwim."
-  (interactive)
-  (let ((region (if (region-active-p)
-                    (cons (region-beginning) (region-end))
-                  (cons (line-beginning-position) (line-end-position)))))
-    (replace-string-in-region "," "" (car region) (cdr region))))
-
-(keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
-
 (evil-define-key 'normal clojure-mode-map
   "gr" clojure-refactor-map)
 
@@ -37,7 +27,15 @@
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
-;;;; test jump
+(defun init-clojure-remove-comma-dwim ()
+  "Remove comma dwim."
+  (interactive)
+  (let ((region (if (region-active-p)
+                    (cons (region-beginning) (region-end))
+                  (cons (line-beginning-position) (line-end-position)))))
+    (replace-string-in-region "," "" (car region) (cdr region))))
+
+(keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
 
 (defun init-clojure-test-file (file)
   "Get test or src of FILE, or nil."
@@ -164,8 +162,6 @@ ARG see `init-dwim-project-find-file'."
 (require 'cider)
 (require 'cider-format)
 (require 'cider-macroexpansion)
-
-(add-hook 'cider-repl-mode-hook #'init-corfu-set-auto)
 
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
