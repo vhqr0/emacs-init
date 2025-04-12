@@ -760,6 +760,7 @@ FUNC ARGS see `vertico--setup'."
 
 (defun init-consult-outline-candidates ()
   "Collect outline headings."
+  (consult--forbid-minibuffer)
   (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
         (stack-level 0)
         stack cands line name level marker)
@@ -794,7 +795,6 @@ FUNC ARGS see `vertico--setup'."
 (defun init-consult-outline ()
   "Enhanced version of `consult-outline' using counsel functionality."
   (interactive)
-  (consult--forbid-minibuffer)
   (let ((candidate (consult--read
                     (consult--slow-operation
                         "Collecting headings..."
