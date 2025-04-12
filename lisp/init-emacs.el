@@ -637,8 +637,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq completion-category-defaults nil)
 (setq completion-category-overrides nil)
 
-;;;; completion meta
-
 (require 'marginalia)
 
 (marginalia-mode 1)
@@ -915,10 +913,12 @@ DIR see `consult-ripgrep'."
 
 ;;;; load
 
-(keymap-unset help-map "t" t)
-(keymap-set help-map "t f" #'load-file)
-(keymap-set help-map "t l" #'load-library)
-(keymap-set help-map "t t" #'load-theme)
+(defvar-keymap init-load-map
+  "f" #'load-file
+  "l" #'load-library
+  "t" #'load-theme)
+
+(keymap-set help-map "t" init-load-map)
 
 (consult-customize consult-theme :preview-key '(:debounce 0.5 any))
 (define-key init-consult-override-mode-map [remap load-theme] #'consult-theme)
