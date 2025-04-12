@@ -758,6 +758,8 @@ FUNC ARGS see `vertico--setup'."
 
 (setq consult-line-start-from-top t)
 
+(defvar init-consult-outline-history nil)
+
 (defun init-consult-outline-candidates ()
   "Collect outline headings."
   (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
@@ -782,6 +784,12 @@ FUNC ARGS see `vertico--setup'."
           (push (cons name marker) cands))))
     (nreverse cands)))
 
+(defun init-consult-outline-state ()
+  "Construct state for `init-consult-outline'."
+  (let ((jump (consult--jump-state)))
+    (lambda (action cand)
+      (funcall jump action (cdr cand)))))
+
 (defun init-consult-outline ()
   "Enhanced version of `consult-outline' using counsel functionality."
   (interactive)
@@ -790,7 +798,8 @@ FUNC ARGS see `vertico--setup'."
                     (consult--slow-operation
                         "Collecting headings..."
                       (init-consult-outline-candidates))
-                    :prompt "Outline: "
+                    :prompt "Goto outline heading: "
+                    :state (init-consult-outline-state)
                     :lookup #'consult--lookup-cons
                     :sort nil
                     :require-match t
