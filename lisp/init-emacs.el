@@ -769,7 +769,7 @@ FUNC ARGS see `vertico--setup'."
       (goto-char (point-min))
       (while (re-search-forward bol-regex nil t)
         (save-excursion
-          (setq name (buffer-substring (point) (line-end-position)))
+          (setq name (buffer-substring-no-properties (point) (line-end-position)))
           (goto-char (match-beginning 0))
           (setq marker (point-marker))
           (setq level (funcall outline-level))
