@@ -758,25 +758,63 @@ FUNC ARGS see `vertico--setup'."
 
 (setq consult-line-start-from-top t)
 
+(defun init-consult-outline-candidates ()
+  "Collect outline headings."
+  (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
+        (stack-level 0)
+        stack cands name level marker)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward bol-regex nil t)
+        (save-excursion
+          (setq name (buffer-substring (point) (line-end-position)))
+          (goto-char (match-beginning 0))
+          (setq marker (point-marker))
+          (setq level (funcall outline-level))
+          (while (<= level stack-level)
+            (pop stack)
+            (setq stack-level (1- stack-level)))
+          (while (> level stack-level)
+            (push "" stack)
+            (setq stack-level (1+ stack-level)))
+          (setq stack (cons name (cdr stack)))
+          (setq name (mapconcat #'identity (reverse stack) "/"))
+          (push (cons name marker) cands))))
+    (nreverse cands)))
+
+(defun init-consult-outline ()
+  "Enhanced version of `consult-outline' using counsel functionality."
+  (interactive)
+  (consult--forbid-minibuffer)
+  (let ((candidate (consult--read
+                    (consult--slow-operation
+                        "Collecting headings..."
+                      (init-consult-outline-candidates))
+                    :prompt "Outline: "
+                    :lookup #'consult--lookup-cons
+                    :sort nil
+                    :require-match t
+                    :history 'init-consult-outline-history
+                    :add-history (thing-at-point 'symbol))))
+    (goto-char (cdr candidate))))
+
 (consult-customize
  consult-goto-line
  consult-line
  consult-line-multi
  consult-imenu
  consult-imenu-multi
- consult-outline
+ init-consult-outline
  :preview-key 'any)
 
 (define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
 (define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
 
-(keymap-set goto-map "l" #'consult-outline)
-
 (keymap-set search-map "s" #'consult-line)
 (keymap-set search-map "S" #'consult-line-multi)
 (keymap-set search-map "i" #'consult-imenu)
 (keymap-set search-map "I" #'consult-imenu-multi)
-(keymap-set search-map "l" #'consult-outline)
+(keymap-set search-map "l" #'init-consult-outline)
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
 
@@ -787,7 +825,7 @@ FUNC ARGS see `vertico--setup'."
   "S" #'consult-line-multi
   "i" #'consult-imenu
   "I" #'consult-imenu-multi
-  "l" #'consult-outline)
+  "l" #'init-consult-outline)
 
 (defvar-keymap init-embark-consult-async-search-map
   "g" #'consult-ripgrep
@@ -1311,7 +1349,8 @@ ARG see `init-dwim-switch-to-buffer-split-window'."
  "?" #'xref-find-references
  "," #'xref-go-back
  "i" #'consult-imenu
- "l" #'consult-outline
+ "I" #'consult-imenu-multi
+ "l" #'init-consult-outline
  "9" #'init-wrap-pair-common
  "(" #'init-wrap-pair
  "[" #'init-wrap-pair
