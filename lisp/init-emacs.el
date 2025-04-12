@@ -783,7 +783,7 @@ FUNC ARGS see `vertico--setup'."
           (setq stack (cons name (cdr stack)))
           (let ((name (concat
                        (propertize (format "%5d " line) 'face 'consult-line-number)
-                       (mapconcat #'identity (reverse stack) " / "))))
+                       (mapconcat #'identity (reverse stack) (propertize " / " 'face 'consult-line-number)))))
             (push (cons name marker) cands)))))
     (nreverse cands)))
 
