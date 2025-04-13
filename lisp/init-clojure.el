@@ -16,6 +16,12 @@
 (defvar init-clojure-modes
   '(clojurec-mode clojure-mode clojurescript-mode))
 
+(defvar init-clojure-extensions '("cljc" "clj" "cljs"))
+
+(defun init-clojure-try-extensions (extension)
+  "Return try extensions with prefer EXTENSION."
+  (cons extension (remove extension init-clojure-extensions)))
+
 (add-hook 'clojure-mode-hook #'init-elisp-set-outline)
 
 (defun init-clojure-remove-comma-dwim ()
@@ -30,22 +36,24 @@
 (keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
 
-(defun init-clojure-test-file (file)
-  "Get test or src of FILE, or nil."
-  (cond
-   ((string-match "^src/\\(.*\\)\\(\\.clj.?\\)$" file)
-    (concat "test/" (match-string 1 file) "_test" (match-string 2 file)))
-   ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file)
-    (concat "src/" (match-string 1 file) (match-string 2 file)))))
-
-(defun init-clojure-test-jump (&optional arg)
-  "Jump to test or src of current file.
-ARG see `init-dwim-project-find-file'."
-  (interactive "P")
-  (-when-let (file (buffer-file-name))
-    (-when-let (file (init-project-file-relative-name file))
-      (-when-let (file (init-clojure-test-file file))
-        (init-dwim-project-find-file arg file)))))
+(defun init-clojure-test-jump ()
+  "Jump to test or src file of current file."
+  (interactive)
+  (-when-let (default-directory (init-project-directory))
+    (-when-let (file-name (buffer-file-name))
+      (let ((file-name (file-relative-name file-name)))
+        (-when-let (file-name (cond
+                               ((string-match "^src/\\(.*\\)\\(\\.clj.?\\)$" file-name)
+                                (concat "test/" (match-string 1 file-name) "_test" (match-string 2 file-name)))
+                               ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file-name)
+                                (concat "src/" (match-string 1 file-name) (match-string 2 file-name)))))
+          (let* ((file-name-base (file-name-sans-extension file-name))
+                 (extension (file-name-extension file-name))
+                 (extensions (init-clojure-try-extensions extension))
+                 (test-file-names (->> extensions (--map (concat file-name-base "." it)))))
+            (-if-let (test-file-name (->> test-file-names (-first #'file-exists-p)))
+                (find-file test-file-name)
+              (user-error "Jump to test failed"))))))))
 
 (keymap-set clojure-mode-map "C-x p t" #'init-clojure-test-jump)
 
