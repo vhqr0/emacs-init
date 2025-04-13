@@ -690,41 +690,14 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
 (keymap-set vertico-map "C-x C-s" #'embark-export)
 
-;;;; corfu
-
-(require 'corfu)
-(require 'corfu-history)
-
-(setq corfu-auto t)
-(setq corfu-on-exact-match 'show)
-
-(global-corfu-mode 1)
-(corfu-history-mode 1)
-
-(add-to-list 'savehist-additional-variables 'corfu-history)
-
-(keymap-unset corfu-map "M-n" t)
-(keymap-unset corfu-map "M-p" t)
-(keymap-set corfu-map "TAB" #'corfu-expand)
-
-;;;; cape
-
-(require 'cape)
-
-(add-hook 'completion-at-point-functions #'cape-file)
-
-(defvar-keymap init-cape-prefix-map
-  "f" #'cape-file
-  "h" #'cape-history)
-
-(keymap-global-set "C-c c" init-cape-prefix-map)
-
 ;;;; consult
 
 (require 'consult)
 (require 'embark-consult)
 
 (setq consult-preview-key '(:debounce 0.3 any))
+
+(setq completion-in-region-function #'consult-completion-in-region)
 
 (defvar-keymap init-consult-override-mode-map)
 
@@ -881,21 +854,6 @@ DIR see `consult-ripgrep'."
 (keymap-global-set "C-M-s" #'init-consult-line-multi-dwim)
 (keymap-global-set "C-M-g" #'init-consult-ripgrep-dwim)
 
-;;;;; corfu
-
-(defun init-consult-corfu ()
-  "Move corfu completions to minibuffer."
-  (interactive)
-  (pcase completion-in-region--data
-    (`(,beg ,end ,table ,pred ,extras)
-     (let ((completion-extra-properties extras)
-           completion-cycle-threshold completion-cycling)
-       (consult-completion-in-region beg end table pred)))))
-
-(add-to-list 'corfu-continue-commands #'init-consult-corfu)
-
-(keymap-set corfu-map "C-s" #'init-consult-corfu)
-
 
 
 ;;; help
@@ -978,6 +936,55 @@ DIR see `consult-ripgrep'."
 
 (setq xref-search-program 'ripgrep)
 
+;;;; company
+
+(require 'company)
+(require 'company-files)
+(require 'company-capf)
+(require 'company-keywords)
+(require 'company-dabbrev)
+(require 'company-dabbrev-code)
+(require 'company-posframe)
+
+(setq company-lighter-base "Company")
+(setq company-idle-delay 0.1)
+(setq company-minimum-prefix-length 2)
+(setq company-selection-wrap-around t)
+(setq company-show-quick-access t)
+(setq company-tooltip-align-annotations t)
+(setq company-dabbrev-downcase nil)
+(setq company-dabbrev-ignore-case t)
+(setq company-dabbrev-code-ignore-case t)
+(setq company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend))
+(setq company-backends '(company-files company-capf (company-dabbrev-code company-keywords) company-dabbrev))
+
+(global-company-mode 1)
+
+(keymap-unset company-active-map "M-n" t)
+(keymap-unset company-active-map "M-p" t)
+
+(keymap-set company-mode-map "C-c c" #'company-complete)
+
+(company-posframe-mode 1)
+
+(init-diminish-minor-mode 'company-posframe-mode)
+
+(defun init-around-company-capf-set-styles (fn &rest args)
+  "Set completion styles for `company-capf'.
+FN ARGS see `company-capf'."
+  (let ((completion-styles '(basic partial-completion)))
+    (apply fn args)))
+
+(advice-add 'company-capf :around #'init-around-company-capf-set-styles)
+
+(defun init-minibuffer-set-company ()
+  "Set company in minibuffer."
+  (setq-local company-backends '(company-capf))
+  (when global-company-mode
+    (company-mode 1)))
+
+(add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
+
 ;;;; abbrev
 
 (require 'abbrev)
@@ -1012,8 +1019,6 @@ FUNC, SYM and NAME see `abbrev-get'."
 (require 'tempel)
 
 (setq tempel-path (expand-file-name "templates.eld" priv-directory))
-
-(keymap-set init-cape-prefix-map "s" #'tempel-complete)
 
 (keymap-set tempel-map "M-n" #'tempel-next)
 (keymap-set tempel-map "M-p" #'tempel-previous)

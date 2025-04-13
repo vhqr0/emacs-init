@@ -41,11 +41,12 @@
      orderless
      marginalia
      vertico
-     corfu
      cape
      consult
      embark-consult
      ;; prog
+     company
+     company-capf
      tempel
      apheleia
      ;; tools
