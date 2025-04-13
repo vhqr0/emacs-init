@@ -26,12 +26,9 @@
                   (cons (line-beginning-position) (line-end-position)))))
     (replace-string-in-region "," "" (car region) (cdr region))))
 
-(keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
 (keymap-set clojure-refactor-map "SPC" #'clojure-align)
+(keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
-
-(evil-define-key 'normal clojure-mode-map
-  "gr" clojure-refactor-map)
 
 (defun init-clojure-test-file (file)
   "Get test or src of FILE, or nil."
