@@ -993,6 +993,8 @@ FN ARGS see `company-capf'."
 
 (require 'eglot)
 
+(setq eglot-extend-to-xref t)
+
 ;;;; abbrev
 
 (require 'abbrev)

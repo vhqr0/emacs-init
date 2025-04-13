@@ -41,7 +41,6 @@
      orderless
      marginalia
      vertico
-     cape
      consult
      embark-consult
      ;; prog
