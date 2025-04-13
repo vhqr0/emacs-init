@@ -46,9 +46,9 @@
      embark-consult
      ;; prog
      company
-     company-capf
-     tempel
+     company-posframe
      apheleia
+     tempel
      ;; tools
      wgrep
      with-editor

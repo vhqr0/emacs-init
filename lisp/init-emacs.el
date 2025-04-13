@@ -985,6 +985,14 @@ FN ARGS see `company-capf'."
 
 (add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
 
+;;;; apheleia
+
+(require 'apheleia)
+
+;;;; eglot
+
+(require 'eglot)
+
 ;;;; abbrev
 
 (require 'abbrev)
@@ -1024,10 +1032,6 @@ FUNC, SYM and NAME see `abbrev-get'."
 (keymap-set tempel-map "M-p" #'tempel-previous)
 
 (global-tempel-abbrev-mode 1)
-
-;;;; apheleia
-
-(require 'apheleia)
 
 
 
