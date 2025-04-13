@@ -969,11 +969,11 @@ DIR see `consult-ripgrep'."
 
 (init-diminish-minor-mode 'company-posframe-mode)
 
-(defun init-around-company-capf-set-styles (fn &rest args)
+(defun init-around-company-capf-set-styles (func &rest args)
   "Set completion styles for `company-capf'.
-FN ARGS see `company-capf'."
+FUNC ARGS see `company-capf'."
   (let ((completion-styles '(basic partial-completion)))
-    (apply fn args)))
+    (apply func args)))
 
 (advice-add 'company-capf :around #'init-around-company-capf-set-styles)
 
@@ -1069,7 +1069,7 @@ FUNC, SYM and NAME see `abbrev-get'."
 
 (defvar init-rg-program "rg")
 
-(defun init-rg-dwim (arg)
+(defun init-rg-dwim (&optional arg)
   "RG dwim.
 Without universal ARG, rg in project directory.
 With one universal ARG, prompt for rg directory.
