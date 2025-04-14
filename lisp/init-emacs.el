@@ -61,22 +61,6 @@ With two or more universal ARG, open in current window."
         (t
          (init-switch-to-buffer-split-window buffer))))
 
-(defun init-dwim-switch-to-buffer (arg buffer)
-  "Do switch to BUFFER smartly, with interactive ARG.
-Without universal ARG, open in current window.
-With one or more universal ARG, open in other window."
-  (if arg
-      (switch-to-buffer-other-window buffer)
-    (switch-to-buffer buffer)))
-
-(defun init-dwim-find-file (arg file)
-  "Do find FILE smartly, with interactive ARG.
-Without universal ARG, open in current window.
-With one or more universal ARG, open in other window."
-  (if arg
-      (find-file-other-window file)
-    (find-file file)))
-
 (defun init-project-directory ()
   "Get current project directory."
   (-when-let (project (project-current))
@@ -92,17 +76,6 @@ With universal ARG read directory with PROMPT."
   (if arg
       (read-directory-name prompt)
     (init-project-or-default-directory)))
-
-(defun init-project-file-relative-name (file)
-  "Get relative FILE of project, or nil."
-  (-when-let (directory (init-project-directory))
-    (file-relative-name file directory)))
-
-(defun init-dwim-project-find-file (arg file)
-  "Find FILE in project.
-ARG see `init-dwim-find-file'."
-  (let ((default-directory (init-project-or-default-directory)))
-    (init-dwim-find-file arg file)))
 
 
 
