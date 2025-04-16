@@ -142,14 +142,10 @@ With two or more universal ARG, open in current window."
 
 ;;;; revert
 
-;; r: revert buffer
-;; v: update vc state
-;; f: update font lock state
+(keymap-set ctl-x-x-map "v" #'vc-refresh-state)
 
 (keymap-set goto-map "r" #'revert-buffer-quick)
 (keymap-set goto-map "R" #'revert-buffer)
-(keymap-set goto-map "v" #'vc-refresh-state)
-(keymap-set goto-map "f" #'font-lock-update)
 
 
 
@@ -1268,11 +1264,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
               (t
                (user-error "No magic key binding found on %s %c" prefix char)))))))
 
-(defun init-magic-C-x ()
-  "Magic control X."
-  (interactive)
-  (init-magic "C-x"))
-
 (defun init-magic-C-c ()
   "Magic control C."
   (interactive)
@@ -1289,7 +1280,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (init-leader-global-set
  "SPC" #'consult-buffer
- "x" #'init-magic-C-x
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
@@ -1316,6 +1306,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
  "t" tab-prefix-map
  "p" project-prefix-map
  "v" vc-prefix-map
+ "x" ctl-x-x-map
  "r" ctl-x-r-map
  "h" help-map
  "g" goto-map
