@@ -33,9 +33,29 @@
   (when (region-active-p)
     (buffer-substring (region-beginning) (region-end))))
 
-(defun init-dwim-thing-at-point ()
+(defun init-thing-at-point ()
   "Get thing at point dwim."
   (or (init-region-content) (thing-at-point 'symbol)))
+
+(defun init-thing-at-point-or-throw ()
+  "Get thing at point dwim, or throw user error."
+  (or (init-thing-at-point) (user-error "No thing at point")))
+
+(defun init-project-directory ()
+  "Get current project directory."
+  (-when-let (project (project-current))
+    (project-root project)))
+
+(defun init-directory ()
+  "Get current project directory or default directory."
+  (or (init-project-directory) default-directory))
+
+(defun init-directory-interactive (arg prompt)
+  "Get directory smartly.
+With universal ARG read directory with PROMPT."
+  (if arg
+      (read-directory-name prompt)
+    (init-directory)))
 
 (defun init-switch-to-buffer-split-window (buffer)
   "Switch to BUFFER split at this window."
@@ -49,7 +69,7 @@
           (t
            (switch-to-buffer-other-window buffer)))))
 
-(defun init-dwim-switch-to-buffer-split-window (arg buffer)
+(defun init-switch-to-buffer-interactive (arg buffer)
   "Do switch to BUFFER in split window smartly, with interactive ARG.
 Without universal ARG, open in split window.
 With one universal ARG, open other window.
@@ -60,22 +80,6 @@ With two or more universal ARG, open in current window."
          (switch-to-buffer-other-window buffer))
         (t
          (init-switch-to-buffer-split-window buffer))))
-
-(defun init-project-directory ()
-  "Get current project directory."
-  (-when-let (project (project-current))
-    (project-root project)))
-
-(defun init-project-or-default-directory ()
-  "Get current project directory or default directory."
-  (or (init-project-directory) default-directory))
-
-(defun init-dwim-directory (arg prompt)
-  "Get directory smartly.
-With universal ARG read directory with PROMPT."
-  (if arg
-      (read-directory-name prompt)
-    (init-project-or-default-directory)))
 
 
 
@@ -768,6 +772,12 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
 
+(defun init-set-search-after-consult-line (&rest _args)
+  "Set `evil-ex-search-pattern' after `consult-line'."
+  (let ((pattern (car consult--line-history)))
+    (setq evil-ex-search-pattern (list pattern t t))
+    (evil-ex-nohighlight)))
+
 (advice-add #'consult-line :after #'init-set-search-after-consult-line)
 
 (defvar-keymap init-embark-consult-sync-search-map
@@ -793,35 +803,26 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set embark-general-map "C" 'init-embark-consult-search-map)
 (cl-pushnew 'init-embark-consult-async-search-map embark-become-keymaps)
 
-(defun init-set-search-after-consult-line (&rest _args)
-  "Set `evil-ex-search-pattern' after `consult-line'."
-  (let ((pattern (car consult--line-history)))
-    (setq evil-ex-search-pattern (list pattern t t))
-    (evil-ex-nohighlight)))
-
 (defun init-consult-line-dwim (&optional start)
   "Consult line of symbol at point.
 START see `consult-line'."
   (interactive (list (not (not current-prefix-arg))))
-  (-when-let (thing (init-dwim-thing-at-point))
-    (setq this-command 'consult-line)
-    (consult-line thing start)))
+  (setq this-command 'consult-line)
+  (consult-line (init-thing-at-point-or-throw) start))
 
 (defun init-consult-line-multi-dwim (&optional query)
   "Consult line of symbol at point.
 QUERY see `consult-line-multi'."
   (interactive "P")
-  (-when-let (thing (init-dwim-thing-at-point))
-    (setq this-command 'consult-line-multi)
-    (consult-line-multi query thing)))
+  (setq this-command 'consult-line-multi)
+  (consult-line-multi query (init-thing-at-point-or-throw)))
 
 (defun init-consult-ripgrep-dwim (&optional dir)
   "Consult line of symbol at point.
 DIR see `consult-ripgrep'."
   (interactive "P")
-  (-when-let (thing (init-dwim-thing-at-point))
-    (setq this-command 'consult-ripgrep)
-    (consult-ripgrep dir thing)))
+  (setq this-command 'consult-ripgrep)
+  (consult-ripgrep dir (init-thing-at-point-or-throw)))
 
 (keymap-global-set "C-s"   #'init-consult-line-dwim)
 (keymap-global-set "C-M-s" #'init-consult-line-multi-dwim)
@@ -871,8 +872,7 @@ DIR see `consult-ripgrep'."
 (defun init-describe-symbol-dwim ()
   "Describe symbol at point."
   (interactive)
-  (-when-let (thing (init-dwim-thing-at-point))
-    (describe-symbol (intern thing))))
+  (-> (init-thing-at-point-or-throw) (intern) (describe-symbol)))
 
 (setq evil-lookup-func #'init-describe-symbol-dwim)
 
@@ -1048,8 +1048,8 @@ Without universal ARG, rg in project directory.
 With one universal ARG, prompt for rg directory.
 With two universal ARG, edit rg command."
   (interactive "P")
-  (let* ((default-directory (init-dwim-directory arg "Search directory: "))
-         (pattern-default (init-dwim-thing-at-point))
+  (let* ((default-directory (init-directory-interactive arg "Search directory: "))
+         (pattern-default (init-thing-at-point))
          (pattern-prompt (if pattern-default
                              (format "Search pattern (%s): " pattern-default)
                            "Search pattern: "))
@@ -1124,9 +1124,9 @@ With two universal ARG, edit rg command."
 
 (defun init-eshell-dwim (&optional arg)
   "Do open eshell smartly.
-ARG see `init-dwim-switch-to-buffer-split-window'."
+ARG see `init-switch-to-buffer-interactive'."
   (interactive "P")
-  (init-dwim-switch-to-buffer-split-window arg (init-eshell-dwim-get-buffer)))
+  (init-switch-to-buffer-interactive arg (init-eshell-dwim-get-buffer)))
 
 ;;;; editor
 
