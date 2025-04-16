@@ -866,7 +866,7 @@ DIR see `consult-ripgrep'."
 (defun init-describe-symbol-dwim ()
   "Describe symbol at point."
   (interactive)
-  (-> (init-thing-at-point-or-throw) (intern) (describe-symbol)))
+  (describe-symbol (intern (init-thing-at-point-or-throw))))
 
 (setq evil-lookup-func #'init-describe-symbol-dwim)
 
