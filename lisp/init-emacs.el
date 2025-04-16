@@ -69,7 +69,7 @@ With universal ARG read directory with PROMPT."
           (t
            (switch-to-buffer-other-window buffer)))))
 
-(defun init-switch-to-buffer-interactive (arg buffer)
+(defun init-switch-to-buffer-split-window-interactive (arg buffer)
   "Do switch to BUFFER in split window smartly, with interactive ARG.
 Without universal ARG, open in split window.
 With one universal ARG, open other window.
@@ -98,12 +98,9 @@ With two or more universal ARG, open in current window."
 (setq delete-old-versions t)
 (setq delete-by-moving-to-trash t)
 
-(setq auto-save-file-name-transforms
-      `((".*" ,(expand-file-name "save/" user-emacs-directory) t))
-      lock-file-name-transforms
-      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t))
-      backup-directory-alist
-      `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
+(setq auto-save-file-name-transforms `((".*" ,(expand-file-name "save/" user-emacs-directory) t))
+      lock-file-name-transforms      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t))
+      backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
 ;;;; auto save visited
 
@@ -1124,9 +1121,9 @@ With two universal ARG, edit rg command."
 
 (defun init-eshell-dwim (&optional arg)
   "Do open eshell smartly.
-ARG see `init-switch-to-buffer-interactive'."
+ARG see `init-switch-to-buffer-split-window-interactive'."
   (interactive "P")
-  (init-switch-to-buffer-interactive arg (init-eshell-dwim-get-buffer)))
+  (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer)))
 
 ;;;; editor
 
