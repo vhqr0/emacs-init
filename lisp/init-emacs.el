@@ -193,6 +193,7 @@ With two or more universal ARG, open in current window."
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
 (keymap-global-set "C-S-W" #'tab-bar-close-tab)
 
+(keymap-global-set "C-0" #'global-text-scale-adjust)
 (keymap-global-set "C--" #'global-text-scale-adjust)
 (keymap-global-set "C-=" #'global-text-scale-adjust)
 
@@ -1103,7 +1104,7 @@ With two universal ARG, edit rg command."
              (not (get-buffer-process it))
              (not (get-buffer-window it))))))
 
-(defun init-eshell-dwim-get-buffer ()
+(defun init-eshell-dwim-get-buffer-create ()
   "Get eshell dwim buffer, create if not exist."
   (-if-let (buffer (init-eshell-dwim-find-buffer))
       (let ((dir default-directory))
@@ -1119,7 +1120,7 @@ With two universal ARG, edit rg command."
   "Do open eshell smartly.
 ARG see `init-switch-to-buffer-split-window-interactive'."
   (interactive "P")
-  (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer)))
+  (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer-create)))
 
 ;;;; editor
 
