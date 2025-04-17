@@ -15,6 +15,58 @@
 
 (org-roam-db-autosync-mode 1)
 
+(keymap-set init-app-map "n" #'org-roam-node-find)
+(keymap-set init-app-map "r" #'org-roam-ref-find)
+
+(keymap-set org-mode-map "C-c r" #'org-roam-buffer-toggle)
+(keymap-set org-mode-map "C-c l" #'org-roam-node-insert)
+(keymap-set org-mode-map "C-c a t" #'org-roam-tag-add)
+(keymap-set org-mode-map "C-c a a" #'org-roam-alias-add)
+(keymap-set org-mode-map "C-c a r" #'org-roam-ref-add)
+(keymap-set org-mode-map "C-c d t" #'org-roam-tag-remove)
+(keymap-set org-mode-map "C-c d a" #'org-roam-alias-remove)
+(keymap-set org-mode-map "C-c d r" #'org-roam-ref-remove)
+
+
+
+;;; embark
+
+;;;; node
+
+(defun init-org-roam-node-get (node)
+  "Get NODE of text."
+  (get-text-property 0 'node node))
+
+(defun init-org-roam-node-find (node)
+  "Find NODE."
+  (org-roam-node-visit (init-org-roam-node-get node)))
+
+(defun init-org-roam-node-find-other-window (node)
+  "Find NODE other window."
+  (org-roam-node-visit (init-org-roam-node-get node) t))
+
+(defun init-org-roam-node-insert (node)
+  "Insert link of NODE."
+  (let ((node (init-org-roam-node-get node)))
+    (insert (org-link-make-string
+             (concat "id:" (org-roam-node-id node))
+             (org-roam-node-formatted node)))))
+
+(defun init-org-roam-node-capture (node)
+  "Capture more content to NODE."
+  (org-roam-capture- :node (init-org-roam-node-get node)))
+
+(defvar-keymap init-org-roam-node-map
+  :parent embark-general-map
+  "f" #'init-org-roam-node-find
+  "o" #'init-org-roam-node-find-other-window
+  "i" #'init-org-roam-node-insert
+  "c" #'init-org-roam-node-capture)
+
+(add-to-list 'embark-keymap-alist '(org-roam-node init-org-roam-node-map))
+
+;;;; ref
+
 (defun init-org-roam-ref-url (ref)
   "Get url or org roam REF."
   (let* ((type (get-text-property 0 'type ref))
@@ -41,18 +93,6 @@
   "e" #'init-org-roam-ref-browse-eww)
 
 (add-to-list 'embark-keymap-alist '(org-roam-ref init-org-roam-ref-map))
-
-(keymap-set init-app-map "n" #'org-roam-node-find)
-(keymap-set init-app-map "r" #'org-roam-ref-find)
-
-(keymap-set org-mode-map "C-c r" #'org-roam-buffer-toggle)
-(keymap-set org-mode-map "C-c l" #'org-roam-node-insert)
-(keymap-set org-mode-map "C-c a t" #'org-roam-tag-add)
-(keymap-set org-mode-map "C-c a a" #'org-roam-alias-add)
-(keymap-set org-mode-map "C-c a r" #'org-roam-ref-add)
-(keymap-set org-mode-map "C-c d t" #'org-roam-tag-remove)
-(keymap-set org-mode-map "C-c d a" #'org-roam-alias-remove)
-(keymap-set org-mode-map "C-c d r" #'org-roam-ref-remove)
 
 (provide 'init-roam)
 ;;; init-roam.el ends here
