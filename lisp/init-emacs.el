@@ -720,14 +720,14 @@ FUNC ARGS see `vertico--setup'."
 START see `consult-line'."
   (interactive (list (not (not current-prefix-arg))))
   (setq this-command 'consult-line)
-  (consult-line (init-thing-at-point-or-throw) start))
+  (consult-line (init-thing-at-point) start))
 
 (defun init-consult-ripgrep-dwim (&optional dir)
   "Consult line of symbol at point.
 DIR see `consult-ripgrep'."
   (interactive "P")
   (setq this-command 'consult-ripgrep)
-  (consult-ripgrep dir (init-thing-at-point-or-throw)))
+  (consult-ripgrep dir (init-thing-at-point)))
 
 (keymap-global-set "C-s"   #'init-consult-line-dwim)
 (keymap-global-set "C-S-s" #'init-consult-ripgrep-dwim)
@@ -818,13 +818,13 @@ DIR see `consult-ripgrep'."
 (find-function-setup-keys)
 
 (keymap-set help-map "l" #'find-library)
-(keymap-set help-map "4 l" #'find-library-other-window)
-(keymap-set help-map "5 l" #'find-library-other-frame)
 (keymap-set help-map "F" #'find-function)
-(keymap-set help-map "4 F" #'find-function-other-window)
-(keymap-set help-map "5 F" #'find-function-other-frame)
 (keymap-set help-map "V" #'find-variable)
+(keymap-set help-map "4 l" #'find-library-other-window)
+(keymap-set help-map "4 F" #'find-function-other-window)
 (keymap-set help-map "4 V" #'find-variable-other-window)
+(keymap-set help-map "5 l" #'find-library-other-frame)
+(keymap-set help-map "5 F" #'find-function-other-frame)
 (keymap-set help-map "5 V" #'find-variable-other-frame)
 
 ;;;; elisp lookup
