@@ -142,6 +142,7 @@ With two or more universal ARG, open in current window."
 
 ;;;; revert
 
+(keymap-set ctl-x-x-map "G" #'revert-buffer)
 (keymap-set ctl-x-x-map "v" #'vc-refresh-state)
 
 (keymap-set goto-map "r" #'revert-buffer-quick)
