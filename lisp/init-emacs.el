@@ -1269,10 +1269,10 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
  "<left>" #'previous-buffer
  "<right>" #'next-buffer
  "b" #'switch-to-buffer
+ "k" #'kill-buffer
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
- "k" #'kill-buffer
  "e" #'init-eshell-dwim
  "w" evil-window-map
  "4" ctl-x-4-map
@@ -1285,8 +1285,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
  "h" help-map
  "g" goto-map
  "s" search-map
- "a" abbrev-map
  "n" narrow-map
+ "a" abbrev-map
  "m" init-minor-map
  "\\" init-app-map)
 
@@ -1329,7 +1329,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-k" #'eval-buffer)
   (keymap-set map "C-C C-l" #'load-file)
-  (keymap-set map "C-c C-z" #'init-ielm-other-window))
+  (keymap-set map "C-c C-z" #'init-ielm-other-window)
+  (define-key map [remap display-local-help] #'eldoc-doc-buffer))
 
 ;;;;; outline
 
