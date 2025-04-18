@@ -750,9 +750,7 @@ FUNC ARGS see `vertico--setup'."
 (consult-customize
  consult-goto-line
  consult-line
- consult-line-multi
  consult-imenu
- consult-imenu-multi
  init-consult-outline
  :preview-key 'any)
 
@@ -760,9 +758,7 @@ FUNC ARGS see `vertico--setup'."
 (define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
 
 (keymap-set search-map "s" #'consult-line)
-(keymap-set search-map "S" #'consult-line-multi)
 (keymap-set search-map "i" #'consult-imenu)
-(keymap-set search-map "I" #'consult-imenu-multi)
 (keymap-set search-map "l" #'init-consult-outline)
 (keymap-set search-map "g" #'consult-ripgrep)
 (keymap-set search-map "f" #'consult-fd)
@@ -777,9 +773,7 @@ FUNC ARGS see `vertico--setup'."
 
 (defvar-keymap init-embark-consult-sync-search-map
   "s" #'consult-line
-  "S" #'consult-line-multi
   "i" #'consult-imenu
-  "I" #'consult-imenu-multi
   "l" #'init-consult-outline)
 
 (defvar-keymap init-embark-consult-async-search-map
@@ -805,13 +799,6 @@ START see `consult-line'."
   (setq this-command 'consult-line)
   (consult-line (init-thing-at-point-or-throw) start))
 
-(defun init-consult-line-multi-dwim (&optional query)
-  "Consult line of symbol at point.
-QUERY see `consult-line-multi'."
-  (interactive "P")
-  (setq this-command 'consult-line-multi)
-  (consult-line-multi query (init-thing-at-point-or-throw)))
-
 (defun init-consult-ripgrep-dwim (&optional dir)
   "Consult line of symbol at point.
 DIR see `consult-ripgrep'."
@@ -820,8 +807,7 @@ DIR see `consult-ripgrep'."
   (consult-ripgrep dir (init-thing-at-point-or-throw)))
 
 (keymap-global-set "C-s"   #'init-consult-line-dwim)
-(keymap-global-set "C-M-s" #'init-consult-line-multi-dwim)
-(keymap-global-set "C-M-g" #'init-consult-ripgrep-dwim)
+(keymap-global-set "C-S-g" #'init-consult-ripgrep-dwim)
 
 
 
@@ -1327,7 +1313,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
  "?" #'xref-find-references
  "," #'xref-go-back
  "i" #'consult-imenu
- "I" #'consult-imenu-multi
  "l" #'init-consult-outline
  "9" #'init-wrap-pair-common
  "(" #'init-wrap-pair
