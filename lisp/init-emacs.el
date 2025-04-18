@@ -596,6 +596,10 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq isearch-motion-changes-direction t)
 (setq isearch-repeat-on-direction-change t)
 
+(keymap-set embark-identifier-map "%" #'query-replace)
+(keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
+(keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
+
 ;;;; completion style
 
 (setq completion-ignore-case t)
@@ -731,6 +735,9 @@ DIR see `consult-ripgrep'."
 
 (keymap-global-set "C-s"   #'init-consult-line-dwim)
 (keymap-global-set "C-S-s" #'init-consult-ripgrep-dwim)
+
+(keymap-set embark-general-map "C-s"   #'consult-line)
+(keymap-set embark-general-map "C-S-s" #'consult-ripgrep)
 
 ;;;;; outline
 
