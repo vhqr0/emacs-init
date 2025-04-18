@@ -695,6 +695,45 @@ FUNC ARGS see `vertico--setup'."
 
 (setq consult-line-start-from-top t)
 
+(consult-customize
+ consult-goto-line
+ consult-imenu
+ consult-line
+ :preview-key 'any)
+
+(define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
+(define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
+
+(keymap-set search-map "s" #'consult-line)
+(keymap-set search-map "S" #'consult-ripgrep)
+
+(defun init-set-search-after-consult-line (&rest _args)
+  "Set `evil-ex-search-pattern' after `consult-line'."
+  (let ((pattern (car consult--line-history)))
+    (setq evil-ex-search-pattern (list pattern t t))
+    (evil-ex-nohighlight)))
+
+(advice-add #'consult-line :after #'init-set-search-after-consult-line)
+
+(defun init-consult-line-dwim (&optional start)
+  "Consult line of symbol at point.
+START see `consult-line'."
+  (interactive (list (not (not current-prefix-arg))))
+  (setq this-command 'consult-line)
+  (consult-line (init-thing-at-point-or-throw) start))
+
+(defun init-consult-ripgrep-dwim (&optional dir)
+  "Consult line of symbol at point.
+DIR see `consult-ripgrep'."
+  (interactive "P")
+  (setq this-command 'consult-ripgrep)
+  (consult-ripgrep dir (init-thing-at-point-or-throw)))
+
+(keymap-global-set "C-s"   #'init-consult-line-dwim)
+(keymap-global-set "C-S-s" #'init-consult-ripgrep-dwim)
+
+;;;;; outline
+
 (defvar init-consult-outline-history nil)
 
 (defun init-consult-outline-candidates ()
@@ -747,67 +786,7 @@ FUNC ARGS see `vertico--setup'."
                     :add-history (thing-at-point 'symbol))))
     (goto-char (cdr candidate))))
 
-(consult-customize
- consult-goto-line
- consult-line
- consult-imenu
- init-consult-outline
- :preview-key 'any)
-
-(define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
-(define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
-
-(keymap-set search-map "s" #'consult-line)
-(keymap-set search-map "i" #'consult-imenu)
-(keymap-set search-map "l" #'init-consult-outline)
-(keymap-set search-map "g" #'consult-ripgrep)
-(keymap-set search-map "f" #'consult-fd)
-
-(defun init-set-search-after-consult-line (&rest _args)
-  "Set `evil-ex-search-pattern' after `consult-line'."
-  (let ((pattern (car consult--line-history)))
-    (setq evil-ex-search-pattern (list pattern t t))
-    (evil-ex-nohighlight)))
-
-(advice-add #'consult-line :after #'init-set-search-after-consult-line)
-
-(defvar-keymap init-embark-consult-sync-search-map
-  "s" #'consult-line
-  "i" #'consult-imenu
-  "l" #'init-consult-outline)
-
-(defvar-keymap init-embark-consult-async-search-map
-  "g" #'consult-ripgrep
-  "f" #'consult-fd)
-
-(defvar init-embark-consult-search-map
-  (keymap-canonicalize
-   (make-composed-keymap
-    init-embark-consult-sync-search-map
-    init-embark-consult-async-search-map)))
-
-(fset 'init-embark-consult-sync-search-map init-embark-consult-sync-search-map)
-(keymap-set embark-become-match-map "C" 'init-embark-consult-sync-search-map)
-(fset 'init-embark-consult-search-map init-embark-consult-search-map)
-(keymap-set embark-general-map "C" 'init-embark-consult-search-map)
-(cl-pushnew 'init-embark-consult-async-search-map embark-become-keymaps)
-
-(defun init-consult-line-dwim (&optional start)
-  "Consult line of symbol at point.
-START see `consult-line'."
-  (interactive (list (not (not current-prefix-arg))))
-  (setq this-command 'consult-line)
-  (consult-line (init-thing-at-point-or-throw) start))
-
-(defun init-consult-ripgrep-dwim (&optional dir)
-  "Consult line of symbol at point.
-DIR see `consult-ripgrep'."
-  (interactive "P")
-  (setq this-command 'consult-ripgrep)
-  (consult-ripgrep dir (init-thing-at-point-or-throw)))
-
-(keymap-global-set "C-s"   #'init-consult-line-dwim)
-(keymap-global-set "C-S-g" #'init-consult-ripgrep-dwim)
+(consult-customize init-consult-outline :preview-key 'any)
 
 
 
@@ -1312,7 +1291,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
  "." #'xref-find-definitions
  "?" #'xref-find-references
  "," #'xref-go-back
- "i" #'consult-imenu
+ "i" #'imenu
  "l" #'init-consult-outline
  "9" #'init-wrap-pair-common
  "(" #'init-wrap-pair
