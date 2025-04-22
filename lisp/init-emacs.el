@@ -986,7 +986,6 @@ FUNC, SYM and NAME see `abbrev-get'."
 
 (setq dired-dwim-target t)
 (setq dired-auto-revert-buffer t)
-(setq dired-kill-when-opening-new-dired-buffer t)
 (setq dired-listing-switches "-lha")
 
 (put 'dired-jump 'repeat-map nil)
