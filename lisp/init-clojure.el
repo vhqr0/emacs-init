@@ -115,10 +115,10 @@ REPORT-FN see `init-flymake-make-proc'."
              (init-clojure-kondo-make-diags buffer))))
 
 (defun init-clojure-set-kondo ()
-  "Set kondo Flymake backends."
-  (setq init-flymake-available-function #'init-clojure-kondo-available-p
-        init-flymake-make-command-function #'init-clojure-kondo-make-command
-        init-flymake-report-diags-function #'init-clojure-kondo-report-diags)
+  "Set kondo Flymake backend."
+  (setq-local init-flymake-available-function #'init-clojure-kondo-available-p)
+  (setq-local init-flymake-make-command-function #'init-clojure-kondo-make-command)
+  (setq-local init-flymake-report-diags-function #'init-clojure-kondo-report-diags)
   (add-hook 'flymake-diagnostic-functions #'init-flymake-backend nil t))
 
 (add-hook 'clojure-mode-hook #'init-clojure-set-kondo)
