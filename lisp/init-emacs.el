@@ -863,6 +863,50 @@ DIR see `consult-ripgrep'."
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
+(defvar-local init-flymake-available-function nil)
+(defvar-local init-flymake-make-command-function nil)
+(defvar-local init-flymake-report-diags-function nil)
+
+(defvar-local init-flymake-proc nil)
+
+(defun init-flymake-make-proc (buffer report-fn)
+  "Make Flymake process for BUFFER.
+REPORT-FN see `init-flymake-backend'."
+  (-when-let (available-fn (buffer-local-value 'init-flymake-available-function buffer))
+    (when (funcall available-fn buffer)
+      (let* ((proc-buffer-name (format "*init-flymake for %s*" (buffer-name buffer)))
+             (make-command-fn (buffer-local-value 'init-flymake-make-command-function buffer))
+             (report-diags-fn (buffer-local-value 'init-flymake-report-diags-function buffer))
+             (command (funcall make-command-fn buffer))
+             (sentinel
+              (lambda (proc _event)
+                (when (memq (process-status proc) '(exit signal))
+                  (let ((proc-buffer (process-buffer proc)))
+                    (unwind-protect
+                        (if (eq proc (buffer-local-value 'init-flymake-proc buffer))
+                            (funcall report-diags-fn buffer proc-buffer report-fn)
+                          (flymake-log :warning "Canceling obsolete checker %s" proc))
+                      (kill-buffer proc-buffer)))))))
+        (make-process
+         :name proc-buffer-name
+         :noquery t
+         :connection-type 'pipe
+         :buffer (generate-new-buffer-name proc-buffer-name)
+         :command command
+         :sentinel sentinel)))))
+
+(defun init-flymake-backend (report-fn &rest _args)
+  "Generic Flymake backend.
+REPORT-FN see `flymake-diagnostic-functions'."
+  (-when-let (proc (init-flymake-make-proc (current-buffer) report-fn))
+    (when (process-live-p init-flymake-proc)
+      (kill-process init-flymake-proc))
+    (setq init-flymake-proc proc)
+    (save-restriction
+      (widen)
+      (process-send-region proc (point-min) (point-max))
+      (process-send-eof proc))))
+
 ;;;; eldoc
 
 (require 'eldoc)

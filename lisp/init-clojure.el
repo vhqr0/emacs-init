@@ -64,17 +64,14 @@
 
 ;;; flymake
 
-(defvar init-clojure-kondo-buffer-name "*flymake-clj-kondo*")
-
 (defvar init-clojure-kondo-program "clj-kondo")
 
-(defconst init-clojure-kondo-diag-regexp
-  "^.+:\\([[:digit:]]+\\):\\([[:digit:]]+\\): \\([[:alpha:]]+\\): \\(.+\\)$")
+(defun init-clojure-kondo-available-p (_buffer)
+  "Check kondo available."
+  (executable-find init-clojure-kondo-program))
 
-(defvar-local init-clojure-kondo-proc nil)
-
-(defun init-clojure-build-kondo-command (buffer)
-  "Build clj-kondo command of BUFFER for Flymake."
+(defun init-clojure-kondo-make-command (buffer)
+  "Make kondo command for BUFFER."
   (let ((buffer-file-name (buffer-file-name buffer))
         (lang (if (not buffer-file-name)
                   "clj"
@@ -85,73 +82,46 @@
       ,@(when buffer-file-name
           `("--filename" ,buffer-file-name)))))
 
-(defun init-clojure-get-kondo-error-type (type-string)
-  "Get clj-kondo error type for Flymake from TYPE-STRING."
-  (cond ((string= type-string "error") :error)
-        ((string= type-string "warning") :warning)
-        (t :none)))
+(defconst init-clojure-kondo-diag-regexp
+  "^.+:\\([[:digit:]]+\\):\\([[:digit:]]+\\): \\([[:alpha:]]+\\): \\(.+\\)$")
 
-(defun init-clojure-make-kondo-diag (buffer)
-  "Build clj-kondo diag of BUFFER for Flymake."
+(defvar init-clojure-kondo-type-alist
+  '(("error" . :error) ("warning" . :warning)))
+
+(defun init-clojure-kondo-make-diag (buffer)
+  "Make Flymake diag for BUFFER from `match-string'."
   (let* ((row (string-to-number (match-string 1)))
          (col (string-to-number (match-string 2)))
-         (type (init-clojure-get-kondo-error-type (match-string 3)))
+         (type (-> (match-string 3) (assoc init-clojure-kondo-type-alist) (cdr)))
          (msg (match-string 4))
          (region (flymake-diag-region buffer row col)))
-    (flymake-make-diagnostic buffer (car region) (cdr region) type msg)))
+    (flymake-make-diagnostic
+     buffer (car region) (cdr region) (or type :none) msg)))
 
-(defun init-clojure-make-kondo-diag-list (buffer)
-  "Build clj-kondo diag list of BUFFER for flymake."
+(defun init-clojure-kondo-make-diags (buffer)
+  "Make Flymake diags for BUFFER."
   (let (diags)
     (while (search-forward-regexp init-clojure-kondo-diag-regexp nil t)
-      (push (init-clojure-make-kondo-diag buffer) diags))
+      (push (init-clojure-kondo-make-diag buffer) diags))
     (nreverse diags)))
 
-(defun init-clojure-kondo-sentinel (proc buffer report-fn)
-  "The clj-kondo sentinel of BUFFER and PROC for Flymake with REPORT-FN."
-  (when (memq (process-status proc) '(exit signal))
-    (let ((proc-buffer (process-buffer proc)))
-      (unwind-protect
-          (if (eq proc (buffer-local-value 'init-clojure-kondo-proc buffer))
-              (with-current-buffer proc-buffer
-                (goto-char (point-min))
-                (funcall report-fn (init-clojure-make-kondo-diag-list buffer)))
-            (flymake-log :warning "Canceling obsolete checker %s" proc))
-        (kill-buffer proc-buffer)))))
+(defun init-clojure-kondo-report-diags (buffer proc-buffer report-fn)
+  "Report Flymake diags in PROC-BUFFER for BUFFER.
+REPORT-FN see `init-flymake-make-proc'."
+  (funcall report-fn
+           (with-current-buffer proc-buffer
+             (widen)
+             (goto-char (point-min))
+             (init-clojure-kondo-make-diags buffer))))
 
-(defun init-clojure-make-kondo-sentinel (buffer report-fn)
-  "Build the clj-kondo process sentinel of BUFFER for Flymake with REPORT-FN."
-  (lambda (proc _event)
-    (init-clojure-kondo-sentinel proc buffer report-fn)))
+(defun init-clojure-set-kondo ()
+  "Set kondo Flymake backends."
+  (setq init-flymake-available-function #'init-clojure-kondo-available-p
+        init-flymake-make-command-function #'init-clojure-kondo-make-command
+        init-flymake-report-diags-function #'init-clojure-kondo-report-diags)
+  (add-hook 'flymake-diagnostic-functions #'init-flymake-backend nil t))
 
-(defun init-clojure-make-kondo-proc (buffer report-fn)
-  "Build the clj-kondo process of BUFFER for Flymake with REPORT-FN."
-  (make-process
-   :name init-clojure-kondo-buffer-name
-   :noquery t
-   :connection-type 'pipe
-   :buffer (generate-new-buffer init-clojure-kondo-buffer-name)
-   :command (init-clojure-build-kondo-command buffer)
-   :sentinel (init-clojure-make-kondo-sentinel buffer report-fn)))
-
-(defun init-clojure-flymake-kondo-backend (report-fn &rest _args)
-  "Build the Flymake backend for clj-kondo with REPORT-FN."
-  (unless (executable-find init-clojure-kondo-program)
-    (user-error "Executable kondo not found"))
-  (let ((proc (init-clojure-make-kondo-proc (current-buffer) report-fn)))
-    (when (process-live-p init-clojure-kondo-proc)
-      (kill-process init-clojure-kondo-proc))
-    (setq init-clojure-kondo-proc proc)
-    (save-restriction
-      (widen)
-      (process-send-region proc (point-min) (point-max)))
-    (process-send-eof proc)))
-
-(defun init-clojure-set-flymake ()
-  "Set Flymake backend."
-  (add-hook 'flymake-diagnostic-functions #'init-clojure-flymake-kondo-backend nil t))
-
-(add-hook 'clojure-mode-hook #'init-clojure-set-flymake)
+(add-hook 'clojure-mode-hook #'init-clojure-set-kondo)
 (add-hook 'clojure-mode-hook #'flymake-mode)
 
 
