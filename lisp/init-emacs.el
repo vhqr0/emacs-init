@@ -98,9 +98,9 @@ With two or more universal ARG, open in current window."
 (setq delete-old-versions t)
 (setq delete-by-moving-to-trash t)
 
-(setq auto-save-file-name-transforms `((".*" ,(expand-file-name "save/" user-emacs-directory) t))
-      lock-file-name-transforms      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t))
-      backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
+(setq auto-save-file-name-transforms `((".*" ,(expand-file-name "save/" user-emacs-directory) t)))
+(setq lock-file-name-transforms      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t)))
+(setq backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
 ;;;; auto save visited
 
