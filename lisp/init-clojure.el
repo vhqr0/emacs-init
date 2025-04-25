@@ -66,7 +66,7 @@
 
 (defvar init-clojure-kondo-program "clj-kondo")
 
-(defun init-clojure-kondo-executable-find (_buffer)
+(defun init-clojure-kondo-find-executable (_buffer)
   "Find kondo executable."
   (executable-find init-clojure-kondo-program))
 
@@ -116,7 +116,7 @@ REPORT-FN see `init-flymake-make-proc'."
 
 (defun init-clojure-set-kondo ()
   "Set kondo Flymake backend."
-  (setq-local init-flymake-executable-find-function #'init-clojure-kondo-executable-find)
+  (setq-local init-flymake-find-executable-function #'init-clojure-kondo-find-executable)
   (setq-local init-flymake-make-command-function #'init-clojure-kondo-make-command)
   (setq-local init-flymake-report-diags-function #'init-clojure-kondo-report-diags)
   (add-hook 'flymake-diagnostic-functions #'init-flymake-backend nil t))
