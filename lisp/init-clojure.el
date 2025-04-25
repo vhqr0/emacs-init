@@ -177,6 +177,12 @@ FUNC and ARGS see specific command."
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-M-q" #'cider-format-edn-last-sexp))
 
+(defun init-cider-repl-set-xref ()
+  "Set Xref backend for Cider REPL."
+  (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
+
+(add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
+
 ;;;; consult history
 
 (add-to-list 'consult-mode-histories
