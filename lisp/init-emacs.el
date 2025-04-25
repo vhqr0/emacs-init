@@ -872,8 +872,8 @@ DIR see `consult-ripgrep'."
 (defun init-flymake-make-proc (buffer report-fn)
   "Make Flymake process for BUFFER.
 REPORT-FN see `init-flymake-backend'."
-  (-when-let (available-fn (buffer-local-value 'init-flymake-executable-find-function buffer))
-    (when (funcall available-fn buffer)
+  (-when-let (executable-find-fn (buffer-local-value 'init-flymake-executable-find-function buffer))
+    (when (funcall executable-find-fn buffer)
       (let* ((proc-buffer-name (format "*init-flymake for %s*" (buffer-name buffer)))
              (make-command-fn (buffer-local-value 'init-flymake-make-command-function buffer))
              (report-diags-fn (buffer-local-value 'init-flymake-report-diags-function buffer))
