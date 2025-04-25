@@ -863,7 +863,7 @@ DIR see `consult-ripgrep'."
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
-(defvar-local init-flymake-available-function nil)
+(defvar-local init-flymake-executable-find-function nil)
 (defvar-local init-flymake-make-command-function nil)
 (defvar-local init-flymake-report-diags-function nil)
 
@@ -872,7 +872,7 @@ DIR see `consult-ripgrep'."
 (defun init-flymake-make-proc (buffer report-fn)
   "Make Flymake process for BUFFER.
 REPORT-FN see `init-flymake-backend'."
-  (-when-let (available-fn (buffer-local-value 'init-flymake-available-function buffer))
+  (-when-let (available-fn (buffer-local-value 'init-flymake-executable-find-function buffer))
     (when (funcall available-fn buffer)
       (let* ((proc-buffer-name (format "*init-flymake for %s*" (buffer-name buffer)))
              (make-command-fn (buffer-local-value 'init-flymake-make-command-function buffer))
