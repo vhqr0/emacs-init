@@ -922,6 +922,10 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (setq xref-search-program 'ripgrep)
 
+;;;; apheleia
+
+(require 'apheleia)
+
 ;;;; company
 
 (require 'company)
@@ -930,7 +934,6 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (require 'company-keywords)
 (require 'company-dabbrev)
 (require 'company-dabbrev-code)
-(require 'company-posframe)
 
 (setq company-lighter-base "Company")
 (setq company-idle-delay 0.1)
@@ -941,7 +944,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (setq company-dabbrev-downcase nil)
 (setq company-dabbrev-ignore-case t)
 (setq company-dabbrev-code-ignore-case t)
-(setq company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend))
+(setq company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend company-echo-metadata-frontend))
 (setq company-backends '(company-files company-capf (company-dabbrev-code company-keywords) company-dabbrev))
 
 (global-company-mode 1)
@@ -951,10 +954,6 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (keymap-set company-mode-map "C-c c" #'company-complete)
 
-(company-posframe-mode 1)
-
-(init-diminish-minor-mode 'company-posframe-mode)
-
 (defun init-around-company-capf-set-styles (func &rest args)
   "Set completion styles for `company-capf'.
 FUNC ARGS see `company-capf'."
@@ -963,17 +962,27 @@ FUNC ARGS see `company-capf'."
 
 (advice-add 'company-capf :around #'init-around-company-capf-set-styles)
 
+;;;;; posframe
+
+(require 'company-posframe)
+
+(setq company-posframe-lighter nil)
+(setq company-posframe-quickhelp-delay nil)
+(setq company-posframe-quickhelp-show-header nil)
+(setq company-posframe-show-metadata t)
+
+(company-posframe-mode 1)
+
+;;;;; minibuffer
+
 (defun init-minibuffer-set-company ()
   "Set company in minibuffer."
   (setq-local company-backends '(company-capf))
+  (setq-local company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend))
   (when global-company-mode
     (company-mode 1)))
 
 (add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
-
-;;;; apheleia
-
-(require 'apheleia)
 
 ;;;; eglot
 

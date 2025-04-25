@@ -44,9 +44,9 @@
      consult
      embark-consult
      ;; prog
+     apheleia
      company
      company-posframe
-     apheleia
      tempel
      ;; tools
      wgrep
