@@ -941,6 +941,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (setq company-selection-wrap-around t)
 (setq company-show-quick-access t)
 (setq company-tooltip-align-annotations t)
+(setq company-tooltip-minimum-width 40)
 (setq company-dabbrev-downcase nil)
 (setq company-dabbrev-ignore-case t)
 (setq company-dabbrev-code-ignore-case t)
