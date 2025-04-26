@@ -940,8 +940,6 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (setq company-minimum-prefix-length 2)
 (setq company-selection-wrap-around t)
 (setq company-show-quick-access t)
-(setq company-tooltip-minimum-width 40)
-(setq company-tooltip-width-grow-only t)
 (setq company-tooltip-align-annotations t)
 (setq company-dabbrev-downcase nil)
 (setq company-dabbrev-ignore-case t)
@@ -956,27 +954,6 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (keymap-set company-mode-map "C-c c" #'company-complete)
 
-(defun init-around-company-capf-set-styles (func &rest args)
-  "Set completion styles for `company-capf'.
-FUNC ARGS see `company-capf'."
-  (let ((completion-styles '(basic partial-completion)))
-    (apply func args)))
-
-(advice-add 'company-capf :around #'init-around-company-capf-set-styles)
-
-;;;;; posframe
-
-(require 'company-posframe)
-
-(setq company-posframe-lighter nil)
-(setq company-posframe-quickhelp-delay nil)
-(setq company-posframe-quickhelp-show-header nil)
-(setq company-posframe-show-metadata t)
-
-(company-posframe-mode 1)
-
-;;;;; minibuffer
-
 (defun init-minibuffer-set-company ()
   "Set company in minibuffer."
   (setq-local company-backends '(company-capf))
@@ -985,6 +962,14 @@ FUNC ARGS see `company-capf'."
     (company-mode 1)))
 
 (add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
+
+(defun init-around-company-capf-set-styles (func &rest args)
+  "Set completion styles for `company-capf'.
+FUNC ARGS see `company-capf'."
+  (let ((completion-styles '(basic partial-completion)))
+    (apply func args)))
+
+(advice-add 'company-capf :around #'init-around-company-capf-set-styles)
 
 ;;;; eglot
 

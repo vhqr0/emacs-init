@@ -46,7 +46,6 @@
      ;; prog
      apheleia
      company
-     company-posframe
      tempel
      ;; tools
      wgrep
