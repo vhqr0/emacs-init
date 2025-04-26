@@ -860,7 +860,7 @@ DIR see `consult-ripgrep'."
 
 (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
 
-(setq flymake-no-changes-timeout 2)
+(setq flymake-no-changes-timeout 1)
 (setq flymake-show-diagnostics-at-end-of-line 'short)
 
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
