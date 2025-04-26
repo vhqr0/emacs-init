@@ -954,10 +954,13 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (keymap-set company-mode-map "C-c c" #'company-complete)
 
+(defvar init-company-minibuffer-backends '(company-capf))
+(defvar init-company-minibuffer-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend))
+
 (defun init-minibuffer-set-company ()
   "Set company in minibuffer."
-  (setq-local company-backends '(company-capf))
-  (setq-local company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend))
+  (setq-local company-backends init-company-minibuffer-backends)
+  (setq-local company-frontends init-company-minibuffer-frontends)
   (when global-company-mode
     (company-mode 1)))
 
