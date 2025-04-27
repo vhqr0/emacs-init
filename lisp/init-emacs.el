@@ -641,10 +641,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
 
-(evil-collection-define-key 'normal 'vertico-map
-  "gg" #'vertico-first
-  "G"  #'vertico-last)
-
 (defvar init-vertico-disabled-commands '(kill-buffer))
 
 (defun init-around-vertico-setup (func &rest args)
