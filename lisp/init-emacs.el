@@ -636,8 +636,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-global-set "C-c z" #'vertico-suspend)
 
 (keymap-set vertico-map "C-l" #'vertico-directory-up)
-(keymap-set vertico-map "DEL" #'vertico-directory-delete-char)
-(keymap-set vertico-map "M-DEL" #'vertico-directory-delete-word)
 
 (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
 
