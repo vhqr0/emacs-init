@@ -24,6 +24,13 @@
 
 (add-hook 'clojure-mode-hook #'init-elisp-set-outline)
 
+(defun init-clojure-set-elec-pairs ()
+  "Set `electric-pair-pairs' for Clojure mode."
+  (setq-local electric-pair-pairs
+              (add-to-list 'electric-pair-pairs '(?` . ?`))))
+
+(add-hook 'clojure-mode-hook #'init-clojure-set-elec-pairs)
+
 (defun init-clojure-remove-comma-dwim ()
   "Remove comma dwim."
   (interactive)
