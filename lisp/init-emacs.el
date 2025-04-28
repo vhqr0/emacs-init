@@ -294,6 +294,10 @@ With two or more universal ARG, open in current window."
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
+(require 'hl-line)
+
+(setq hl-line-sticky-flag t)
+
 (require 'page-break-lines)
 
 (init-diminish-minor-mode 'page-break-lines-mode)
