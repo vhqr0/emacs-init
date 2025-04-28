@@ -236,6 +236,8 @@ With two or more universal ARG, open in current window."
 
 (require 'paren)
 
+(setq show-paren-style 'expression)
+
 (show-paren-mode 1)
 
 (require 'paredit)
