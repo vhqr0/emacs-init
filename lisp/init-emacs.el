@@ -122,7 +122,7 @@ With two or more universal ARG, open in current window."
 
 (require 'recentf)
 
-(setq recentf-max-saved-items 200)
+(setq recentf-max-saved-items 500)
 
 (recentf-mode 1)
 
