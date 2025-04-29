@@ -1421,16 +1421,9 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 ;;;; org
 
 (require 'org)
+(require 'org-agenda)
 (require 'org-capture)
 (require 'embark-org)
-
-(setq org-directory (expand-file-name "org" user-emacs-directory))
-(setq org-agenda-files (list org-directory))
-(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
-
-(setq org-capture-templates
-      '(("u" "Task Inactive" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")
-        ("t" "Task Active" entry (file+headline "" "Tasks") "* TODO %?\n%T\n%a")))
 
 (setq org-special-ctrl-a/e t)
 
@@ -1455,7 +1448,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set init-app-map "o" #'org-open-at-point-global)
 
 (keymap-global-set "C-c l" #'org-insert-link-global)
-(keymap-global-set "C-c C-l" #'org-insert-link-global)
 
 (defun init-org-echo-link ()
   "Echo org link in minibuffer."
@@ -1468,7 +1460,13 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;;;; agenda
 
-(require 'org-agenda)
+(setq org-directory (expand-file-name "org" user-emacs-directory))
+(setq org-agenda-files (list org-directory))
+(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
+
+(setq org-capture-templates
+      '(("u" "Task Inactive" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")
+        ("t" "Task Active" entry (file+headline "" "Tasks") "* TODO %?\n%T\n%a")))
 
 (evil-set-initial-state 'org-agenda-mode 'motion)
 
