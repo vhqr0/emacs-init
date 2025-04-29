@@ -443,6 +443,9 @@ FUNC and ARGS see `evil-set-cursor'."
 (defvar evil-collection-setup-minibuffer)
 (setq evil-collection-setup-minibuffer t)
 
+(defvar evil-collection-calendar-want-org-bindings)
+(setq evil-collection-calendar-want-org-bindings t)
+
 (require 'evil-collection)
 
 (evil-collection-init)
@@ -1426,7 +1429,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
 
 (setq org-capture-templates
-      '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
+      '(("u" "Task Inactive" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")
+        ("t" "Task Active" entry (file+headline "" "Tasks") "* TODO %?\n%T\n%a")))
 
 (setq org-special-ctrl-a/e t)
 
@@ -1461,6 +1465,52 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
       (message (match-string-no-properties 0)))))
 
 (keymap-set embark-org-link-map "e" #'init-org-echo-link)
+
+;;;;; agenda
+
+(require 'org-agenda)
+
+(evil-set-initial-state 'org-agenda-mode 'motion)
+
+(evil-define-key 'motion org-agenda-mode-map
+    (kbd "RET") #'org-agenda-switch-to
+    (kbd "<return>") #'org-agenda-switch-to
+    (kbd "TAB") #'org-agenda-goto
+    (kbd "<tab>") #'org-agenda-goto
+    (kbd "M-j") #'org-agenda-drag-line-forward
+    (kbd "M-k") #'org-agenda-drag-line-backward
+    "q" #'org-agenda-quit
+    "Q" #'org-agenda-Quit
+    "ZZ" #'org-agenda-quit
+    "ZQ" #'org-agenda-exit
+    "j" #'org-agenda-next-line
+    "k" #'org-agenda-previous-line
+    "gj" #'org-agenda-next-item
+    "gk" #'org-agenda-previous-item
+    "u" #'org-agenda-undo
+    "gr" #'org-agenda-redo
+    "gR" #'org-agenda-redo-all
+    "m" #'org-agenda-bulk-toggle
+    "M" #'org-agenda-bulk-mark-all
+    "U" #'org-agenda-bulk-unmark-all
+    "T" #'org-agenda-bulk-toggle-all
+    "%" #'org-agenda-bulk-mark-regexp
+    "x" #'org-agenda-bulk-action
+    "d" #'org-agenda-kill
+    "t" #'org-agenda-todo
+    "c" #'org-agenda-capture
+    "I" #'org-agenda-clock-in
+    "O" #'org-agenda-clock-out
+    "C" #'org-agenda-clock-cancel
+    "J" #'org-agenda-priority-down
+    "K" #'org-agenda-priority-up
+    "H" #'org-agenda-do-date-earlier
+    "L" #'org-agenda-do-date-later
+    "S" #'org-agenda-schedule
+    "D" #'org-agenda-deadline
+    "gv" #'org-agenda-view-mode-dispatch
+    "gd" #'org-agenda-goto-date
+    "g." #'org-agenda-goto-today)
 
 ;;;; markdown
 
