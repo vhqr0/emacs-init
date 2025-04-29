@@ -1508,9 +1508,9 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
     "L" #'org-agenda-do-date-later
     "S" #'org-agenda-schedule
     "D" #'org-agenda-deadline
-    "gv" #'org-agenda-view-mode-dispatch
+    "g." #'org-agenda-goto-today
     "gd" #'org-agenda-goto-date
-    "g." #'org-agenda-goto-today)
+    "gv" #'org-agenda-view-mode-dispatch)
 
 ;;;; markdown
 
