@@ -27,6 +27,7 @@
      ;; edit
      embark
      paredit
+     iedit
      goggles
      page-break-lines
      rainbow-delimiters

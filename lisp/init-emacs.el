@@ -264,6 +264,10 @@ With two or more universal ARG, open in current window."
   (let ((last-command-event ?\())
     (init-wrap-pair arg)))
 
+;;;; iedit
+
+(require 'iedit)
+
 ;;;; visual
 
 (require 'goggles)
