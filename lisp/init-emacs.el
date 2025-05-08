@@ -376,29 +376,32 @@ With two or more universal ARG, open in current window."
 ;; keybinding related options, must be set before evil loaded.
 
 (defvar evil-want-keybinding)
+(setq evil-want-keybinding nil)
+
 (defvar evil-want-minibuffer)
+(setq evil-want-minibuffer t)
+
 (defvar evil-want-C-u-scroll)
 (defvar evil-want-C-w-delete)
 (defvar evil-want-Y-yank-to-eol)
-(setq evil-want-keybinding nil)
-(setq evil-want-minibuffer t)
 (setq evil-want-C-u-scroll t)
 (setq evil-want-C-w-delete t)
 (setq evil-want-Y-yank-to-eol t)
 
-;; system related options, must be set before evil loaded.
+(defvar evil-respect-visual-line-mode)
+(setq evil-respect-visual-line-mode t)
+
+(defvar evil-search-module)
+(setq evil-search-module 'evil-search)
 
 (defvar evil-undo-system)
-(defvar evil-search-module)
 (setq evil-undo-system 'undo-redo)
-(setq evil-search-module 'evil-search)
 
 (require 'evil)
 
 (setq evil-want-fine-undo t)
 (setq evil-search-wrap nil)
 (setq evil-symbol-word-search t)
-(setq evil-respect-visual-line-mode t)
 
 (evil-mode 1)
 
