@@ -732,15 +732,19 @@ FUNC ARGS see `vertico--setup'."
   "Consult line of symbol at point.
 START see `consult-line'."
   (interactive (list (not (not current-prefix-arg))))
-  (setq this-command 'consult-line)
-  (consult-line (init-thing-at-point) start))
+  (let ((thing (init-thing-at-point)))
+    (deactivate-mark)
+    (setq this-command 'consult-line)
+    (consult-line thing start)))
 
 (defun init-consult-ripgrep-dwim (&optional dir)
   "Consult line of symbol at point.
 DIR see `consult-ripgrep'."
   (interactive "P")
-  (setq this-command 'consult-ripgrep)
-  (consult-ripgrep dir (init-thing-at-point)))
+  (let ((thing (init-thing-at-point)))
+    (deactivate-mark)
+    (setq this-command 'consult-ripgrep)
+    (consult-ripgrep dir thing)))
 
 (keymap-global-set "C-s"   #'init-consult-line-dwim)
 (keymap-global-set "C-S-s" #'init-consult-ripgrep-dwim)
@@ -1478,44 +1482,44 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-set-initial-state 'org-agenda-mode 'motion)
 
 (evil-define-key 'motion org-agenda-mode-map
-    (kbd "RET") #'org-agenda-switch-to
-    (kbd "<return>") #'org-agenda-switch-to
-    (kbd "TAB") #'org-agenda-goto
-    (kbd "<tab>") #'org-agenda-goto
-    (kbd "M-j") #'org-agenda-drag-line-forward
-    (kbd "M-k") #'org-agenda-drag-line-backward
-    "q" #'org-agenda-quit
-    "Q" #'org-agenda-Quit
-    "ZZ" #'org-agenda-quit
-    "ZQ" #'org-agenda-exit
-    "j" #'org-agenda-next-line
-    "k" #'org-agenda-previous-line
-    "gj" #'org-agenda-next-item
-    "gk" #'org-agenda-previous-item
-    "u" #'org-agenda-undo
-    "gr" #'org-agenda-redo
-    "gR" #'org-agenda-redo-all
-    "m" #'org-agenda-bulk-toggle
-    "M" #'org-agenda-bulk-mark-all
-    "U" #'org-agenda-bulk-unmark-all
-    "T" #'org-agenda-bulk-toggle-all
-    "%" #'org-agenda-bulk-mark-regexp
-    "x" #'org-agenda-bulk-action
-    "d" #'org-agenda-kill
-    "t" #'org-agenda-todo
-    "c" #'org-agenda-capture
-    "I" #'org-agenda-clock-in
-    "O" #'org-agenda-clock-out
-    "C" #'org-agenda-clock-cancel
-    "J" #'org-agenda-priority-down
-    "K" #'org-agenda-priority-up
-    "H" #'org-agenda-do-date-earlier
-    "L" #'org-agenda-do-date-later
-    "S" #'org-agenda-schedule
-    "D" #'org-agenda-deadline
-    "g." #'org-agenda-goto-today
-    "gd" #'org-agenda-goto-date
-    "gv" #'org-agenda-view-mode-dispatch)
+  (kbd "RET") #'org-agenda-switch-to
+  (kbd "<return>") #'org-agenda-switch-to
+  (kbd "TAB") #'org-agenda-goto
+  (kbd "<tab>") #'org-agenda-goto
+  (kbd "M-j") #'org-agenda-drag-line-forward
+  (kbd "M-k") #'org-agenda-drag-line-backward
+  "q" #'org-agenda-quit
+  "Q" #'org-agenda-Quit
+  "ZZ" #'org-agenda-quit
+  "ZQ" #'org-agenda-exit
+  "j" #'org-agenda-next-line
+  "k" #'org-agenda-previous-line
+  "gj" #'org-agenda-next-item
+  "gk" #'org-agenda-previous-item
+  "u" #'org-agenda-undo
+  "gr" #'org-agenda-redo
+  "gR" #'org-agenda-redo-all
+  "m" #'org-agenda-bulk-toggle
+  "M" #'org-agenda-bulk-mark-all
+  "U" #'org-agenda-bulk-unmark-all
+  "T" #'org-agenda-bulk-toggle-all
+  "%" #'org-agenda-bulk-mark-regexp
+  "x" #'org-agenda-bulk-action
+  "d" #'org-agenda-kill
+  "t" #'org-agenda-todo
+  "c" #'org-agenda-capture
+  "I" #'org-agenda-clock-in
+  "O" #'org-agenda-clock-out
+  "C" #'org-agenda-clock-cancel
+  "J" #'org-agenda-priority-down
+  "K" #'org-agenda-priority-up
+  "H" #'org-agenda-do-date-earlier
+  "L" #'org-agenda-do-date-later
+  "S" #'org-agenda-schedule
+  "D" #'org-agenda-deadline
+  "g." #'org-agenda-goto-today
+  "gd" #'org-agenda-goto-date
+  "gv" #'org-agenda-view-mode-dispatch)
 
 ;;;; markdown
 
