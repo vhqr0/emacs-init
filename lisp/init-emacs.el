@@ -717,9 +717,6 @@ FUNC ARGS see `vertico--setup'."
 (define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
 (define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
 
-(keymap-set search-map "s" #'consult-line)
-(keymap-set search-map "S" #'consult-ripgrep)
-
 (defun init-set-search-after-consult-line (&rest _args)
   "Set `evil-ex-search-pattern' after `consult-line'."
   (let ((pattern (car consult--line-history)))
@@ -728,29 +725,35 @@ FUNC ARGS see `vertico--setup'."
 
 (advice-add #'consult-line :after #'init-set-search-after-consult-line)
 
-(defun init-consult-line-dwim (&optional start)
-  "Consult line of symbol at point.
-START see `consult-line'."
-  (interactive (list (not (not current-prefix-arg))))
-  (let ((thing (init-thing-at-point)))
-    (deactivate-mark)
-    (setq this-command 'consult-line)
-    (consult-line thing start)))
+(defun init-consult-search (&optional arg initial)
+  "Consult search with INITIAL.
+Without universal ARG, search in this buffer with `consult-line'.
+With one universal ARG, search in project directory with `consult-ripgrep'.
+With two universal ARG, prompt for directory to search with `consult-ripgrep'."
+  (interactive "P")
+  (cond ((> (prefix-numeric-value arg) 4)
+         (setq this-command #'consult-ripgrep)
+         (consult-ripgrep t initial))
+        (arg
+         (setq this-command #'consult-ripgrep)
+         (consult-ripgrep nil initial))
+        (t
+         (setq this-command #'consult-line)
+         (consult-line initial))))
 
-(defun init-consult-ripgrep-dwim (&optional dir)
-  "Consult line of symbol at point.
-DIR see `consult-ripgrep'."
+(defun init-consult-search-dwim (&optional arg)
+  "Consult search dwim.
+ARG see `init-consult-search'."
   (interactive "P")
   (let ((thing (init-thing-at-point)))
     (deactivate-mark)
-    (setq this-command 'consult-ripgrep)
-    (consult-ripgrep dir thing)))
+    (init-consult-search arg thing)))
 
-(keymap-global-set "C-s"   #'init-consult-line-dwim)
-(keymap-global-set "C-S-s" #'init-consult-ripgrep-dwim)
+(keymap-set search-map "s" #'init-consult-search)
+(keymap-global-set "C-s" #'init-consult-search-dwim)
 
-(keymap-set embark-general-map "C-s"   #'consult-line)
-(keymap-set embark-general-map "C-S-s" #'consult-ripgrep)
+(keymap-set embark-general-map "C-s" #'consult-line)
+(keymap-set embark-general-map "C-r" #'consult-line)
 
 ;;;;; outline
 
