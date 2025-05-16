@@ -812,7 +812,6 @@ DIR see `consult-ripgrep'."
 
 ;;; help
 
-(keymap-set help-map "L" #'view-lossage)
 (keymap-set help-map "B" #'describe-keymap)
 (keymap-set help-map "p" #'describe-package)
 (keymap-set help-map "P" #'finder-by-keyword)
@@ -837,13 +836,13 @@ DIR see `consult-ripgrep'."
 ;; (find-function-mode 1)
 (find-function-setup-keys)
 
-(keymap-set help-map "l" #'find-library)
+(keymap-set help-map "L" #'find-library)
 (keymap-set help-map "F" #'find-function)
 (keymap-set help-map "V" #'find-variable)
-(keymap-set help-map "4 l" #'find-library-other-window)
+(keymap-set help-map "4 L" #'find-library-other-window)
 (keymap-set help-map "4 F" #'find-function-other-window)
 (keymap-set help-map "4 V" #'find-variable-other-window)
-(keymap-set help-map "5 l" #'find-library-other-frame)
+(keymap-set help-map "5 L" #'find-library-other-frame)
 (keymap-set help-map "5 F" #'find-function-other-frame)
 (keymap-set help-map "5 V" #'find-variable-other-frame)
 
