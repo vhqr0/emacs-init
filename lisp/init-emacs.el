@@ -783,7 +783,7 @@ ARG see `init-consult-search'."
           (setq stack (cons name (cdr stack)))
           (let ((name (concat
                        (propertize (format "%5d " line) 'face 'consult-line-number)
-                       (mapconcat #'identity (reverse stack) (propertize " / " 'face 'consult-line-number)))))
+                       (s-join (propertize " / " 'face 'consult-line-number) (reverse stack)))))
             (push (cons name marker) cands)))))
     (nreverse cands)))
 
