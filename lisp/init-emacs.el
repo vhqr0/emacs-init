@@ -4,6 +4,7 @@
 ;; Various init configuration for Emacs itself.
 
 (require 'dash)
+(require 's)
 (require 'init-core)
 
 ;;; Code:
@@ -176,10 +177,6 @@ With two or more universal ARG, open in current window."
 
 ;;;; windows
 
-(require 'winner)
-
-(winner-mode 1)
-
 (require 'windmove)
 
 (windmove-default-keybindings)
@@ -187,9 +184,11 @@ With two or more universal ARG, open in current window."
 (require 'tab-bar)
 
 (setq tab-bar-tab-hints t)
-(setq tab-bar-select-tab-modifiers '(meta))
+(setq tab-bar-select-tab-modifiers '(control))
+(setq tab-bar-close-last-tab-choice 'delete-frame)
 
 (tab-bar-mode 1)
+(tab-bar-history-mode 1)
 
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
 (keymap-global-set "C-S-W" #'tab-bar-close-tab)
@@ -440,8 +439,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-to-list 'init-disable-auto-save-visited-predicates #'evil-insert-state-p)
 
-(keymap-set evil-window-map "<left>" #'winner-undo)
-(keymap-set evil-window-map "<right>" #'winner-redo)
+(keymap-set evil-window-map "<left>" #'tab-bar-history-back)
+(keymap-set evil-window-map "<right>" #'tab-bar-history-forward)
 
 ;;;; evil collection
 
@@ -1133,7 +1132,7 @@ With two universal ARG, edit rg command."
   (->> (buffer-list)
        (--first
         (and (eq (buffer-local-value 'major-mode it) 'eshell-mode)
-             (string-prefix-p eshell-buffer-name (buffer-name it))
+             (s-starts-with? eshell-buffer-name (buffer-name it))
              (not (get-buffer-process it))
              (not (get-buffer-window it))))))
 

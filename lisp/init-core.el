@@ -22,6 +22,7 @@
 (defvar init-deps
   '((init-emacs
      dash
+     s
      ;; ui
      posframe
      ;; edit
