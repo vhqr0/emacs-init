@@ -5,6 +5,7 @@
 
 (require 'dash)
 (require 's)
+(require 'f)
 (require 'init-core)
 
 ;;; Code:
@@ -99,9 +100,9 @@ With two or more universal ARG, open in current window."
 (setq delete-old-versions t)
 (setq delete-by-moving-to-trash t)
 
-(setq auto-save-file-name-transforms `((".*" ,(expand-file-name "save/" user-emacs-directory) t)))
-(setq lock-file-name-transforms      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t)))
-(setq backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
+(setq auto-save-file-name-transforms `((".*" ,(f-expand "save/" user-emacs-directory) t)))
+(setq lock-file-name-transforms      `((".*" ,(f-expand "lock/" user-emacs-directory) t)))
+(setq backup-directory-alist         `((".*" . ,(f-expand "backup/" user-emacs-directory))))
 
 ;;;; auto save visited
 
@@ -941,6 +942,8 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (require 'apheleia)
 
+(setq apheleia-formatters-respect-indent-level nil)
+
 ;;;; company
 
 (require 'company)
@@ -999,7 +1002,7 @@ FUNC ARGS see `company-capf'."
 
 (require 'abbrev)
 
-(setq abbrev-file-name (expand-file-name "abbrevs.el" priv-directory))
+(setq abbrev-file-name (f-expand "abbrevs.el" priv-directory))
 
 (setq-default abbrev-mode t)
 
@@ -1028,7 +1031,7 @@ FUNC, SYM and NAME see `abbrev-get'."
 
 (require 'tempel)
 
-(setq tempel-path (expand-file-name "templates.eld" priv-directory))
+(setq tempel-path (f-expand "templates.eld" priv-directory))
 
 (keymap-set tempel-map "M-n" #'tempel-next)
 (keymap-set tempel-map "M-p" #'tempel-previous)
@@ -1110,7 +1113,7 @@ With two universal ARG, edit rg command."
 (require 'em-dirs)
 (require 'em-alias)
 
-(setq eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
+(setq eshell-aliases-file (f-expand "eshell-alias.esh" priv-directory))
 
 (defun init-eshell-set-outline ()
   "Set outline vars for Eshell."
@@ -1415,7 +1418,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;;;; flymake
 
-(setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
+(setq trusted-content (list (f-slash (f-abbrev init-lisp-directory))))
 
 (setq elisp-flymake-byte-compile-load-path load-path)
 
@@ -1472,9 +1475,9 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;;;; agenda
 
-(setq org-directory (expand-file-name "org" user-emacs-directory))
+(setq org-directory (f-expand "org" user-emacs-directory))
 (setq org-agenda-files (list org-directory))
-(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
+(setq org-default-notes-file (f-expand "inbox.org" org-directory))
 
 (setq org-capture-templates
       '(("u" "Task Inactive" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")
@@ -1536,6 +1539,28 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (init-leader-set markdown-mode-map
   "n b" #'markdown-narrow-to-block
   "n s" #'markdown-narrow-to-subtree)
+
+;;;; web
+
+(require 'sgml-mode)
+(require 'css-mode)
+(require 'js)
+
+(setq css-indent-offset 2)
+(setq js-indent-level 2)
+
+;;;; python
+
+(require 'python)
+
+(defvar init-python-modes '(python-mode python-ts-mode inferior-python-mode))
+(defvar init-python-mode-hooks '(python-base-mode-hook inferior-python-mode-hook))
+
+(setq python-shell-interpreter "python")
+(setq python-shell-interpreter-args "-m IPython --simple-prompt")
+
+(dolist (mode init-python-modes)
+  (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
 
 
 

@@ -7,15 +7,7 @@
 
 (require 'init-emacs)
 
-(defun init-wsl-clean-windows-path ()
-  "Clean windows path."
-  (let ((path (->> (getenv "PATH")
-                   (s-split ":")
-                   (--remove (s-starts-with? "/mnt/" it)))))
-    (setenv "PATH" (s-join ":" path))
-    (setq exec-path path)))
-
-(init-wsl-clean-windows-path)
+(setq exec-path (->> exec-path (--remove (s-starts-with? "/mnt/" it))))
 
 (setq browse-url-generic-program "/mnt/c/Windows/System32/cmd.exe")
 (setq browse-url-generic-args '("/c" "start"))

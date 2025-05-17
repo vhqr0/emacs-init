@@ -23,6 +23,7 @@
   '((init-emacs
      dash
      s
+     f
      ;; ui
      posframe
      ;; edit
@@ -78,7 +79,6 @@
 
 (defvar init-enabled-modules
   '(init-emacs
-    ;; init-python
     ;; init-clojure
     ;; init-pyim
     ;; init-roam
