@@ -11,9 +11,9 @@
   "Clean windows path."
   (let ((path (->> (getenv "PATH")
                    (s-split ":")
-                   (--remove (s-starts-with? "/mnt/" it))
-                   (s-join ":"))))
-    (setenv "PATH" path)))
+                   (--remove (s-starts-with? "/mnt/" it)))))
+    (setenv "PATH" (s-join ":" path))
+    (setq exec-path path)))
 
 (init-wsl-clean-windows-path)
 
