@@ -5,8 +5,6 @@
 
 ;;; Code:
 
-(require 'cl-lib)
-
 ;;; directories
 
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
@@ -77,7 +75,7 @@
      org-roam
      org-roam-ui)))
 
-(defvar init-enabled-modules
+(defvar init-modules
   '(init-emacs
     ;; init-clojure
     ;; init-pyim
@@ -85,15 +83,11 @@
     ;; init-wsl
     ))
 
-(defun init-required-packages ()
-  "Return required packages based on `init-deps' and `init-enabled-modules'."
-  (cl-delete-duplicates
-   (apply #'append
-          (mapcar
-           (lambda (module)
-             (cdr (assq module init-deps)))
-           init-enabled-modules))
-   :test #'equal))
+(defun init-packages ()
+  "Return required packages based on `init-deps' and `init-modules'."
+  (seq-mapcat
+   (lambda (module) (cdr (assq module init-deps)))
+   init-modules))
 
 ;;; packages
 
@@ -111,7 +105,7 @@
 (defun init-select-packages ()
   "Add required packages to selected packages."
   (interactive)
-  (dolist (package (init-required-packages))
+  (dolist (package (init-packages))
     (add-to-list 'package-selected-packages package))
   (custom-save-all))
 
@@ -120,7 +114,7 @@
 (defun init-install (&optional force)
   "Install all required packages.  FORCE reinstall."
   (interactive "P")
-  (dolist (package (init-required-packages))
+  (dolist (package (init-packages))
     (when (or force (not (package-installed-p package)))
       (package-install package))))
 
@@ -128,13 +122,13 @@
   "Compile all module files.  FORCE recompile."
   (interactive "P")
   (let ((compile-function (if force #'byte-compile-file #'byte-recompile-file)))
-    (dolist (module (cons 'init-core init-enabled-modules))
+    (dolist (module (cons 'init-core init-modules))
       (let ((filename (expand-file-name (concat (symbol-name module) ".el") init-lisp-directory)))
         (funcall compile-function filename)))))
 
 (defun init-load ()
   "Load all module files."
-  (dolist (module init-enabled-modules)
+  (dolist (module init-modules)
     (require module)))
 
 (provide 'init-core)
