@@ -191,6 +191,11 @@ With two or more universal ARG, open in current window."
 (tab-bar-mode 1)
 (tab-bar-history-mode 1)
 
+(defvar-keymap init-tab-bar-history-repeat-map
+  :repeat t
+  "<left>" #'tab-bar-history-back
+  "<right>" #'tab-bar-history-forward)
+
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
 (keymap-global-set "C-S-W" #'tab-bar-close-tab)
 
