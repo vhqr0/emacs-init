@@ -242,6 +242,7 @@ With two or more universal ARG, open in current window."
 (require 'paren)
 
 (setq show-paren-style 'expression)
+(setq show-paren-context-when-offscreen t)
 
 (show-paren-mode 1)
 
