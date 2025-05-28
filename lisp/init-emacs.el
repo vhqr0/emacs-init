@@ -185,7 +185,7 @@ With two or more universal ARG, open in current window."
 (require 'tab-bar)
 
 (setq tab-bar-tab-hints t)
-(setq tab-bar-select-tab-modifiers '(control))
+(setq tab-bar-select-tab-modifiers '(meta))
 (setq tab-bar-close-last-tab-choice 'delete-frame)
 
 (tab-bar-mode 1)
@@ -196,12 +196,17 @@ With two or more universal ARG, open in current window."
   "<left>" #'tab-bar-history-back
   "<right>" #'tab-bar-history-forward)
 
+(keymap-global-set "C-S-N" #'make-frame-command)
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
 (keymap-global-set "C-S-W" #'tab-bar-close-tab)
 
 (keymap-global-set "C-0" #'global-text-scale-adjust)
 (keymap-global-set "C--" #'global-text-scale-adjust)
 (keymap-global-set "C-=" #'global-text-scale-adjust)
+
+(keymap-global-set "C-M-0" #'text-scale-adjust)
+(keymap-global-set "C-M--" #'text-scale-decrease)
+(keymap-global-set "C-M-=" #'text-scale-increase)
 
 
 
