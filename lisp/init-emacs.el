@@ -313,12 +313,6 @@ With two or more universal ARG, open in current window."
 
 (setq hl-line-sticky-flag t)
 
-(require 'page-break-lines)
-
-(init-diminish-minor-mode 'page-break-lines-mode)
-
-(global-page-break-lines-mode 1)
-
 (require 'rainbow-delimiters)
 (require 'rainbow-identifiers)
 

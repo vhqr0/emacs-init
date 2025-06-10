@@ -29,7 +29,6 @@
      paredit
      iedit
      goggles
-     page-break-lines
      rainbow-delimiters
      rainbow-identifiers
      ;; evil
