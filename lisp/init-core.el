@@ -18,56 +18,48 @@
 ;;; deps
 
 (defvar init-deps
-  '((init-emacs
-     dash
-     s
-     f
-     ;; ui
-     posframe
-     ;; edit
-     embark
-     paredit
-     iedit
-     ;; evil
-     evil
-     evil-collection
-     evil-surround
-     ;; completion
-     orderless
-     marginalia
-     vertico
-     consult
-     embark-consult
-     ;; prog
-     apheleia
-     company
-     tempel
-     ;; tools
-     wgrep
-     with-editor
-     git-modes
-     magit
-     orgit
-     ;; lang
-     ;;; elisp
-     package-lint
-     package-lint-flymake
-     macrostep
-     ;;; org
-     htmlize
-     org-contrib
-     ;;; markdown
-     markdown-mode
-     edit-indirect)
-    (init-clojure
-     clojure-mode
-     cider)
-    (init-pyim
-     pyim
-     pyim-basedict)
-    (init-roam
-     org-roam
-     org-roam-ui)))
+  '((init-emacs . (dash
+                   s
+                   f
+                   posframe
+                   ;; edit
+                   embark
+                   paredit
+                   iedit
+                   ;; evil
+                   evil
+                   evil-collection
+                   evil-surround
+                   ;; compl
+                   orderless
+                   marginalia
+                   vertico
+                   consult
+                   embark-consult
+                   ;; prog
+                   apheleia
+                   company
+                   tempel
+                   ;; tools
+                   wgrep
+                   with-editor
+                   git-modes
+                   magit
+                   orgit
+                   ;; lang
+                   ;; * elisp
+                   package-lint
+                   package-lint-flymake
+                   macrostep
+                   ;; * org
+                   htmlize
+                   org-contrib
+                   ;; * markdown
+                   markdown-mode
+                   edit-indirect))
+    (init-clojure . (clojure-mode cider))
+    (init-pyim . (pyim pyim-basedict))
+    (init-roam . (org-roam org-roam-ui))))
 
 (defvar init-modules
   '(init-emacs
