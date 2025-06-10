@@ -1247,6 +1247,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "w" #'whitespace-mode
   "l" #'display-line-numbers-mode
   "L" #'init-toggle-line-numbers-type
+  "g" #'init-goggles-mode
   "c" #'init-capslock-mode
   "n" #'init-qwerty-prog-mode)
 
