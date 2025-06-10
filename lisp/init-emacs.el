@@ -571,10 +571,11 @@ FUNC and ARGS see `evil-set-cursor'."
     (let ((start most-positive-fixnum)
           (end 0))
       (dolist (change init-goggles-changes)
-        (setq start (min start (car change)))
-        (setq end (max end (cdr change)))
-        (set-marker (car change) nil)
-        (set-marker (cdr change) nil))
+        (when (eq (current-buffer) (marker-buffer (car change)))
+          (setq start (min start (car change)))
+          (setq end (max end (cdr change)))
+          (set-marker (car change) nil)
+          (set-marker (cdr change) nil)))
       (pulse-momentary-highlight-region start end)
       (setq init-goggles-changes nil))))
 
@@ -590,7 +591,7 @@ START END LEN see `after-change-functions'."
 
 (define-minor-mode init-goggles-mode
   "Init goggles mode."
-  :lighter ""
+  :lighter nil
   (if init-goggles-mode
       (progn
         (add-hook 'post-command-hook #'init-goggles-post-command nil t)
