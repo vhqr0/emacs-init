@@ -883,6 +883,46 @@ ARG see `init-consult-search'."
 
 ;;; prog
 
+;;;; abbrev
+
+(require 'abbrev)
+
+(setq abbrev-file-name (f-expand "abbrevs.el" priv-directory))
+
+(setq-default abbrev-mode t)
+
+(init-diminish-minor-mode 'abbrev-mode)
+
+(defvar init-abbrev-writing-file nil)
+
+(defun init-around-write-abbrev-file (func &rest args)
+  "Set `init-abbrev-writing-file' around `write-abbrev-file'.
+FUNC and ARGS see `write-abbrev-file'."
+  (let ((init-abbrev-writing-file t))
+    (apply func args)))
+
+(defun init-around-abbrev-get (func sym name)
+  "Check `init-abbrev-writing-file' around `abbrev-get'.
+Return 0 for abbrev count while writing abbrevs file.
+FUNC, SYM and NAME see `abbrev-get'."
+  (if (and init-abbrev-writing-file (eq name :count))
+      0
+    (funcall func sym name)))
+
+(advice-add #'write-abbrev-file :around #'init-around-write-abbrev-file)
+(advice-add #'abbrev-get :around #'init-around-abbrev-get)
+
+;;;; tempel
+
+(require 'tempel)
+
+(setq tempel-path (f-expand "templates.eld" priv-directory))
+
+(keymap-set tempel-map "M-n" #'tempel-next)
+(keymap-set tempel-map "M-p" #'tempel-previous)
+
+(global-tempel-abbrev-mode 1)
+
 ;;;; compile
 
 (require 'compile)
@@ -959,12 +999,6 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (setq xref-search-program 'ripgrep)
 
-;;;; apheleia
-
-(require 'apheleia)
-
-(setq apheleia-formatters-respect-indent-level nil)
-
 ;;;; company
 
 (require 'company)
@@ -1019,49 +1053,15 @@ FUNC ARGS see `company-capf'."
 
 (setq eglot-extend-to-xref t)
 
-;;;; abbrev
-
-(require 'abbrev)
-
-(setq abbrev-file-name (f-expand "abbrevs.el" priv-directory))
-
-(setq-default abbrev-mode t)
-
-(init-diminish-minor-mode 'abbrev-mode)
-
-(defvar init-abbrev-writing-file nil)
-
-(defun init-around-write-abbrev-file (func &rest args)
-  "Set `init-abbrev-writing-file' around `write-abbrev-file'.
-FUNC and ARGS see `write-abbrev-file'."
-  (let ((init-abbrev-writing-file t))
-    (apply func args)))
-
-(defun init-around-abbrev-get (func sym name)
-  "Check `init-abbrev-writing-file' around `abbrev-get'.
-Return 0 for abbrev count while writing abbrevs file.
-FUNC, SYM and NAME see `abbrev-get'."
-  (if (and init-abbrev-writing-file (eq name :count))
-      0
-    (funcall func sym name)))
-
-(advice-add #'write-abbrev-file :around #'init-around-write-abbrev-file)
-(advice-add #'abbrev-get :around #'init-around-abbrev-get)
-
-;;;; tempel
-
-(require 'tempel)
-
-(setq tempel-path (f-expand "templates.eld" priv-directory))
-
-(keymap-set tempel-map "M-n" #'tempel-next)
-(keymap-set tempel-map "M-p" #'tempel-previous)
-
-(global-tempel-abbrev-mode 1)
-
 
 
 ;;; tools
+
+;;;; apheleia
+
+(require 'apheleia)
+
+(setq apheleia-formatters-respect-indent-level nil)
 
 ;;;; dired
 

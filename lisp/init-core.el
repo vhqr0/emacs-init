@@ -37,10 +37,10 @@
                    consult
                    embark-consult
                    ;; prog
-                   apheleia
-                   company
                    tempel
+                   company
                    ;; tools
+                   apheleia
                    wgrep
                    with-editor
                    git-modes
