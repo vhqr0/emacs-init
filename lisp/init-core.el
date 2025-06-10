@@ -28,7 +28,6 @@
      embark
      paredit
      iedit
-     goggles
      rainbow-delimiters
      rainbow-identifiers
      ;; evil
@@ -36,7 +35,6 @@
      evil-collection
      evil-surround
      evil-snipe
-     evil-goggles
      ;; completion
      orderless
      marginalia

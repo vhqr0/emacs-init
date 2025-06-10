@@ -281,13 +281,6 @@ With two or more universal ARG, open in current window."
 
 ;;;; visual
 
-(require 'goggles)
-
-(init-diminish-minor-mode 'goggles-mode)
-
-(add-hook 'text-mode-hook #'goggles-mode)
-(add-hook 'prog-mode-hook #'goggles-mode)
-
 (defun init-set-trailing-whitespace-display ()
   "Set local display of trailing whitespace."
   (setq-local show-trailing-whitespace t))
@@ -492,26 +485,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-snipe-mode 1)
 (evil-snipe-override-mode 1)
 
-;;;; evil goggles
-
-(require 'evil-goggles)
-
-(add-to-list 'evil-goggles--commands
-             '(init-evil-operator-comment
-               :face evil-goggles-commentary-face
-               :switch evil-goggles-enable-commentary
-               :advice evil-goggles--generic-async-advice))
-
-(add-to-list 'evil-goggles--commands
-             '(init-evil-operator-eval
-               :face evil-goggles-commentary-face
-               :switch evil-goggles-enable-commentary
-               :advice evil-goggles--generic-async-advice))
-
-(init-diminish-minor-mode 'evil-goggles-mode)
-
-(evil-goggles-mode 1)
-
 ;;;; evil extra
 
 (defun init-evil-escape ()
@@ -592,6 +565,49 @@ FUNC and ARGS see `evil-set-cursor'."
   :keymap init-evil-override-mode-map)
 
 (init-evil-override-mode 1)
+
+
+
+;;; goggles
+
+(defvar init-goggles-changes nil)
+
+(defun init-goggles-post-command ()
+  "Highlight changes post command."
+  (when init-goggles-changes
+    (let ((start most-positive-fixnum)
+          (end 0))
+      (dolist (change init-goggles-changes)
+        (setq start (min start (car change)))
+        (setq end (max end (cdr change)))
+        (set-marker (car change) nil)
+        (set-marker (cdr change) nil))
+      (pulse-momentary-highlight-region start end)
+      (setq init-goggles-changes nil))))
+
+(defun init-goggles-after-change (start end len)
+  "Push change to history.
+START END LEN see `after-change-functions'."
+  (when (and (/= len 0) (= start end))
+    (when (> start (buffer-size))
+      (setq start (- start 1)))
+    (setq end (1+ start)))
+  (let ((change (cons (copy-marker start) (copy-marker end))))
+    (push change init-goggles-changes)))
+
+(define-minor-mode init-goggles-mode
+  "Init goggles mode."
+  :lighter ""
+  (if init-goggles-mode
+      (progn
+        (add-hook 'post-command-hook #'init-goggles-post-command nil t)
+        (add-hook 'after-change-functions #'init-goggles-after-change nil t))
+    (remove-hook 'post-command-hook #'init-goggles-post-command t)
+    (remove-hook 'after-change-functions #'init-goggles-after-change t)))
+
+(add-hook 'prog-mode-hook #'init-goggles-mode)
+(add-hook 'text-mode-hook #'init-goggles-mode)
+(add-hook 'minibuffer-mode-hook #'init-goggles-mode)
 
 
 
