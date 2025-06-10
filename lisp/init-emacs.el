@@ -104,7 +104,7 @@ With two or more universal ARG, open in current window."
 (setq lock-file-name-transforms      `((".*" ,(f-expand "lock/" user-emacs-directory) t)))
 (setq backup-directory-alist         `((".*" . ,(f-expand "backup/" user-emacs-directory))))
 
-;;;; auto save visited
+;;;; autosave
 
 (setq auto-save-visited-interval 0.5)
 
@@ -136,7 +136,7 @@ With two or more universal ARG, open in current window."
 
 (save-place-mode 1)
 
-;;;; so-long
+;;;; solong
 
 (require 'so-long)
 
@@ -154,7 +154,7 @@ With two or more universal ARG, open in current window."
 
 ;;; ui
 
-;;;; graphic elements
+;;;; graphic
 
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message nil)
@@ -487,7 +487,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-window-map "<left>" #'tab-bar-history-back)
 (keymap-set evil-window-map "<right>" #'tab-bar-history-forward)
 
-;;;; evil collection
+;;;; collection
 
 ;; must be set before evil collection loaded.
 
@@ -503,7 +503,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (init-diminish-minor-mode 'evil-collection-unimpaired-mode)
 
-;;;; evil surround
+;;;; surround
 
 (require 'evil-surround)
 
@@ -518,7 +518,9 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-evil-surround-mode 1)
 
-;;;; evil extra
+;;;; extra
+
+;;;;; escape
 
 (defun init-evil-escape ()
   ":imap jk <esc>."
@@ -535,6 +537,11 @@ FUNC and ARGS see `evil-set-cursor'."
             (push 'escape unread-command-events))
         (insert (if init-capslock-mode ?J ?j))
         (push event unread-command-events)))))
+
+(keymap-set evil-insert-state-map "j" #'init-evil-escape)
+(keymap-set evil-replace-state-map "j" #'init-evil-escape)
+
+;;;;; operators
 
 (evil-define-operator init-evil-operator-comment (beg end)
   :move-point nil
@@ -555,6 +562,12 @@ FUNC and ARGS see `evil-set-cursor'."
   (interactive "<r>")
   (-when-let (eval-function (cdr (assq major-mode init-evil-eval-function-alist)))
     (funcall eval-function beg end)))
+
+(keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
+(keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
+(keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
+
+;;;;; tobjs
 
 (evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
   (evil-range
@@ -577,17 +590,14 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-text-object init-evil-text-object-entire (count &optional _beg _end _type)
   (evil-range (point-min) (point-max) 'line))
 
-(keymap-set evil-insert-state-map "j" #'init-evil-escape)
-(keymap-set evil-replace-state-map "j" #'init-evil-escape)
-(keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
-(keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
-(keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
 (keymap-set evil-inner-text-objects-map "l" #'init-evil-inner-line)
 (keymap-set evil-outer-text-objects-map "l" #'init-evil-a-line)
 (keymap-set evil-inner-text-objects-map "d" #'init-evil-inner-defun)
 (keymap-set evil-outer-text-objects-map "d" #'init-evil-a-defun)
 (keymap-set evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
 (keymap-set evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
+
+;;;;; override
 
 (defvar-keymap init-evil-override-mode-map)
 
@@ -627,7 +637,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
 (keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
 
-;;;; completion style
+;;;; styles
 
 (setq completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
@@ -842,7 +852,7 @@ ARG see `init-consult-search'."
 (consult-customize consult-theme :preview-key '(:debounce 0.5 any))
 (define-key init-consult-override-mode-map [remap load-theme] #'consult-theme)
 
-;;;; find func
+;;;; findfunc
 
 (require 'find-func)
 
@@ -860,7 +870,7 @@ ARG see `init-consult-search'."
 (keymap-set help-map "5 F" #'find-function-other-frame)
 (keymap-set help-map "5 V" #'find-variable-other-frame)
 
-;;;; elisp lookup
+;;;; elookup
 
 (defun init-describe-symbol-dwim ()
   "Describe symbol at point."
