@@ -306,13 +306,6 @@ With two or more universal ARG, open in current window."
 
 (setq hl-line-sticky-flag t)
 
-(require 'rainbow-delimiters)
-(require 'rainbow-identifiers)
-
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-(add-hook 'prog-mode-hook #'rainbow-identifiers-mode)
-(add-hook 'dired-mode-hook #'rainbow-identifiers-mode)
-
 ;;;; keyboard
 
 (defun init-capslock-event (event)
@@ -1248,8 +1241,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "a r" #'auto-revert-mode
   "f s" #'flyspell-mode
   "f m" #'flymake-mode
-  "r d" #'rainbow-delimiters-mode
-  "r i" #'rainbow-identifiers-mode
   "t" #'toggle-truncate-lines
   "v" #'visual-line-mode
   "h" #'hl-line-mode

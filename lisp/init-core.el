@@ -28,8 +28,6 @@
      embark
      paredit
      iedit
-     rainbow-delimiters
-     rainbow-identifiers
      ;; evil
      evil
      evil-collection
