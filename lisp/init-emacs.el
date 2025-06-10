@@ -465,19 +465,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (global-evil-surround-mode 1)
 
-;;;; evil snipe
-
-(require 'evil-snipe)
-
-(setq evil-snipe-repeat-keys nil)
-(setq evil-snipe-smart-case t)
-(setq evil-snipe-skip-leading-whitespace t)
-
-(init-diminish-minor-mode 'evil-snipe-local-mode)
-
-(evil-snipe-mode 1)
-(evil-snipe-override-mode 1)
-
 ;;;; evil extra
 
 (defun init-evil-escape ()

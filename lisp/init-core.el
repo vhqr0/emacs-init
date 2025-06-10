@@ -32,7 +32,6 @@
      evil
      evil-collection
      evil-surround
-     evil-snipe
      ;; completion
      orderless
      marginalia
