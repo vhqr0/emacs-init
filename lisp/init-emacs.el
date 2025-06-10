@@ -1442,10 +1442,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (setq elisp-flymake-byte-compile-load-path load-path)
 
-(require 'package-lint-flymake)
-
-(add-hook 'emacs-lisp-mode-hook #'package-lint-flymake-setup)
-
 ;;;;; macrostep
 
 (require 'macrostep)

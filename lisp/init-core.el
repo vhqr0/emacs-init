@@ -48,8 +48,6 @@
                    orgit
                    ;; lang
                    ;; * elisp
-                   package-lint
-                   package-lint-flymake
                    macrostep
                    ;; * org
                    htmlize
