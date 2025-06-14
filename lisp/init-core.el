@@ -44,18 +44,14 @@
                    git-modes
                    magit
                    orgit
-                   ;; lang
-                   ;; * elisp
+                   ;; lang elisp
                    macrostep
-                   ;; * org
-                   htmlize
-                   org-contrib
-                   ;; * markdown
+                   ;; lang markdown
                    markdown-mode
                    edit-indirect))
     (init-clojure . (clojure-mode cider))
     (init-pyim . (pyim pyim-basedict posframe))
-    (init-roam . (org-roam org-roam-ui))))
+    (init-roam . (org-roam))))
 
 (defvar init-modules
   '(init-emacs
