@@ -941,50 +941,6 @@ FUNC, SYM and NAME see `abbrev-get'."
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
-(defvar-local init-flymake-find-executable-function nil)
-(defvar-local init-flymake-make-command-function nil)
-(defvar-local init-flymake-report-diags-function nil)
-
-(defvar-local init-flymake-proc nil)
-
-(defun init-flymake-make-proc (buffer report-fn)
-  "Make Flymake process for BUFFER.
-REPORT-FN see `init-flymake-backend'."
-  (-when-let (find-executable-fn (buffer-local-value 'init-flymake-find-executable-function buffer))
-    (when (funcall find-executable-fn buffer)
-      (let* ((proc-buffer-name (format "*init-flymake for %s*" (buffer-name buffer)))
-             (make-command-fn (buffer-local-value 'init-flymake-make-command-function buffer))
-             (report-diags-fn (buffer-local-value 'init-flymake-report-diags-function buffer))
-             (command (funcall make-command-fn buffer))
-             (sentinel
-              (lambda (proc _event)
-                (when (memq (process-status proc) '(exit signal))
-                  (let ((proc-buffer (process-buffer proc)))
-                    (unwind-protect
-                        (if (eq proc (buffer-local-value 'init-flymake-proc buffer))
-                            (funcall report-diags-fn buffer proc-buffer report-fn)
-                          (flymake-log :warning "Canceling obsolete checker %s" proc))
-                      (kill-buffer proc-buffer)))))))
-        (make-process
-         :name proc-buffer-name
-         :noquery t
-         :connection-type 'pipe
-         :buffer (generate-new-buffer-name proc-buffer-name)
-         :command command
-         :sentinel sentinel)))))
-
-(defun init-flymake-backend (report-fn &rest _args)
-  "Generic Flymake backend.
-REPORT-FN see `flymake-diagnostic-functions'."
-  (-when-let (proc (init-flymake-make-proc (current-buffer) report-fn))
-    (when (process-live-p init-flymake-proc)
-      (kill-process init-flymake-proc))
-    (setq init-flymake-proc proc)
-    (save-restriction
-      (widen)
-      (process-send-region proc (point-min) (point-max))
-      (process-send-eof proc))))
-
 ;;;; eldoc
 
 (require 'eldoc)
@@ -1393,10 +1349,56 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;; lang
 
+;;;; lisp common
+
+;;;;; outline
+
+(defun init-lisp-common-outline-level ()
+  "Return level of current outline heading."
+  (if (looking-at ";;\\([;*]+\\)")
+      (- (match-end 1) (match-beginning 1))
+    (funcall outline-level)))
+
+(defun init-lisp-common-set-outline ()
+  "Set outline vars."
+  (setq-local outline-regexp ";;[;*]+[\s\t]+")
+  (setq-local outline-level #'init-lisp-common-outline-level))
+
+;;;;; around last sexp
+
+(defun init-lisp-common-around-last-sexp (func &rest args)
+  "Around *-last-sexp command.
+Save point and forward sexp before command if looking at an open paren.
+FUNC and ARGS see specific command."
+  (save-excursion
+    (when (looking-at-p "(")
+      (forward-sexp))
+    (apply func args)))
+
 ;;;; elisp
 
 (defvar init-elisp-hooks
   '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
+
+(defvar init-elisp-around-last-sexp-commands
+  (list #'eval-last-sexp
+        #'eval-print-last-sexp
+        #'pp-eval-last-sexp
+        #'pp-macroexpand-last-sexp))
+
+(dolist (command init-elisp-around-last-sexp-commands)
+  (advice-add command :around #'init-lisp-common-around-last-sexp))
+
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
+  (keymap-set map "C-c C-k" #'eval-buffer)
+  (keymap-set map "C-C C-l" #'load-file)
+  (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp)
+  (define-key map [remap display-local-help] #'eldoc-doc-buffer))
+
+(dolist (hook init-elisp-hooks)
+  (add-hook hook #'init-lisp-common-set-outline))
+
+;;;;; ielm
 
 (require 'ielm)
 
@@ -1407,32 +1409,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (ielm))
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (keymap-set map "C-c C-k" #'eval-buffer)
-  (keymap-set map "C-C C-l" #'load-file)
-  (keymap-set map "C-c C-z" #'init-ielm-other-window)
-  (define-key map [remap display-local-help] #'eldoc-doc-buffer))
-
-;;;;; outline
-
-(defun init-elisp-outline-level ()
-  "Return level of current outline heading."
-  (if (looking-at ";;\\([;*]+\\)")
-      (- (match-end 1) (match-beginning 1))
-    (funcall outline-level)))
-
-(defun init-elisp-set-outline ()
-  "Set outline vars."
-  (setq-local outline-regexp ";;[;*]+[\s\t]+")
-  (setq-local outline-level #'init-elisp-outline-level))
-
-(dolist (hook init-elisp-hooks)
-  (add-hook hook #'init-elisp-set-outline))
-
-;;;;; dash
-
-(dash-register-info-lookup)
-
-(global-dash-fontify-mode 1)
+  (keymap-set map "C-c C-z" #'init-ielm-other-window))
 
 ;;;;; flymake
 
@@ -1440,12 +1417,13 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (setq elisp-flymake-byte-compile-load-path load-path)
 
-;;;;; macrostep
+(add-hook 'emacs-lisp-mode-hook #'flymake-mode)
 
-(require 'macrostep)
+;;;;; dash
 
-(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map inferior-emacs-lisp-mode-map))
-  (keymap-set map "C-c e" #'macrostep-expand))
+(dash-register-info-lookup)
+
+(global-dash-fontify-mode 1)
 
 ;;;; org
 

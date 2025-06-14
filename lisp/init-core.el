@@ -44,9 +44,7 @@
                    git-modes
                    magit
                    orgit
-                   ;; lang elisp
-                   macrostep
-                   ;; lang markdown
+                   ;; markdown
                    markdown-mode
                    edit-indirect))
     (init-clojure . (clojure-mode cider))
