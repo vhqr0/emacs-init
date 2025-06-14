@@ -21,7 +21,6 @@
   '((init-emacs . (dash
                    s
                    f
-                   posframe
                    ;; edit
                    embark
                    paredit
@@ -55,7 +54,7 @@
                    markdown-mode
                    edit-indirect))
     (init-clojure . (clojure-mode cider))
-    (init-pyim . (pyim pyim-basedict))
+    (init-pyim . (pyim pyim-basedict posframe))
     (init-roam . (org-roam org-roam-ui))))
 
 (defvar init-modules
