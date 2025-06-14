@@ -25,7 +25,6 @@
                    ;; edit
                    embark
                    paredit
-                   iedit
                    ;; evil
                    evil
                    evil-collection
