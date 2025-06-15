@@ -269,7 +269,8 @@ With two or more universal ARG, open in current window."
 (defun init-wrap-pair (&optional arg)
   "Insert pair, ARG see `insert-pair'."
   (interactive "P")
-  (insert-pair (or arg 1)))
+  (insert-pair (or arg 1))
+  (indent-sexp))
 
 ;;;; visual
 
@@ -464,10 +465,12 @@ FUNC and ARGS see `evil-set-cursor'."
 (defun init-wrap-pair-dwim ()
   "Wrap pair dwim."
   (interactive)
-  (let ((last-command-event ?\())
-    (if (and (evil-normal-state-p) (looking-at "("))
-        (call-interactively #'init-wrap-pair)
-      (call-interactively #'self-insert-command))))
+  (let ((last-command-event ?\()
+        (command (if (and (evil-normal-state-p) (looking-at "("))
+                     #'init-wrap-pair
+                   #'self-insert-command)))
+    (setq this-command command)
+    (call-interactively command)))
 
 (keymap-global-set "C-M-j" #'init-wrap-pair-dwim)
 
