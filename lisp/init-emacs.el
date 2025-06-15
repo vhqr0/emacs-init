@@ -110,13 +110,13 @@ With two or more universal ARG, open in current window."
 
 (add-to-list 'minor-mode-alist '(auto-save-visited-mode " ASave"))
 
-(defvar init-disable-auto-save-visited-predicates nil)
+(defvar init-disable-autosave-preds nil)
 
-(defun init-auto-save-visited-predicate ()
+(defun init-autosave-p ()
   "Predication of `auto-save-visited-mode'."
-  (not (run-hook-with-args-until-success 'init-disable-auto-save-visited-predicates)))
+  (not (run-hook-with-args-until-success 'init-disable-autosave-preds)))
 
-(setq auto-save-visited-predicate #'init-auto-save-visited-predicate)
+(setq auto-save-visited-predicate #'init-autosave-p)
 
 (auto-save-visited-mode 1)
 
@@ -164,13 +164,13 @@ With two or more universal ARG, open in current window."
 
 (setq ring-bell-function #'ignore)
 
-(defvar init-disabled-ui-modes
+(defvar init-disable-ui-modes
   '(blink-cursor-mode tooltip-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
 
 (defun init-disable-ui ()
   "Disable various ui modes."
   (interactive)
-  (dolist (mode init-disabled-ui-modes)
+  (dolist (mode init-disable-ui-modes)
     (when (fboundp mode)
       (funcall mode -1))))
 
@@ -397,6 +397,7 @@ START END LEN see `after-change-functions'."
 
 (define-minor-mode init-goggles-mode
   "Init goggles mode."
+  :group 'init
   :lighter nil
   (if init-goggles-mode
       (progn
@@ -447,16 +448,16 @@ START END LEN see `after-change-functions'."
 
 (evil-mode 1)
 
-(defvar init-evil-adjust-cursor-disabled-commands
+(defvar init-evil-disable-adjust-cursor-commands
   '(forward-sexp forward-list))
 
-(defun init-around-evil-adjust-cursor (func &rest args)
+(defun init-around-evil-adjust-cursor-filter-commands (func &rest args)
   "Dont adjust cursor after certain commands.
 FUNC and ARGS see `evil-set-cursor'."
-  (unless (memq this-command init-evil-adjust-cursor-disabled-commands)
+  (unless (memq this-command init-evil-disable-adjust-cursor-commands)
     (apply func args)))
 
-(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor)
+(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-filter-commands)
 
 (define-key evil-normal-state-map [remap yank-pop] nil t)
 
@@ -480,7 +481,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (set-keymap-parent evil-command-line-map minibuffer-local-map)
 
-(add-to-list 'init-disable-auto-save-visited-predicates #'evil-insert-state-p)
+(add-to-list 'init-disable-autosave-preds #'evil-insert-state-p)
 
 (keymap-set evil-window-map "<left>" #'tab-bar-history-back)
 (keymap-set evil-window-map "<right>" #'tab-bar-history-forward)
@@ -551,9 +552,7 @@ FUNC and ARGS see `evil-set-cursor'."
   (interactive "<r>")
   (narrow-to-region beg end))
 
-(defvar init-evil-eval-function-alist
-  '((emacs-lisp-mode . eval-region)
-    (lisp-interaction-mode . eval-region)))
+(defvar init-evil-eval-function-alist nil)
 
 (evil-define-operator init-evil-operator-eval (beg end)
   :move-point nil
@@ -674,15 +673,15 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
 
-(defvar init-vertico-disabled-commands '(kill-buffer))
+(defvar init-vertico-disable-commands '(kill-buffer))
 
-(defun init-around-vertico-setup (func &rest args)
-  "Disable vertico around `init-vertico-disabled-commands'.
+(defun init-around-vertico-setup-filter-commands (func &rest args)
+  "Disable vertico around `init-vertico-disable-commands'.
 FUNC ARGS see `vertico--setup'."
-  (unless (memq this-command init-vertico-disabled-commands)
+  (unless (memq this-command init-vertico-disable-commands)
     (apply func args)))
 
-(advice-add 'vertico--setup :around #'init-around-vertico-setup)
+(advice-add 'vertico--setup :around #'init-around-vertico-setup-filter-commands)
 
 (defun init-vertico-embark-preview ()
   "Previews candidate in vertico buffer."
@@ -736,13 +735,13 @@ FUNC ARGS see `vertico--setup'."
 (define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
 (define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
 
-(defun init-set-search-after-consult-line (&rest _args)
+(defun init-after-consult-line-set-search (&rest _args)
   "Set `evil-ex-search-pattern' after `consult-line'."
   (let ((pattern (car consult--line-history)))
     (setq evil-ex-search-pattern (list pattern t t))
     (evil-ex-nohighlight)))
 
-(advice-add #'consult-line :after #'init-set-search-after-consult-line)
+(advice-add #'consult-line :after #'init-after-consult-line-set-search)
 
 (defun init-consult-search (&optional arg initial)
   "Consult search with INITIAL.
@@ -1007,13 +1006,13 @@ EXPANSION may be:
 
 (keymap-set company-mode-map "C-c c" #'company-complete)
 
-(defvar init-company-minibuffer-backends '(company-capf))
-(defvar init-company-minibuffer-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend))
+(defvar init-minibuffer-company-backends '(company-capf))
+(defvar init-minibuffer-company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend))
 
 (defun init-minibuffer-set-company ()
   "Set company in minibuffer."
-  (setq-local company-backends init-company-minibuffer-backends)
-  (setq-local company-frontends init-company-minibuffer-frontends)
+  (setq-local company-backends init-minibuffer-company-backends)
+  (setq-local company-frontends init-minibuffer-company-frontends)
   (when global-company-mode
     (company-mode 1)))
 
@@ -1392,7 +1391,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;;;; around last sexp
 
-(defun init-lisp-common-around-last-sexp (func &rest args)
+(defun init-lisp-common-around-last-sexp-maybe-forward (func &rest args)
   "Around *-last-sexp command.
 Save point and forward sexp before command if looking at an open paren.
 FUNC and ARGS see specific command."
@@ -1403,17 +1402,20 @@ FUNC and ARGS see specific command."
 
 ;;;; elisp
 
+(defvar init-elisp-modes
+  '(emacs-lisp-mode lisp-interaction-mode))
+
 (defvar init-elisp-hooks
   '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
 
-(defvar init-elisp-around-last-sexp-commands
+(defvar init-elisp-last-sexp-commands
   (list #'eval-last-sexp
         #'eval-print-last-sexp
         #'pp-eval-last-sexp
         #'pp-macroexpand-last-sexp))
 
-(dolist (command init-elisp-around-last-sexp-commands)
-  (advice-add command :around #'init-lisp-common-around-last-sexp))
+(dolist (command init-elisp-last-sexp-commands)
+  (advice-add command :around #'init-lisp-common-around-last-sexp-maybe-forward))
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-k" #'eval-buffer)
@@ -1423,6 +1425,9 @@ FUNC and ARGS see specific command."
 
 (dolist (hook init-elisp-hooks)
   (add-hook hook #'init-lisp-common-set-outline))
+
+(dolist (mode init-elisp-modes)
+  (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
 
 ;;;;; ielm
 
@@ -1460,12 +1465,12 @@ FUNC and ARGS see specific command."
 
 (setq org-special-ctrl-a/e t)
 
-(defun init-org-modify-syntax ()
+(defun init-org-set-syntax ()
   "Modify `org-mode' syntax table."
   (modify-syntax-entry ?< "." org-mode-syntax-table)
   (modify-syntax-entry ?> "." org-mode-syntax-table))
 
-(add-hook 'org-mode-hook #'init-org-modify-syntax)
+(add-hook 'org-mode-hook #'init-org-set-syntax)
 
 (keymap-set org-mode-map "C-c C-'" #'org-edit-special)
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
@@ -1571,8 +1576,11 @@ FUNC and ARGS see specific command."
 
 (require 'python)
 
-(defvar init-python-modes '(python-mode python-ts-mode inferior-python-mode))
-(defvar init-python-mode-hooks '(python-base-mode-hook inferior-python-mode-hook))
+(defvar init-python-modes
+  '(python-mode python-ts-mode inferior-python-mode))
+
+(defvar init-python-hooks
+  '(python-base-mode-hook inferior-python-mode-hook))
 
 (setq python-shell-interpreter "python")
 (setq python-shell-interpreter-args "-m IPython --simple-prompt")

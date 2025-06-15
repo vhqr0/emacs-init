@@ -89,7 +89,7 @@
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
-(defvar init-cider-around-last-sexp-commands
+(defvar init-cider-last-sexp-commands
   (list #'cider-eval-last-sexp
         #'cider-eval-last-sexp-to-repl
         #'cider-eval-last-sexp-in-context
@@ -106,8 +106,8 @@
         #'cider-macroexpand-1-inplace
         #'cider-macroexpand-all-inplace))
 
-(dolist (command init-cider-around-last-sexp-commands)
-  (advice-add command :around #'init-lisp-common-around-last-sexp))
+(dolist (command init-cider-last-sexp-commands)
+  (advice-add command :around #'init-lisp-common-around-last-sexp-maybe-forward))
 
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
 (keymap-set cider-mode-map "C-c C-i" #'cider-insert-last-sexp-in-repl)
@@ -121,8 +121,6 @@
   (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
 
 (add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
-
-;;;; history
 
 (add-to-list 'consult-mode-histories
              '(cider-repl-mode cider-repl-input-history cider-repl-input-history-position cider-repl-bol-mark))
