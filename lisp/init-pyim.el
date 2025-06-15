@@ -103,8 +103,7 @@
 
 (defun init-pyim-around-self-insert-command (func)
   "Disable `self-insert-command' like command when use pyim.
-FUNC see `init-evil-escape', `init-capslock-self-insert' and
-`init-qwerty-prog-self-insert'."
+FUNC see `init-evil-escape'."
   (if current-input-method
       (progn
         (setq this-command #'self-insert-command
@@ -113,8 +112,6 @@ FUNC see `init-evil-escape', `init-capslock-self-insert' and
     (funcall func)))
 
 (advice-add #'init-evil-escape :around #'init-pyim-around-self-insert-command)
-(advice-add #'init-capslock-self-insert :around #'init-pyim-around-self-insert-command)
-(advice-add #'init-qwerty-prog-self-insert :around #'init-pyim-around-self-insert-command)
 
 (provide 'init-pyim)
 ;;; init-pyim.el ends here

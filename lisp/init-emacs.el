@@ -271,12 +271,6 @@ With two or more universal ARG, open in current window."
   (interactive "P")
   (insert-pair (or arg 1)))
 
-(defun init-wrap-pair-common (&optional arg)
-  "Insert pair (, ARG see `init-wrap-pair'."
-  (interactive "P")
-  (let ((last-command-event ?\())
-    (init-wrap-pair arg)))
-
 ;;;; visual
 
 (defun init-set-trailing-whitespace-display ()
@@ -303,60 +297,6 @@ With two or more universal ARG, open in current window."
 (require 'hl-line)
 
 (setq hl-line-sticky-flag t)
-
-;;;; keyboard
-
-(defun init-capslock-event (event)
-  "Convert capslock last command EVENT."
-  (if (numberp event) (upcase event) event))
-
-(defun init-capslock-self-insert ()
-  "Self insert with upcase lower case char."
-  (interactive)
-  (let ((last-command-event (init-capslock-event last-command-event)))
-    (setq this-command #'self-insert-command)
-    (call-interactively #'self-insert-command)))
-
-(defvar-keymap init-capslock-mode-map)
-
-(define-key init-capslock-mode-map [remap self-insert-command] #'init-capslock-self-insert)
-
-(define-minor-mode init-capslock-mode
-  "Upcase lower case key."
-  :group 'init
-  :global t
-  :lighter " Capslock"
-  :keymap init-capslock-mode-map)
-
-(defvar init-qwerty-prog-bindings
-  '((?1 . ?!) (?2 . ?@) (?3 . ?#) (?4 . ?$) (?5 . ?%) (?6 . ?^) (?7 . ?&) (?8 . ?*) (?9 . ?\() (?0 . ?\))
-    (?! . ?1) (?@ . ?2) (?# . ?3) (?$ . ?4) (?% . ?5) (?^ . ?6) (?& . ?7) (?* . ?8) (?\( . ?9) (?\) . ?0)))
-
-(defun init-qwerty-prog-event (event)
-  "Convert qwerty prog last command EVENT."
-  (let ((binding (assq event init-qwerty-prog-bindings)))
-    (or (cdr binding) event)))
-
-(defun init-qwerty-prog-self-insert ()
-  "Self insert with qwerty prog keyboard translation."
-  (interactive)
-  (let ((last-command-event (init-qwerty-prog-event last-command-event)))
-    (setq this-command #'self-insert-command)
-    (call-interactively #'self-insert-command)))
-
-(defvar-keymap init-qwerty-prog-mode-map)
-
-(dolist (binding init-qwerty-prog-bindings)
-  (define-key init-qwerty-prog-mode-map (vector (car binding)) #'init-qwerty-prog-self-insert))
-
-(define-minor-mode init-qwerty-prog-mode
-  "Invert number key in qwerty keyboard."
-  :group 'init
-  :global t
-  :lighter " QwertyProg"
-  :keymap init-qwerty-prog-mode-map)
-
-(init-qwerty-prog-mode 1)
 
 ;;;; goggles
 
@@ -518,6 +458,18 @@ FUNC and ARGS see `evil-set-cursor'."
 (global-evil-surround-mode 1)
 
 ;;;; extra
+
+;;;;; parens
+
+(defun init-wrap-pair-dwim ()
+  "Wrap pair dwim."
+  (interactive)
+  (let ((last-command-event ?\())
+    (if (and (evil-normal-state-p) (looking-at "("))
+        (call-interactively #'init-wrap-pair)
+      (call-interactively #'self-insert-command))))
+
+(keymap-global-set "C-M-j" #'init-wrap-pair-dwim)
 
 ;;;;; escape
 
@@ -1233,9 +1185,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "w" #'whitespace-mode
   "l" #'display-line-numbers-mode
   "L" #'init-toggle-line-numbers-type
-  "g" #'init-goggles-mode
-  "c" #'init-capslock-mode
-  "n" #'init-qwerty-prog-mode)
+  "g" #'init-goggles-mode)
 
 (keymap-global-set "C-c m" init-minor-map)
 
@@ -1361,7 +1311,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
  "," #'xref-go-back
  "i" #'imenu
  "l" #'init-consult-outline
- "9" #'init-wrap-pair-common
  "(" #'init-wrap-pair
  "[" #'init-wrap-pair
  "{" #'init-wrap-pair
