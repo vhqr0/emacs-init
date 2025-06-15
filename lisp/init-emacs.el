@@ -466,9 +466,9 @@ FUNC and ARGS see `evil-set-cursor'."
   "Wrap pair dwim."
   (interactive)
   (let ((last-command-event ?\()
-        (command (if (and (evil-normal-state-p) (looking-at "("))
+        (command (if (evil-normal-state-p)
                      #'init-wrap-pair
-                   #'self-insert-command)))
+                   #'insert-pair)))
     (setq this-command command)
     (call-interactively command)))
 
