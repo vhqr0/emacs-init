@@ -479,14 +479,14 @@ FUNC and ARGS see `evil-set-cursor'."
   (if (or executing-kbd-macro
           defining-kbd-macro
           (sit-for 0.15 t))
-      (insert (if init-capslock-mode ?J ?j))
+      (insert ?j)
     (let ((event (read-event)))
       (if (= event ?k)
           (progn
             (setq this-command #'ignore
                   real-this-command #'ignore)
             (push 'escape unread-command-events))
-        (insert (if init-capslock-mode ?J ?j))
+        (insert ?j)
         (push event unread-command-events)))))
 
 (keymap-set evil-insert-state-map "j" #'init-evil-escape)
