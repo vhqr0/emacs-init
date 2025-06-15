@@ -881,6 +881,38 @@ ARG see `init-consult-search'."
 
 ;;; prog
 
+;;;; compile
+
+(require 'compile)
+(require 'ansi-color)
+
+(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
+
+;;;; flymake
+
+(require 'flymake)
+(require 'flymake-proc)
+
+(remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
+
+(setq flymake-no-changes-timeout 1)
+(setq flymake-show-diagnostics-at-end-of-line 'short)
+
+(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
+(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
+
+;;;; eldoc
+
+(require 'eldoc)
+
+(setq eldoc-minor-mode-string nil)
+
+;;;; xref
+
+(require 'xref)
+
+(setq xref-search-program 'ripgrep)
+
 ;;;; abbrev
 
 (require 'abbrev)
@@ -897,8 +929,6 @@ ARG see `init-consult-search'."
 (init-diminish-minor-mode 'yas-minor-mode)
 
 (yas-global-mode 1)
-
-;;;;; abbrevs
 
 (defun init-define-yas-abbrev (table abbrev snippet &optional env)
   "Define an ABBREV in TABLE, to expand a yas SNIPPET with ENV."
@@ -948,38 +978,6 @@ EXPANSION may be:
           (init-define-abbrev-table (car def) (cdr def)))))))
 
 (init-load-abbrevs)
-
-;;;; compile
-
-(require 'compile)
-(require 'ansi-color)
-
-(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
-
-;;;; flymake
-
-(require 'flymake)
-(require 'flymake-proc)
-
-(remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
-
-(setq flymake-no-changes-timeout 1)
-(setq flymake-show-diagnostics-at-end-of-line 'short)
-
-(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
-(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
-
-;;;; eldoc
-
-(require 'eldoc)
-
-(setq eldoc-minor-mode-string nil)
-
-;;;; xref
-
-(require 'xref)
-
-(setq xref-search-program 'ripgrep)
 
 ;;;; company
 
