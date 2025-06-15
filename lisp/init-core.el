@@ -35,7 +35,7 @@
                    consult
                    embark-consult
                    ;; prog
-                   tempel
+                   yasnippet
                    company
                    ;; tools
                    apheleia

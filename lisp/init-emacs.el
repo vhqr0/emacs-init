@@ -885,41 +885,69 @@ ARG see `init-consult-search'."
 
 (require 'abbrev)
 
-(setq abbrev-file-name (f-expand "abbrevs.el" priv-directory))
-
 (setq-default abbrev-mode t)
 
 (init-diminish-minor-mode 'abbrev-mode)
 
-(defvar init-abbrev-writing-file nil)
+(defvar yas-alias-to-yas/prefix-p)
+(setq yas-alias-to-yas/prefix-p nil)
 
-(defun init-around-write-abbrev-file (func &rest args)
-  "Set `init-abbrev-writing-file' around `write-abbrev-file'.
-FUNC and ARGS see `write-abbrev-file'."
-  (let ((init-abbrev-writing-file t))
-    (apply func args)))
+(require 'yasnippet)
 
-(defun init-around-abbrev-get (func sym name)
-  "Check `init-abbrev-writing-file' around `abbrev-get'.
-Return 0 for abbrev count while writing abbrevs file.
-FUNC, SYM and NAME see `abbrev-get'."
-  (if (and init-abbrev-writing-file (eq name :count))
-      0
-    (funcall func sym name)))
+(init-diminish-minor-mode 'yas-minor-mode)
 
-(advice-add #'write-abbrev-file :around #'init-around-write-abbrev-file)
-(advice-add #'abbrev-get :around #'init-around-abbrev-get)
+(yas-global-mode 1)
 
-;;;; tempel
+;;;;; abbrevs
 
-(require 'tempel)
+(defun init-define-yas-abbrev (table abbrev snippet &optional env)
+  "Define an ABBREV in TABLE, to expand a yas SNIPPET with ENV."
+  (let ((length (length abbrev))
+        (hook (make-symbol abbrev)))
+    (put hook 'no-self-insert t)
+    (fset hook (lambda ()
+                 (let* ((point (point)))
+                   (yas-expand-snippet snippet (- point length) point env))))
+    (define-abbrev table abbrev 'yas hook :system t)))
 
-(setq tempel-path (f-expand "templates.eld" priv-directory))
+(defun init-define-abbrev (table abbrev expansion)
+  "Define an ABBREV in TABLE, to expand as EXPANSION.
+EXPANSION may be:
+- text: (text \"expansion\")
+- yas: (yas \"expansion\" ENVSYM ENVVAL...)"
+  (let ((expansion-type (car expansion))
+        (expansion (cdr expansion)))
+    (cond ((eq expansion-type 'text)
+           (define-abbrev table abbrev (car expansion) nil :system t))
+          ((eq expansion-type 'yas)
+           (init-define-yas-abbrev table abbrev (car expansion) (cdr expansion)))
+          (t
+           (user-error "Invalid abbrev expansion type")))))
 
-(keymap-set tempel-map "M-n" #'tempel-next)
-(keymap-set tempel-map "M-p" #'tempel-previous)
+(defun init-define-abbrev-table (tablename defs)
+  "Define abbrev table with TABLENAME and abbrevs DEFS."
+  (let ((table (if (boundp tablename) (symbol-value tablename))))
+    (unless table
+      (setq table (make-abbrev-table))
+      (set tablename table))
+    (unless (memq tablename abbrev-table-name-list)
+      (push tablename abbrev-table-name-list))
+    (dolist (def defs)
+      (init-define-abbrev table (car def) (cdr def)))))
 
-(global-tempel-abbrev-mode 1)
+(defvar init-abbrevs-file
+  (f-expand "abbrevs.eld" priv-directory))
+
+(defun init-load-abbrevs (&optional file)
+  "Load abbrevs FILE."
+  (interactive)
+  (let ((file (or file init-abbrevs-file)))
+    (when (f-exists? file)
+      (let ((defs (read (f-read file))))
+        (dolist (def defs)
+          (init-define-abbrev-table (car def) (cdr def)))))))
+
+(init-load-abbrevs)
 
 ;;;; compile
 
