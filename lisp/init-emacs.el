@@ -4,8 +4,6 @@
 ;; Various init configuration for Emacs itself.
 
 (require 'dash)
-(require 's)
-(require 'f)
 (require 'init-core)
 
 ;;; Code:
@@ -83,6 +81,12 @@ With two or more universal ARG, open in current window."
         (t
          (init-switch-to-buffer-split-window buffer))))
 
+(defun init-read-file-contents (file)
+  "Read contents of text FILE."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (buffer-substring-no-properties (point-min) (point-max))))
+
 
 
 ;;; files
@@ -100,9 +104,9 @@ With two or more universal ARG, open in current window."
 (setq delete-old-versions t)
 (setq delete-by-moving-to-trash t)
 
-(setq auto-save-file-name-transforms `((".*" ,(f-expand "save/" user-emacs-directory) t)))
-(setq lock-file-name-transforms      `((".*" ,(f-expand "lock/" user-emacs-directory) t)))
-(setq backup-directory-alist         `((".*" . ,(f-expand "backup/" user-emacs-directory))))
+(setq auto-save-file-name-transforms `((".*" ,(expand-file-name "save/" user-emacs-directory) t)))
+(setq lock-file-name-transforms      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t)))
+(setq backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
 ;;;; autosave
 
@@ -754,9 +758,10 @@ ARG see `init-consult-search'."
             (push "" stack)
             (setq stack-level (1+ stack-level)))
           (setq stack (cons name (cdr stack)))
-          (let ((name (concat
-                       (propertize (format "%5d " line) 'face 'consult-line-number)
-                       (s-join (propertize " / " 'face 'consult-line-number) (reverse stack)))))
+          (let* ((sep (propertize " / " 'face 'consult-line-number))
+                 (name (concat
+                        (propertize (format "%5d " line) 'face 'consult-line-number)
+                        (mapconcat #'identity (reverse stack) sep))))
             (push (cons name marker) cands)))))
     (nreverse cands)))
 
@@ -920,14 +925,14 @@ EXPANSION may be:
       (init-define-abbrev table (car def) (cdr def)))))
 
 (defvar init-abbrevs-file
-  (f-expand "abbrevs.eld" priv-directory))
+  (expand-file-name "abbrevs.eld" priv-directory))
 
 (defun init-load-abbrevs (&optional file)
   "Load abbrevs FILE."
   (interactive)
   (let ((file (or file init-abbrevs-file)))
-    (when (f-exists? file)
-      (let ((defs (read (f-read file))))
+    (when (file-exists-p file)
+      (let ((defs (read (init-read-file-contents file))))
         (dolist (def defs)
           (init-define-abbrev-table (car def) (cdr def)))))))
 
@@ -1068,7 +1073,7 @@ With two universal ARG, edit rg command."
 (require 'em-dirs)
 (require 'em-alias)
 
-(setq eshell-aliases-file (f-expand "eshell-alias.esh" priv-directory))
+(setq eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
 
 (defun init-eshell-set-outline ()
   "Set outline vars for Eshell."
@@ -1090,7 +1095,7 @@ With two universal ARG, edit rg command."
   (->> (buffer-list)
        (--first
         (and (eq (buffer-local-value 'major-mode it) 'eshell-mode)
-             (s-starts-with? eshell-buffer-name (buffer-name it))
+             (string-prefix-p eshell-buffer-name (buffer-name it))
              (not (get-buffer-process it))
              (not (get-buffer-window it))))))
 
@@ -1396,7 +1401,7 @@ FUNC and ARGS see specific command."
 
 ;;;;; flymake
 
-(setq trusted-content (list (f-slash (f-abbrev init-lisp-directory))))
+(setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
 
 (setq elisp-flymake-byte-compile-load-path load-path)
 
@@ -1450,9 +1455,9 @@ FUNC and ARGS see specific command."
 
 ;;;;; agenda
 
-(setq org-directory (f-expand "org" user-emacs-directory))
+(setq org-directory (expand-file-name "org" user-emacs-directory))
 (setq org-agenda-files (list org-directory))
-(setq org-default-notes-file (f-expand "inbox.org" org-directory))
+(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
 
 (setq org-capture-templates
       '(("u" "Task Inactive" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")

@@ -7,7 +7,7 @@
 
 (require 'init-emacs)
 
-(setq exec-path (->> exec-path (--remove (s-starts-with? "/mnt/" it))))
+(setq exec-path (->> exec-path (--remove (string-prefix-p "/mnt/" it))))
 
 (setq browse-url-generic-program "/mnt/c/Windows/System32/cmd.exe")
 (setq browse-url-generic-args '("/c" "start"))

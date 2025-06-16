@@ -19,8 +19,6 @@
 
 (defvar init-deps
   '((init-emacs . (dash
-                   s
-                   f
                    ;; edit
                    embark
                    paredit
