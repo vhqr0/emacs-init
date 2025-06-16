@@ -1222,7 +1222,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "gj" #'magit-section-forward-sibling
   "gk" #'magit-section-backward-sibling
   (kbd "C-j") #'magit-section-forward-sibling
-  (kbd "C-k") #'magit-section-backward-sibling)
+  (kbd "C-k") #'magit-section-backward-sibling
+  "p" #'magit-push)
 
 ;;;; spell
 
