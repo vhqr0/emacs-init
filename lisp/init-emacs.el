@@ -890,7 +890,7 @@ ARG see `init-consult-search'."
         (hook (make-symbol abbrev)))
     (put hook 'no-self-insert t)
     (fset hook (lambda ()
-                 (let* ((point (point)))
+                 (let ((point (point)))
                    (yas-expand-snippet snippet (- point length) point env))))
     (define-abbrev table abbrev 'yas hook :system t)))
 
