@@ -1134,9 +1134,6 @@ With two universal ARG, edit rg command."
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
 
-;; (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
-;; (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
-
 (evil-define-key 'insert eshell-hist-mode-map
   (kbd "M-r") #'eshell-previous-matching-input)
 
