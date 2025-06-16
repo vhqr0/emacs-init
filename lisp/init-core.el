@@ -24,7 +24,6 @@
                    paredit
                    ;; evil
                    evil
-                   evil-collection
                    evil-surround
                    ;; compl
                    orderless

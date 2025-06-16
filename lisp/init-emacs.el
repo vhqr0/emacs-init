@@ -431,22 +431,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-window-map "<left>" #'tab-bar-history-back)
 (keymap-set evil-window-map "<right>" #'tab-bar-history-forward)
 
-;;;; collection
-
-;; must be set before evil collection loaded.
-
-(defvar evil-collection-setup-minibuffer)
-(setq evil-collection-setup-minibuffer t)
-
-(defvar evil-collection-calendar-want-org-bindings)
-(setq evil-collection-calendar-want-org-bindings t)
-
-(require 'evil-collection)
-
-(evil-collection-init)
-
-(init-diminish-minor-mode 'evil-collection-unimpaired-mode)
-
 ;;;; surround
 
 (require 'evil-surround)
@@ -574,6 +558,9 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-key 'insert minibuffer-mode-map
   (kbd "M-r") #'previous-matching-history-element)
 
+(evil-define-key 'normal minibuffer-mode-map
+  (kbd "RET") #'exit-minibuffer)
+
 ;;;; savehist
 
 (require 'savehist)
@@ -592,6 +579,16 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set embark-identifier-map "%" #'query-replace)
 (keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
 (keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
+
+(evil-set-initial-state 'occur-mode 'motion)
+
+(evil-define-key 'motion occur-mode-map
+  (kbd "RET") #'occur-mode-goto-occurrence
+  (kbd "<return>") #'occur-mode-goto-occurrence
+  "gj" #'next-error-no-select
+  "gk" #'previous-error-no-select
+  (kbd "C-j") #'next-error-no-select
+  (kbd "C-k") #'previous-error-no-select)
 
 ;;;; styles
 
@@ -651,6 +648,16 @@ FUNC ARGS see `vertico--setup'."
 
 (keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
 (keymap-set vertico-map "C-x C-s" #'embark-export)
+
+(evil-define-key 'normal vertico-map
+  "j" #'vertico-next
+  "k" #'vertico-previous
+  "gj" #'vertico-next-group
+  "gk" #'vertico-previous-group
+  "gg" #'vertico-first
+  "G" #'vertico-last
+  (kbd "C-u") #'vertico-scroll-down
+  (kbd "C-d") #'vertico-scroll-up)
 
 ;;;; consult
 
@@ -840,13 +847,6 @@ ARG see `init-consult-search'."
 
 ;;; prog
 
-;;;; compile
-
-(require 'compile)
-(require 'ansi-color)
-
-(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
-
 ;;;; flymake
 
 (require 'flymake)
@@ -986,6 +986,17 @@ FUNC ARGS see `company-capf'."
 
 (advice-add 'company-capf :around #'init-around-company-capf-set-styles)
 
+(defun init-before-company-call-backend-check-evil-state (command &rest _args)
+  "Check evil state before call company.
+COMMAND see `company-call-backend'."
+  (cond
+   ((not (bound-and-true-p evil-mode)) t)
+   ((eq command 'prefix)
+    (memq evil-state '(insert replace emacs)))
+   (t t)))
+
+(advice-add #'company-call-backend :before-while #'init-before-company-call-backend-check-evil-state)
+
 ;;;; eglot
 
 (require 'eglot)
@@ -1019,8 +1030,34 @@ FUNC ARGS see `company-capf'."
 
 (keymap-set dired-mode-map "O" #'dired-omit-mode)
 
-(evil-define-key 'normal dired-mode-map
-  "O" #'dired-omit-mode)
+(evil-set-initial-state 'dired-mode 'motion)
+
+(evil-define-key 'motion dired-mode-map
+  "RET" #'dired-find-file
+  "<return>" #'dired-find-file
+  "j" #'dired-next-line
+  "k" #'dired-previous-line
+  "gr" #'revert-buffer)
+
+;;;; compile
+
+(require 'compile)
+(require 'ansi-color)
+
+(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
+
+(evil-set-initial-state 'compilation-mode 'motion)
+
+(evil-define-key 'motion compilation-mode-map
+  (kbd "RET") #'compile-goto-error
+  (kbd "<return>") #'compile-goto-error
+  (kbd "TAB") #'compilation-next-error
+  (kbd "<tab>") #'compilation-next-error
+  (kbd "<backtab>") #'compilation-previous-error
+  "gj" #'next-error-no-select
+  "gk" #'previous-error-no-select
+  (kbd "C-j") #'next-error-no-select
+  (kbd "C-k") #'previous-error-no-select)
 
 ;;;; grep
 
@@ -1051,6 +1088,19 @@ With two universal ARG, edit rg command."
     (compilation-start command 'grep-mode)))
 
 (defalias 'rg 'init-rg-dwim)
+
+(evil-set-initial-state 'grep-mode 'motion)
+
+(evil-define-key 'motion grep-mode-map
+  (kbd "RET") #'compile-goto-error
+  (kbd "<return>") #'compile-goto-error
+  (kbd "TAB") #'compilation-next-error
+  (kbd "<tab>") #'compilation-next-error
+  (kbd "<backtab>") #'compilation-previous-error
+  "gj" #'next-error-no-select
+  "gk" #'previous-error-no-select
+  (kbd "C-j") #'next-error-no-select
+  (kbd "C-k") #'previous-error-no-select)
 
 ;;;; diff
 
@@ -1084,8 +1134,8 @@ With two universal ARG, edit rg command."
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
 
-(declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
-(advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
+;; (declare-function evil-collection-eshell-escape-stay "evil-collection-eshell")
+;; (advice-add #'evil-collection-eshell-escape-stay :override #'ignore)
 
 (evil-define-key 'insert eshell-hist-mode-map
   (kbd "M-r") #'eshell-previous-matching-input)
@@ -1157,8 +1207,25 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set vc-prefix-map "l" #'magit-log-buffer-file)
 (keymap-set vc-prefix-map "L" #'magit-log)
 (keymap-set vc-prefix-map "?" #'magit-file-dispatch)
-
 (keymap-set project-prefix-map "v" #'magit-project-status)
+
+(evil-set-initial-state 'magit-status-mode 'motion)
+(evil-set-initial-state 'magit-diff-mode 'motion)
+(evil-set-initial-state 'magit-log-mode 'motion)
+
+(evil-define-key 'motion magit-mode-map
+  "RET" #'magit-visit-thing
+  "<return>" #'magit-visit-thing
+  (kbd "TAB") #'magit-section-toggle
+  (kbd "<tab>") #'magit-section-toggle
+  (kbd "<backtab>") #'magit-section-cycle-global
+  "q" #'magit-mode-bury-buffer
+  "j" #'magit-next-line
+  "k" #'magit-previous-line
+  "gj" #'magit-section-forward-sibling
+  "gk" #'magit-section-backward-sibling
+  (kbd "C-j") #'magit-section-forward-sibling
+  (kbd "C-k") #'magit-section-backward-sibling)
 
 ;;;; spell
 
