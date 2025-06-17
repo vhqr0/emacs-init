@@ -790,6 +790,7 @@ ARG see `init-consult-search'."
 
 (evil-define-key 'motion help-mode-map
   (kbd "TAB") #'forward-button
+  (kbd "S-TAB") #'backward-button
   (kbd "<tab>") #'forward-button
   (kbd "<backtab>") #'backward-button)
 
@@ -1044,6 +1045,7 @@ COMMAND see `company-call-backend'."
   (kbd "RET") #'compile-goto-error
   (kbd "<return>") #'compile-goto-error
   (kbd "TAB") #'compilation-next-error
+  (kbd "S-TAB") #'compilation-previous-error
   (kbd "<tab>") #'compilation-next-error
   (kbd "<backtab>") #'compilation-previous-error
   "gj" #'next-error-no-select
@@ -1087,6 +1089,7 @@ With two universal ARG, edit rg command."
   (kbd "RET") #'compile-goto-error
   (kbd "<return>") #'compile-goto-error
   (kbd "TAB") #'compilation-next-error
+  (kbd "S-TAB") #'compilation-previous-error
   (kbd "<tab>") #'compilation-next-error
   (kbd "<backtab>") #'compilation-previous-error
   "gj" #'next-error-no-select
@@ -1206,6 +1209,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "RET") #'magit-visit-thing
   (kbd "<return>") #'magit-visit-thing
   (kbd "TAB") #'magit-section-toggle
+  (kbd "S-TAB") #'magit-section-cycle-global
   (kbd "<tab>") #'magit-section-toggle
   (kbd "<backtab>") #'magit-section-cycle-global
   "q" #'magit-mode-bury-buffer
@@ -1471,6 +1475,19 @@ FUNC and ARGS see specific command."
 
 (global-dash-fontify-mode 1)
 
+;;;; outline
+
+(require 'outline)
+
+(evil-set-initial-state 'outline-mode 'normal)
+
+(evil-define-key 'normal outline-mode-map
+  "gu" #'outline-up-heading
+  "gj" #'outline-forward-same-level
+  "gk" #'outline-backward-same-level
+  (kbd "C-j") #'outline-forward-same-level
+  (kbd "C-k") #'outline-backward-same-level)
+
 ;;;; org
 
 (require 'org)
@@ -1510,6 +1527,14 @@ FUNC and ARGS see specific command."
       (message (match-string-no-properties 0)))))
 
 (keymap-set embark-org-link-map "e" #'init-org-echo-link)
+
+(evil-set-initial-state 'org-mode 'normal)
+
+(evil-define-key 'normal org-mode-map
+  (kbd "TAB") #'org-cycle
+  (kbd "S-TAB") #'org-shifttab
+  (kbd "<tab>") #'org-cycle
+  (kbd "<backtab>") #'org-shifttab)
 
 ;;;;; agenda
 
