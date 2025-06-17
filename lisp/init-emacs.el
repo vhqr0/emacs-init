@@ -448,20 +448,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; extra
 
-;;;;; parens
-
-(defun init-wrap-pair-dwim ()
-  "Wrap pair dwim."
-  (interactive)
-  (let ((last-command-event ?\()
-        (command (if (evil-normal-state-p)
-                     #'init-wrap-pair
-                   #'insert-pair)))
-    (setq this-command command)
-    (call-interactively command)))
-
-(keymap-global-set "C-M-j" #'init-wrap-pair-dwim)
-
 ;;;;; escape
 
 (defun init-evil-escape ()
