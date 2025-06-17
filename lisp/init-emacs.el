@@ -314,7 +314,7 @@ With two or more universal ARG, open in current window."
   (setq init-goggles-changes nil))
 
 (defun init-goggles-post-command ()
-  "Highlight changes post command."
+  "Highlight change post command."
   (when (and init-goggles-changes
              (eq (current-buffer) init-goggles-buffer))
     (let ((start most-positive-fixnum)
