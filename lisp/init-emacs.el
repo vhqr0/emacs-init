@@ -1119,6 +1119,12 @@ With two universal ARG, edit rg command."
 
 (setq ediff-window-setup-function #'ediff-setup-windows-plain)
 
+;;;; tabulated list
+
+(require 'tabulated-list)
+
+(evil-set-initial-state 'tabulated-list-mode 'motion)
+
 ;;;; comint
 
 (require 'comint)
@@ -1261,6 +1267,12 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-define-key 'visual magit-mode-map
   "j" #'evil-next-line
   "k" #'evil-previous-line)
+
+;;;; package
+
+(require 'package)
+
+(evil-set-initial-state 'package-menu-mode 'motion)
 
 ;;;; spell
 
