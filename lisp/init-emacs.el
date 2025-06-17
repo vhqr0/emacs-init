@@ -1037,7 +1037,8 @@ COMMAND see `company-call-backend'."
   (kbd "<return>") #'dired-find-file
   "j" #'dired-next-line
   "k" #'dired-previous-line
-  "gr" #'revert-buffer)
+  "gr" #'revert-buffer
+  "+" #'dired-create-directory)
 
 ;;;; compile
 
