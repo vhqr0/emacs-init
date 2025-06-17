@@ -1482,6 +1482,10 @@ FUNC and ARGS see specific command."
 (evil-set-initial-state 'outline-mode 'normal)
 
 (evil-define-key 'normal outline-mode-map
+  (kbd "TAB") #'outline-toggle-children
+  (kbd "S-TAB") #'outline-show-all
+  (kbd "<tab>") #'outline-toggle-children
+  (kbd "<backtab>") #'outline-show-all
   "gu" #'outline-up-heading
   "gj" #'outline-forward-same-level
   "gk" #'outline-backward-same-level
