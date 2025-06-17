@@ -1205,21 +1205,24 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-set-initial-state 'magit-diff-mode 'motion)
 (evil-set-initial-state 'magit-log-mode 'motion)
 
-(evil-define-key 'motion magit-mode-map
-  (kbd "RET") #'magit-visit-thing
-  (kbd "<return>") #'magit-visit-thing
+(evil-define-key 'motion magit-section-mode-map
   (kbd "TAB") #'magit-section-toggle
   (kbd "S-TAB") #'magit-section-cycle-global
   (kbd "<tab>") #'magit-section-toggle
   (kbd "<backtab>") #'magit-section-cycle-global
-  "q" #'magit-mode-bury-buffer
-  "j" #'magit-next-line
-  "k" #'magit-previous-line
   "gj" #'magit-section-forward-sibling
   "gk" #'magit-section-backward-sibling
   (kbd "C-j") #'magit-section-forward-sibling
-  (kbd "C-k") #'magit-section-backward-sibling
+  (kbd "C-k") #'magit-section-backward-sibling)
+
+(evil-define-key 'motion magit-mode-map
+  (kbd "RET") #'magit-visit-thing
+  (kbd "<return>") #'magit-visit-thing
+  "q" #'magit-mode-bury-buffer
+  "j" #'magit-next-line
+  "k" #'magit-previous-line
   "gr" #'magit-refresh
+  "gR" #'magit-refresh-all
   "p" #'magit-push)
 
 (evil-define-key 'visual magit-mode-map
@@ -1485,7 +1488,7 @@ FUNC and ARGS see specific command."
 
 (evil-set-initial-state 'outline-mode 'normal)
 
-(evil-define-key 'normal outline-mode-map
+(evil-define-key 'motion outline-mode-map
   (kbd "TAB") #'outline-toggle-children
   (kbd "S-TAB") #'outline-show-all
   (kbd "<tab>") #'outline-toggle-children
@@ -1538,7 +1541,7 @@ FUNC and ARGS see specific command."
 
 (evil-set-initial-state 'org-mode 'normal)
 
-(evil-define-key 'normal org-mode-map
+(evil-define-key 'motion org-mode-map
   (kbd "TAB") #'org-cycle
   (kbd "S-TAB") #'org-shifttab
   (kbd "<tab>") #'org-cycle
