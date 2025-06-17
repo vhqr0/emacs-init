@@ -800,6 +800,13 @@ ARG see `init-consult-search'."
 
 ;;; help
 
+(evil-set-initial-state 'help-mode 'motion)
+
+(evil-define-key 'motion help-mode-map
+  (kbd "TAB") #'forward-button
+  (kbd "<tab>") #'forward-button
+  (kbd "<backtab>") #'backward-button)
+
 (keymap-set help-map "B" #'describe-keymap)
 (keymap-set help-map "p" #'describe-package)
 (keymap-set help-map "P" #'finder-by-keyword)
@@ -1027,8 +1034,6 @@ COMMAND see `company-call-backend'."
 (keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
 
 (keymap-set project-prefix-map "j" #'project-dired)
-
-(keymap-set dired-mode-map "O" #'dired-omit-mode)
 
 (evil-set-initial-state 'dired-mode 'motion)
 
