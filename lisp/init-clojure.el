@@ -16,7 +16,7 @@
 (defvar init-clojure-modes
   '(clojurec-mode clojure-mode clojurescript-mode))
 
-(add-hook 'clojure-mode-hook #'init-lisp-common-set-outline)
+(add-hook 'clojure-mode-hook #'init-lisp-set-outline)
 
 (defun init-clojure-set-elec-pairs ()
   "Set `electric-pair-pairs' for Clojure mode."
@@ -107,7 +107,7 @@
         #'cider-macroexpand-all-inplace))
 
 (dolist (command init-cider-last-sexp-commands)
-  (advice-add command :around #'init-lisp-common-around-last-sexp-maybe-forward))
+  (advice-add command :around #'init-lisp-around-last-sexp-maybe-forward))
 
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
 (keymap-set cider-mode-map "C-c C-i" #'cider-insert-last-sexp-in-repl)

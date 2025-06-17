@@ -34,14 +34,15 @@
                    ;; prog
                    yasnippet
                    company
-                   ;; tools
                    apheleia
+                   ;; special
                    wgrep
                    with-editor
                    git-modes
                    magit
                    orgit
-                   ;; markdown
+                   ;; lang
+                   ;; * markdown
                    markdown-mode
                    edit-indirect))
     (init-clojure . (clojure-mode cider))

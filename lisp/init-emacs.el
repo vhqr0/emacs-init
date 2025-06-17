@@ -1002,15 +1002,15 @@ COMMAND see `company-call-backend'."
 
 (setq eglot-extend-to-xref t)
 
-
-
-;;; tools
-
 ;;;; apheleia
 
 (require 'apheleia)
 
 (setq apheleia-formatters-respect-indent-level nil)
+
+
+
+;;; special
 
 ;;;; dired
 
@@ -1126,9 +1126,18 @@ With two universal ARG, edit rg command."
 (evil-define-key 'insert comint-mode-map
   (kbd "M-r") #'comint-history-isearch-backward-regexp)
 
+(evil-define-key 'normal comint-mode-map
+  (kbd "RET") #'comint-send-input
+  (kbd "<return>") #'comint-send-input
+  "gj" #'comint-next-prompt
+  "gk" #'comint-previous-prompt
+  (kbd "C-j") #'comint-next-prompt
+  (kbd "C-k") #'comint-previous-prompt)
+
 ;;;; eshell
 
 (require 'eshell)
+(require 'em-prompt)
 (require 'em-hist)
 (require 'em-cmpl)
 (require 'em-dirs)
@@ -1147,6 +1156,14 @@ With two universal ARG, edit rg command."
 
 (evil-define-key 'insert eshell-hist-mode-map
   (kbd "M-r") #'eshell-previous-matching-input)
+
+(evil-define-key 'normal eshell-mode-map
+  (kbd "RET") #'eshell-send-input
+  (kbd "<return>") #'eshell-send-input
+  "gj" #'eshell-next-prompt
+  "gk" #'eshell-previous-prompt
+  (kbd "C-j") #'eshell-next-prompt
+  (kbd "C-k") #'eshell-previous-prompt)
 
 (defun init-eshell-dwim-find-buffer ()
   "Find eshell dwim buffer."
@@ -1416,24 +1433,20 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;; lang
 
-;;;; lisp common
+;;;; lisp
 
-;;;;; outline
-
-(defun init-lisp-common-outline-level ()
+(defun init-lisp-outline-level ()
   "Return level of current outline heading."
   (if (looking-at ";;\\([;*]+\\)")
       (- (match-end 1) (match-beginning 1))
     (funcall outline-level)))
 
-(defun init-lisp-common-set-outline ()
+(defun init-lisp-set-outline ()
   "Set outline vars."
   (setq-local outline-regexp ";;[;*]+[\s\t]+")
-  (setq-local outline-level #'init-lisp-common-outline-level))
+  (setq-local outline-level #'init-lisp-outline-level))
 
-;;;;; around last sexp
-
-(defun init-lisp-common-around-last-sexp-maybe-forward (func &rest args)
+(defun init-lisp-around-last-sexp-maybe-forward (func &rest args)
   "Around *-last-sexp command.
 Save point and forward sexp before command if looking at an open paren.
 FUNC and ARGS see specific command."
@@ -1457,7 +1470,7 @@ FUNC and ARGS see specific command."
         #'pp-macroexpand-last-sexp))
 
 (dolist (command init-elisp-last-sexp-commands)
-  (advice-add command :around #'init-lisp-common-around-last-sexp-maybe-forward))
+  (advice-add command :around #'init-lisp-around-last-sexp-maybe-forward))
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-k" #'eval-buffer)
@@ -1466,7 +1479,7 @@ FUNC and ARGS see specific command."
   (define-key map [remap display-local-help] #'eldoc-doc-buffer))
 
 (dolist (hook init-elisp-hooks)
-  (add-hook hook #'init-lisp-common-set-outline))
+  (add-hook hook #'init-lisp-set-outline))
 
 (dolist (mode init-elisp-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
