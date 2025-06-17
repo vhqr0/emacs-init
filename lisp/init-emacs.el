@@ -1222,6 +1222,10 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "gr" #'magit-refresh
   "p" #'magit-push)
 
+(evil-define-key 'visual magit-mode-map
+  "j" #'evil-next-line
+  "k" #'evil-previous-line)
+
 ;;;; spell
 
 (require 'ispell)
