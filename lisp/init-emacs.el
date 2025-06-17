@@ -424,12 +424,15 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-normal-state-map "M-r" #'raise-sexp)
 (keymap-set evil-normal-state-map "M-s" #'paredit-splice-sexp)
 
-(set-keymap-parent evil-command-line-map minibuffer-local-map)
-
-(add-to-list 'init-disable-autosave-preds #'evil-insert-state-p)
+(keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
+(keymap-set evil-motion-state-map "g R" #'revert-buffer)
 
 (keymap-set evil-window-map "<left>" #'tab-bar-history-back)
 (keymap-set evil-window-map "<right>" #'tab-bar-history-forward)
+
+(set-keymap-parent evil-command-line-map minibuffer-local-map)
+
+(add-to-list 'init-disable-autosave-preds #'evil-insert-state-p)
 
 ;;;; surround
 
@@ -1043,7 +1046,6 @@ COMMAND see `company-call-backend'."
   "gk" #'dired-prev-subdir
   (kbd "C-j") #'dired-next-subdir
   (kbd "C-k") #'dired-prev-subdir
-  "gr" #'revert-buffer
   "+" #'dired-create-directory)
 
 ;;;; compile
@@ -1119,7 +1121,7 @@ With two universal ARG, edit rg command."
 
 (setq ediff-window-setup-function #'ediff-setup-windows-plain)
 
-;;;; tabulated list
+;;;; tablist
 
 (require 'tabulated-list)
 
