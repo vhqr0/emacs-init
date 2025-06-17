@@ -1497,6 +1497,10 @@ FUNC and ARGS see specific command."
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-z" #'init-ielm-other-window))
 
+(evil-define-key 'normal ielm-map
+  (kbd "RET") #'ielm-return
+  (kbd "<return>") #'ielm-return)
+
 ;;;;; flymake
 
 (setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
