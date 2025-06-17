@@ -1493,7 +1493,6 @@ FUNC and ARGS see specific command."
   (kbd "S-TAB") #'outline-show-all
   (kbd "<tab>") #'outline-toggle-children
   (kbd "<backtab>") #'outline-show-all
-  "gu" #'outline-up-heading
   "gj" #'outline-forward-same-level
   "gk" #'outline-backward-same-level
   (kbd "C-j") #'outline-forward-same-level
