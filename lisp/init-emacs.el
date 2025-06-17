@@ -571,8 +571,13 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-key 'motion occur-mode-map
   (kbd "RET") #'occur-mode-goto-occurrence
   (kbd "<return>") #'occur-mode-goto-occurrence
+  (kbd "TAB") #'occur-next
+  (kbd "S-TAB") #'occur-prev
+  (kbd "<tab>") #'occur-next
+  (kbd "<backtab>") #'occur-prev
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
+  "go" #'occur-mode-display-occurrence
   (kbd "C-j") #'next-error-no-select
   (kbd "C-k") #'previous-error-no-select)
 
@@ -1035,6 +1040,7 @@ COMMAND see `company-call-backend'."
   "k" #'dired-previous-line
   "gj" #'dired-next-subdir
   "gk" #'dired-prev-subdir
+  "go" #'dired-display-file
   (kbd "C-j") #'dired-next-subdir
   (kbd "C-k") #'dired-prev-subdir
   "gr" #'revert-buffer
@@ -1058,6 +1064,7 @@ COMMAND see `company-call-backend'."
   (kbd "<backtab>") #'compilation-previous-error
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
+  "go" #'compilation-display-error
   (kbd "C-j") #'next-error-no-select
   (kbd "C-k") #'previous-error-no-select)
 
@@ -1102,6 +1109,7 @@ With two universal ARG, edit rg command."
   (kbd "<backtab>") #'compilation-previous-error
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
+  "go" #'compilation-display-error
   (kbd "C-j") #'next-error-no-select
   (kbd "C-k") #'previous-error-no-select)
 
@@ -1494,8 +1502,6 @@ FUNC and ARGS see specific command."
 
 (require 'outline)
 
-(evil-set-initial-state 'outline-mode 'normal)
-
 (evil-define-key 'motion outline-mode-map
   (kbd "TAB") #'outline-toggle-children
   (kbd "S-TAB") #'outline-show-all
@@ -1546,8 +1552,6 @@ FUNC and ARGS see specific command."
 
 (keymap-set embark-org-link-map "e" #'init-org-echo-link)
 
-(evil-set-initial-state 'org-mode 'normal)
-
 (evil-define-key 'motion org-mode-map
   (kbd "TAB") #'org-cycle
   (kbd "S-TAB") #'org-shifttab
@@ -1580,6 +1584,16 @@ FUNC and ARGS see specific command."
 (init-leader-set markdown-mode-map
   "n b" #'markdown-narrow-to-block
   "n s" #'markdown-narrow-to-subtree)
+
+(evil-define-key 'motion markdown-mode-map
+  (kbd "TAB") #'markdown-cycle
+  (kbd "S-TAB") #'markdown-shifttab
+  (kbd "<tab>") #'markdown-cycle
+  (kbd "<backtab>") #'markdown-shifttab
+  "gj" #'markdown-outline-next-same-level
+  "gk" #'markdown-outline-previous-same-level
+  (kbd "C-j") #'markdown-outline-next-same-level
+  (kbd "C-k") #'markdown-outline-previous-same-level)
 
 ;;;; web
 
