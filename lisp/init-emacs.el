@@ -1033,8 +1033,8 @@ COMMAND see `company-call-backend'."
 (evil-set-initial-state 'dired-mode 'motion)
 
 (evil-define-key 'motion dired-mode-map
-  "RET" #'dired-find-file
-  "<return>" #'dired-find-file
+  (kbd "RET") #'dired-find-file
+  (kbd "<return>") #'dired-find-file
   "j" #'dired-next-line
   "k" #'dired-previous-line
   "gr" #'revert-buffer)
@@ -1211,8 +1211,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-set-initial-state 'magit-log-mode 'motion)
 
 (evil-define-key 'motion magit-mode-map
-  "RET" #'magit-visit-thing
-  "<return>" #'magit-visit-thing
+  (kbd "RET") #'magit-visit-thing
+  (kbd "<return>") #'magit-visit-thing
   (kbd "TAB") #'magit-section-toggle
   (kbd "<tab>") #'magit-section-toggle
   (kbd "<backtab>") #'magit-section-cycle-global
