@@ -1027,8 +1027,16 @@ COMMAND see `company-call-backend'."
 (evil-define-key 'motion dired-mode-map
   (kbd "RET") #'dired-find-file
   (kbd "<return>") #'dired-find-file
+  (kbd "TAB") #'dired-next-dirline
+  (kbd "S-TAB") #'dired-prev-dirline
+  (kbd "<tab>") #'dired-next-dirline
+  (kbd "<backtab>") #'dired-prev-dirline
   "j" #'dired-next-line
   "k" #'dired-previous-line
+  "gj" #'dired-next-subdir
+  "gk" #'dired-prev-subdir
+  (kbd "C-j") #'dired-next-subdir
+  (kbd "C-k") #'dired-prev-subdir
   "gr" #'revert-buffer
   "+" #'dired-create-directory)
 
