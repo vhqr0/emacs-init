@@ -575,9 +575,9 @@ FUNC and ARGS see `evil-set-cursor'."
   (kbd "S-TAB") #'occur-prev
   (kbd "<tab>") #'occur-next
   (kbd "<backtab>") #'occur-prev
+  "go" #'occur-mode-display-occurrence
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
-  "go" #'occur-mode-display-occurrence
   (kbd "C-j") #'next-error-no-select
   (kbd "C-k") #'previous-error-no-select)
 
@@ -1038,9 +1038,9 @@ COMMAND see `company-call-backend'."
   (kbd "<backtab>") #'dired-prev-dirline
   "j" #'dired-next-line
   "k" #'dired-previous-line
+  "go" #'dired-display-file
   "gj" #'dired-next-subdir
   "gk" #'dired-prev-subdir
-  "go" #'dired-display-file
   (kbd "C-j") #'dired-next-subdir
   (kbd "C-k") #'dired-prev-subdir
   "gr" #'revert-buffer
@@ -1062,9 +1062,9 @@ COMMAND see `company-call-backend'."
   (kbd "S-TAB") #'compilation-previous-error
   (kbd "<tab>") #'compilation-next-error
   (kbd "<backtab>") #'compilation-previous-error
+  "go" #'compilation-display-error
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
-  "go" #'compilation-display-error
   (kbd "C-j") #'next-error-no-select
   (kbd "C-k") #'previous-error-no-select)
 
@@ -1107,9 +1107,9 @@ With two universal ARG, edit rg command."
   (kbd "S-TAB") #'compilation-previous-error
   (kbd "<tab>") #'compilation-next-error
   (kbd "<backtab>") #'compilation-previous-error
+  "go" #'compilation-display-error
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
-  "go" #'compilation-display-error
   (kbd "C-j") #'next-error-no-select
   (kbd "C-k") #'previous-error-no-select)
 
