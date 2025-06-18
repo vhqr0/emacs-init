@@ -13,7 +13,7 @@
 (setq org-roam-node-display-template
       (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
 
-(org-roam-db-autosync-mode 1)
+(add-hook 'after-init-hook #'org-roam-db-autosync-mode)
 
 (keymap-set init-app-map "n" #'org-roam-node-find)
 (keymap-set init-app-map "r" #'org-roam-ref-find)

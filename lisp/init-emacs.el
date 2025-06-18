@@ -122,7 +122,7 @@ With two or more universal ARG, open in current window."
 
 (setq auto-save-visited-predicate #'init-autosave-p)
 
-(auto-save-visited-mode 1)
+(add-hook 'after-init-hook #'auto-save-visited-mode)
 
 ;;;; recentf
 
@@ -130,7 +130,7 @@ With two or more universal ARG, open in current window."
 
 (setq recentf-max-saved-items 500)
 
-(recentf-mode 1)
+(add-hook 'after-init-hook #'recentf-mode)
 
 (keymap-set ctl-x-r-map "e" #'recentf-open)
 
@@ -138,13 +138,13 @@ With two or more universal ARG, open in current window."
 
 (require 'saveplace)
 
-(save-place-mode 1)
+(add-hook 'after-init-hook #'save-place-mode)
 
 ;;;; solong
 
 (require 'so-long)
 
-(global-so-long-mode 1)
+(add-hook 'after-init-hook #'global-so-long-mode)
 
 ;;;; revert
 
@@ -178,7 +178,7 @@ With two or more universal ARG, open in current window."
     (when (fboundp mode)
       (funcall mode -1))))
 
-(init-disable-ui)
+(add-hook 'after-init-hook #'init-disable-ui)
 
 ;;;; windows
 
@@ -192,8 +192,8 @@ With two or more universal ARG, open in current window."
 (setq tab-bar-select-tab-modifiers '(control meta))
 (setq tab-bar-close-last-tab-choice 'delete-frame)
 
-(tab-bar-mode 1)
-(tab-bar-history-mode 1)
+(add-to-list 'after-init-hook #'tab-bar-mode)
+(add-to-list 'after-init-hook #'tab-bar-history-mode)
 
 (defvar-keymap init-tab-bar-history-repeat-map
   :repeat t
@@ -229,7 +229,7 @@ With two or more universal ARG, open in current window."
 
 (require 'repeat)
 
-(repeat-mode 1)
+(add-to-list 'after-init-hook #'repeat-mode)
 
 (require 'embark)
 
@@ -248,14 +248,14 @@ With two or more universal ARG, open in current window."
 
 (require 'elec-pair)
 
-(electric-pair-mode 1)
+(add-to-list 'after-init-hook #'electric-pair-mode)
 
 (require 'paren)
 
 (setq show-paren-style 'expression)
 (setq show-paren-context-when-offscreen 'child-frame)
 
-(show-paren-mode 1)
+(add-hook 'after-init-hook #'show-paren-mode)
 
 (require 'paredit)
 
@@ -391,7 +391,7 @@ START END LEN see `after-change-functions'."
 (setq evil-search-wrap nil)
 (setq evil-symbol-word-search t)
 
-(evil-mode 1)
+(add-hook 'after-init-hook #'evil-mode)
 
 (defvar init-evil-disable-adjust-cursor-commands
   '(forward-sexp forward-list))
@@ -447,7 +447,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-inner-text-objects-map "a" #'evil-inner-angle)
 (keymap-set evil-outer-text-objects-map "a" #'evil-an-angle)
 
-(global-evil-surround-mode 1)
+(add-hook 'after-init-hook #'global-evil-surround-mode)
 
 ;;;; extra
 
@@ -536,7 +536,7 @@ FUNC and ARGS see `evil-set-cursor'."
   :global t
   :keymap init-evil-override-mode-map)
 
-(init-evil-override-mode 1)
+(add-hook 'after-init-hook #'init-evil-override-mode)
 
 
 
@@ -554,7 +554,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'savehist)
 
-(savehist-mode 1)
+(add-hook 'after-init-hook #'savehist-mode)
 
 ;;;; isearch
 
@@ -599,7 +599,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (require 'marginalia)
 
-(marginalia-mode 1)
+(add-hook 'after-init-hook #'marginalia-mode)
 
 ;;;; vertico
 
@@ -611,8 +611,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (setq vertico-resize nil)
 
-(vertico-mode 1)
-(vertico-multiform-mode 1)
+(add-hook 'after-init-hook #'vertico-mode)
+(add-hook 'after-init-hook #'vertico-multiform-mode)
 
 (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
@@ -670,7 +670,7 @@ FUNC ARGS see `vertico--setup'."
   :global t
   :keymap init-consult-override-mode-map)
 
-(init-consult-override-mode 1)
+(add-hook 'after-init-hook #'init-consult-override-mode)
 
 ;;;;; history
 
@@ -822,9 +822,9 @@ ARG see `init-consult-search'."
 
 (require 'find-func)
 
-;; TODO replace with `find-function-mode' after 30.1
-;; (find-function-mode 1)
-(find-function-setup-keys)
+;; TODO remove special handle after 30.1
+(when (fboundp 'find-function-mode)
+  (add-hook 'after-init-hook 'find-function-mode))
 
 (keymap-set help-map "L" #'find-library)
 (keymap-set help-map "F" #'find-function)
@@ -889,7 +889,7 @@ ARG see `init-consult-search'."
 
 (init-diminish-minor-mode 'yas-minor-mode)
 
-(yas-global-mode 1)
+(add-hook 'after-init-hook #'yas-global-mode)
 
 (defun init-define-yas-abbrev (table abbrev snippet &optional env)
   "Define an ABBREV in TABLE, to expand a yas SNIPPET with ENV."
@@ -938,7 +938,7 @@ EXPANSION may be:
         (dolist (def defs)
           (init-define-abbrev-table (car def) (cdr def)))))))
 
-(init-load-abbrevs)
+(add-hook 'after-init-hook #'init-load-abbrevs)
 
 ;;;; company
 
@@ -961,7 +961,7 @@ EXPANSION may be:
 (setq company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend company-echo-metadata-frontend))
 (setq company-backends '(company-files company-capf (company-dabbrev-code company-keywords) company-dabbrev))
 
-(global-company-mode 1)
+(add-hook 'after-init-hook #'global-company-mode)
 
 (keymap-unset company-active-map "M-n" t)
 (keymap-unset company-active-map "M-p" t)

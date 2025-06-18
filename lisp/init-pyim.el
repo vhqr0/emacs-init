@@ -99,7 +99,7 @@
 (keymap-set pyim-mode-map "." #'pyim-page-next-page)
 (keymap-set pyim-mode-map "," #'pyim-page-previous-page)
 
-(pyim-basedict-enable)
+(add-hook 'after-init-hook #'pyim-basedict-enable)
 
 (defun init-pyim-around-self-insert-command (func)
   "Disable `self-insert-command' like command when use pyim.
