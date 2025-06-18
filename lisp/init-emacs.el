@@ -208,7 +208,7 @@ With two or more universal ARG, open in current window."
 (keymap-global-set "C--" #'text-scale-adjust)
 (keymap-global-set "C-+" #'text-scale-adjust)
 (keymap-global-set "C-=" #'text-scale-adjust)
-;; C-M-0 used by tab-bar
+;; C-M-0 is used by tab-bar
 ;; (keymap-global-set "C-M-0" #'global-text-scale-adjust)
 (keymap-global-set "C-M--" #'global-text-scale-adjust)
 (keymap-global-set "C-M-+" #'global-text-scale-adjust)
@@ -1241,6 +1241,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set vc-prefix-map "L" #'magit-log)
 (keymap-set vc-prefix-map "?" #'magit-file-dispatch)
 (keymap-set project-prefix-map "v" #'magit-project-status)
+
+(define-key magit-blame-mode-map [remap quit-window] #'magit-blame-quit)
 
 (evil-set-initial-state 'magit-status-mode 'motion)
 (evil-set-initial-state 'magit-diff-mode 'motion)
