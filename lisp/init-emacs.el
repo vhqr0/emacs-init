@@ -1243,6 +1243,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set project-prefix-map "v" #'magit-project-status)
 
 (define-key magit-blame-mode-map [remap quit-window] #'magit-blame-quit)
+(define-key magit-blob-mode-map [remap quit-window] #'magit-kill-this-buffer)
 
 (evil-set-initial-state 'magit-status-mode 'motion)
 (evil-set-initial-state 'magit-diff-mode 'motion)
