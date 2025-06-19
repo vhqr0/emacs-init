@@ -822,7 +822,7 @@ ARG see `init-consult-search'."
 
 (require 'find-func)
 
-;; TODO remove special handle after 30.1
+;; TODO remove special handle after 31.1
 (when (fboundp 'find-function-mode)
   (add-hook 'after-init-hook 'find-function-mode))
 
@@ -1227,27 +1227,11 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
                  init-git-program init-git-user-name init-git-program init-git-user-email)
          (current-buffer))))))
 
-(require 'magit)
+;;;; magit
 
-(keymap-set vc-prefix-map "v" #'magit-status)
-(keymap-set vc-prefix-map "V" #'magit-status-here)
-(keymap-set vc-prefix-map "f" #'magit-find-file)
-(keymap-set vc-prefix-map "b" #'magit-blame-addition)
-(keymap-set vc-prefix-map "n" #'magit-blob-next)
-(keymap-set vc-prefix-map "p" #'magit-blob-previous)
-(keymap-set vc-prefix-map "d" #'magit-diff-buffer-file)
-(keymap-set vc-prefix-map "D" #'magit-diff)
-(keymap-set vc-prefix-map "l" #'magit-log-buffer-file)
-(keymap-set vc-prefix-map "L" #'magit-log)
-(keymap-set vc-prefix-map "?" #'magit-file-dispatch)
-(keymap-set project-prefix-map "v" #'magit-project-status)
+;;;;; section
 
-(define-key magit-blame-mode-map [remap quit-window] #'magit-blame-quit)
-(define-key magit-blob-mode-map [remap quit-window] #'magit-kill-this-buffer)
-
-(evil-set-initial-state 'magit-status-mode 'motion)
-(evil-set-initial-state 'magit-diff-mode 'motion)
-(evil-set-initial-state 'magit-log-mode 'motion)
+(require 'magit-section)
 
 (evil-define-key 'motion magit-section-mode-map
   (kbd "TAB") #'magit-section-toggle
@@ -1258,6 +1242,17 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "gk" #'magit-section-backward-sibling
   (kbd "C-j") #'magit-section-forward-sibling
   (kbd "C-k") #'magit-section-backward-sibling)
+
+(require 'magit)
+
+(keymap-set project-prefix-map "v" #'magit-project-status)
+
+(define-key magit-mode-map [remap magit-file-dispatch] #'magit-dispatch)
+
+(evil-set-initial-state 'magit-status-mode 'motion)
+(evil-set-initial-state 'magit-diff-mode 'motion)
+(evil-set-initial-state 'magit-log-mode 'motion)
+(evil-set-initial-state 'magit-stash-mode 'motion)
 
 (evil-define-key 'motion magit-mode-map
   (kbd "RET") #'magit-visit-thing
@@ -1272,6 +1267,20 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-define-key 'visual magit-mode-map
   "j" #'evil-next-line
   "k" #'evil-previous-line)
+
+(evil-define-minor-mode-key 'motion 'magit-blob-mode
+  "q" #'magit-kill-this-buffer
+  "gj" #'magit-blob-next
+  "gk" #'magit-blob-previous
+  (kbd "C-j") #'magit-blob-next
+  (kbd "C-k") #'magit-blob-previous)
+
+(evil-define-minor-mode-key 'motion 'magit-blame-mode
+  "q" #'magit-blame-quit
+  "gj" #'magit-blame-next-chunk
+  "gk" #'magit-blame-previous-chunk
+  (kbd "C-j") #'magit-blame-next-chunk
+  (kbd "C-k") #'magit-blame-previous-chunk)
 
 ;;;; package
 
@@ -1417,7 +1426,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
  "5" ctl-x-5-map
  "t" tab-prefix-map
  "p" project-prefix-map
- "v" vc-prefix-map
+ ;; "v" vc-prefix-map
+ "v" #'magit-file-dispatch
  "x" ctl-x-x-map
  "r" ctl-x-r-map
  "h" help-map
