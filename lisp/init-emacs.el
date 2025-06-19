@@ -1253,6 +1253,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-set-initial-state 'magit-diff-mode 'motion)
 (evil-set-initial-state 'magit-log-mode 'motion)
 (evil-set-initial-state 'magit-stash-mode 'motion)
+(evil-set-initial-state 'magit-stashes-mode 'motion)
 
 (evil-define-key 'motion magit-mode-map
   (kbd "RET") #'magit-visit-thing
