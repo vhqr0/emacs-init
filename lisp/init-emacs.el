@@ -1252,6 +1252,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-set-initial-state 'magit-status-mode 'motion)
 (evil-set-initial-state 'magit-diff-mode 'motion)
 (evil-set-initial-state 'magit-log-mode 'motion)
+(evil-set-initial-state 'magit-revision-mode 'motion)
 (evil-set-initial-state 'magit-stash-mode 'motion)
 (evil-set-initial-state 'magit-stashes-mode 'motion)
 
