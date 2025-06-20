@@ -151,9 +151,6 @@ With two or more universal ARG, open in current window."
 (keymap-set ctl-x-x-map "G" #'revert-buffer)
 (keymap-set ctl-x-x-map "v" #'vc-refresh-state)
 
-(keymap-set goto-map "r" #'revert-buffer-quick)
-(keymap-set goto-map "R" #'revert-buffer)
-
 
 
 ;;; ui
@@ -845,6 +842,20 @@ ARG see `init-consult-search'."
 
 (setq evil-lookup-func #'init-describe-symbol-dwim)
 
+;;;; info
+
+(require 'info)
+
+(evil-set-initial-state 'Info-mode 'motion)
+
+(evil-define-key 'motion Info-mode-map
+  (kbd "RET") #'Info-follow-nearest-node
+  (kbd "<return>") #'Info-follow-nearest-node
+  (kbd "TAB") #'Info-next-reference
+  (kbd "S-TAB") #'Info-prev-reference
+  (kbd "<tab>") #'Info-next-reference
+  (kbd "<backtab>") #'Info-prev-reference)
+
 
 
 ;;; prog
@@ -1375,29 +1386,6 @@ Or else call `magit-status'."
 
 ;;; bindings
 
-;;;; minors
-
-(defvar-keymap init-minor-map
-  "a s" #'auto-save-visited-mode
-  "a r" #'auto-revert-mode
-  "f s" #'flyspell-mode
-  "f m" #'flymake-mode
-  "t" #'toggle-truncate-lines
-  "v" #'visual-line-mode
-  "h" #'hl-line-mode
-  "w" #'whitespace-mode
-  "l" #'display-line-numbers-mode
-  "L" #'init-toggle-line-numbers-type
-  "g" #'init-goggles-mode)
-
-(keymap-global-set "C-c m" init-minor-map)
-
-;;;; apps
-
-(defvar-keymap init-app-map)
-
-(keymap-global-set "C-c \\" init-app-map)
-
 ;;;; leaders
 
 (defvar init-leader-key "SPC")
@@ -1466,6 +1454,27 @@ Or else call `magit-status'."
                 4)))
   (set-transient-map (key-binding " ")))
 
+(transient-define-prefix init-minor-dispatch ()
+  "Common minor mode dispatch."
+  [["Command"
+    ("q" "Quit" ignore)
+    ("m" "Search" consult-minor-mode-menu)]
+   ["File"
+    ("f s" "Auto Save" auto-save-visited-mode)
+    ("f r" "Auto Revert" global-auto-revert-mode)]
+   ["Line"
+    ("l t" "Truncate Line" toggle-truncate-lines)
+    ("l v" "Visual Line" visual-line-mode)
+    ("l w" "Whitespace" whitespace-mode)
+    ("l h" "Highlight Line" hl-line-mode)
+    ("l n" "Line Number" display-line-numbers-mode)
+    ("l r" "Line Number Relative" init-toggle-line-numbers-type)]
+   ["Prog"
+    ("p e" "Eglot" eglot)
+    ("p c" "Company" company-mode)
+    ("p m" "FlyMake" flymake-mode)
+    ("p s" "FlySpell" flyspell-mode)]])
+
 (init-leader-global-set
  "SPC" #'consult-buffer
  "c" #'init-magic-C-c
@@ -1501,8 +1510,7 @@ Or else call `magit-status'."
  "s" search-map
  "n" narrow-map
  "a" abbrev-map
- "m" init-minor-map
- "\\" init-app-map)
+ "m" #'init-minor-dispatch)
 
 (init-leader-global-set
  "$" #'ispell-word
@@ -1646,12 +1654,14 @@ FUNC and ARGS see specific command."
   "n b" #'org-narrow-to-block
   "n s" #'org-narrow-to-subtree)
 
-(keymap-set init-app-map "a" #'org-agenda)
-(keymap-set init-app-map "c" #'org-capture)
-(keymap-set init-app-map "w" #'org-store-link)
-(keymap-set init-app-map "o" #'org-open-at-point-global)
+(defvar-keymap init-org-map
+  "a" #'org-agenda
+  "c" #'org-capture
+  "w" #'org-store-link
+  "l" #'org-insert-link-global
+  "o" #'org-open-at-point-global)
 
-(keymap-global-set "C-c l" #'org-insert-link-global)
+(keymap-global-set "C-c o" init-org-map)
 
 (defun init-org-echo-link ()
   "Echo org link in minibuffer."
