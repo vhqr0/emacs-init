@@ -1476,9 +1476,15 @@ Or else call `magit-status'."
   [["Command"
     ("q" "Quit" ignore)
     ("m" "Search" consult-minor-mode-menu)]
+   ["UI"
+    ("u f" "Frame Maxsized" toggle-frame-maximized)
+    ("u m" "Menu Bar" menu-bar-mode)
+    ("u t" "Tool Bar" tool-bar-mode)
+    ("u s" "Scroll Bar" scroll-bar-mode)]
    ["File"
     ("f s" "Auto Save" auto-save-visited-mode)
-    ("f r" "Auto Revert" global-auto-revert-mode)]
+    ("f r" "Auto Revert" global-auto-revert-mode)
+    ("f i" "Input Method" toggle-input-method)]
    ["Line"
     ("l t" "Truncate Line" toggle-truncate-lines)
     ("l v" "Visual Line" visual-line-mode)
@@ -1487,10 +1493,10 @@ Or else call `magit-status'."
     ("l n" "Line Number" display-line-numbers-mode)
     ("l r" "Line Number Relative" init-toggle-line-numbers-type)]
    ["Prog"
-    ("p e" "Eglot" eglot)
-    ("p c" "Company" company-mode)
-    ("p m" "FlyMake" flymake-mode)
-    ("p s" "FlySpell" flyspell-mode)]])
+    ("p l" "LSP Client" eglot)
+    ("p c" "Auto Complete" company-mode)
+    ("p m" "Make Check" flymake-mode)
+    ("p s" "Spell Check" flyspell-mode)]])
 
 (init-leader-global-set
  "SPC" #'consult-buffer
