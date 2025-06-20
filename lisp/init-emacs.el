@@ -96,6 +96,7 @@ With two or more universal ARG, open in current window."
 (require 'project)
 
 (setq project-mode-line t)
+(setq project-switch-use-entire-map t)
 (setq vc-handled-backends '(Git))
 (setq vc-make-backup-files t)
 (setq version-control t)
@@ -1293,7 +1294,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'magit)
 
-(keymap-set project-prefix-map "v" #'magit-project-status)
+(keymap-global-set "C-c g" #'magit-file-dispatch)
 
 (define-key magit-mode-map [remap magit-file-dispatch] #'magit-dispatch)
 
@@ -1355,16 +1356,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 
 ;;; bindings
-
-;;;; project
-
-(setq project-switch-commands
-      '((project-find-file "Find File")
-        (project-find-dir "Find Dir")
-        (project-switch-to-buffer "Switch To Buffer")
-        (project-dired "Dired")
-        (project-eshell "Eshell")
-        (magit-project-status "Magit")))
 
 ;;;; minors
 
@@ -1484,8 +1475,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
  "5" ctl-x-5-map
  "t" tab-prefix-map
  "p" project-prefix-map
- ;; "v" vc-prefix-map
- "v" #'magit-file-dispatch
+ "v" vc-prefix-map
  "x" ctl-x-x-map
  "r" ctl-x-r-map
  "h" help-map
