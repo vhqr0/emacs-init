@@ -124,6 +124,14 @@ With two or more universal ARG, open in current window."
 
 (add-hook 'after-init-hook #'auto-save-visited-mode)
 
+;;;; autorevert
+
+(require 'autorevert)
+
+(setq auto-revert-check-vc-info t)
+
+(add-hook 'after-init-hook #'global-auto-revert-mode)
+
 ;;;; recentf
 
 (require 'recentf)
@@ -411,7 +419,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-motion-state-map "-" #'negative-argument)
 (keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
 (keymap-set evil-motion-state-map "q" #'quit-window)
-(keymap-set evil-normal-state-map "q" #'quit-window)
+(keymap-unset evil-normal-state-map "q" t)
 
 (keymap-set evil-visual-state-map "m" #'evil-jump-item)
 (keymap-set evil-operator-state-map "m" #'evil-jump-item)
@@ -1334,8 +1342,6 @@ Or else call `magit-status'."
   (kbd "C-j") #'magit-section-forward-sibling
   (kbd "C-k") #'magit-section-backward-sibling)
 
-(define-key magit-mode-map [remap quit-window] #'magit-mode-bury-buffer)
-
 (evil-define-key 'motion magit-mode-map
   (kbd "RET") #'magit-visit-thing
   (kbd "<return>") #'magit-visit-thing
@@ -1350,16 +1356,12 @@ Or else call `magit-status'."
   "j" #'evil-next-line
   "k" #'evil-previous-line)
 
-(define-key magit-blob-mode-map [remap quit-window] #'magit-kill-this-buffer)
-
 (evil-define-minor-mode-key 'motion 'magit-blob-mode
   "q" #'magit-kill-this-buffer
   "gj" #'magit-blob-next
   "gk" #'magit-blob-previous
   (kbd "C-j") #'magit-blob-next
   (kbd "C-k") #'magit-blob-previous)
-
-(define-key magit-blame-mode-map [remap quit-window] #'magit-blame-quit)
 
 (evil-define-minor-mode-key 'motion 'magit-blame-mode
   "q" #'magit-blame-quit
@@ -1369,6 +1371,21 @@ Or else call `magit-status'."
   "gK" #'magit-blame-previous-chunk-same-commit
   (kbd "C-j") #'magit-blame-next-chunk
   (kbd "C-k") #'magit-blame-previous-chunk)
+
+;;;; custom
+
+(require 'cus-edit)
+
+(evil-set-initial-state 'Custom-mode 'motion)
+
+(evil-define-key 'motion custom-mode-map
+  (kbd "RET") #'Custom-newline
+  (kbd "<return>") #'Custom-newline
+  (kbd "TAB") #'widget-forward
+  (kbd "S-TAB") #'widget-backward
+  (kbd "<tab>") #'widget-forward
+  (kbd "<backtab>") #'widget-backward
+  "q" #'Custom-buffer-done)
 
 ;;;; package
 
