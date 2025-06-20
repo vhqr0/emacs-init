@@ -1261,6 +1261,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-define-key 'motion log-view-mode-map
   (kbd "TAB") #'log-view-toggle-entry-display
   (kbd "<tab>") #'log-view-toggle-entry-display
+  (kbd "RET") #'log-view-toggle-entry-display
+  (kbd "<return>") #'log-view-toggle-entry-display
   "gj" #'log-view-msg-next
   "gk" #'log-view-msg-prev
   (kbd "C-j") #'log-view-msg-next
