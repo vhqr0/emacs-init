@@ -1117,6 +1117,23 @@ With two universal ARG, edit rg command."
 
 ;;;; diff
 
+(require 'diff)
+
+(evil-set-initial-state 'diff-mode 'motion)
+
+(evil-define-key 'motion diff-mode-shared-map
+  (kbd "RET") #'diff-goto-source
+  (kbd "<return>") #'diff-goto-source
+  "gj" #'diff-hunk-next
+  "gk" #'diff-hunk-prev
+  "gJ" #'diff-file-next
+  "gK" #'diff-file-prev
+  (kbd "C-j") #'diff-hunk-next
+  (kbd "C-k") #'diff-hunk-prev
+  "u" #'diff-undo)
+
+;;;;; ediff
+
 (require 'ediff)
 
 (setq ediff-window-setup-function #'ediff-setup-windows-plain)
@@ -1207,7 +1224,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 
-;;;; git
+;;;; vc
 
 (defvar init-git-program "git")
 (defvar init-git-user-name "vhqr0")
@@ -1242,6 +1259,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "gk" #'magit-section-backward-sibling
   (kbd "C-j") #'magit-section-forward-sibling
   (kbd "C-k") #'magit-section-backward-sibling)
+
+;;;;; modes
 
 (require 'magit)
 
@@ -1281,6 +1300,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "q" #'magit-blame-quit
   "gj" #'magit-blame-next-chunk
   "gk" #'magit-blame-previous-chunk
+  "gJ" #'magit-blame-next-chunk-same-commit
+  "gK" #'magit-blame-previous-chunk-same-commit
   (kbd "C-j") #'magit-blame-next-chunk
   (kbd "C-k") #'magit-blame-previous-chunk)
 
