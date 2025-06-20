@@ -1278,9 +1278,39 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;;; magit
 
-;;;;; section
+(require 'magit)
 
-(require 'magit-section)
+(defun init-magit-dwim (&optional arg)
+  "Call magit dwim.
+If in `magit-mode' derived mode, or with more than 2 universal ARG,
+or with universal arg and not in a file buffer, call `magit-dispatch';
+If with universal arg and in a file buffer, call `magit-file-dispatch';
+Or else call `magit-status'."
+  (interactive "P")
+  (let ((command (cond ((or
+                         ;; in a `magit-mode' derived mode
+                         (derived-mode-p 'magit-mode)
+                         ;; with more than 2 universal arg
+                         (> (prefix-numeric-value arg) 4)
+                         ;; with universal arg and not in a file
+                         (and arg (not buffer-file-name)))
+                        #'magit-dispatch)
+                       ;; with universal arg and in a file
+                       ((and arg buffer-file-name)
+                        #'magit-file-dispatch)
+                       (t
+                        #'magit-status))))
+    (setq this-command command)
+    (call-interactively this-command)))
+
+(keymap-global-set "C-c g" #'init-magit-dwim)
+
+(evil-set-initial-state 'magit-status-mode 'motion)
+(evil-set-initial-state 'magit-diff-mode 'motion)
+(evil-set-initial-state 'magit-log-mode 'motion)
+(evil-set-initial-state 'magit-revision-mode 'motion)
+(evil-set-initial-state 'magit-stash-mode 'motion)
+(evil-set-initial-state 'magit-stashes-mode 'motion)
 
 (evil-define-key 'motion magit-section-mode-map
   (kbd "TAB") #'magit-section-toggle
@@ -1291,21 +1321,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "gk" #'magit-section-backward-sibling
   (kbd "C-j") #'magit-section-forward-sibling
   (kbd "C-k") #'magit-section-backward-sibling)
-
-;;;;; modes
-
-(require 'magit)
-
-(keymap-global-set "C-c g" #'magit-file-dispatch)
-
-(define-key magit-mode-map [remap magit-file-dispatch] #'magit-dispatch)
-
-(evil-set-initial-state 'magit-status-mode 'motion)
-(evil-set-initial-state 'magit-diff-mode 'motion)
-(evil-set-initial-state 'magit-log-mode 'motion)
-(evil-set-initial-state 'magit-revision-mode 'motion)
-(evil-set-initial-state 'magit-stash-mode 'motion)
-(evil-set-initial-state 'magit-stashes-mode 'motion)
 
 (define-key magit-mode-map [remap quit-window] #'magit-mode-bury-buffer)
 
