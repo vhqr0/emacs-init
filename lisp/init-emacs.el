@@ -93,7 +93,6 @@ With two or more universal ARG, open in current window."
 
 (require 'files)
 (require 'vc-hooks)
-(require 'vc-git)
 (require 'project)
 
 (setq project-mode-line t)
@@ -1035,17 +1034,11 @@ COMMAND see `company-call-backend'."
 (evil-define-key 'motion dired-mode-map
   (kbd "RET") #'dired-find-file
   (kbd "<return>") #'dired-find-file
-  (kbd "TAB") #'dired-next-dirline
-  (kbd "S-TAB") #'dired-prev-dirline
-  (kbd "<tab>") #'dired-next-dirline
-  (kbd "<backtab>") #'dired-prev-dirline
-  "j" #'dired-next-line
-  "k" #'dired-previous-line
   "go" #'dired-display-file
-  "gj" #'dired-next-subdir
-  "gk" #'dired-prev-subdir
-  (kbd "C-j") #'dired-next-subdir
-  (kbd "C-k") #'dired-prev-subdir
+  "gj" #'dired-next-line
+  "gk" #'dired-previous-line
+  (kbd "C-j") #'dired-next-line
+  (kbd "C-k") #'dired-previous-line
   "+" #'dired-create-directory)
 
 ;;;; compile
@@ -1224,7 +1217,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 
-;;;; vc
+;;;; git
 
 (defvar init-git-program "git")
 (defvar init-git-user-name "vhqr0")
@@ -1243,6 +1236,42 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
          (format "%s config --local user.name %s && %s config --local user.email %s"
                  init-git-program init-git-user-name init-git-program init-git-user-email)
          (current-buffer))))))
+
+;;;; vc
+
+(require 'log-view)
+(require 'vc-annotate)
+(require 'vc-dir)
+(require 'vc-git)
+
+(evil-set-initial-state 'vc-dir-mode 'motion)
+(evil-set-initial-state 'vc-git-log-view-mode 'motion)
+(evil-set-initial-state 'vc-annotate-mode 'motion)
+
+(evil-define-key 'motion vc-dir-mode-map
+  (kbd "RET") #'vc-dir-find-file
+  (kbd "<return>") #'vc-dir-find-file
+  "go" #'vc-dir-display-file
+  "gj" #'vc-dir-next-line
+  "gk" #'vc-dir-previous-line
+  (kbd "C-j") #'vc-dir-next-line
+  (kbd "C-k") #'vc-dir-previous-line)
+
+(evil-define-key 'motion log-view-mode-map
+  (kbd "TAB") #'log-view-toggle-entry-display
+  (kbd "<tab>") #'log-view-toggle-entry-display
+  "gj" #'log-view-msg-next
+  "gk" #'log-view-msg-prev
+  (kbd "C-j") #'log-view-msg-next
+  (kbd "C-k") #'log-view-msg-prev)
+
+(evil-define-key 'motion vc-annotate-mode-map
+  (kbd "RET") #'vc-annotate-goto-line
+  (kbd "<return>") #'vc-annotate-goto-line
+  "gj" #'vc-annotate-next-revision
+  "gk" #'vc-annotate-prev-revision
+  (kbd "C-j") #'vc-annotate-next-revision
+  (kbd "C-k") #'vc-annotate-prev-revision)
 
 ;;;; magit
 
