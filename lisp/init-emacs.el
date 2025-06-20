@@ -1311,6 +1311,7 @@ Or else call `magit-status'."
 (evil-set-initial-state 'magit-revision-mode 'motion)
 (evil-set-initial-state 'magit-stash-mode 'motion)
 (evil-set-initial-state 'magit-stashes-mode 'motion)
+(evil-set-initial-state 'magit-process-mode 'motion)
 
 (evil-define-key 'motion magit-section-mode-map
   (kbd "TAB") #'magit-section-toggle
