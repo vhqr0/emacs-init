@@ -1275,6 +1275,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-set-initial-state 'magit-stash-mode 'motion)
 (evil-set-initial-state 'magit-stashes-mode 'motion)
 
+(define-key magit-mode-map [remap quit-window] #'magit-mode-bury-buffer)
+
 (evil-define-key 'motion magit-mode-map
   (kbd "RET") #'magit-visit-thing
   (kbd "<return>") #'magit-visit-thing
@@ -1289,12 +1291,16 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "j" #'evil-next-line
   "k" #'evil-previous-line)
 
+(define-key magit-blob-mode-map [remap quit-window] #'magit-kill-this-buffer)
+
 (evil-define-minor-mode-key 'motion 'magit-blob-mode
   "q" #'magit-kill-this-buffer
   "gj" #'magit-blob-next
   "gk" #'magit-blob-previous
   (kbd "C-j") #'magit-blob-next
   (kbd "C-k") #'magit-blob-previous)
+
+(define-key magit-blame-mode-map [remap quit-window] #'magit-blame-quit)
 
 (evil-define-minor-mode-key 'motion 'magit-blame-mode
   "q" #'magit-blame-quit
