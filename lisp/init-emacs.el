@@ -1477,7 +1477,7 @@ Or else call `magit-status'."
     ("q" "Quit" ignore)
     ("m" "Search" consult-minor-mode-menu)]
    ["UI"
-    ("u f" "Frame Maxsized" toggle-frame-maximized)
+    ("u f" "Frame Fullscreen" toggle-frame-fullscreen)
     ("u m" "Menu Bar" menu-bar-mode)
     ("u t" "Tool Bar" tool-bar-mode)
     ("u s" "Scroll Bar" scroll-bar-mode)]
