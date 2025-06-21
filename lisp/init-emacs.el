@@ -159,6 +159,9 @@ With two or more universal ARG, open in current window."
 (keymap-set ctl-x-x-map "G" #'revert-buffer)
 (keymap-set ctl-x-x-map "v" #'vc-refresh-state)
 
+(keymap-set ctl-x-x-map "<left>" #'previous-buffer)
+(keymap-set ctl-x-x-map "<right>" #'next-buffer)
+
 
 
 ;;; ui
@@ -1270,6 +1273,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (require 'vc-dir)
 (require 'vc-git)
 
+(keymap-set vc-prefix-map "p" #'vc-push)
+
 (evil-set-initial-state 'vc-dir-mode 'motion)
 (evil-set-initial-state 'vc-git-log-view-mode 'motion)
 (evil-set-initial-state 'vc-annotate-mode 'motion)
@@ -1281,7 +1286,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "gj" #'vc-dir-next-line
   "gk" #'vc-dir-previous-line
   (kbd "C-j") #'vc-dir-next-line
-  (kbd "C-k") #'vc-dir-previous-line)
+  (kbd "C-k") #'vc-dir-previous-line
+  "p" #'vc-push)
 
 (evil-define-key 'motion log-view-mode-map
   (kbd "TAB") #'log-view-toggle-entry-display
@@ -1407,35 +1413,24 @@ Or else call `magit-status'."
 
 
 
-;;; bindings
-
-;;;; leaders
-
-(defvar init-leader-key "SPC")
-(defvar init-leader-state '(motion normal))
+;;; leaders
 
 (defun init-leader-bindings (clauses)
   "Transforms `define-key' CLAUSES to binding alist."
   (->> clauses
        (-partition 2)
        (--map
-        (cons (kbd (concat init-leader-key " " (car it))) (cadr it)))))
+        (cons (kbd (concat "SPC " (car it))) (cadr it)))))
 
 (defun init-leader-set (keymap &rest clauses)
   "Define leader binding CLAUSES in KEYMAP."
   (declare (indent defun))
   (dolist (binding (init-leader-bindings clauses))
-    (evil-define-key* init-leader-state keymap (car binding) (cdr binding))))
+    (evil-define-key* 'motion keymap (car binding) (cdr binding))))
 
 (defun init-leader-global-set (&rest clauses)
   "Define leader binding CLAUSES in `init-evil-override-mode-map'."
-  (apply #'init-leader-set (cons init-evil-override-mode-map clauses)))
-
-(defun init-leader-minor-mode-set (mode &rest clauses)
-  "Define leader binding CLAUSES assoc with minor MODE."
-  (declare (indent defun))
-  (dolist (binding (init-leader-bindings clauses))
-    (evil-define-minor-mode-key init-leader-state mode (car binding) (cdr binding))))
+  (apply #'init-leader-set init-evil-override-mode-map clauses))
 
 (defun init-magic (prefix)
   "Magically read and execute command on PREFIX."
@@ -1518,8 +1513,6 @@ Or else call `magit-status'."
  "3" #'split-window-right
  "o" #'other-window
  "q" #'quit-window
- "<left>" #'previous-buffer
- "<right>" #'next-buffer
  "b" #'switch-to-buffer
  "k" #'kill-buffer
  "f" #'find-file
@@ -1539,9 +1532,7 @@ Or else call `magit-status'."
  "s" search-map
  "n" narrow-map
  "a" abbrev-map
- "m" #'init-minor-dispatch)
-
-(init-leader-global-set
+ "m" #'init-minor-dispatch
  "$" #'ispell-word
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
