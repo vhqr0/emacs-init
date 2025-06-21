@@ -1775,6 +1775,8 @@ FUNC TAGS see `org-make-tag-string'."
 (setq python-shell-interpreter "python")
 (setq python-shell-interpreter-args "-m IPython --simple-prompt")
 
+(keymap-set python-base-mode-map "C-c C-k" #'python-shell-send-buffer)
+
 (dolist (mode init-python-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
 
