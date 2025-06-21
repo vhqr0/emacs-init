@@ -1053,6 +1053,10 @@ FUNC COMMAND ARGS see `company-call-backend'."
 (evil-define-key 'motion dired-mode-map
   (kbd "RET") #'dired-find-file
   (kbd "<return>") #'dired-find-file
+  (kbd "TAB") #'dired-next-line
+  (kbd "S-TAB") #'dired-previous-line
+  (kbd "<tab>") #'dired-next-line
+  (kbd "<backtab>") #'dired-previous-line
   "go" #'dired-display-file
   "gj" #'dired-next-line
   "gk" #'dired-previous-line
@@ -1141,8 +1145,7 @@ With two universal ARG, edit rg command."
   "gJ" #'diff-file-next
   "gK" #'diff-file-prev
   (kbd "C-j") #'diff-hunk-next
-  (kbd "C-k") #'diff-hunk-prev
-  "u" #'diff-undo)
+  (kbd "C-k") #'diff-hunk-prev)
 
 ;;;;; ediff
 
@@ -1718,6 +1721,12 @@ FUNC TAGS see `org-make-tag-string'."
         ("t" "Task Active" entry (file+headline "" "Tasks") "* TODO %?\n%T\n%a")))
 
 (evil-set-initial-state 'org-agenda-mode 'motion)
+
+(evil-define-key 'motion org-agenda-mode-map
+  (kbd "RET") #'org-agenda-goto
+  (kbd "<return>") #'org-agenda-goto
+  "j" #'org-agenda-next-line
+  "k" #'org-agenda-previous-line)
 
 ;;;; markdown
 
