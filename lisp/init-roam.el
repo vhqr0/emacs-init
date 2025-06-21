@@ -42,26 +42,26 @@
 ;;;; node
 
 (defun init-org-roam-node-get (node)
-  "Get NODE of text."
+  "Get Org Roam NODE of text."
   (get-text-property 0 'node node))
 
 (defun init-org-roam-node-find (node)
-  "Find NODE."
+  "Find Org Roam NODE."
   (org-roam-node-visit (init-org-roam-node-get node)))
 
 (defun init-org-roam-node-find-other-window (node)
-  "Find NODE other window."
+  "Find Org Roam NODE other window."
   (org-roam-node-visit (init-org-roam-node-get node) t))
 
 (defun init-org-roam-node-insert (node)
-  "Insert link of NODE."
+  "Insert link of an Org Roam NODE."
   (let ((node (init-org-roam-node-get node)))
     (insert (org-link-make-string
              (concat "id:" (org-roam-node-id node))
              (org-roam-node-formatted node)))))
 
 (defun init-org-roam-node-capture (node)
-  "Capture more content to NODE."
+  "Capture more content to an Org Roam NODE."
   (org-roam-capture- :node (init-org-roam-node-get node)))
 
 (defvar-keymap init-org-roam-node-map
@@ -76,7 +76,7 @@
 ;;;; ref
 
 (defun init-org-roam-ref-url (ref)
-  "Get url or Org Roam REF."
+  "Get url of an Org Roam REF."
   (let* ((type (get-text-property 0 'type ref))
          (path-end (->> (-iota (length ref))
                         (--first (get-text-property it 'invisible ref))))
@@ -90,7 +90,7 @@
     (browse-url url)))
 
 (defun init-org-roam-ref-browse-eww (ref)
-  "Browse Org Roam REF."
+  "Browse Org Roam REF with eww."
   (let ((url (init-org-roam-ref-url ref)))
     (message "Browse org roam ref: %s" url)
     (eww-browse-url url)))

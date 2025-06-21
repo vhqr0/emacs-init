@@ -401,13 +401,13 @@ START END LEN see `after-change-functions'."
 (defvar init-evil-disable-adjust-cursor-commands
   '(forward-sexp forward-list))
 
-(defun init-around-evil-adjust-cursor-filter-commands (func &rest args)
+(defun init-around-evil-adjust-cursor-do-filter (func &rest args)
   "Dont adjust cursor after certain commands.
 FUNC and ARGS see `evil-set-cursor'."
   (unless (memq this-command init-evil-disable-adjust-cursor-commands)
     (apply func args)))
 
-(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-filter-commands)
+(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-filter)
 
 (define-key evil-normal-state-map [remap yank-pop] nil t)
 
@@ -632,13 +632,13 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (defvar init-vertico-disable-commands '(kill-buffer))
 
-(defun init-around-vertico-setup-filter-commands (func &rest args)
+(defun init-around-vertico-setup-do-filter (func &rest args)
   "Disable vertico around `init-vertico-disable-commands'.
 FUNC ARGS see `vertico--setup'."
   (unless (memq this-command init-vertico-disable-commands)
     (apply func args)))
 
-(advice-add 'vertico--setup :around #'init-around-vertico-setup-filter-commands)
+(advice-add 'vertico--setup :around #'init-around-vertico-setup-do-filter)
 
 (defun init-vertico-embark-preview ()
   "Previews candidate in vertico buffer."
@@ -1009,16 +1009,13 @@ FUNC ARGS see `company-capf'."
 
 (advice-add 'company-capf :around #'init-around-company-capf-set-styles)
 
-(defun init-before-company-call-backend-check-evil-state (command &rest _args)
+(defun init-around-company-call-backend-do-check-evil (func command &rest args)
   "Check evil state before call company.
-COMMAND see `company-call-backend'."
-  (cond
-   ((not (bound-and-true-p evil-mode)) t)
-   ((eq command 'prefix)
-    (memq evil-state '(insert replace emacs)))
-   (t t)))
+FUNC COMMAND ARGS see `company-call-backend'."
+  (unless (and evil-mode (eq evil-state 'normal) (eq command 'prefix))
+    (apply func command args)))
 
-(advice-add #'company-call-backend :before-while #'init-before-company-call-backend-check-evil-state)
+(advice-add #'company-call-backend :around #'init-around-company-call-backend-do-check-evil)
 
 ;;;; eglot
 
@@ -1688,6 +1685,19 @@ FUNC and ARGS see specific command."
 
 (keymap-global-set "C-c o" init-org-map)
 
+(evil-define-key 'motion org-mode-map
+  (kbd "TAB") #'org-cycle
+  (kbd "S-TAB") #'org-shifttab
+  (kbd "<tab>") #'org-cycle
+  (kbd "<backtab>") #'org-shifttab)
+
+(defun init-around-org-make-tag-string-do-sort (func tags)
+  "Do sort org tags before make string.
+FUNC TAGS see `org-make-tag-string'."
+  (funcall func (sort tags)))
+
+(advice-add #'org-make-tag-string :around #'init-around-org-make-tag-string-do-sort)
+
 (defun init-org-echo-link ()
   "Echo org link in minibuffer."
   (interactive)
@@ -1696,12 +1706,6 @@ FUNC and ARGS see specific command."
       (message (match-string-no-properties 0)))))
 
 (keymap-set embark-org-link-map "e" #'init-org-echo-link)
-
-(evil-define-key 'motion org-mode-map
-  (kbd "TAB") #'org-cycle
-  (kbd "S-TAB") #'org-shifttab
-  (kbd "<tab>") #'org-cycle
-  (kbd "<backtab>") #'org-shifttab)
 
 ;;;;; agenda
 
