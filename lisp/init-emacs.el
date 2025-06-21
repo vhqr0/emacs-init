@@ -347,7 +347,7 @@ START END LEN see `after-change-functions'."
 
 (define-minor-mode init-goggles-mode
   "Init goggles mode."
-  :group 'init
+  :group 'init-goggles
   :lighter nil
   (if init-goggles-mode
       (progn
@@ -537,7 +537,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (define-minor-mode init-evil-override-mode
   "Override leader prefix map."
-  :group 'init
+  :group 'init-evil
   :global t
   :keymap init-evil-override-mode-map)
 
@@ -608,6 +608,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; vertico
 
+(defvar vertico-mode-map (make-sparse-keymap))
+
 (require 'vertico)
 (require 'vertico-multiform)
 (require 'vertico-repeat)
@@ -621,8 +623,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
-(keymap-global-set "C-c b" #'vertico-repeat)
-(keymap-global-set "C-c z" #'vertico-suspend)
+(keymap-set vertico-mode-map "C-c b" #'vertico-repeat)
+(keymap-set vertico-mode-map "C-c z" #'vertico-suspend)
 
 (keymap-set vertico-map "C-l" #'vertico-directory-up)
 
@@ -671,7 +673,7 @@ FUNC ARGS see `vertico--setup'."
 
 (define-minor-mode init-consult-override-mode
   "Override consult commands."
-  :group 'init
+  :group 'init-consult
   :global t
   :keymap init-consult-override-mode-map)
 
