@@ -396,6 +396,10 @@ START END LEN see `after-change-functions'."
 (setq evil-search-wrap nil)
 (setq evil-symbol-word-search t)
 
+(setq evil-emacs-state-modes nil)
+(setq evil-insert-state-modes nil)
+(setq evil-motion-state-modes nil)
+
 (add-hook 'after-init-hook #'evil-mode)
 
 (defvar init-evil-disable-adjust-cursor-commands
