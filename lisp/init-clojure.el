@@ -128,5 +128,13 @@
 (evil-define-key 'insert cider-repl-mode-map
   (kbd "M-r") #'consult-history)
 
+(evil-define-key 'motion cider-repl-mode-map
+  (kbd "RET") #'cider-repl-return
+  (kbd "<return>") #'cider-repl-return
+  "gj" #'cider-repl-next-prompt
+  "gk" #'cider-repl-previous-prompt
+  (kbd "C-j") #'cider-repl-next-prompt
+  (kbd "C-k") #'cider-repl-previous-prompt)
+
 (provide 'init-clojure)
 ;;; init-clojure.el ends here
