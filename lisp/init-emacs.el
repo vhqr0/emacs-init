@@ -1660,6 +1660,8 @@ FUNC and ARGS see specific command."
 (require 'org-capture)
 (require 'embark-org)
 
+(setq org-modules '(org-tempo))
+
 (setq org-special-ctrl-a/e t)
 
 (defun init-org-set-syntax ()
