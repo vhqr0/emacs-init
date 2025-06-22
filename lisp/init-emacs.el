@@ -559,10 +559,10 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
-(evil-define-key 'insert minibuffer-mode-map
+(evil-define-key 'insert minibuffer-local-map
   (kbd "M-r") #'previous-matching-history-element)
 
-(evil-define-key 'normal minibuffer-mode-map
+(evil-define-key 'normal minibuffer-local-map
   (kbd "RET") #'exit-minibuffer)
 
 ;;;; savehist
