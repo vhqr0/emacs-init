@@ -68,7 +68,7 @@
   :parent embark-general-map
   "f" #'init-org-roam-node-find
   "o" #'init-org-roam-node-find-other-window
-  "i" #'init-org-roam-node-insert
+  "l" #'init-org-roam-node-insert
   "c" #'init-org-roam-node-capture)
 
 (add-to-list 'embark-keymap-alist '(org-roam-node init-org-roam-node-map))
