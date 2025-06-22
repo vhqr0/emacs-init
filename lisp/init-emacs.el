@@ -1036,6 +1036,8 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 (setq eglot-extend-to-xref t)
 
+(keymap-set eglot-mode-map "<remap> <evil-lookup>" #'eldoc-doc-buffer)
+
 ;;;; apheleia
 
 (require 'apheleia)
