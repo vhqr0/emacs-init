@@ -83,8 +83,7 @@
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
-  (keymap-set map "<remap> <evil-lookup>" #'cider-doc)
-  (keymap-set map "<remap> <evil-goto-definition>" #'xref-find-definitions))
+  (keymap-set map "<remap> <evil-lookup>" #'cider-doc))
 
 (dolist (mode init-clojure-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
