@@ -416,7 +416,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-filter)
 
-(define-key evil-normal-state-map [remap yank-pop] nil t)
+(keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
 
 (keymap-unset evil-insert-state-map "C-@" t)
 (keymap-unset evil-insert-state-map "C-a" t)
@@ -554,7 +554,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;; completion
 
-(define-key minibuffer-local-map [remap quit-window] #'abort-recursive-edit)
+(keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
 (evil-define-key 'insert minibuffer-mode-map
   (kbd "M-r") #'previous-matching-history-element)
@@ -688,11 +688,11 @@ FUNC ARGS see `vertico--setup'."
 
 ;;;;; history
 
-(define-key init-consult-override-mode-map [remap yank] #'consult-yank-from-kill-ring)
-(define-key init-consult-override-mode-map [remap yank-pop] #'consult-yank-pop)
-(define-key init-consult-override-mode-map [remap previous-matching-history-element] #'consult-history)
-(define-key init-consult-override-mode-map [remap eshell-previous-matching-input] #'consult-history)
-(define-key init-consult-override-mode-map [remap comint-history-isearch-backward-regexp] #'consult-history)
+(keymap-set init-consult-override-mode-map "<remap> <yank>" #'consult-yank-from-kill-ring)
+(keymap-set init-consult-override-mode-map "<remap> <yank-pop>" #'consult-yank-pop)
+(keymap-set init-consult-override-mode-map "<remap> <previous-matching-history-element>" #'consult-history)
+(keymap-set init-consult-override-mode-map "<remap> <eshell-previous-matching-input>" #'consult-history)
+(keymap-set init-consult-override-mode-map "<remap> <comint-history-isearch-backward-regexp>" #'consult-history)
 
 ;;;;; search
 
@@ -706,8 +706,8 @@ FUNC ARGS see `vertico--setup'."
  consult-line
  :preview-key 'any)
 
-(define-key init-consult-override-mode-map [remap goto-line] #'consult-goto-line)
-(define-key init-consult-override-mode-map [remap imenu] #'consult-imenu)
+(keymap-set init-consult-override-mode-map "<remap> <goto-line>" #'consult-goto-line)
+(keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
 
 (defun init-after-consult-line-set-search (&rest _args)
   "Set `evil-ex-search-pattern' after `consult-line'."
@@ -830,7 +830,7 @@ ARG see `init-consult-search'."
 (keymap-set help-map "t" init-load-map)
 
 (consult-customize consult-theme :preview-key '(:debounce 0.5 any))
-(define-key init-consult-override-mode-map [remap load-theme] #'consult-theme)
+(keymap-set init-consult-override-mode-map "<remap> <load-theme>" #'consult-theme)
 
 ;;;; findfunc
 
@@ -1600,7 +1600,7 @@ FUNC and ARGS see specific command."
   (keymap-set map "C-c C-k" #'eval-buffer)
   (keymap-set map "C-C C-l" #'load-file)
   (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp)
-  (define-key map [remap display-local-help] #'eldoc-doc-buffer))
+  (keymap-set map "<remap> <display-local-help>" #'eldoc-doc-buffer))
 
 (dolist (hook init-elisp-hooks)
   (add-hook hook #'init-lisp-set-outline))
