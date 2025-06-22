@@ -1679,14 +1679,14 @@ FUNC and ARGS see specific command."
   "n b" #'org-narrow-to-block
   "n s" #'org-narrow-to-subtree)
 
-(defvar-keymap init-org-map
+(defvar-keymap init-org-prefix-map
   "a" #'org-agenda
   "c" #'org-capture
   "w" #'org-store-link
   "l" #'org-insert-link-global
   "o" #'org-open-at-point-global)
 
-(keymap-global-set "C-c o" init-org-map)
+(keymap-global-set "C-c o" init-org-prefix-map)
 
 (evil-define-key 'motion org-mode-map
   (kbd "TAB") #'org-cycle
