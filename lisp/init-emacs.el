@@ -843,12 +843,15 @@ ARG see `init-consult-search'."
 (keymap-set help-map "L" #'find-library)
 (keymap-set help-map "F" #'find-function)
 (keymap-set help-map "V" #'find-variable)
+(keymap-set help-map "K" #'find-function-on-key)
 (keymap-set help-map "4 L" #'find-library-other-window)
 (keymap-set help-map "4 F" #'find-function-other-window)
 (keymap-set help-map "4 V" #'find-variable-other-window)
+(keymap-set help-map "4 K" #'find-function-on-key-other-window)
 (keymap-set help-map "5 L" #'find-library-other-frame)
 (keymap-set help-map "5 F" #'find-function-other-frame)
 (keymap-set help-map "5 V" #'find-variable-other-frame)
+(keymap-set help-map "5 K" #'find-function-on-key-other-frame)
 
 ;;;; elookup
 
