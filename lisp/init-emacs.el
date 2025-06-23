@@ -92,13 +92,7 @@ With two or more universal ARG, open in current window."
 ;;; files
 
 (require 'files)
-(require 'vc-hooks)
-(require 'project)
 
-(setq project-mode-line t)
-(setq project-switch-use-entire-map t)
-(setq vc-handled-backends '(Git))
-(setq vc-make-backup-files t)
 (setq version-control t)
 (setq backup-by-copying t)
 (setq delete-old-versions t)
@@ -295,7 +289,7 @@ With two or more universal ARG, open in current window."
 
 (require 'display-line-numbers)
 
-(defun init-toggle-line-numbers-type ()
+(defun init-toggle-line-numbers-relative ()
   "Toggle local display type of line numbers."
   (interactive)
   (setq-local display-line-numbers-type
@@ -902,11 +896,25 @@ ARG see `init-consult-search'."
 
 (setq eldoc-minor-mode-string nil)
 
+(keymap-set prog-mode-map "<remap> <display-local-help>" #'eldoc-doc-buffer)
+
 ;;;; xref
 
 (require 'xref)
 
 (setq xref-search-program 'ripgrep)
+
+(evil-set-initial-state 'xref--xref-buffer-mode 'motion)
+
+(evil-define-key 'motion xref--xref-buffer-mode-map
+  (kbd "RET") #'xref-goto-xref
+  (kbd "<return>") #'xref-goto-xref
+  "go" #'xref-show-location-at-point
+  "gj" #'xref-next-line
+  "gk" #'xref-prev-line
+  (kbd "C-j") #'xref-next-line
+  (kbd "C-k") #'xref-prev-line
+  "gr" #'xref-revert-buffer)
 
 ;;;; abbrev
 
@@ -1060,8 +1068,6 @@ FUNC COMMAND ARGS see `company-call-backend'."
 (put 'dired-jump 'repeat-map nil)
 
 (keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
-
-(keymap-set project-prefix-map "j" #'project-dired)
 
 (evil-set-initial-state 'dired-mode 'motion)
 
@@ -1274,12 +1280,16 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
                  init-git-program init-git-user-name init-git-program init-git-user-email)
          (current-buffer))))))
 
-;;;; vc
+;;;;; vc
 
-(require 'log-view)
-(require 'vc-annotate)
-(require 'vc-dir)
+(require 'vc-hooks)
 (require 'vc-git)
+(require 'vc-dir)
+(require 'vc-annotate)
+(require 'log-view)
+
+(setq vc-handled-backends '(Git))
+(setq vc-make-backup-files t)
 
 (keymap-set vc-prefix-map "p" #'vc-push)
 
@@ -1315,7 +1325,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "C-j") #'vc-annotate-next-revision
   (kbd "C-k") #'vc-annotate-prev-revision)
 
-;;;; magit
+;;;;; magit
 
 (require 'magit)
 
@@ -1391,6 +1401,17 @@ Or else call `magit-status'."
   "gK" #'magit-blame-previous-chunk-same-commit
   (kbd "C-j") #'magit-blame-next-chunk
   (kbd "C-k") #'magit-blame-previous-chunk)
+
+;;;; project
+
+(require 'project)
+
+(setq project-mode-line t)
+(setq project-switch-use-entire-map t)
+(setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
+
+(keymap-set project-prefix-map "j" #'project-dired)
+(keymap-set project-prefix-map "C" #'project-recompile)
 
 ;;;; custom
 
@@ -1480,32 +1501,16 @@ Or else call `magit-status'."
                 4)))
   (set-transient-map (key-binding " ")))
 
-(transient-define-prefix init-minor-dispatch ()
-  "Common minor mode dispatch."
-  [["Command"
-    ("q" "Quit" ignore)
-    ("m" "Search" consult-minor-mode-menu)]
-   ["UI"
-    ("u f" "Frame Fullscreen" toggle-frame-fullscreen)
-    ("u m" "Menu Bar" menu-bar-mode)
-    ("u t" "Tool Bar" tool-bar-mode)
-    ("u s" "Scroll Bar" scroll-bar-mode)]
-   ["File"
-    ("f s" "Auto Save" auto-save-visited-mode)
-    ("f r" "Auto Revert" global-auto-revert-mode)
-    ("f i" "Input Method" toggle-input-method)]
-   ["Line"
-    ("l t" "Truncate Line" toggle-truncate-lines)
-    ("l v" "Visual Line" visual-line-mode)
-    ("l w" "Whitespace" whitespace-mode)
-    ("l h" "Highlight Line" hl-line-mode)
-    ("l n" "Line Number" display-line-numbers-mode)
-    ("l r" "Line Number Relative" init-toggle-line-numbers-type)]
-   ["Prog"
-    ("p l" "LSP Client" eglot)
-    ("p c" "Auto Complete" company-mode)
-    ("p m" "Make Check" flymake-mode)
-    ("p s" "Spell Check" flyspell-mode)]])
+(defvar-keymap init-minor-prefix-map
+  "s" #'auto-save-visited-mode
+  "r" #'global-auto-revert-mode
+  "t" #'toggle-truncate-lines
+  "v" #'visual-line-mode
+  "w" #'whitespace-mode
+  "W" #'whitespace-newline-mode
+  "h" #'hl-line-mode
+  "n" #'display-line-numbers-mode
+  "N" #'init-toggle-line-numbers-relative)
 
 (init-leader-global-set
  "SPC" #'consult-buffer
@@ -1540,7 +1545,7 @@ Or else call `magit-status'."
  "s" search-map
  "n" narrow-map
  "a" abbrev-map
- "m" #'init-minor-dispatch
+ "m" init-minor-prefix-map
  "$" #'ispell-word
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
@@ -1604,8 +1609,7 @@ FUNC and ARGS see specific command."
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-k" #'eval-buffer)
   (keymap-set map "C-C C-l" #'load-file)
-  (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp)
-  (keymap-set map "<remap> <display-local-help>" #'eldoc-doc-buffer))
+  (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp))
 
 (dolist (hook init-elisp-hooks)
   (add-hook hook #'init-lisp-set-outline))
