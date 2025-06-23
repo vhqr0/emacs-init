@@ -1352,8 +1352,6 @@ Or else call `magit-status'."
     (setq this-command command)
     (call-interactively this-command)))
 
-(keymap-global-set "C-c g" #'init-magit-dwim)
-
 (evil-set-initial-state 'magit-status-mode 'motion)
 (evil-set-initial-state 'magit-diff-mode 'motion)
 (evil-set-initial-state 'magit-log-mode 'motion)
@@ -1501,6 +1499,9 @@ Or else call `magit-status'."
                 4)))
   (set-transient-map (key-binding " ")))
 
+(defvar-keymap init-app-command-map
+  "g" #'init-magit-dwim)
+
 (defvar-keymap init-minor-prefix-map
   "s" #'auto-save-visited-mode
   "r" #'global-auto-revert-mode
@@ -1546,6 +1547,7 @@ Or else call `magit-status'."
  "n" narrow-map
  "a" abbrev-map
  "m" init-minor-prefix-map
+ "\\" init-app-command-map
  "$" #'ispell-word
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
@@ -1673,6 +1675,10 @@ FUNC and ARGS see specific command."
 
 (setq org-special-ctrl-a/e t)
 
+(keymap-set init-app-command-map "c" #'org-capture)
+(keymap-set init-app-command-map "a" #'org-agenda)
+(keymap-set init-app-command-map "w" #'org-store-link)
+
 (defun init-org-set-syntax ()
   "Modify `org-mode' syntax table."
   (modify-syntax-entry ?< "." org-mode-syntax-table)
@@ -1687,15 +1693,6 @@ FUNC and ARGS see specific command."
 (init-leader-set org-mode-map
   "n b" #'org-narrow-to-block
   "n s" #'org-narrow-to-subtree)
-
-(defvar-keymap init-org-prefix-map
-  "a" #'org-agenda
-  "c" #'org-capture
-  "w" #'org-store-link
-  "l" #'org-insert-link-global
-  "o" #'org-open-at-point-global)
-
-(keymap-global-set "C-c o" init-org-prefix-map)
 
 (evil-define-key 'motion org-mode-map
   (kbd "TAB") #'org-cycle
