@@ -1174,11 +1174,49 @@ With two universal ARG, edit rg command."
 
 (setq ediff-window-setup-function #'ediff-setup-windows-plain)
 
-;;;; tablist
+;;;; logview
+
+(require 'log-view)
+
+(evil-set-initial-state 'log-view-mode 'motion)
+
+(evil-define-key 'motion log-view-mode-map
+  (kbd "TAB") #'log-view-toggle-entry-display
+  (kbd "<tab>") #'log-view-toggle-entry-display
+  (kbd "RET") #'log-view-toggle-entry-display
+  (kbd "<return>") #'log-view-toggle-entry-display
+  "gj" #'log-view-msg-next
+  "gk" #'log-view-msg-prev
+  (kbd "C-j") #'log-view-msg-next
+  (kbd "C-k") #'log-view-msg-prev)
+
+;;;; tabulated list
 
 (require 'tabulated-list)
 
 (evil-set-initial-state 'tabulated-list-mode 'motion)
+
+(evil-define-key 'motion tabulated-list-mode-map
+  (kbd "TAB") #'forward-button
+  (kbd "S-TAB") #'backward-button
+  (kbd "<tab>") #'forward-button
+  (kbd "<backtab>") #'backward-button)
+
+;;;; magit section
+
+(require 'magit-section)
+
+(evil-set-initial-state 'magit-section-mode 'motion)
+
+(evil-define-key 'motion magit-section-mode-map
+  (kbd "TAB") #'magit-section-toggle
+  (kbd "S-TAB") #'magit-section-cycle-global
+  (kbd "<tab>") #'magit-section-toggle
+  (kbd "<backtab>") #'magit-section-cycle-global
+  "gj" #'magit-section-forward-sibling
+  "gk" #'magit-section-backward-sibling
+  (kbd "C-j") #'magit-section-forward-sibling
+  (kbd "C-k") #'magit-section-backward-sibling)
 
 ;;;; comint
 
@@ -1257,6 +1295,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'with-editor)
 
+(add-hook 'after-init-hook #'shell-command-with-editor-mode)
+
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 
@@ -1286,7 +1326,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (require 'vc-git)
 (require 'vc-dir)
 (require 'vc-annotate)
-(require 'log-view)
 
 (setq vc-handled-backends '(Git))
 (setq vc-make-backup-files t)
@@ -1294,8 +1333,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set vc-prefix-map "p" #'vc-push)
 
 (evil-set-initial-state 'vc-dir-mode 'motion)
-(evil-set-initial-state 'vc-git-log-view-mode 'motion)
 (evil-set-initial-state 'vc-annotate-mode 'motion)
+(evil-set-initial-state 'vc-git-log-view-mode 'motion)
 
 (evil-define-key 'motion vc-dir-mode-map
   (kbd "RET") #'vc-dir-find-file
@@ -1306,16 +1345,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "C-j") #'vc-dir-next-line
   (kbd "C-k") #'vc-dir-previous-line
   "p" #'vc-push)
-
-(evil-define-key 'motion log-view-mode-map
-  (kbd "TAB") #'log-view-toggle-entry-display
-  (kbd "<tab>") #'log-view-toggle-entry-display
-  (kbd "RET") #'log-view-toggle-entry-display
-  (kbd "<return>") #'log-view-toggle-entry-display
-  "gj" #'log-view-msg-next
-  "gk" #'log-view-msg-prev
-  (kbd "C-j") #'log-view-msg-next
-  (kbd "C-k") #'log-view-msg-prev)
 
 (evil-define-key 'motion vc-annotate-mode-map
   (kbd "RET") #'vc-annotate-goto-line
@@ -1352,6 +1381,7 @@ Or else call `magit-status'."
     (setq this-command command)
     (call-interactively this-command)))
 
+(evil-set-initial-state 'magit-mode 'motion)
 (evil-set-initial-state 'magit-status-mode 'motion)
 (evil-set-initial-state 'magit-diff-mode 'motion)
 (evil-set-initial-state 'magit-log-mode 'motion)
@@ -1359,16 +1389,6 @@ Or else call `magit-status'."
 (evil-set-initial-state 'magit-stash-mode 'motion)
 (evil-set-initial-state 'magit-stashes-mode 'motion)
 (evil-set-initial-state 'magit-process-mode 'motion)
-
-(evil-define-key 'motion magit-section-mode-map
-  (kbd "TAB") #'magit-section-toggle
-  (kbd "S-TAB") #'magit-section-cycle-global
-  (kbd "<tab>") #'magit-section-toggle
-  (kbd "<backtab>") #'magit-section-cycle-global
-  "gj" #'magit-section-forward-sibling
-  "gk" #'magit-section-backward-sibling
-  (kbd "C-j") #'magit-section-forward-sibling
-  (kbd "C-k") #'magit-section-backward-sibling)
 
 (evil-define-key 'motion magit-mode-map
   (kbd "RET") #'magit-visit-thing
