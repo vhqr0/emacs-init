@@ -1071,12 +1071,19 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 (evil-set-initial-state 'dired-mode 'motion)
 
+(defun init-dired-next-line-dwim ()
+  "Goto next line in Dired dwim."
+  (interactive)
+  (if (plist-get (text-properties-at (point)) 'dired-filename)
+      (dired-next-line 1)
+    (dired-next-line 0)))
+
 (evil-define-key 'motion dired-mode-map
   (kbd "RET") #'dired-find-file
   (kbd "<return>") #'dired-find-file
-  (kbd "TAB") #'dired-next-line
+  (kbd "TAB") #'init-dired-next-line-dwim
   (kbd "S-TAB") #'dired-previous-line
-  (kbd "<tab>") #'dired-next-line
+  (kbd "<tab>") #'init-dired-next-line-dwim
   (kbd "<backtab>") #'dired-previous-line
   "go" #'dired-display-file
   "gj" #'dired-next-line
