@@ -1540,8 +1540,19 @@ Or else call `magit-status'."
   "n" #'display-line-numbers-mode
   "N" #'init-toggle-line-numbers-relative)
 
+(defun init-switch-or-execute-dwim (&optional arg)
+  "Call switch buffer or execute command dwim.
+Without universal ARG, call switch buffer.
+With universal ARG, call execute command."
+  (interactive "P")
+  (let ((command (if arg
+                     #'execute-extended-command
+                   #'consult-buffer)))
+    (setq this-command command)
+    (call-interactively command)))
+
 (init-leader-global-set
- "SPC" #'consult-buffer
+ "SPC" #'init-switch-or-execute-dwim
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
