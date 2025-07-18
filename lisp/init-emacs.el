@@ -460,26 +460,37 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;;; extra
 
-;;;;; escape
+;;;;; quick
+
+(defun init-quick-event (first-char second-char quick-event)
+  "Quick trigger QUICK-EVENT by repeat click two keys: FIRST-CHAR SECOND-CHAR."
+  (if (or executing-kbd-macro
+          defining-kbd-macro
+          (sit-for 0.15 t))
+      (insert first-char)
+    (let ((event (read-event)))
+      (if (= event second-char)
+          (progn
+            (setq this-command #'ignore)
+            (setq real-this-command #'ignore)
+            (push quick-event unread-command-events))
+        (insert first-char)
+        (push event unread-command-events)))))
 
 (defun init-evil-escape ()
   ":imap jk <esc>."
   (interactive)
-  (if (or executing-kbd-macro
-          defining-kbd-macro
-          (sit-for 0.15 t))
-      (insert ?j)
-    (let ((event (read-event)))
-      (if (= event ?k)
-          (progn
-            (setq this-command #'ignore
-                  real-this-command #'ignore)
-            (push 'escape unread-command-events))
-        (insert ?j)
-        (push event unread-command-events)))))
+  (init-quick-event ?j ?k 'escape))
 
-(keymap-set evil-insert-state-map "j" #'init-evil-escape)
+(defun init-evil-return ()
+  ":imap fd <return>."
+  (interactive)
+  (init-quick-event ?f ?d 'return))
+
+(keymap-set evil-insert-state-map  "j" #'init-evil-escape)
 (keymap-set evil-replace-state-map "j" #'init-evil-escape)
+(keymap-set evil-insert-state-map  "f" #'init-evil-return)
+(keymap-set evil-replace-state-map "f" #'init-evil-return)
 
 ;;;;; operators
 
