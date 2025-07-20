@@ -112,6 +112,7 @@ FUNC see `init-evil-escape'."
     (funcall func)))
 
 (advice-add #'init-evil-escape :around #'init-pyim-around-self-insert-command)
+(advice-add #'init-evil-return :around #'init-pyim-around-self-insert-command)
 
 (provide 'init-pyim)
 ;;; init-pyim.el ends here
