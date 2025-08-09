@@ -569,7 +569,6 @@ FUNC and ARGS see `evil-set-cursor'."
   (kbd "M-r") #'previous-matching-history-element)
 
 (evil-define-key 'normal minibuffer-local-map
-  (kbd "ESC") #'abort-recursive-edit
   (kbd "<escape>") #'abort-recursive-edit
   (kbd "RET") #'exit-minibuffer
   (kbd "<return>") #'exit-minibuffer)
