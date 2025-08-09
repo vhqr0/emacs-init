@@ -1622,7 +1622,7 @@ Or else call `magit-status'."
 Save point and forward sexp before command if looking at an open paren.
 FUNC and ARGS see specific command."
   (save-excursion
-    (when (looking-at-p "(")
+    (when (looking-at-p "(\\|\\[\\|{")
       (forward-sexp))
     (apply func args)))
 
