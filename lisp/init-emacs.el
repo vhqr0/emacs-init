@@ -482,15 +482,8 @@ FUNC and ARGS see `evil-set-cursor'."
   (interactive)
   (init-quick-event ?j ?k 'escape))
 
-(defun init-evil-return ()
-  ":imap fd <return>."
-  (interactive)
-  (init-quick-event ?f ?d 'return))
-
 (keymap-set evil-insert-state-map  "j" #'init-evil-escape)
 (keymap-set evil-replace-state-map "j" #'init-evil-escape)
-(keymap-set evil-insert-state-map  "f" #'init-evil-return)
-(keymap-set evil-replace-state-map "f" #'init-evil-return)
 
 ;;;;; operators
 
@@ -562,6 +555,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 ;;; completion
 
+;;;; minibuffer
+
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
 (evil-define-key 'insert minibuffer-local-map
@@ -571,9 +566,7 @@ FUNC and ARGS see `evil-set-cursor'."
   (kbd "ESC") #'abort-recursive-edit
   (kbd "<escape>") #'abort-recursive-edit
   (kbd "RET") #'exit-minibuffer
-  (kbd "<return>") #'exit-minibuffer
-  (kbd "TAB") #'exit-minibuffer
-  (kbd "<tab>") #'exit-minibuffer)
+  (kbd "<return>") #'exit-minibuffer)
 
 ;;;; savehist
 
@@ -660,14 +653,6 @@ FUNC ARGS see `vertico--setup'."
 
 (advice-add 'vertico--setup :around #'init-around-vertico-setup-do-filter)
 
-(defun init-vertico-embark-preview ()
-  "Previews candidate in vertico buffer."
-  (interactive)
-  (save-selected-window
-    (let ((embark-quit-after-action nil))
-      (embark-dwim))))
-
-(keymap-set vertico-map "C-j" #'init-vertico-embark-preview)
 (keymap-set vertico-map "C-x C-s" #'embark-export)
 
 (evil-define-key 'normal vertico-map
