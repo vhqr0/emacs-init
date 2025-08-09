@@ -419,6 +419,12 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-unset evil-insert-state-map "C-a" t)
 (keymap-unset evil-insert-state-map "C-k" t)
 (keymap-unset evil-insert-state-map "C-w" t)
+(keymap-unset evil-insert-state-map "C-e" t)
+(keymap-unset evil-insert-state-map "C-y" t)
+(keymap-unset evil-insert-state-map "C-d" t)
+(keymap-unset evil-insert-state-map "C-t" t)
+(keymap-unset evil-insert-state-map "C-n" t)
+(keymap-unset evil-insert-state-map "C-p" t)
 
 (keymap-set evil-motion-state-map "-" #'negative-argument)
 (keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
