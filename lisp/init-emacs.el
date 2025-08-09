@@ -665,6 +665,8 @@ FUNC ARGS see `vertico--setup'."
   "k" #'vertico-previous
   "gj" #'vertico-next-group
   "gk" #'vertico-previous-group
+  (kbd "C-j") #'vertico-next-group
+  (kbd "C-k") #'vertico-previous-group
   "gg" #'vertico-first
   "G" #'vertico-last
   (kbd "C-u") #'vertico-scroll-down
