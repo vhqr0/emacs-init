@@ -55,6 +55,7 @@
     ;; init-pyim
     ;; init-roam
     ;; init-wsl
+    ;; init-win
     ))
 
 (defun init-packages ()

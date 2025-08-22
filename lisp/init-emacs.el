@@ -8,8 +8,6 @@
 
 ;;; Code:
 
-
-
 ;;; essentials
 
 (prefer-coding-system 'utf-8)
@@ -17,8 +15,6 @@
 (setq system-time-locale "C")
 
 (setq read-process-output-max (* 1024 1024))
-
-
 
 ;;; utils
 
@@ -87,8 +83,6 @@ With two or more universal ARG, open in current window."
     (insert-file-contents file)
     (buffer-substring-no-properties (point-min) (point-max))))
 
-
-
 ;;; files
 
 (require 'files)
@@ -101,6 +95,11 @@ With two or more universal ARG, open in current window."
 (setq auto-save-file-name-transforms `((".*" ,(expand-file-name "save/" user-emacs-directory) t)))
 (setq lock-file-name-transforms      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t)))
 (setq backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
+
+(keymap-set ctl-x-x-map "G" #'revert-buffer)
+
+(keymap-set ctl-x-x-map "<left>" #'previous-buffer)
+(keymap-set ctl-x-x-map "<right>" #'next-buffer)
 
 ;;;; autosave
 
@@ -148,15 +147,44 @@ With two or more universal ARG, open in current window."
 
 (add-hook 'after-init-hook #'global-so-long-mode)
 
-;;;; revert
+;;;; vc
 
-(keymap-set ctl-x-x-map "G" #'revert-buffer)
+(require 'vc-hooks)
+(require 'vc-git)
+
+(setq vc-handled-backends '(Git))
+(setq vc-make-backup-files t)
+
 (keymap-set ctl-x-x-map "v" #'vc-refresh-state)
 
-(keymap-set ctl-x-x-map "<left>" #'previous-buffer)
-(keymap-set ctl-x-x-map "<right>" #'next-buffer)
+(defvar init-git-program "git")
+(defvar init-git-user-name "vhqr0")
+(defvar init-git-user-email "zq_cmd@163.com")
 
-
+(defun init-git-config-user ()
+  "Init git repo."
+  (interactive)
+  (let ((directory default-directory)
+        (buffer (get-buffer-create "*git-init*")))
+    (save-window-excursion
+      (with-current-buffer buffer
+        (setq default-directory directory)
+        (erase-buffer)
+        (async-shell-command
+         (format "%s config --local user.name %s && %s config --local user.email %s"
+                 init-git-program init-git-user-name init-git-program init-git-user-email)
+         (current-buffer))))))
+
+;;;; project
+
+(require 'project)
+
+(setq project-mode-line t)
+(setq project-switch-use-entire-map t)
+(setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
+
+(keymap-set project-prefix-map "j" #'project-dired)
+(keymap-set project-prefix-map "C" #'project-recompile)
 
 ;;; ui
 
@@ -216,16 +244,12 @@ With two or more universal ARG, open in current window."
 (keymap-global-set "C-M-+" #'global-text-scale-adjust)
 (keymap-global-set "C-M-=" #'global-text-scale-adjust)
 
-
-
 ;;; edit
 
 ;;;; commands
 
 (setq disabled-command-function nil)
 (setq suggest-key-bindings nil)
-
-(setq enable-recursive-minibuffers t)
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
 
@@ -358,8 +382,6 @@ START END LEN see `after-change-functions'."
 (add-hook 'prog-mode-hook #'init-goggles-mode)
 (add-hook 'text-mode-hook #'init-goggles-mode)
 (add-hook 'minibuffer-mode-hook #'init-goggles-mode)
-
-
 
 ;;; evil
 
@@ -557,11 +579,11 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'after-init-hook #'init-evil-override-mode)
 
-
-
 ;;; completion
 
 ;;;; minibuffer
+
+(setq enable-recursive-minibuffers t)
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
@@ -809,8 +831,6 @@ ARG see `init-consult-search'."
 
 (consult-customize init-consult-outline :preview-key 'any)
 
-
-
 ;;; help
 
 (evil-set-initial-state 'help-mode 'motion)
@@ -880,8 +900,6 @@ ARG see `init-consult-search'."
   (kbd "S-TAB") #'Info-prev-reference
   (kbd "<tab>") #'Info-next-reference
   (kbd "<backtab>") #'Info-prev-reference)
-
-
 
 ;;; prog
 
@@ -1060,8 +1078,6 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 (setq apheleia-formatters-respect-indent-level nil)
 
-
-
 ;;; special
 
 ;;;; dired
@@ -1099,6 +1115,18 @@ FUNC COMMAND ARGS see `company-call-backend'."
   (kbd "C-j") #'dired-next-line
   (kbd "C-k") #'dired-previous-line
   "+" #'dired-create-directory)
+
+;;;; tabulated list
+
+(require 'tabulated-list)
+
+(evil-set-initial-state 'tabulated-list-mode 'motion)
+
+(evil-define-key 'motion tabulated-list-mode-map
+  (kbd "TAB") #'forward-button
+  (kbd "S-TAB") #'backward-button
+  (kbd "<tab>") #'forward-button
+  (kbd "<backtab>") #'backward-button)
 
 ;;;; compile
 
@@ -1205,33 +1233,34 @@ With two universal ARG, edit rg command."
   (kbd "C-j") #'log-view-msg-next
   (kbd "C-k") #'log-view-msg-prev)
 
-;;;; tabulated list
+;;;; vc
 
-(require 'tabulated-list)
+(require 'vc-dir)
+(require 'vc-annotate)
 
-(evil-set-initial-state 'tabulated-list-mode 'motion)
+(keymap-set vc-prefix-map "p" #'vc-push)
 
-(evil-define-key 'motion tabulated-list-mode-map
-  (kbd "TAB") #'forward-button
-  (kbd "S-TAB") #'backward-button
-  (kbd "<tab>") #'forward-button
-  (kbd "<backtab>") #'backward-button)
+(evil-set-initial-state 'vc-dir-mode 'motion)
+(evil-set-initial-state 'vc-annotate-mode 'motion)
+(evil-set-initial-state 'vc-git-log-view-mode 'motion)
 
-;;;; magit section
+(evil-define-key 'motion vc-dir-mode-map
+  (kbd "RET") #'vc-dir-find-file
+  (kbd "<return>") #'vc-dir-find-file
+  "go" #'vc-dir-display-file
+  "gj" #'vc-dir-next-line
+  "gk" #'vc-dir-previous-line
+  (kbd "C-j") #'vc-dir-next-line
+  (kbd "C-k") #'vc-dir-previous-line
+  "p" #'vc-push)
 
-(require 'magit-section)
-
-(evil-set-initial-state 'magit-section-mode 'motion)
-
-(evil-define-key 'motion magit-section-mode-map
-  (kbd "TAB") #'magit-section-toggle
-  (kbd "S-TAB") #'magit-section-cycle-global
-  (kbd "<tab>") #'magit-section-toggle
-  (kbd "<backtab>") #'magit-section-cycle-global
-  "gj" #'magit-section-forward-sibling
-  "gk" #'magit-section-backward-sibling
-  (kbd "C-j") #'magit-section-forward-sibling
-  (kbd "C-k") #'magit-section-backward-sibling)
+(evil-define-key 'motion vc-annotate-mode-map
+  (kbd "RET") #'vc-annotate-goto-line
+  (kbd "<return>") #'vc-annotate-goto-line
+  "gj" #'vc-annotate-next-revision
+  "gk" #'vc-annotate-prev-revision
+  (kbd "C-j") #'vc-annotate-next-revision
+  (kbd "C-k") #'vc-annotate-prev-revision)
 
 ;;;; comint
 
@@ -1306,6 +1335,33 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (interactive "P")
   (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer-create)))
 
+;;;; custom
+
+(require 'cus-edit)
+
+(evil-set-initial-state 'Custom-mode 'motion)
+
+(evil-define-key 'motion custom-mode-map
+  (kbd "RET") #'Custom-newline
+  (kbd "<return>") #'Custom-newline
+  (kbd "TAB") #'widget-forward
+  (kbd "S-TAB") #'widget-backward
+  (kbd "<tab>") #'widget-forward
+  (kbd "<backtab>") #'widget-backward
+  "q" #'Custom-buffer-done)
+
+;;;; package
+
+(require 'package)
+
+(evil-set-initial-state 'package-menu-mode 'motion)
+
+;;;; spell
+
+(require 'ispell)
+
+(setq ispell-dictionary "american")
+
 ;;;; editor
 
 (require 'with-editor)
@@ -1315,61 +1371,23 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 
-;;;; git
+;;;; magit section
 
-(defvar init-git-program "git")
-(defvar init-git-user-name "vhqr0")
-(defvar init-git-user-email "zq_cmd@163.com")
+(require 'magit-section)
 
-(defun init-git-config-user ()
-  "Init git repo."
-  (interactive)
-  (let ((directory default-directory)
-        (buffer (get-buffer-create "*git-init*")))
-    (save-window-excursion
-      (with-current-buffer buffer
-        (setq default-directory directory)
-        (erase-buffer)
-        (async-shell-command
-         (format "%s config --local user.name %s && %s config --local user.email %s"
-                 init-git-program init-git-user-name init-git-program init-git-user-email)
-         (current-buffer))))))
+(evil-set-initial-state 'magit-section-mode 'motion)
 
-;;;;; vc
+(evil-define-key 'motion magit-section-mode-map
+  (kbd "TAB") #'magit-section-toggle
+  (kbd "S-TAB") #'magit-section-cycle-global
+  (kbd "<tab>") #'magit-section-toggle
+  (kbd "<backtab>") #'magit-section-cycle-global
+  "gj" #'magit-section-forward-sibling
+  "gk" #'magit-section-backward-sibling
+  (kbd "C-j") #'magit-section-forward-sibling
+  (kbd "C-k") #'magit-section-backward-sibling)
 
-(require 'vc-hooks)
-(require 'vc-git)
-(require 'vc-dir)
-(require 'vc-annotate)
-
-(setq vc-handled-backends '(Git))
-(setq vc-make-backup-files t)
-
-(keymap-set vc-prefix-map "p" #'vc-push)
-
-(evil-set-initial-state 'vc-dir-mode 'motion)
-(evil-set-initial-state 'vc-annotate-mode 'motion)
-(evil-set-initial-state 'vc-git-log-view-mode 'motion)
-
-(evil-define-key 'motion vc-dir-mode-map
-  (kbd "RET") #'vc-dir-find-file
-  (kbd "<return>") #'vc-dir-find-file
-  "go" #'vc-dir-display-file
-  "gj" #'vc-dir-next-line
-  "gk" #'vc-dir-previous-line
-  (kbd "C-j") #'vc-dir-next-line
-  (kbd "C-k") #'vc-dir-previous-line
-  "p" #'vc-push)
-
-(evil-define-key 'motion vc-annotate-mode-map
-  (kbd "RET") #'vc-annotate-goto-line
-  (kbd "<return>") #'vc-annotate-goto-line
-  "gj" #'vc-annotate-next-revision
-  "gk" #'vc-annotate-prev-revision
-  (kbd "C-j") #'vc-annotate-next-revision
-  (kbd "C-k") #'vc-annotate-prev-revision)
-
-;;;;; magit
+;;;; magit
 
 (require 'magit)
 
@@ -1434,46 +1452,6 @@ Or else call `magit-status'."
   "gK" #'magit-blame-previous-chunk-same-commit
   (kbd "C-j") #'magit-blame-next-chunk
   (kbd "C-k") #'magit-blame-previous-chunk)
-
-;;;; project
-
-(require 'project)
-
-(setq project-mode-line t)
-(setq project-switch-use-entire-map t)
-(setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
-
-(keymap-set project-prefix-map "j" #'project-dired)
-(keymap-set project-prefix-map "C" #'project-recompile)
-
-;;;; custom
-
-(require 'cus-edit)
-
-(evil-set-initial-state 'Custom-mode 'motion)
-
-(evil-define-key 'motion custom-mode-map
-  (kbd "RET") #'Custom-newline
-  (kbd "<return>") #'Custom-newline
-  (kbd "TAB") #'widget-forward
-  (kbd "S-TAB") #'widget-backward
-  (kbd "<tab>") #'widget-forward
-  (kbd "<backtab>") #'widget-backward
-  "q" #'Custom-buffer-done)
-
-;;;; package
-
-(require 'package)
-
-(evil-set-initial-state 'package-menu-mode 'motion)
-
-;;;; spell
-
-(require 'ispell)
-
-(setq ispell-dictionary "american")
-
-
 
 ;;; leaders
 
@@ -1599,8 +1577,6 @@ Or else call `magit-status'."
  "'" #'init-wrap-pair
  "`" #'init-wrap-pair
  "\"" #'init-wrap-pair)
-
-
 
 ;;; lang
 
@@ -1820,8 +1796,6 @@ FUNC TAGS see `org-make-tag-string'."
 
 (dolist (mode init-python-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
-
-
 
 ;;; end
 
