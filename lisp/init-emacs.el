@@ -186,6 +186,19 @@ With two or more universal ARG, open in current window."
 (keymap-set project-prefix-map "j" #'project-dired)
 (keymap-set project-prefix-map "C" #'project-recompile)
 
+(defvar-local init-find-test-file-name-function nil)
+
+(defun init-project-find-test-file ()
+  "Find test file or source file of current file in project."
+  (interactive)
+  (when init-find-test-file-name-function
+    (-when-let (default-directory (project-root (project-current)))
+      (-when-let (file-name (buffer-file-name))
+        (-when-let (test-file-name (funcall init-find-test-file-name-function (file-relative-name file-name)))
+          (find-file test-file-name))))))
+
+(keymap-set project-prefix-map "t" #'init-project-find-test-file)
+
 ;;; ui
 
 ;;;; graphic
