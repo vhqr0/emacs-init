@@ -149,7 +149,7 @@ With two or more universal ARG, open in current window."
 
 ;;;; vc
 
-(require 'vc-hooks)
+(require 'vc)
 (require 'vc-git)
 
 (setq vc-handled-backends '(Git))
