@@ -206,9 +206,6 @@ With two or more universal ARG, open in current window."
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message nil)
 
-(setq use-dialog-box nil)
-(setq use-file-dialog nil)
-
 (setq ring-bell-function #'ignore)
 
 (defvar init-disable-ui-modes
