@@ -7,8 +7,6 @@
 
 (require 'init-emacs)
 
-
-
 ;;; major mode
 
 (require 'clojure-mode)
@@ -66,8 +64,6 @@
   (setq-local init-find-test-file-name-function #'init-clojure-find-test-file-name))
 
 (add-hook 'clojure-mode-hook #'init-clojure-set-find-test-file)
-
-
 
 ;;; cider
 

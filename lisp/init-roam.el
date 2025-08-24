@@ -35,8 +35,6 @@
 
 (add-hook 'org-roam-find-file-hook #'init-org-roam-buffer-mode)
 
-
-
 ;;; embark
 
 ;;;; node
