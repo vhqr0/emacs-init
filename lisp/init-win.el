@@ -5,6 +5,8 @@
 
 ;;; Code:
 
+(require 'init-emacs)
+
 (setenv "GIT_ASKPASS" "git-gui--askpass")
 (setenv "SSH_ASKPASS" "git-gui--askpass")
 
