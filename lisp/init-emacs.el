@@ -1108,9 +1108,7 @@ FUNC COMMAND ARGS see `company-call-backend'."
 (defun init-dired-next-line-dwim ()
   "Goto next line in Dired dwim."
   (interactive)
-  (if (plist-get (text-properties-at (point)) 'dired-filename)
-      (dired-next-line 1)
-    (dired-next-line 0)))
+  (dired-next-line (if (bolp) 0 1)))
 
 (evil-define-key 'motion dired-mode-map
   (kbd "RET") #'dired-find-file
@@ -1125,6 +1123,29 @@ FUNC COMMAND ARGS see `company-call-backend'."
   (kbd "C-j") #'dired-next-line
   (kbd "C-k") #'dired-previous-line
   "+" #'dired-create-directory)
+
+;;;; archive
+
+(require 'arc-mode)
+
+(evil-set-initial-state 'archive-mode 'motion)
+
+(defun init-archive-next-line-dwim ()
+  "Goto next line in Archive dwim."
+  (interactive)
+  (archive-next-line (if (bolp) 0 1)))
+
+(evil-define-key 'motion archive-mode-map
+  (kbd "RET") #'archive-extract
+  (kbd "<return>") #'archive-extract
+  (kbd "TAB") #'init-archive-next-line-dwim
+  (kbd "S-TAB") #'archive-previous-line
+  (kbd "<tab>") #'init-archive-next-line-dwim
+  (kbd "<backtab>") #'archive-previous-line
+  "gj" #'archive-next-line
+  "gk" #'archive-previous-line
+  (kbd "C-j") #'archive-next-line
+  (kbd "C-k") #'archive-previous-line)
 
 ;;;; tabulated list
 
