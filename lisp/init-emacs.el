@@ -1148,6 +1148,33 @@ FUNC COMMAND ARGS see `company-call-backend'."
   (kbd "C-j") #'archive-next-line
   (kbd "C-k") #'archive-previous-line)
 
+;;;; ibuffer
+
+(require 'ibuffer)
+(require 'ibuf-ext)
+
+(setq ibuffer-formats
+      '((mark modified read-only locked
+              " " (name 40 40 :left :elide)
+	      " " (size 9 -1 :right)
+	      " " (mode 16 16 :left :elide)
+              " " filename-and-process)))
+
+(evil-set-initial-state 'ibuffer-mode 'motion)
+
+(evil-define-key 'motion ibuffer-mode-map
+  (kbd "RET") #'ibuffer-visit-buffer
+  (kbd "<return>") #'ibuffer-visit-buffer
+  (kbd "TAB") #'ibuffer-forward-line
+  (kbd "S-TAB") #'ibuffer-backward-line
+  (kbd "<tab>") #'ibuffer-forward-line
+  (kbd "<backtab>") #'ibuffer-backward-line
+  "go" #'ibuffer-visit-buffer-other-window-noselect
+  "gj" #'ibuffer-forward-filter-group
+  "gk" #'ibuffer-backward-filter-group
+  (kbd "C-j") #'ibuffer-forward-filter-group
+  (kbd "C-k") #'ibuffer-backward-filter-group)
+
 ;;;; tabulated list
 
 (require 'tabulated-list)
@@ -1535,9 +1562,6 @@ Or else call `magit-status'."
                 4)))
   (set-transient-map (key-binding " ")))
 
-(defvar-keymap init-app-command-map
-  "g" #'init-magit-dwim)
-
 (defvar-keymap init-minor-prefix-map
   "s" #'auto-save-visited-mode
   "r" #'global-auto-revert-mode
@@ -1568,7 +1592,9 @@ Or else call `magit-status'."
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
+ "B" #'ibuffer
  "e" #'init-eshell-dwim
+ "G" #'init-magit-dwim
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
@@ -1583,7 +1609,6 @@ Or else call `magit-status'."
  "n" narrow-map
  "a" abbrev-map
  "m" init-minor-prefix-map
- "\\" init-app-command-map
  "$" #'ispell-word
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
@@ -1709,10 +1734,6 @@ FUNC and ARGS see specific command."
 
 (setq org-special-ctrl-a/e t)
 
-(keymap-set init-app-command-map "c" #'org-capture)
-(keymap-set init-app-command-map "a" #'org-agenda)
-(keymap-set init-app-command-map "w" #'org-store-link)
-
 (defun init-org-set-syntax ()
   "Modify `org-mode' syntax table."
   (modify-syntax-entry ?< "." org-mode-syntax-table)
@@ -1758,6 +1779,11 @@ FUNC TAGS see `org-make-tag-string'."
 
 (setq org-capture-templates
       '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%u\n%a")))
+
+(init-leader-global-set
+  "C" #'org-capture
+  "A" #'org-agenda
+  "W" #'org-store-link)
 
 (evil-set-initial-state 'org-agenda-mode 'motion)
 

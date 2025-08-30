@@ -15,8 +15,9 @@
 
 (add-hook 'after-init-hook #'org-roam-db-autosync-mode)
 
-(keymap-set init-app-command-map "n" #'org-roam-node-find)
-(keymap-set init-app-command-map "r" #'org-roam-ref-find)
+(init-leader-global-set
+ "N" #'org-roam-node-find
+ "R" #'org-roam-ref-find)
 
 (defvar-keymap init-org-roam-buffer-mode-map
   "C-c r" #'org-roam-buffer-toggle
