@@ -1705,7 +1705,7 @@ FUNC and ARGS see specific command."
 (require 'org-capture)
 (require 'embark-org)
 
-(setq org-modules '(org-tempo))
+(add-to-list 'org-modules 'org-tempo)
 
 (setq org-special-ctrl-a/e t)
 
@@ -1757,8 +1757,7 @@ FUNC TAGS see `org-make-tag-string'."
 (setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
 
 (setq org-capture-templates
-      '(("u" "Task Inactive" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")
-        ("t" "Task Active" entry (file+headline "" "Tasks") "* TODO %?\n%T\n%a")))
+      '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%u\n%a")))
 
 (evil-set-initial-state 'org-agenda-mode 'motion)
 
