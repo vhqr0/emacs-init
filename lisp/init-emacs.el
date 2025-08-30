@@ -1142,6 +1142,7 @@ FUNC COMMAND ARGS see `company-call-backend'."
   (kbd "S-TAB") #'archive-previous-line
   (kbd "<tab>") #'init-archive-next-line-dwim
   (kbd "<backtab>") #'archive-previous-line
+  "go" #'archive-display-other-window
   "gj" #'archive-next-line
   "gk" #'archive-previous-line
   (kbd "C-j") #'archive-next-line
