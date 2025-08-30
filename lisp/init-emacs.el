@@ -1578,10 +1578,6 @@ Or else call `magit-status'."
     (push shift-event unread-command-events)
     (push 32 unread-command-events)))
 
-(init-leader-global-set "\\" #'init-magic-shift)
-(init-leader-global-set "TAB" #'init-magic-shift)
-(init-leader-global-set "<tab>" #'init-magic-shift)
-
 (defvar-keymap init-minor-prefix-map
   "s" #'auto-save-visited-mode
   "r" #'global-auto-revert-mode
@@ -1595,6 +1591,9 @@ Or else call `magit-status'."
 
 (init-leader-global-set
  "SPC" #'consult-buffer
+ "\\" #'init-magic-shift
+ "TAB" #'init-magic-shift
+ "<tab>" #'init-magic-shift
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
