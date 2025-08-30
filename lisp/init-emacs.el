@@ -1158,7 +1158,8 @@ FUNC COMMAND ARGS see `company-call-backend'."
               " " (name 40 40 :left :elide)
 	      " " (size 9 -1 :right)
 	      " " (mode 16 16 :left :elide)
-              " " filename-and-process)))
+              " " filename-and-process)
+        (mark " " (name 40 -1) " " filename)))
 
 (evil-set-initial-state 'ibuffer-mode 'motion)
 
@@ -1562,6 +1563,25 @@ Or else call `magit-status'."
                 4)))
   (set-transient-map (key-binding " ")))
 
+(defvar init-magic-shift-special
+  '((?1 . ?!) (?2 . ?@) (?3 . ?#) (?4 . ?$) (?5 . ?%) (?6 . ?^) (?7 . ?&) (?8 . ?*) (?9 . ?\() (?0 . ?\))
+    (?- . ?_) (?= . ?+) (?` . ?~) (?\[ . ?\{) (?\] . ?\}) (?\\ . ?|) (?, . ?<) (?. . ?>) (?/ . ??)))
+
+(defun init-magic-shift ()
+  "Magic shift."
+  (interactive)
+  (let* ((event (read-event))
+         (shift-event (or (cdr (assq event init-magic-shift-special)) (upcase event))))
+    (setq this-command #'ignore)
+    (setq real-this-command #'ignore)
+    (setq prefix-arg current-prefix-arg)
+    (push shift-event unread-command-events)
+    (push 32 unread-command-events)))
+
+(init-leader-global-set "\\" #'init-magic-shift)
+(init-leader-global-set "TAB" #'init-magic-shift)
+(init-leader-global-set "<tab>" #'init-magic-shift)
+
 (defvar-keymap init-minor-prefix-map
   "s" #'auto-save-visited-mode
   "r" #'global-auto-revert-mode
@@ -1781,9 +1801,9 @@ FUNC TAGS see `org-make-tag-string'."
       '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%u\n%a")))
 
 (init-leader-global-set
-  "C" #'org-capture
-  "A" #'org-agenda
-  "W" #'org-store-link)
+ "C" #'org-capture
+ "A" #'org-agenda
+ "W" #'org-store-link)
 
 (evil-set-initial-state 'org-agenda-mode 'motion)
 
