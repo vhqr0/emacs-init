@@ -1813,6 +1813,9 @@ FUNC TAGS see `org-make-tag-string'."
 (evil-define-key 'motion org-agenda-mode-map
   (kbd "RET") #'org-agenda-goto
   (kbd "<return>") #'org-agenda-goto
+  "gr" #'org-agenda-redo
+  "gR" #'org-agenda-redo-all
+  "go" #'org-agenda-show
   "j" #'org-agenda-next-line
   "k" #'org-agenda-previous-line)
 
