@@ -1754,6 +1754,14 @@ FUNC and ARGS see specific command."
 
 (setq org-special-ctrl-a/e t)
 
+(keymap-global-set "C-c l" #'org-insert-link-global)
+
+(init-leader-global-set
+ "C" #'org-capture
+ "A" #'org-agenda
+ "W" #'org-store-link
+ "O" #'org-open-at-point-global)
+
 (defun init-org-set-syntax ()
   "Modify `org-mode' syntax table."
   (modify-syntax-entry ?< "." org-mode-syntax-table)
@@ -1798,12 +1806,7 @@ FUNC TAGS see `org-make-tag-string'."
 (setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
 
 (setq org-capture-templates
-      '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%u\n%a")))
-
-(init-leader-global-set
- "C" #'org-capture
- "A" #'org-agenda
- "W" #'org-store-link)
+      '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
 
 (evil-set-initial-state 'org-agenda-mode 'motion)
 

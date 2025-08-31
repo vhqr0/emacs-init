@@ -15,6 +15,8 @@
 
 (add-hook 'after-init-hook #'org-roam-db-autosync-mode)
 
+(keymap-global-set "C-c n" #'org-roam-node-insert)
+
 (init-leader-global-set
  "N" #'org-roam-node-find
  "R" #'org-roam-ref-find)
