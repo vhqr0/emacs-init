@@ -1170,6 +1170,7 @@ FUNC COMMAND ARGS see `company-call-backend'."
   (kbd "S-TAB") #'ibuffer-backward-line
   (kbd "<tab>") #'ibuffer-forward-line
   (kbd "<backtab>") #'ibuffer-backward-line
+  "gr" #'ibuffer-update
   "go" #'ibuffer-visit-buffer-other-window-noselect
   "gj" #'ibuffer-forward-filter-group
   "gk" #'ibuffer-backward-filter-group
