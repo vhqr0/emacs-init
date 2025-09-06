@@ -34,7 +34,6 @@
                    ;; prog
                    yasnippet
                    company
-                   apheleia
                    ;; special
                    wgrep
                    git-modes

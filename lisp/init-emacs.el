@@ -280,6 +280,13 @@ With two or more universal ARG, open in current window."
 
 (setq word-wrap-by-category t)
 
+(defun init-indent-dwim ()
+  "Do indent smartly."
+  (interactive "*")
+  (if (use-region-p)
+      (indent-region (region-beginning) (region-end))
+    (indent-region (point-min) (point-max))))
+
 ;;;; parens
 
 (require 'elec-pair)
@@ -308,7 +315,7 @@ With two or more universal ARG, open in current window."
 
 (defun init-wrap-pair (&optional arg)
   "Insert pair, ARG see `insert-pair'."
-  (interactive "P")
+  (interactive "*P")
   (insert-pair (or arg 1))
   (indent-sexp))
 
@@ -1082,12 +1089,6 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 (keymap-set eglot-mode-map "<remap> <evil-lookup>" #'eldoc-doc-buffer)
 
-;;;; apheleia
-
-(require 'apheleia)
-
-(setq apheleia-formatters-respect-indent-level nil)
-
 ;;; special
 
 ;;;; dired
@@ -1631,7 +1632,7 @@ Or else call `magit-status'."
  "m" init-minor-prefix-map
  "$" #'ispell-word
  "%" #'query-replace-regexp
- "=" #'apheleia-format-buffer
+ "=" #'init-indent-dwim
  "+" #'delete-trailing-whitespace
  "." #'xref-find-definitions
  "?" #'xref-find-references
