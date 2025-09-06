@@ -72,12 +72,6 @@
 
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
-(dolist (map (list cider-mode-map cider-repl-mode-map))
-  (keymap-set map "<remap> <evil-lookup>" #'cider-doc))
-
-(dolist (mode init-clojure-modes)
-  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
-
 (defvar init-cider-last-sexp-commands
   (list #'cider-eval-last-sexp
         #'cider-eval-last-sexp-to-repl
@@ -98,18 +92,42 @@
 (dolist (command init-cider-last-sexp-commands)
   (advice-add command :around #'init-lisp-around-last-sexp-maybe-forward))
 
+;;;; eval
+
+(dolist (mode init-clojure-modes)
+  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
+
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
 (keymap-set cider-mode-map "C-c C-i" #'cider-insert-last-sexp-in-repl)
 (keymap-set cider-mode-map "C-c C-;" #'cider-pprint-eval-last-sexp-to-comment)
 
+;;;; lookup
+
 (dolist (map (list cider-mode-map cider-repl-mode-map))
-  (keymap-set map "C-M-q" #'cider-format-edn-last-sexp))
+  (keymap-set map "<remap> <evil-lookup>" #'cider-doc))
 
 (defun init-cider-repl-set-xref ()
   "Set Xref backend for Cider REPL."
   (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
 
 (add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
+
+;;;; format
+
+(defun init-cider-format-dwim ()
+  "Do Cider format smartly."
+  (interactive)
+  (call-interactively
+   (if (use-region-p)
+       #'cider-format-region
+     #'cider-format-buffer)))
+
+(keymap-set cider-mode-map "<remap> <init-indent-dwim>" #'init-cider-format-dwim)
+
+(dolist (map (list cider-mode-map cider-repl-mode-map))
+  (keymap-set map "C-M-q" #'cider-format-edn-last-sexp))
+
+;;;; repl
 
 (add-to-list 'consult-mode-histories
              '(cider-repl-mode cider-repl-input-history cider-repl-input-history-position cider-repl-bol-mark))
