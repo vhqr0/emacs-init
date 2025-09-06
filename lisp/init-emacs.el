@@ -386,7 +386,6 @@ START END LEN see `after-change-functions'."
 (define-minor-mode init-goggles-mode
   "Init goggles mode."
   :group 'init-goggles
-  :lighter nil
   (if init-goggles-mode
       (progn
         (add-hook 'pre-command-hook #'init-goggles-pre-command nil t)
@@ -420,9 +419,6 @@ START END LEN see `after-change-functions'."
 (defvar evil-respect-visual-line-mode)
 (setq evil-respect-visual-line-mode t)
 
-(defvar evil-search-module)
-(setq evil-search-module 'evil-search)
-
 (defvar evil-undo-system)
 (setq evil-undo-system 'undo-redo)
 
@@ -451,6 +447,14 @@ FUNC and ARGS see `evil-set-cursor'."
     (apply func args)))
 
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-filter)
+
+(defun init-around-evil-adjust-cursor-do-disable-isearch (func &rest args)
+  "Dont adjust cursor in isearch mode.
+FUNC and ARGS see `evil-set-cursor'."
+  (unless isearch-mode
+    (apply func args)))
+
+(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-disable-isearch)
 
 (keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
 
@@ -627,24 +631,24 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq isearch-motion-changes-direction t)
 (setq isearch-repeat-on-direction-change t)
 
+(defun init-isearch-menu-item-filter (command)
+  "Return COMMAND when isearch enabled."
+  (when isearch-mode
+    command))
+
+(defun init-isearch-menu-item-filter-wrap (command)
+  "Wrap COMMAND with `init-isearch-menu-item-filter'."
+  `(menu-item "" ,command :filter init-isearch-menu-item-filter))
+
+(evil-define-key 'motion init-evil-override-mode-map
+  (kbd "C-f") (init-isearch-menu-item-filter-wrap #'forward-char)
+  (kbd "C-b") (init-isearch-menu-item-filter-wrap #'backward-char)
+  (kbd "C-a") (init-isearch-menu-item-filter-wrap #'move-beginning-of-line)
+  (kbd "C-e") (init-isearch-menu-item-filter-wrap #'move-end-of-line))
+
 (keymap-set embark-identifier-map "%" #'query-replace)
 (keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
 (keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
-
-(evil-set-initial-state 'occur-mode 'motion)
-
-(evil-define-key 'motion occur-mode-map
-  (kbd "RET") #'occur-mode-goto-occurrence
-  (kbd "<return>") #'occur-mode-goto-occurrence
-  (kbd "TAB") #'occur-next
-  (kbd "S-TAB") #'occur-prev
-  (kbd "<tab>") #'occur-next
-  (kbd "<backtab>") #'occur-prev
-  "go" #'occur-mode-display-occurrence
-  "gj" #'next-error-no-select
-  "gk" #'previous-error-no-select
-  (kbd "C-j") #'next-error-no-select
-  (kbd "C-k") #'previous-error-no-select)
 
 ;;;; styles
 
@@ -754,10 +758,12 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
 
 (defun init-after-consult-line-set-search (&rest _args)
-  "Set `evil-ex-search-pattern' after `consult-line'."
-  (let ((pattern (car consult--line-history)))
-    (setq evil-ex-search-pattern (list pattern t t))
-    (evil-ex-nohighlight)))
+  "Set search history after `consult-line'."
+  (let ((search (car consult--line-history)))
+    (add-to-history 'regexp-search-ring search regexp-search-ring-max)
+    (setq isearch-string search)
+    (setq isearch-regexp t)
+    (setq isearch-forward t)))
 
 (advice-add #'consult-line :after #'init-after-consult-line-set-search)
 
@@ -1090,6 +1096,23 @@ FUNC COMMAND ARGS see `company-call-backend'."
 (keymap-set eglot-mode-map "<remap> <evil-lookup>" #'eldoc-doc-buffer)
 
 ;;; special
+
+;;;; occur
+
+(evil-set-initial-state 'occur-mode 'motion)
+
+(evil-define-key 'motion occur-mode-map
+  (kbd "RET") #'occur-mode-goto-occurrence
+  (kbd "<return>") #'occur-mode-goto-occurrence
+  (kbd "TAB") #'occur-next
+  (kbd "S-TAB") #'occur-prev
+  (kbd "<tab>") #'occur-next
+  (kbd "<backtab>") #'occur-prev
+  "go" #'occur-mode-display-occurrence
+  "gj" #'next-error-no-select
+  "gk" #'previous-error-no-select
+  (kbd "C-j") #'next-error-no-select
+  (kbd "C-k") #'previous-error-no-select)
 
 ;;;; dired
 
