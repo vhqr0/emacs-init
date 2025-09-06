@@ -28,10 +28,9 @@
   (interactive)
   (let ((region (if (region-active-p)
                     (cons (region-beginning) (region-end))
-                  (cons (line-beginning-position) (line-end-position)))))
+                  (cons (point) (save-excursion (forward-sexp) (point))))))
     (replace-string-in-region "," "" (car region) (cdr region))))
 
-(keymap-set clojure-refactor-map "SPC" #'clojure-align)
 (keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
 
