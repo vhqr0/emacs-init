@@ -24,10 +24,23 @@
         (->> minor-mode-alist
              (--remove (eq (car it) mode)))))
 
+(defun init-region-bounds ()
+  "Get region bounds."
+  (when (use-region-p)
+    (cons (region-beginning) (region-end))))
+
+(defun init-buffer-bounds ()
+  "Get buffer bounds."
+  (cons (point-min) (point-max)))
+
+(defun init-region-or-buffer-bounds ()
+  "Get region bounds or buffer bounds."
+  (or (init-region-bounds) (init-buffer-bounds)))
+
 (defun init-region-content ()
   "Get region content or nil."
-  (when (region-active-p)
-    (buffer-substring (region-beginning) (region-end))))
+  (-when-let (bounds (init-region-bounds))
+    (buffer-substring (car bounds) (cdr bounds))))
 
 (defun init-thing-at-point ()
   "Get thing at point dwim."
@@ -283,9 +296,8 @@ With two or more universal ARG, open in current window."
 (defun init-indent-dwim ()
   "Do indent smartly."
   (interactive "*")
-  (if (use-region-p)
-      (indent-region (region-beginning) (region-end))
-    (indent-region (point-min) (point-max))))
+  (let ((bounds (init-region-or-buffer-bounds)))
+    (indent-region (car bounds) (cdr bounds))))
 
 ;;;; parens
 

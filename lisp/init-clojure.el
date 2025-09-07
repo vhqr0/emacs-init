@@ -26,10 +26,8 @@
 (defun init-clojure-remove-comma-dwim ()
   "Remove comma dwim."
   (interactive)
-  (let ((region (if (region-active-p)
-                    (cons (region-beginning) (region-end))
-                  (cons (point) (save-excursion (forward-sexp) (point))))))
-    (replace-string-in-region "," "" (car region) (cdr region))))
+  (let ((bounds (or (init-region-bounds) (bounds-of-thing-at-point 'sexp))))
+    (replace-string-in-region "," "" (car bounds) (cdr bounds))))
 
 (keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
@@ -117,10 +115,8 @@
 (defun init-cider-format-dwim ()
   "Do Cider format smartly."
   (interactive)
-  (call-interactively
-   (if (use-region-p)
-       #'cider-format-region
-     #'cider-format-buffer)))
+  (let ((bounds (init-region-or-buffer-bounds)))
+    (cider-format-region (car bounds) (cdr bounds))))
 
 (keymap-set cider-mode-map "<remap> <init-indent-dwim>" #'init-cider-format-dwim)
 
