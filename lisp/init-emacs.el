@@ -1782,6 +1782,7 @@ FUNC and ARGS see specific command."
 ;;;; org
 
 (require 'org)
+(require 'org-macs)
 (require 'org-agenda)
 (require 'org-capture)
 (require 'embark-org)
@@ -1789,12 +1790,14 @@ FUNC and ARGS see specific command."
 (add-to-list 'org-modules 'org-tempo)
 
 (setq org-special-ctrl-a/e t)
+(setq org-sort-function #'org-sort-function-fallback)
+(setq org-tags-sort-function #'org-string<)
 
 (keymap-global-set "C-c l" #'org-insert-link-global)
 
 (init-leader-global-set
- "C" #'org-capture
  "A" #'org-agenda
+ "C" #'org-capture
  "W" #'org-store-link
  "O" #'org-open-at-point-global)
 
@@ -1819,13 +1822,6 @@ FUNC and ARGS see specific command."
   (kbd "<tab>") #'org-cycle
   (kbd "<backtab>") #'org-shifttab)
 
-(defun init-around-org-make-tag-string-do-sort (func tags)
-  "Do sort org tags before make string.
-FUNC TAGS see `org-make-tag-string'."
-  (funcall func (sort tags)))
-
-(advice-add #'org-make-tag-string :around #'init-around-org-make-tag-string-do-sort)
-
 (defun init-org-echo-link ()
   "Echo org link in minibuffer."
   (interactive)
@@ -1842,7 +1838,10 @@ FUNC TAGS see `org-make-tag-string'."
 (setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
 
 (setq org-capture-templates
-      '(("t" "Task" entry (file+headline "" "Tasks") "* TODO %?\n%U\n%a")))
+      '(("t" "Todo"                      entry (file "") "* TODO %?\n%U")
+        ("a" "Todo With Annotation"      entry (file "") "* TODO %?\n%U\n%a")
+        ("i" "Todo With Initial Content" entry (file "") "* TODO %?\n%U\n%i")
+        ("c" "Todo With Kill Ring"       entry (file "") "* TODO %?\n%U\n%c")))
 
 (evil-set-initial-state 'org-agenda-mode 'motion)
 
