@@ -1793,13 +1793,35 @@ FUNC and ARGS see specific command."
 (setq org-sort-function #'org-sort-function-fallback)
 (setq org-tags-sort-function #'org-string<)
 
+(defun init-org-append-link ()
+  "Append org link."
+  (interactive)
+  (save-excursion
+    (unless (eolp)
+      (forward-char))
+    (call-interactively #'org-insert-link)))
+
+(defun init-org-append-link-global ()
+  "Append org link outside org."
+  (interactive)
+  (save-excursion
+    (unless (eolp)
+      (forward-char))
+    (call-interactively #'org-insert-link-global)))
+
+(keymap-global-set "C-c o" #'org-open-at-point-global)
 (keymap-global-set "C-c l" #'org-insert-link-global)
 
 (init-leader-global-set
  "A" #'org-agenda
  "C" #'org-capture
  "W" #'org-store-link
- "O" #'org-open-at-point-global)
+ "O" #'org-open-at-point-global
+ "L" #'init-org-append-link-global)
+
+(keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
+(keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
+(keymap-set org-mode-map "<remap> <init-org-append-link-global>" #'init-org-append-link)
 
 (defun init-org-set-syntax ()
   "Modify `org-mode' syntax table."
@@ -1827,7 +1849,7 @@ FUNC and ARGS see specific command."
   (interactive)
   (when (org-in-regexp org-link-any-re)
     (let (message-log-max)
-      (message (match-string-no-properties 0)))))
+      (message "%s" (match-string-no-properties 0)))))
 
 (keymap-set embark-org-link-map "e" #'init-org-echo-link)
 
