@@ -84,22 +84,29 @@
          (path (substring ref 0 path-end)))
     (concat type ":" path)))
 
-(defun init-org-roam-ref-browse-default (ref)
+(defun init-org-roam-ref-browse-url (ref)
   "Browse Org Roam REF."
-  (let ((url (init-org-roam-ref-url ref)))
-    (message "Browse org roam ref: %s" url)
-    (browse-url url)))
+  (browse-url (init-org-roam-ref-url ref)))
 
-(defun init-org-roam-ref-browse-eww (ref)
-  "Browse Org Roam REF with eww."
-  (let ((url (init-org-roam-ref-url ref)))
-    (message "Browse org roam ref: %s" url)
-    (eww-browse-url url)))
+(defun init-org-roam-ref-download-url (ref)
+  "Download Org Roam REF."
+  (embark-download-url (init-org-roam-ref-url ref)))
+
+(defun init-org-roam-ref-open-externally (ref)
+  "Open Org Roam REF externally."
+  (embark-open-externally (init-org-roam-ref-url ref)))
+
+(defun init-org-roam-ref-eww (ref)
+  "Open Org Roam REF with eww."
+  (eww (init-org-roam-ref-url ref)))
 
 (defvar-keymap init-org-roam-ref-map
   :parent embark-general-map
-  "x" #'init-org-roam-ref-browse-default
-  "e" #'init-org-roam-ref-browse-eww)
+  "RET" #'init-org-roam-ref-browse-url
+  "b" #'init-org-roam-ref-browse-url
+  "d" #'init-org-roam-ref-download-url
+  "x" #'init-org-roam-ref-open-externally
+  "e" #'init-org-roam-ref-eww)
 
 (add-to-list 'embark-keymap-alist '(org-roam-ref init-org-roam-ref-map))
 
