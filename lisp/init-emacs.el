@@ -1207,6 +1207,9 @@ FUNC and ARGS see specific command."
 ;;;; occur
 
 (evil-set-initial-state 'occur-mode 'motion)
+(evil-set-initial-state 'occur-edit-mode 'normal)
+
+(keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
 
 (evil-define-key 'motion occur-mode-map
   (kbd "RET") #'occur-mode-goto-occurrence
@@ -1225,6 +1228,7 @@ FUNC and ARGS see specific command."
 
 (require 'dired)
 (require 'dired-x)
+(require 'wdired)
 
 (setq dired-dwim-target t)
 (setq dired-auto-revert-buffer t)
@@ -1234,7 +1238,10 @@ FUNC and ARGS see specific command."
 
 (keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
 
+(keymap-set dired-mode-map "C-c C-e" #'wdired-change-to-wdired-mode)
+
 (evil-set-initial-state 'dired-mode 'motion)
+(evil-set-initial-state 'wdired-mode 'normal)
 
 (defun init-dired-next-line-dwim ()
   "Goto next line in Dired dwim."
