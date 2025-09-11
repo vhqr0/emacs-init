@@ -879,6 +879,19 @@ ARG see `init-consult-search'."
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
+(evil-set-initial-state 'flymake-diagnostics-buffer-mode 'motion)
+(evil-set-initial-state 'flymake-project-diagnostics-mode 'motion)
+
+(evil-define-key 'motion flymake-diagnostics-buffer-mode-map
+  (kbd "RET") #'flymake-goto-diagnostic
+  (kbd "<return>") #'flymake-goto-diagnostic
+  "go" #'flymake-show-diagnostic)
+
+(evil-define-key 'motion flymake-project-diagnostics-mode-map
+  (kbd "RET") #'flymake-goto-diagnostic
+  (kbd "<return>") #'flymake-goto-diagnostic
+  "go" #'flymake-show-diagnostic)
+
 ;;;; eldoc
 
 (require 'eldoc)
@@ -1081,8 +1094,7 @@ FUNC and ARGS see specific command."
   (keymap-set map "C-C C-l" #'load-file)
   (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp))
 
-(dolist (hook init-elisp-hooks)
-  (add-hook hook #'init-lisp-set-outline))
+(add-hook 'emacs-lisp-mode-hook #'init-lisp-set-outline)
 
 (dolist (mode init-elisp-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
