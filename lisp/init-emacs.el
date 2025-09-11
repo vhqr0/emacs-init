@@ -612,27 +612,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (add-hook 'after-init-hook #'init-evil-override-mode)
 
-;;; completion
-
-;;;; minibuffer
-
-(setq enable-recursive-minibuffers t)
-
-(keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
-
-(evil-define-key 'insert minibuffer-local-map
-  (kbd "M-r") #'previous-matching-history-element)
-
-(evil-define-key 'normal minibuffer-local-map
-  (kbd "<escape>") #'abort-recursive-edit
-  (kbd "RET") #'exit-minibuffer
-  (kbd "<return>") #'exit-minibuffer)
-
-;;;; savehist
-
-(require 'savehist)
-
-(add-hook 'after-init-hook #'savehist-mode)
+;;; minibuffer
 
 ;;;; isearch
 
@@ -662,7 +642,25 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
 (keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
 
-;;;; styles
+;;;; minibuffer
+
+(setq enable-recursive-minibuffers t)
+
+(keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
+
+(evil-define-key 'insert minibuffer-local-map
+  (kbd "M-r") #'previous-matching-history-element)
+
+(evil-define-key 'normal minibuffer-local-map
+  (kbd "<escape>") #'abort-recursive-edit
+  (kbd "RET") #'exit-minibuffer
+  (kbd "<return>") #'exit-minibuffer)
+
+(require 'savehist)
+
+(add-hook 'after-init-hook #'savehist-mode)
+
+;;;; completion
 
 (setq completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
@@ -866,76 +864,6 @@ ARG see `init-consult-search'."
 
 (consult-customize init-consult-outline :preview-key 'any)
 
-;;; help
-
-(evil-set-initial-state 'help-mode 'motion)
-
-(evil-define-key 'motion help-mode-map
-  (kbd "TAB") #'forward-button
-  (kbd "S-TAB") #'backward-button
-  (kbd "<tab>") #'forward-button
-  (kbd "<backtab>") #'backward-button)
-
-(keymap-set help-map "B" #'describe-keymap)
-(keymap-set help-map "p" #'describe-package)
-(keymap-set help-map "P" #'finder-by-keyword)
-
-;;;; load
-
-(defvar-keymap init-load-map
-  "f" #'load-file
-  "l" #'load-library
-  "t" #'load-theme)
-
-(keymap-set help-map "t" init-load-map)
-
-(consult-customize consult-theme :preview-key '(:debounce 0.5 any))
-(keymap-set init-consult-override-mode-map "<remap> <load-theme>" #'consult-theme)
-
-;;;; findfunc
-
-(require 'find-func)
-
-;; TODO remove special handle after 31.1
-(when (fboundp 'find-function-mode)
-  (add-hook 'after-init-hook 'find-function-mode))
-
-(keymap-set help-map "L" #'find-library)
-(keymap-set help-map "F" #'find-function)
-(keymap-set help-map "V" #'find-variable)
-(keymap-set help-map "K" #'find-function-on-key)
-(keymap-set help-map "4 L" #'find-library-other-window)
-(keymap-set help-map "4 F" #'find-function-other-window)
-(keymap-set help-map "4 V" #'find-variable-other-window)
-(keymap-set help-map "4 K" #'find-function-on-key-other-window)
-(keymap-set help-map "5 L" #'find-library-other-frame)
-(keymap-set help-map "5 F" #'find-function-other-frame)
-(keymap-set help-map "5 V" #'find-variable-other-frame)
-(keymap-set help-map "5 K" #'find-function-on-key-other-frame)
-
-;;;; elookup
-
-(defun init-describe-symbol-dwim ()
-  "Describe symbol at point."
-  (interactive)
-  (describe-symbol (intern (init-thing-at-point-or-throw))))
-
-(setq evil-lookup-func #'init-describe-symbol-dwim)
-
-;;;; info
-
-(require 'info)
-
-(evil-set-initial-state 'Info-mode 'motion)
-
-(evil-define-key 'motion Info-mode-map
-  (kbd "RET") #'Info-follow-nearest-node
-  (kbd "<return>") #'Info-follow-nearest-node
-  (kbd "TAB") #'Info-next-reference
-  (kbd "S-TAB") #'Info-prev-reference
-  (kbd "<tab>") #'Info-next-reference
-  (kbd "<backtab>") #'Info-prev-reference)
-
 ;;; prog
 
 ;;;; flymake
@@ -1107,7 +1035,174 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 (keymap-set eglot-mode-map "<remap> <evil-lookup>" #'eldoc-doc-buffer)
 
+;;; elisp
+
+;;;; lisp common
+
+(defun init-lisp-outline-level ()
+  "Return level of current outline heading."
+  (if (looking-at ";;\\([;*]+\\)")
+      (- (match-end 1) (match-beginning 1))
+    (funcall outline-level)))
+
+(defun init-lisp-set-outline ()
+  "Set outline vars."
+  (setq-local outline-regexp ";;[;*]+[\s\t]+")
+  (setq-local outline-level #'init-lisp-outline-level))
+
+(defun init-lisp-around-last-sexp-maybe-forward (func &rest args)
+  "Around *-last-sexp command.
+Save point and forward sexp before command if looking at an open paren.
+FUNC and ARGS see specific command."
+  (save-excursion
+    (when (looking-at-p "(\\|\\[\\|{")
+      (forward-sexp))
+    (apply func args)))
+
+;;;; elisp mode
+
+(defvar init-elisp-modes
+  '(emacs-lisp-mode lisp-interaction-mode))
+
+(defvar init-elisp-hooks
+  '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
+
+(defvar init-elisp-last-sexp-commands
+  (list #'eval-last-sexp
+        #'eval-print-last-sexp
+        #'pp-eval-last-sexp
+        #'pp-macroexpand-last-sexp))
+
+(dolist (command init-elisp-last-sexp-commands)
+  (advice-add command :around #'init-lisp-around-last-sexp-maybe-forward))
+
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
+  (keymap-set map "C-c C-k" #'eval-buffer)
+  (keymap-set map "C-C C-l" #'load-file)
+  (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp))
+
+(dolist (hook init-elisp-hooks)
+  (add-hook hook #'init-lisp-set-outline))
+
+(dolist (mode init-elisp-modes)
+  (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
+
+;;;; dash
+
+(dash-register-info-lookup)
+
+(global-dash-fontify-mode 1)
+
+;;;; flymake
+
+(setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
+
+(setq elisp-flymake-byte-compile-load-path load-path)
+
+(add-hook 'emacs-lisp-mode-hook #'flymake-mode)
+
+;;;; load
+
+(defvar-keymap init-load-map
+  "f" #'load-file
+  "l" #'load-library
+  "t" #'load-theme)
+
+(keymap-set help-map "t" init-load-map)
+
+(consult-customize consult-theme :preview-key '(:debounce 0.5 any))
+(keymap-set init-consult-override-mode-map "<remap> <load-theme>" #'consult-theme)
+
+;;;; find
+
+(require 'find-func)
+
+;; TODO remove special handle after 31.1
+(when (fboundp 'find-function-mode)
+  (add-hook 'after-init-hook 'find-function-mode))
+
+(keymap-set help-map "L" #'find-library)
+(keymap-set help-map "F" #'find-function)
+(keymap-set help-map "V" #'find-variable)
+(keymap-set help-map "K" #'find-function-on-key)
+(keymap-set help-map "4 L" #'find-library-other-window)
+(keymap-set help-map "4 F" #'find-function-other-window)
+(keymap-set help-map "4 V" #'find-variable-other-window)
+(keymap-set help-map "4 K" #'find-function-on-key-other-window)
+(keymap-set help-map "5 L" #'find-library-other-frame)
+(keymap-set help-map "5 F" #'find-function-other-frame)
+(keymap-set help-map "5 V" #'find-variable-other-frame)
+(keymap-set help-map "5 K" #'find-function-on-key-other-frame)
+
+;;;; lookup
+
+(defun init-describe-symbol-dwim ()
+  "Describe symbol at point."
+  (interactive)
+  (describe-symbol (intern (init-thing-at-point-or-throw))))
+
+(setq evil-lookup-func #'init-describe-symbol-dwim)
+
+;;;; help
+
+(require 'help-mode)
+
+(evil-set-initial-state 'help-mode 'motion)
+
+(evil-define-key 'motion help-mode-map
+  (kbd "TAB") #'forward-button
+  (kbd "S-TAB") #'backward-button
+  (kbd "<tab>") #'forward-button
+  (kbd "<backtab>") #'backward-button)
+
+(keymap-set help-map "B" #'describe-keymap)
+(keymap-set help-map "p" #'describe-package)
+(keymap-set help-map "P" #'finder-by-keyword)
+
+;;;; info
+
+(require 'info)
+
+(evil-set-initial-state 'Info-mode 'motion)
+
+(evil-define-key 'motion Info-mode-map
+  (kbd "RET") #'Info-follow-nearest-node
+  (kbd "<return>") #'Info-follow-nearest-node
+  (kbd "TAB") #'Info-next-reference
+  (kbd "S-TAB") #'Info-prev-reference
+  (kbd "<tab>") #'Info-next-reference
+  (kbd "<backtab>") #'Info-prev-reference)
+
+;;;; ielm
+
+(require 'ielm)
+
+(defun init-ielm-other-window ()
+  "Switch to elisp repl other window."
+  (interactive)
+  (pop-to-buffer (get-buffer-create "*ielm*"))
+  (ielm))
+
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
+  (keymap-set map "C-c C-z" #'init-ielm-other-window))
+
+(evil-define-key 'normal ielm-map
+  (kbd "RET") #'ielm-return
+  (kbd "<return>") #'ielm-return)
+
 ;;; special
+
+;;;; tabulated list
+
+(require 'tabulated-list)
+
+(evil-set-initial-state 'tabulated-list-mode 'motion)
+
+(evil-define-key 'motion tabulated-list-mode-map
+  (kbd "TAB") #'forward-button
+  (kbd "S-TAB") #'backward-button
+  (kbd "<tab>") #'forward-button
+  (kbd "<backtab>") #'backward-button)
 
 ;;;; occur
 
@@ -1183,47 +1278,6 @@ FUNC COMMAND ARGS see `company-call-backend'."
   "gk" #'archive-previous-line
   (kbd "C-j") #'archive-next-line
   (kbd "C-k") #'archive-previous-line)
-
-;;;; ibuffer
-
-(require 'ibuffer)
-(require 'ibuf-ext)
-
-(setq ibuffer-formats
-      '((mark modified read-only locked
-              " " (name 40 40 :left :elide)
-	      " " (size 9 -1 :right)
-	      " " (mode 16 16 :left :elide)
-              " " filename-and-process)
-        (mark " " (name 40 -1) " " filename)))
-
-(evil-set-initial-state 'ibuffer-mode 'motion)
-
-(evil-define-key 'motion ibuffer-mode-map
-  (kbd "RET") #'ibuffer-visit-buffer
-  (kbd "<return>") #'ibuffer-visit-buffer
-  (kbd "TAB") #'ibuffer-forward-line
-  (kbd "S-TAB") #'ibuffer-backward-line
-  (kbd "<tab>") #'ibuffer-forward-line
-  (kbd "<backtab>") #'ibuffer-backward-line
-  "gr" #'ibuffer-update
-  "go" #'ibuffer-visit-buffer-other-window-noselect
-  "gj" #'ibuffer-forward-filter-group
-  "gk" #'ibuffer-backward-filter-group
-  (kbd "C-j") #'ibuffer-forward-filter-group
-  (kbd "C-k") #'ibuffer-backward-filter-group)
-
-;;;; tabulated list
-
-(require 'tabulated-list)
-
-(evil-set-initial-state 'tabulated-list-mode 'motion)
-
-(evil-define-key 'motion tabulated-list-mode-map
-  (kbd "TAB") #'forward-button
-  (kbd "S-TAB") #'backward-button
-  (kbd "<tab>") #'forward-button
-  (kbd "<backtab>") #'backward-button)
 
 ;;;; compile
 
@@ -1431,6 +1485,35 @@ With two universal ARG, edit rg command."
 ARG see `init-switch-to-buffer-split-window-interactive'."
   (interactive "P")
   (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer-create)))
+
+;;;; ibuffer
+
+(require 'ibuffer)
+(require 'ibuf-ext)
+
+(setq ibuffer-formats
+      '((mark modified read-only locked
+              " " (name 40 40 :left :elide)
+	      " " (size 9 -1 :right)
+	      " " (mode 16 16 :left :elide)
+              " " filename-and-process)
+        (mark " " (name 40 -1) " " filename)))
+
+(evil-set-initial-state 'ibuffer-mode 'motion)
+
+(evil-define-key 'motion ibuffer-mode-map
+  (kbd "RET") #'ibuffer-visit-buffer
+  (kbd "<return>") #'ibuffer-visit-buffer
+  (kbd "TAB") #'ibuffer-forward-line
+  (kbd "S-TAB") #'ibuffer-backward-line
+  (kbd "<tab>") #'ibuffer-forward-line
+  (kbd "<backtab>") #'ibuffer-backward-line
+  "gr" #'ibuffer-update
+  "go" #'ibuffer-visit-buffer-other-window-noselect
+  "gj" #'ibuffer-forward-filter-group
+  "gk" #'ibuffer-backward-filter-group
+  (kbd "C-j") #'ibuffer-forward-filter-group
+  (kbd "C-k") #'ibuffer-backward-filter-group)
 
 ;;;; custom
 
@@ -1683,87 +1766,6 @@ Or else call `magit-status'."
  "\"" #'init-wrap-pair)
 
 ;;; lang
-
-;;;; lisp
-
-(defun init-lisp-outline-level ()
-  "Return level of current outline heading."
-  (if (looking-at ";;\\([;*]+\\)")
-      (- (match-end 1) (match-beginning 1))
-    (funcall outline-level)))
-
-(defun init-lisp-set-outline ()
-  "Set outline vars."
-  (setq-local outline-regexp ";;[;*]+[\s\t]+")
-  (setq-local outline-level #'init-lisp-outline-level))
-
-(defun init-lisp-around-last-sexp-maybe-forward (func &rest args)
-  "Around *-last-sexp command.
-Save point and forward sexp before command if looking at an open paren.
-FUNC and ARGS see specific command."
-  (save-excursion
-    (when (looking-at-p "(\\|\\[\\|{")
-      (forward-sexp))
-    (apply func args)))
-
-;;;; elisp
-
-(defvar init-elisp-modes
-  '(emacs-lisp-mode lisp-interaction-mode))
-
-(defvar init-elisp-hooks
-  '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
-
-(defvar init-elisp-last-sexp-commands
-  (list #'eval-last-sexp
-        #'eval-print-last-sexp
-        #'pp-eval-last-sexp
-        #'pp-macroexpand-last-sexp))
-
-(dolist (command init-elisp-last-sexp-commands)
-  (advice-add command :around #'init-lisp-around-last-sexp-maybe-forward))
-
-(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (keymap-set map "C-c C-k" #'eval-buffer)
-  (keymap-set map "C-C C-l" #'load-file)
-  (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp))
-
-(dolist (hook init-elisp-hooks)
-  (add-hook hook #'init-lisp-set-outline))
-
-(dolist (mode init-elisp-modes)
-  (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
-
-;;;;; ielm
-
-(require 'ielm)
-
-(defun init-ielm-other-window ()
-  "Switch to elisp repl other window."
-  (interactive)
-  (pop-to-buffer (get-buffer-create "*ielm*"))
-  (ielm))
-
-(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (keymap-set map "C-c C-z" #'init-ielm-other-window))
-
-(evil-define-key 'normal ielm-map
-  (kbd "RET") #'ielm-return
-  (kbd "<return>") #'ielm-return)
-
-;;;;; flymake
-
-(setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
-
-(setq elisp-flymake-byte-compile-load-path load-path)
-
-(add-hook 'emacs-lisp-mode-hook #'flymake-mode)
-
-;;;;; dash
-
-(dash-register-info-lookup)
-
-(global-dash-fontify-mode 1)
 
 ;;;; outline
 
