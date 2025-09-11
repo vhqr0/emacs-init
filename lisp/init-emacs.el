@@ -1714,7 +1714,10 @@ Or else call `magit-status'."
   "W" #'whitespace-newline-mode
   "h" #'hl-line-mode
   "n" #'display-line-numbers-mode
-  "N" #'init-toggle-line-numbers-relative)
+  "N" #'init-toggle-line-numbers-relative
+  "d" #'eldoc-doc-buffer
+  "e" #'flymake-show-buffer-diagnostics
+  "E" #'flymake-show-project-diagnostics)
 
 (init-leader-global-set
  "SPC" #'consult-buffer
