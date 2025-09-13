@@ -1727,6 +1727,7 @@ Or else call `magit-status'."
   "h" #'hl-line-mode
   "n" #'display-line-numbers-mode
   "N" #'init-toggle-line-numbers-relative
+  "f" #'follow-mode
   "d" #'eldoc-doc-buffer
   "e" #'flymake-show-buffer-diagnostics
   "E" #'flymake-show-project-diagnostics)
@@ -1756,6 +1757,7 @@ Or else call `magit-status'."
  "B" #'ibuffer
  "e" #'init-eshell-dwim
  "G" #'init-magit-dwim
+ "S" #'init-rg-dwim
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
