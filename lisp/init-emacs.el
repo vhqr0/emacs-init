@@ -1565,6 +1565,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'with-editor)
 
+(shell-command-with-editor-mode 1)
+
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 
