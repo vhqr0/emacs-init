@@ -1103,7 +1103,7 @@ FUNC and ARGS see specific command."
 
 (dash-register-info-lookup)
 
-(global-dash-fontify-mode 1)
+(add-hook 'after-init-hook #'global-dash-fontify-mode)
 
 ;;;; flymake
 
@@ -1565,7 +1565,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'with-editor)
 
-(shell-command-with-editor-mode 1)
+(add-hook 'after-init-hook #'shell-command-with-editor-mode)
 
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
