@@ -1561,6 +1561,13 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (setq ispell-dictionary "american")
 
+;;;; with editor
+
+(require 'with-editor)
+
+(add-hook 'shell-mode-hook #'with-editor-export-editor)
+(add-hook 'eshell-mode-hook #'with-editor-export-editor)
+
 ;;;; magit section
 
 (require 'magit-section)

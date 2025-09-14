@@ -36,6 +36,7 @@
                    company
                    ;; special
                    wgrep
+                   with-editor
                    git-modes
                    magit
                    orgit
