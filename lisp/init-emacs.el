@@ -638,6 +638,8 @@ FUNC and ARGS see `evil-set-cursor'."
   (kbd "C-a") (init-isearch-menu-item-filter-wrap #'move-beginning-of-line)
   (kbd "C-e") (init-isearch-menu-item-filter-wrap #'move-end-of-line))
 
+(keymap-set isearch-mode-map "C-SPC" #'toggle-input-method)
+
 (keymap-set embark-identifier-map "%" #'query-replace)
 (keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
 (keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
