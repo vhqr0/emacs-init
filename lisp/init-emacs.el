@@ -885,16 +885,16 @@ ARG see `init-consult-search'."
 (evil-define-key 'motion flymake-diagnostics-buffer-mode-map
   (kbd "RET") #'flymake-goto-diagnostic
   (kbd "<return>") #'flymake-goto-diagnostic
+  "go" #'flymake-show-diagnostic
   (kbd "C-RET") #'flymake-show-diagnostic
-  (kbd "C-<return>") #'flymake-show-diagnostic
-  "go" #'flymake-show-diagnostic)
+  (kbd "C-<return>") #'flymake-show-diagnostic)
 
 (evil-define-key 'motion flymake-project-diagnostics-mode-map
   (kbd "RET") #'flymake-goto-diagnostic
   (kbd "<return>") #'flymake-goto-diagnostic
+  "go" #'flymake-show-diagnostic
   (kbd "C-RET") #'flymake-show-diagnostic
-  (kbd "C-<return>") #'flymake-show-diagnostic
-  "go" #'flymake-show-diagnostic)
+  (kbd "C-<return>") #'flymake-show-diagnostic)
 
 ;;;; eldoc
 
@@ -915,9 +915,9 @@ ARG see `init-consult-search'."
 (evil-define-key 'motion xref--xref-buffer-mode-map
   (kbd "RET") #'xref-goto-xref
   (kbd "<return>") #'xref-goto-xref
+  "go" #'xref-show-location-at-point
   (kbd "C-RET") #'xref-show-location-at-point
   (kbd "C-<return>") #'xref-show-location-at-point
-  "go" #'xref-show-location-at-point
   "gj" #'xref-next-line
   "gk" #'xref-prev-line
   (kbd "C-j") #'xref-next-line
@@ -1232,9 +1232,9 @@ FUNC and ARGS see specific command."
 (evil-define-key 'motion occur-mode-map
   (kbd "RET") #'occur-mode-goto-occurrence
   (kbd "<return>") #'occur-mode-goto-occurrence
+  "go" #'occur-mode-display-occurrence
   (kbd "C-RET") #'occur-mode-display-occurrence
   (kbd "C-<return>") #'occur-mode-display-occurrence
-  "go" #'occur-mode-display-occurrence
   (kbd "TAB") #'occur-next
   (kbd "S-TAB") #'occur-prev
   (kbd "<tab>") #'occur-next
@@ -1271,9 +1271,9 @@ FUNC and ARGS see specific command."
 (evil-define-key 'motion dired-mode-map
   (kbd "RET") #'dired-find-file
   (kbd "<return>") #'dired-find-file
+  "go" #'dired-display-file
   (kbd "C-RET") #'dired-display-file
   (kbd "C-<return>") #'dired-display-file
-  "go" #'dired-display-file
   (kbd "TAB") #'init-dired-next-line-dwim
   (kbd "S-TAB") #'dired-previous-line
   (kbd "<tab>") #'init-dired-next-line-dwim
@@ -1298,9 +1298,9 @@ FUNC and ARGS see specific command."
 (evil-define-key 'motion archive-mode-map
   (kbd "RET") #'archive-extract
   (kbd "<return>") #'archive-extract
+  "go" #'archive-display-other-window
   (kbd "C-RET") #'archive-display-other-window
   (kbd "C-<return>") #'archive-display-other-window
-  "go" #'archive-display-other-window
   (kbd "TAB") #'init-archive-next-line-dwim
   (kbd "S-TAB") #'archive-previous-line
   (kbd "<tab>") #'init-archive-next-line-dwim
@@ -1322,9 +1322,9 @@ FUNC and ARGS see specific command."
 (evil-define-key 'motion compilation-mode-map
   (kbd "RET") #'compile-goto-error
   (kbd "<return>") #'compile-goto-error
+  "go" #'compilation-display-error
   (kbd "C-RET") #'compilation-display-error
   (kbd "C-<return>") #'compilation-display-error
-  "go" #'compilation-display-error
   (kbd "TAB") #'compilation-next-error
   (kbd "S-TAB") #'compilation-previous-error
   (kbd "<tab>") #'compilation-next-error
@@ -1369,9 +1369,9 @@ With two universal ARG, edit rg command."
 (evil-define-key 'motion grep-mode-map
   (kbd "RET") #'compile-goto-error
   (kbd "<return>") #'compile-goto-error
+  "go" #'compilation-display-error
   (kbd "C-RET") #'compilation-display-error
   (kbd "C-<return>") #'compilation-display-error
-  "go" #'compilation-display-error
   (kbd "TAB") #'compilation-next-error
   (kbd "S-TAB") #'compilation-previous-error
   (kbd "<tab>") #'compilation-next-error
@@ -1433,9 +1433,9 @@ With two universal ARG, edit rg command."
 (evil-define-key 'motion vc-dir-mode-map
   (kbd "RET") #'vc-dir-find-file
   (kbd "<return>") #'vc-dir-find-file
+  "go" #'vc-dir-display-file
   (kbd "C-RET") #'vc-dir-display-file
   (kbd "C-<return>") #'vc-dir-display-file
-  "go" #'vc-dir-display-file
   "gj" #'vc-dir-next-line
   "gk" #'vc-dir-previous-line
   (kbd "C-j") #'vc-dir-next-line
@@ -1541,9 +1541,9 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-define-key 'motion ibuffer-mode-map
   (kbd "RET") #'ibuffer-visit-buffer
   (kbd "<return>") #'ibuffer-visit-buffer
+  "go" #'ibuffer-visit-buffer-other-window-noselect
   (kbd "C-RET") #'ibuffer-visit-buffer-other-window-noselect
   (kbd "C-<return>") #'ibuffer-visit-buffer-other-window-noselect
-  "go" #'ibuffer-visit-buffer-other-window-noselect
   (kbd "TAB") #'ibuffer-forward-line
   (kbd "S-TAB") #'ibuffer-backward-line
   (kbd "<tab>") #'ibuffer-forward-line
@@ -1926,9 +1926,9 @@ Or else call `magit-status'."
 (evil-define-key 'motion org-agenda-mode-map
   (kbd "RET") #'org-agenda-goto
   (kbd "<return>") #'org-agenda-goto
+  "go" #'org-agenda-show
   (kbd "C-RET") #'org-agenda-show
   (kbd "C-<return>") #'org-agenda-show
-  "go" #'org-agenda-show
   "gr" #'org-agenda-redo
   "gR" #'org-agenda-redo-all
   "j" #'org-agenda-next-line
