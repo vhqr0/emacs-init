@@ -1548,11 +1548,11 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "S-TAB") #'ibuffer-backward-line
   (kbd "<tab>") #'ibuffer-forward-line
   (kbd "<backtab>") #'ibuffer-backward-line
-  "gr" #'ibuffer-update
   "gj" #'ibuffer-forward-filter-group
   "gk" #'ibuffer-backward-filter-group
   (kbd "C-j") #'ibuffer-forward-filter-group
-  (kbd "C-k") #'ibuffer-backward-filter-group)
+  (kbd "C-k") #'ibuffer-backward-filter-group
+  "gr" #'ibuffer-update)
 
 ;;;; custom
 
@@ -1646,9 +1646,9 @@ Or else call `magit-status'."
 (evil-define-key 'motion magit-mode-map
   (kbd "RET") #'magit-visit-thing
   (kbd "<return>") #'magit-visit-thing
-  "q" #'magit-mode-bury-buffer
   "j" #'magit-next-line
   "k" #'magit-previous-line
+  "q" #'magit-mode-bury-buffer
   "gr" #'magit-refresh
   "gR" #'magit-refresh-all
   "p" #'magit-push)
@@ -1658,20 +1658,20 @@ Or else call `magit-status'."
   "k" #'evil-previous-line)
 
 (evil-define-minor-mode-key 'motion 'magit-blob-mode
-  "q" #'magit-kill-this-buffer
   "gj" #'magit-blob-next
   "gk" #'magit-blob-previous
   (kbd "C-j") #'magit-blob-next
-  (kbd "C-k") #'magit-blob-previous)
+  (kbd "C-k") #'magit-blob-previous
+  "q" #'magit-kill-this-buffer)
 
 (evil-define-minor-mode-key 'motion 'magit-blame-mode
-  "q" #'magit-blame-quit
   "gj" #'magit-blame-next-chunk
   "gk" #'magit-blame-previous-chunk
   "gJ" #'magit-blame-next-chunk-same-commit
   "gK" #'magit-blame-previous-chunk-same-commit
   (kbd "C-j") #'magit-blame-next-chunk
-  (kbd "C-k") #'magit-blame-previous-chunk)
+  (kbd "C-k") #'magit-blame-previous-chunk
+  "q" #'magit-blame-quit)
 
 ;;; leaders
 
@@ -1929,10 +1929,10 @@ Or else call `magit-status'."
   "go" #'org-agenda-show
   (kbd "C-RET") #'org-agenda-show
   (kbd "C-<return>") #'org-agenda-show
-  "gr" #'org-agenda-redo
-  "gR" #'org-agenda-redo-all
   "j" #'org-agenda-next-line
-  "k" #'org-agenda-previous-line)
+  "k" #'org-agenda-previous-line
+  "gr" #'org-agenda-redo
+  "gR" #'org-agenda-redo-all)
 
 ;;;; markdown
 
