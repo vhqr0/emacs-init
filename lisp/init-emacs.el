@@ -757,18 +757,13 @@ FUNC ARGS see `vertico--setup'."
 
 ;;;;; search
 
-(require 'consult-imenu)
+(consult-customize consult-goto-line :preview-key 'any)
+
+(keymap-set init-consult-override-mode-map "<remap> <goto-line>" #'consult-goto-line)
 
 (setq consult-line-start-from-top t)
 
-(consult-customize
- consult-goto-line
- consult-imenu
- consult-line
- :preview-key 'any)
-
-(keymap-set init-consult-override-mode-map "<remap> <goto-line>" #'consult-goto-line)
-(keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
+(consult-customize consult-line :preview-key 'any)
 
 (defun init-after-consult-line-set-search (&rest _args)
   "Set search history after `consult-line'."
@@ -809,6 +804,14 @@ ARG see `init-consult-search'."
 
 (keymap-set embark-general-map "C-s" #'consult-line)
 (keymap-set embark-general-map "C-r" #'consult-line)
+
+;;;;; imenu
+
+(require 'consult-imenu)
+
+(consult-customize consult-imenu :preview-key 'any)
+
+(keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
 
 ;;;;; outline
 
