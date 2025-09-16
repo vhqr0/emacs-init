@@ -640,9 +640,10 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
 
-(keymap-set embark-identifier-map "%" #'query-replace)
 (keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
 (keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
+
+(keymap-set embark-identifier-map "%" #'query-replace)
 
 ;;;; minibuffer
 
