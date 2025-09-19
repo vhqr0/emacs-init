@@ -681,7 +681,10 @@ FUNC and ARGS see `evil-set-cursor'."
   "Wrap COMMAND with `init-isearch-menu-item-filter'."
   `(menu-item "" ,command :filter init-isearch-menu-item-filter))
 
+;; TODO use single override mode
+
 (evil-define-key 'motion init-evil-override-mode-map
+  (kbd "C-u") (init-isearch-menu-item-filter-wrap #'universal-argument)
   (kbd "C-f") (init-isearch-menu-item-filter-wrap #'forward-char)
   (kbd "C-b") (init-isearch-menu-item-filter-wrap #'backward-char)
   (kbd "C-a") (init-isearch-menu-item-filter-wrap #'move-beginning-of-line)

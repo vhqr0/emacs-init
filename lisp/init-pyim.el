@@ -86,6 +86,14 @@
         (":"  "："    )
         ("\\" "、"    )))
 
+(defun init-pyim-probe-evil ()
+  "Disable input method in evil non-insertion modes."
+  (and (not isearch-mode)
+       evil-local-mode
+       (memq evil-state '(motion normal visual))))
+
+(setq pyim-english-input-switch-functions (list #'init-pyim-probe-evil))
+
 (pyim-scheme-add
  `(zirjma
    :document "zirjma"
