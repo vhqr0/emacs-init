@@ -274,8 +274,6 @@ With two or more universal ARG, open in current window."
 (setq disabled-command-function nil)
 (setq suggest-key-bindings nil)
 
-(keymap-global-set "C-SPC" #'toggle-input-method)
-
 (require 'repeat)
 
 (add-to-list 'after-init-hook #'repeat-mode)
@@ -284,6 +282,28 @@ With two or more universal ARG, open in current window."
 
 (keymap-global-set "M-o" #'embark-act)
 (keymap-global-set "M-O" #'embark-act-all)
+
+;;;; input method
+
+(keymap-global-set "C-SPC" #'toggle-input-method)
+(keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
+
+(defvar init-ignore-toggle-input-method nil)
+
+(defun init-around-toggle-input-method-check-ignore (func &rest args)
+  "Ignore toggle input method when `init-ignore-toggle-input-method' is set.
+FUNC, ARGS see `activate-input-method' and `deactivate-input-method'."
+  (unless init-ignore-toggle-input-method
+    (apply func args)))
+
+(advice-add #'activate-input-method :around #'init-around-toggle-input-method-check-ignore)
+(advice-add #'deactivate-input-method :around #'init-around-toggle-input-method-check-ignore)
+
+(defun init-around-command-ignore-toggle-input-method (func &rest args)
+  "Ignore toggle input method around command.
+FUNC, ARGS see specified commands."
+  (let ((init-ignore-toggle-input-method t))
+    (apply func args)))
 
 ;;;; indent
 
@@ -449,6 +469,8 @@ START END LEN see `after-change-functions'."
 
 (add-hook 'after-init-hook #'evil-mode)
 
+;; disable adjust cursor after specified commands
+
 (defvar init-evil-disable-adjust-cursor-commands
   '(forward-sexp forward-list))
 
@@ -460,6 +482,8 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-filter)
 
+;; disable adjust cursor in isearch mode
+
 (defun init-around-evil-adjust-cursor-do-disable-isearch (func &rest args)
   "Dont adjust cursor in isearch mode.
 FUNC and ARGS see `evil-set-cursor'."
@@ -468,7 +492,28 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-disable-isearch)
 
+;; ignore toggle input method between modes transition
+
+(dolist (func (list #'evil-local-mode
+                    #'evil-emacs-state
+                    #'evil-insert-state
+                    #'evil-replace-state
+                    #'evil-motion-state
+                    #'evil-normal-state
+                    #'evil-visual-state))
+  (advice-add func :around #'init-around-command-ignore-toggle-input-method))
+
+;; slient evil input method hacks
+
+(advice-add #'evil-activate-input-method :override #'ignore)
+(advice-add #'evil-deactivate-input-method :override #'ignore)
+(advice-add #'evil--refresh-input-method :override #'funcall)
+
+;; remove yank pop remap
+
 (keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
+
+;; remove some insert state bindings
 
 (keymap-unset evil-insert-state-map "C-@" t)
 (keymap-unset evil-insert-state-map "C-a" t)
@@ -480,6 +525,11 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-unset evil-insert-state-map "C-t" t)
 (keymap-unset evil-insert-state-map "C-n" t)
 (keymap-unset evil-insert-state-map "C-p" t)
+
+;; replace evil search with isearch
+
+(keymap-set evil-motion-state-map "/" #'isearch-forward-regexp)
+(keymap-set evil-motion-state-map "?" #'isearch-backward-regexp)
 
 (keymap-set evil-motion-state-map "-" #'negative-argument)
 (keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
@@ -637,8 +687,6 @@ FUNC and ARGS see `evil-set-cursor'."
   (kbd "C-b") (init-isearch-menu-item-filter-wrap #'backward-char)
   (kbd "C-a") (init-isearch-menu-item-filter-wrap #'move-beginning-of-line)
   (kbd "C-e") (init-isearch-menu-item-filter-wrap #'move-end-of-line))
-
-(keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
 
 (keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
 (keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
