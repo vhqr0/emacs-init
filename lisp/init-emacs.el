@@ -457,7 +457,6 @@ START END LEN see `after-change-functions'."
 (require 'evil)
 
 (setq evil-want-fine-undo t)
-(setq evil-search-wrap nil)
 (setq evil-symbol-word-search t)
 
 (setq evil-goto-definition-functions
