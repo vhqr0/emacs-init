@@ -1748,7 +1748,7 @@ Or else call `magit-status'."
   "Define leader binding CLAUSES in `init-evil-override-mode-map'."
   (apply #'init-leader-set init-evil-override-mode-map clauses))
 
-(defun init-magic (prefix)
+(defun init-magic-prefix (prefix)
   "Magically read and execute command on PREFIX."
   (let ((char (read-char (concat prefix " C-"))))
     (if (= char ?\C-h)
@@ -1764,20 +1764,20 @@ Or else call `magit-status'."
           (setq new-prefix (concat prefix " " (char-to-string char))
                 binding (key-binding (kbd new-prefix))))
         (cond ((and binding (commandp binding))
-               (setq this-command binding
-                     real-this-command binding)
+               (setq this-command binding)
+               (setq real-this-command binding)
                (if (commandp binding t)
                    (call-interactively binding)
                  (execute-kbd-macro binding)))
               ((and binding (keymapp binding))
-               (init-magic new-prefix))
+               (init-magic-prefix new-prefix))
               (t
                (user-error "No magic key binding found on %s %c" prefix char)))))))
 
 (defun init-magic-C-c ()
   "Magic control C."
   (interactive)
-  (init-magic "C-c"))
+  (init-magic-prefix "C-c"))
 
 (defun init-magic-C-u ()
   "Magic control U."
@@ -1795,13 +1795,18 @@ Or else call `magit-status'."
 (defun init-magic-shift ()
   "Magic shift."
   (interactive)
-  (let* ((event (read-event))
-         (shift-event (or (cdr (assq event init-magic-shift-special)) (upcase event))))
-    (setq this-command #'ignore)
-    (setq real-this-command #'ignore)
-    (setq prefix-arg current-prefix-arg)
-    (push shift-event unread-command-events)
-    (push 32 unread-command-events)))
+  (let* ((char (read-char "SPC-"))
+         (shift-char (or (cdr (assq char init-magic-shift-special)) (upcase char))))
+    (-if-let (binding (key-binding (vector 32 shift-char)))
+        (if (commandp binding)
+            (progn
+              (setq this-command binding)
+              (setq real-this-command binding)
+              (if (commandp binding t)
+                  (call-interactively binding)
+                (execute-kbd-macro binding)))
+          (user-error "Binding on SPC %c is not command" shift-char))
+      (user-error "No binding found on SPC %c" shift-char))))
 
 (defvar-keymap init-minor-prefix-map
   "s" #'auto-save-visited-mode
