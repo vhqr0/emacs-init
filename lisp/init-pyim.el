@@ -90,7 +90,7 @@
   "Disable input method in evil non-insertion modes."
   (and (not isearch-mode)
        evil-local-mode
-       (memq evil-state '(motion normal visual))))
+       (memq evil-state '(operator motion normal visual))))
 
 (setq pyim-english-input-switch-functions (list #'init-pyim-probe-evil))
 
@@ -109,13 +109,22 @@
 
 (add-hook 'after-init-hook #'pyim-basedict-enable)
 
+(defun init-pyim-after-self-insert-command-check-escape ()
+  "Check jk escape in pyim."
+  (when (pyim-process-with-entered-buffer
+          (equal "jk" (buffer-substring (point-min) (point-max))))
+    (push 'escape unread-command-events)))
+
+(advice-add #'pyim-self-insert-command :after #'init-pyim-after-self-insert-command-check-escape)
+
 (defun init-pyim-around-self-insert-command (func)
   "Disable `self-insert-command' like command when use pyim.
 FUNC see `init-evil-escape'."
-  (if current-input-method
+  (if (and (equal current-input-method "pyim")
+           (not (pyim-process-auto-switch-english-input-p)))
       (progn
-        (setq this-command #'self-insert-command
-              real-this-command #'self-insert-command)
+        (setq this-command #'self-insert-command)
+        (setq real-this-command #'self-insert-command)
         (call-interactively #'self-insert-command))
     (funcall func)))
 

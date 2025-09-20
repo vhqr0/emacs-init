@@ -497,6 +497,7 @@ FUNC and ARGS see `evil-set-cursor'."
                     #'evil-emacs-state
                     #'evil-insert-state
                     #'evil-replace-state
+                    #'evil-operator-state
                     #'evil-motion-state
                     #'evil-normal-state
                     #'evil-visual-state))
