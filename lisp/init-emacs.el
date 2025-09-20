@@ -670,7 +670,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq isearch-allow-motion t)
 (setq isearch-yank-on-move t)
 (setq isearch-motion-changes-direction t)
-(setq isearch-repeat-on-direction-change t)
+;; (setq isearch-repeat-on-direction-change t)
 
 (defvar-keymap init-evil-isearch-override-mode-map)
 
