@@ -675,7 +675,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (defvar-keymap init-evil-isearch-override-mode-map)
 
 (define-minor-mode init-evil-isearch-override-mode
-  "Override leader prefix map."
+  "Override isearch commands map."
   :group 'init-evil
   :global t
   :keymap init-evil-isearch-override-mode-map)
