@@ -283,28 +283,6 @@ With two or more universal ARG, open in current window."
 (keymap-global-set "M-o" #'embark-act)
 (keymap-global-set "M-O" #'embark-act-all)
 
-;;;; input method
-
-(keymap-global-set "C-SPC" #'toggle-input-method)
-(keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
-
-(defvar init-ignore-toggle-input-method nil)
-
-(defun init-around-toggle-input-method-check-ignore (func &rest args)
-  "Ignore toggle input method when `init-ignore-toggle-input-method' is set.
-FUNC, ARGS see `activate-input-method' and `deactivate-input-method'."
-  (unless init-ignore-toggle-input-method
-    (apply func args)))
-
-(advice-add #'activate-input-method :around #'init-around-toggle-input-method-check-ignore)
-(advice-add #'deactivate-input-method :around #'init-around-toggle-input-method-check-ignore)
-
-(defun init-around-command-ignore-toggle-input-method (func &rest args)
-  "Ignore toggle input method around command.
-FUNC, ARGS see specified commands."
-  (let ((init-ignore-toggle-input-method t))
-    (apply func args)))
-
 ;;;; indent
 
 (setq-default indent-tabs-mode nil)
@@ -491,24 +469,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-disable-isearch)
 
-;; ignore toggle input method between modes transition
-
-(dolist (func (list #'evil-local-mode
-                    #'evil-emacs-state
-                    #'evil-insert-state
-                    #'evil-replace-state
-                    #'evil-operator-state
-                    #'evil-motion-state
-                    #'evil-normal-state
-                    #'evil-visual-state))
-  (advice-add func :around #'init-around-command-ignore-toggle-input-method))
-
-;; slient evil input method hacks
-
-(advice-add #'evil-activate-input-method :override #'ignore)
-(advice-add #'evil-deactivate-input-method :override #'ignore)
-(advice-add #'evil--refresh-input-method :override #'funcall)
-
 ;; remove yank pop remap
 
 (keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
@@ -570,31 +530,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (add-hook 'after-init-hook #'global-evil-surround-mode)
 
 ;;;; extra
-
-;;;;; quick
-
-(defun init-quick-event (first-char second-char quick-event)
-  "Quick trigger QUICK-EVENT by repeat click two keys: FIRST-CHAR SECOND-CHAR."
-  (if (or executing-kbd-macro
-          defining-kbd-macro
-          (sit-for 0.15 t))
-      (insert first-char)
-    (let ((event (read-event)))
-      (if (= event second-char)
-          (progn
-            (setq this-command #'ignore)
-            (setq real-this-command #'ignore)
-            (push quick-event unread-command-events))
-        (insert first-char)
-        (push event unread-command-events)))))
-
-(defun init-evil-escape ()
-  ":imap jk <esc>."
-  (interactive)
-  (init-quick-event ?j ?k 'escape))
-
-(keymap-set evil-insert-state-map  "j" #'init-evil-escape)
-(keymap-set evil-replace-state-map "j" #'init-evil-escape)
 
 ;;;;; operators
 
@@ -661,6 +596,77 @@ FUNC and ARGS see `evil-set-cursor'."
   :keymap init-evil-override-mode-map)
 
 (add-hook 'after-init-hook #'init-evil-override-mode)
+
+;;; input method
+
+(keymap-global-set "C-SPC" #'toggle-input-method)
+(keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
+
+(defvar init-ignore-toggle-input-method nil)
+
+(defun init-around-toggle-input-method-check-ignore (func &rest args)
+  "Ignore toggle input method when `init-ignore-toggle-input-method' is set.
+FUNC, ARGS see `f/activate-input-method' and `f/deactivate-input-method'."
+  (unless init-ignore-toggle-input-method
+    (apply func args)))
+
+(advice-add #'activate-input-method :around #'init-around-toggle-input-method-check-ignore)
+(advice-add #'deactivate-input-method :around #'init-around-toggle-input-method-check-ignore)
+
+(defun init-around-command-ignore-toggle-input-method (func &rest args)
+  "Ignore toggle input method around command.
+FUNC, ARGS see specified commands."
+  (let ((init-ignore-toggle-input-method t))
+    (apply func args)))
+
+(dolist (func (list #'evil-local-mode
+                    #'evil-emacs-state
+                    #'evil-insert-state
+                    #'evil-replace-state
+                    #'evil-operator-state
+                    #'evil-motion-state
+                    #'evil-normal-state
+                    #'evil-visual-state))
+  (advice-add func :around #'init-around-command-ignore-toggle-input-method))
+
+(advice-add #'evil-activate-input-method :override #'ignore)
+(advice-add #'evil-deactivate-input-method :override #'ignore)
+(advice-add #'evil--refresh-input-method :override #'funcall)
+
+(defun init-disable-input-method-p ()
+  "Predicate of input method."
+  (and (not isearch-mode)
+       evil-local-mode
+       (memq evil-state '(operator motion normal visual))))
+
+(defun init-around-input-method (func event)
+  "Wrap a `input-method-function' FUNC that process disable and jk escape.
+FUNC, EVENT see `input-method-function'."
+  (if (init-disable-input-method-p)
+      (list event)
+    (if (or (/= event ?j) (sit-for 0.15))
+        (funcall func event)
+      (let ((next-event (read-event)))
+        (if (/= next-event ?k)
+            (progn
+              (push next-event unread-command-events)
+              (funcall func event))
+          (push 'escape unread-command-events)
+          nil)))))
+
+(defun init-input-method (event)
+  "Default input method function.
+EVENT see `input-method-function'."
+  (init-around-input-method #'list event))
+
+(setq-default input-method-function #'init-input-method)
+
+(defun init-set-default-input-method ()
+  "Set default input method function to `init-input-method'."
+  (unless input-method-function
+    (setq-local input-method-function #'init-input-method)))
+
+(add-hook 'isearch-mode-hook #'init-set-default-input-method)
 
 ;;; minibuffer
 
