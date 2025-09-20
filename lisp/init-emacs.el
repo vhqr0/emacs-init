@@ -672,6 +672,16 @@ FUNC and ARGS see `evil-set-cursor'."
 (setq isearch-motion-changes-direction t)
 (setq isearch-repeat-on-direction-change t)
 
+(defvar-keymap init-evil-isearch-override-mode-map)
+
+(define-minor-mode init-evil-isearch-override-mode
+  "Override leader prefix map."
+  :group 'init-evil
+  :global t
+  :keymap init-evil-isearch-override-mode-map)
+
+(add-hook 'after-init-hook #'init-evil-isearch-override-mode)
+
 (defun init-isearch-menu-item-filter (command)
   "Return COMMAND when isearch enabled."
   (when isearch-mode
@@ -681,9 +691,7 @@ FUNC and ARGS see `evil-set-cursor'."
   "Wrap COMMAND with `init-isearch-menu-item-filter'."
   `(menu-item "" ,command :filter init-isearch-menu-item-filter))
 
-;; TODO use single override mode
-
-(evil-define-key 'motion init-evil-override-mode-map
+(evil-define-key 'motion init-evil-isearch-override-mode-map
   (kbd "C-u") (init-isearch-menu-item-filter-wrap #'universal-argument)
   (kbd "C-f") (init-isearch-menu-item-filter-wrap #'forward-char)
   (kbd "C-b") (init-isearch-menu-item-filter-wrap #'backward-char)
