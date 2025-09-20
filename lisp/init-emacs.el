@@ -604,14 +604,14 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (defvar init-ignore-toggle-input-method nil)
 
-(defun init-around-toggle-input-method-check-ignore (func &rest args)
+(defun init-around-toggle-input-method-do-check-ignore (func &rest args)
   "Ignore toggle input method when `init-ignore-toggle-input-method' is set.
 FUNC, ARGS see `f/activate-input-method' and `f/deactivate-input-method'."
   (unless init-ignore-toggle-input-method
     (apply func args)))
 
-(advice-add #'activate-input-method :around #'init-around-toggle-input-method-check-ignore)
-(advice-add #'deactivate-input-method :around #'init-around-toggle-input-method-check-ignore)
+(advice-add #'activate-input-method :around #'init-around-toggle-input-method-do-check-ignore)
+(advice-add #'deactivate-input-method :around #'init-around-toggle-input-method-do-check-ignore)
 
 (defun init-around-command-ignore-toggle-input-method (func &rest args)
   "Ignore toggle input method around command.
