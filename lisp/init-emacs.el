@@ -1820,7 +1820,7 @@ Or else call `magit-status'."
               (if (commandp binding t)
                   (call-interactively binding)
                 (execute-kbd-macro binding)))
-          (user-error "Binding on SPC %c is not command" shift-char))
+          (user-error "Binding on SPC %c is not a command" shift-char))
       (user-error "No binding found on SPC %c" shift-char))))
 
 (defvar-keymap init-minor-prefix-map
