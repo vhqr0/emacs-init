@@ -610,14 +610,17 @@ FUNC, ARGS see `f/activate-input-method' and `f/deactivate-input-method'."
   (unless init-ignore-toggle-input-method
     (apply func args)))
 
+(advice-add #'toggle-input-method :around #'init-around-toggle-input-method-do-check-ignore)
 (advice-add #'activate-input-method :around #'init-around-toggle-input-method-do-check-ignore)
 (advice-add #'deactivate-input-method :around #'init-around-toggle-input-method-do-check-ignore)
 
-(defun init-around-command-ignore-toggle-input-method (func &rest args)
+(defun init-around-ignore-toggle-input-method (func &rest args)
   "Ignore toggle input method around command.
 FUNC, ARGS see specified commands."
   (let ((init-ignore-toggle-input-method t))
     (apply func args)))
+
+;; disable hard coded input method toggles
 
 (dolist (func (list #'evil-local-mode
                     #'evil-emacs-state
@@ -627,11 +630,10 @@ FUNC, ARGS see specified commands."
                     #'evil-motion-state
                     #'evil-normal-state
                     #'evil-visual-state))
-  (advice-add func :around #'init-around-command-ignore-toggle-input-method))
+  (advice-add func :around #'init-around-ignore-toggle-input-method))
 
-(advice-add #'evil-activate-input-method :override #'ignore)
-(advice-add #'evil-deactivate-input-method :override #'ignore)
-(advice-add #'evil--refresh-input-method :override #'funcall)
+(dolist (state '(operator motion normal visual))
+  (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
 
 (defun init-disable-input-method-p ()
   "Predicate of input method."
@@ -667,6 +669,7 @@ EVENT see `input-method-function'."
     (setq-local input-method-function #'init-input-method)))
 
 (add-hook 'isearch-mode-hook #'init-set-default-input-method)
+(advice-add #'isearch-toggle-input-method :after #'init-set-default-input-method)
 
 ;;; minibuffer
 
