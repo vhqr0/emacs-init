@@ -53,8 +53,10 @@
   (when-let* ((first-test-file-name (init-clojure-first-test-file-name file-name)))
     (let* ((file-name-base (file-name-sans-extension first-test-file-name))
            (try-extensions (init-clojure-try-extensions (file-name-extension first-test-file-name)))
-           (try-file-names (->> try-extensions (--map (concat file-name-base "." it)))))
-      (->> try-file-names (-first #'file-exists-p)))))
+           (try-file-names (seq-map
+                            (lambda (extension) (concat file-name-base "." extension))
+                            try-extensions)))
+      (seq-find #'file-exists-p try-file-names))))
 
 (defun init-clojure-set-find-test-file ()
   "Set `init-find-test-file-name' for Clojure mode."

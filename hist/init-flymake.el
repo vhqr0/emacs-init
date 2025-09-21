@@ -10,7 +10,6 @@
 
 ;;; Code:
 
-(require 'dash)
 (require 'flymake)
 
 (defvar-local init-flymake-find-executable-function nil)
@@ -87,7 +86,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
   "Make Flymake diag for BUFFER from `match-string'."
   (let* ((row (string-to-number (match-string 1)))
          (col (string-to-number (match-string 2)))
-         (type (-> (match-string 3) (assoc init-clojure-kondo-type-alist) (cdr)))
+         (type (cdr (assoc (match-string 3) init-clojure-kondo-type-alist)))
          (msg (match-string 4))
          (region (flymake-diag-region buffer row col)))
     (flymake-make-diagnostic

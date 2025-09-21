@@ -3,7 +3,6 @@
 ;;; Commentary:
 ;; Various init configuration for Emacs itself.
 
-(require 'dash)
 (require 'init-core)
 
 ;;; Code:
@@ -21,8 +20,9 @@
 (defun init-diminish-minor-mode (mode)
   "Diminish MODE lighter."
   (setq minor-mode-alist
-        (->> minor-mode-alist
-             (--remove (eq (car it) mode)))))
+        (seq-remove
+         (lambda (alist) (eq (car alist) mode))
+         minor-mode-alist)))
 
 (defun init-region-bounds ()
   "Get region bounds."
@@ -1179,12 +1179,6 @@ FUNC and ARGS see specific command."
 (dolist (mode init-elisp-modes)
   (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
 
-;;;; dash
-
-(dash-register-info-lookup)
-
-(add-hook 'after-init-hook #'global-dash-fontify-mode)
-
 ;;;; flymake
 
 (setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
@@ -1572,12 +1566,13 @@ With two universal ARG, edit rg command."
 
 (defun init-eshell-dwim-find-buffer ()
   "Find eshell dwim buffer."
-  (->> (buffer-list)
-       (--first
-        (and (eq (buffer-local-value 'major-mode it) 'eshell-mode)
-             (string-prefix-p eshell-buffer-name (buffer-name it))
-             (not (get-buffer-process it))
-             (not (get-buffer-window it))))))
+  (seq-find
+   (lambda (buffer)
+     (and (eq (buffer-local-value 'major-mode buffer) 'eshell-mode)
+          (string-prefix-p eshell-buffer-name (buffer-name buffer))
+          (not (get-buffer-process buffer))
+          (not (get-buffer-window buffer))))
+   (buffer-list)))
 
 (defun init-eshell-dwim-get-buffer-create ()
   "Get eshell dwim buffer, create if not exist."
@@ -1751,10 +1746,10 @@ Or else call `magit-status'."
 
 (defun init-leader-bindings (clauses)
   "Transforms `define-key' CLAUSES to binding alist."
-  (->> clauses
-       (-partition 2)
-       (--map
-        (cons (kbd (concat "SPC " (car it))) (cadr it)))))
+  (seq-map
+   (lambda (binding)
+     (cons (kbd (concat "SPC " (car binding))) (cadr binding)))
+   (seq-partition clauses 2)))
 
 (defun init-leader-set (keymap &rest clauses)
   "Define leader binding CLAUSES in KEYMAP."

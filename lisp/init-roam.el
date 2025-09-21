@@ -79,8 +79,9 @@
 (defun init-org-roam-ref-url (ref)
   "Get url of an Org Roam REF."
   (let* ((type (get-text-property 0 'type ref))
-         (path-end (->> (-iota (length ref))
-                        (--first (get-text-property it 'invisible ref))))
+         (path-end (seq-find
+                    (lambda (pos) (get-text-property pos 'invisible ref))
+                    (cl-loop for i from 0 below (length ref) collect i)))
          (path (substring ref 0 path-end)))
     (concat type ":" path)))
 
