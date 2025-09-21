@@ -39,7 +39,7 @@
 
 (defun init-region-content ()
   "Get region content or nil."
-  (-when-let (bounds (init-region-bounds))
+  (when-let* ((bounds (init-region-bounds)))
     (buffer-substring (car bounds) (cdr bounds))))
 
 (defun init-thing-at-point ()
@@ -52,7 +52,7 @@
 
 (defun init-project-directory ()
   "Get current project directory."
-  (-when-let (project (project-current))
+  (when-let* ((project (project-current)))
     (project-root project)))
 
 (defun init-directory ()
@@ -205,9 +205,9 @@ With two or more universal ARG, open in current window."
   "Find test file or source file of current file in project."
   (interactive)
   (when init-find-test-file-name-function
-    (-when-let (default-directory (project-root (project-current)))
-      (-when-let (file-name (buffer-file-name))
-        (-when-let (test-file-name (funcall init-find-test-file-name-function (file-relative-name file-name)))
+    (when-let* ((default-directory (project-root (project-current))))
+      (when-let* ((file-name (buffer-file-name)))
+        (when-let* ((test-file-name (funcall init-find-test-file-name-function (file-relative-name file-name))))
           (find-file test-file-name))))))
 
 (keymap-set project-prefix-map "t" #'init-project-find-test-file)
@@ -548,7 +548,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (evil-define-operator init-evil-operator-eval (beg end)
   :move-point nil
   (interactive "<r>")
-  (-when-let (eval-function (cdr (assq major-mode init-evil-eval-function-alist)))
+  (when-let* ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
     (funcall eval-function beg end)))
 
 (keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
@@ -1581,7 +1581,7 @@ With two universal ARG, edit rg command."
 
 (defun init-eshell-dwim-get-buffer-create ()
   "Get eshell dwim buffer, create if not exist."
-  (-if-let (buffer (init-eshell-dwim-find-buffer))
+  (if-let* ((buffer (init-eshell-dwim-find-buffer)))
       (let ((dir default-directory))
         (with-current-buffer buffer
           (eshell/cd dir)
@@ -1815,7 +1815,7 @@ Or else call `magit-status'."
   (interactive)
   (let* ((char (read-char "SPC-"))
          (shift-char (or (cdr (assq char init-magic-shift-special)) (upcase char))))
-    (-if-let (binding (key-binding (vector 32 shift-char)))
+    (if-let* ((binding (key-binding (vector 32 shift-char))))
         (if (commandp binding)
             (progn
               (setq this-command binding)

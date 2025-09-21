@@ -22,7 +22,7 @@
 (defun init-flymake-make-proc (buffer report-fn)
   "Make Flymake process for BUFFER.
 REPORT-FN see `init-flymake-backend'."
-  (-when-let (find-executable-fn (buffer-local-value 'init-flymake-find-executable-function buffer))
+  (when-let* ((find-executable-fn (buffer-local-value 'init-flymake-find-executable-function buffer)))
     (when (funcall find-executable-fn buffer)
       (let* ((proc-buffer-name (format "*init-flymake for %s*" (buffer-name buffer)))
              (make-command-fn (buffer-local-value 'init-flymake-make-command-function buffer))
@@ -48,7 +48,7 @@ REPORT-FN see `init-flymake-backend'."
 (defun init-flymake-backend (report-fn &rest _args)
   "Generic Flymake backend.
 REPORT-FN see `flymake-diagnostic-functions'."
-  (-when-let (proc (init-flymake-make-proc (current-buffer) report-fn))
+  (when-let* ((proc (init-flymake-make-proc (current-buffer) report-fn)))
     (when (process-live-p init-flymake-proc)
       (kill-process init-flymake-proc))
     (setq init-flymake-proc proc)

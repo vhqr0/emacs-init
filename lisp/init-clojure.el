@@ -50,7 +50,7 @@
 
 (defun init-clojure-find-test-file-name (file-name)
   "Find test file or source file of FILE-NAME."
-  (-when-let (first-test-file-name (init-clojure-first-test-file-name file-name))
+  (when-let* ((first-test-file-name (init-clojure-first-test-file-name file-name)))
     (let* ((file-name-base (file-name-sans-extension first-test-file-name))
            (try-extensions (init-clojure-try-extensions (file-name-extension first-test-file-name)))
            (try-file-names (->> try-extensions (--map (concat file-name-base "." it)))))
