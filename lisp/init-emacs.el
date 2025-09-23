@@ -255,6 +255,9 @@ With two or more universal ARG, open in current window."
   "<left>" #'tab-bar-history-back
   "<right>" #'tab-bar-history-forward)
 
+(keymap-set tab-prefix-map "<left>" #'tab-bar-history-back)
+(keymap-set tab-prefix-map "<right>" #'tab-bar-history-forward)
+
 (keymap-global-set "C-S-N" #'make-frame-command)
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
 (keymap-global-set "C-S-W" #'tab-bar-close-tab)
