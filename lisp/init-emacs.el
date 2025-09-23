@@ -239,6 +239,8 @@ With two or more universal ARG, open in current window."
 
 (windmove-default-keybindings)
 
+(add-hook 'after-init-hook #'undelete-frame-mode)
+
 (require 'tab-bar)
 
 (setq tab-bar-tab-hints t)
