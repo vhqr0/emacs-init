@@ -496,7 +496,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-motion-state-map "/" #'isearch-forward-regexp)
 (keymap-set evil-motion-state-map "?" #'isearch-backward-regexp)
 
-(keymap-set evil-motion-state-map "-" #'negative-argument)
 (keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
 (keymap-set evil-motion-state-map "q" #'quit-window)
 (keymap-unset evil-normal-state-map "q" t)
