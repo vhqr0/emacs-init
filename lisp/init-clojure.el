@@ -67,21 +67,21 @@
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
 (defvar init-cider-last-sexp-commands
-  (list #'cider-eval-last-sexp
-        #'cider-eval-last-sexp-to-repl
-        #'cider-eval-last-sexp-in-context
-        #'cider-eval-last-sexp-and-replace
-        #'cider-pprint-eval-last-sexp
-        #'cider-pprint-eval-last-sexp-to-repl
-        #'cider-pprint-eval-last-sexp-to-comment
-        #'cider-insert-last-sexp-in-repl
-        #'cider-tap-last-sexp
-        #'cider-format-edn-last-sexp
-        #'cider-inspect-last-sexp
-        #'cider-macroexpand-1
-        #'cider-macroexpand-all
-        #'cider-macroexpand-1-inplace
-        #'cider-macroexpand-all-inplace))
+  '(cider-eval-last-sexp
+    cider-eval-last-sexp-to-repl
+    cider-eval-last-sexp-in-context
+    cider-eval-last-sexp-and-replace
+    cider-pprint-eval-last-sexp
+    cider-pprint-eval-last-sexp-to-repl
+    cider-pprint-eval-last-sexp-to-comment
+    cider-insert-last-sexp-in-repl
+    cider-tap-last-sexp
+    cider-format-edn-last-sexp
+    cider-inspect-last-sexp
+    cider-macroexpand-1
+    cider-macroexpand-all
+    cider-macroexpand-1-inplace
+    cider-macroexpand-all-inplace))
 
 (dolist (command init-cider-last-sexp-commands)
   (advice-add command :around #'init-lisp-around-last-sexp-maybe-forward))

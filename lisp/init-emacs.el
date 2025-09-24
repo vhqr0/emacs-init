@@ -915,18 +915,18 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   (apply func beg end args))
 
 (defvar init-evil-goggles-commands
-  (list #'evil-yank
-        #'evil-delete
-        #'evil-change
-        #'evil-indent
-        #'evil-shift-right
-        #'evil-shift-left
-        #'evil-fill-and-move
-        #'evil-surround-region
-        #'evil-Surround-region
-        #'init-evil-operator-comment
-        #'init-evil-operator-narrow
-        #'init-evil-operator-eval))
+  '(evil-yank
+    evil-delete
+    evil-change
+    evil-indent
+    evil-shift-right
+    evil-shift-left
+    evil-fill-and-move
+    evil-surround-region
+    evil-Surround-region
+    init-evil-operator-comment
+    init-evil-operator-narrow
+    init-evil-operator-eval))
 
 (dolist (command init-evil-goggles-commands)
   (advice-add command :around #'init-around-evil-operator-do-goggles))
@@ -1576,10 +1576,7 @@ FUNC and ARGS see specific command."
 ;;;; elisp mode
 
 (defvar init-elisp-last-sexp-commands
-  (list #'eval-last-sexp
-        #'eval-print-last-sexp
-        #'pp-eval-last-sexp
-        #'pp-macroexpand-last-sexp))
+  '(eval-last-sexp eval-print-last-sexp pp-eval-last-sexp pp-macroexpand-last-sexp))
 
 (dolist (command init-elisp-last-sexp-commands)
   (advice-add command :around #'init-lisp-around-last-sexp-maybe-forward))
