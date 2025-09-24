@@ -589,14 +589,14 @@ FUNC, ARGS see specified commands."
 
 ;; disable hard coded input method toggles
 
-(dolist (func (list #'evil-local-mode
-                    #'evil-emacs-state
-                    #'evil-insert-state
-                    #'evil-replace-state
-                    #'evil-operator-state
-                    #'evil-motion-state
-                    #'evil-normal-state
-                    #'evil-visual-state))
+(dolist (func '(evil-local-mode
+                evil-emacs-state
+                evil-insert-state
+                evil-replace-state
+                evil-operator-state
+                evil-motion-state
+                evil-normal-state
+                evil-visual-state))
   (advice-add func :around #'init-around-ignore-toggle-input-method))
 
 (dolist (state '(operator motion normal visual))
@@ -1551,7 +1551,7 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 ;;; elisp
 
-;;;; lisp common
+;;;; lisp
 
 (defun init-lisp-outline-level ()
   "Return level of current outline heading."
@@ -1573,7 +1573,7 @@ FUNC and ARGS see specific command."
       (forward-sexp))
     (apply func args)))
 
-;;;; elisp mode
+;;;; elisp
 
 (defvar init-elisp-last-sexp-commands
   '(eval-last-sexp eval-print-last-sexp pp-eval-last-sexp pp-macroexpand-last-sexp))
