@@ -2037,15 +2037,6 @@ Or else call `magit-status'."
   (kbd "C-j") #'markdown-outline-next-same-level
   (kbd "C-k") #'markdown-outline-previous-same-level)
 
-;;;; web
-
-(require 'sgml-mode)
-(require 'css-mode)
-(require 'js)
-
-(setq css-indent-offset 2)
-(setq js-indent-level 2)
-
 ;;;; python
 
 (require 'python)
