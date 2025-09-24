@@ -44,15 +44,18 @@
    ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file-name)
     (concat "src/" (match-string 1 file-name) (match-string 2 file-name)))))
 
+(defun init-clojure-test-file-names (file-name)
+  "Convert FILE-NAME to list of test or source files, sorted by try extensions."
+  (when-let* ((first-test-file-name (init-clojure-first-test-file-name file-name)))
+    (let ((file-name-base (file-name-sans-extension first-test-file-name))
+          (file-name-extension (file-name-extension first-test-file-name)))
+      (seq-map
+       (lambda (extension) (concat file-name-base "." extension))
+       (init-clojure-try-extensions file-name-extension)))))
+
 (defun init-clojure-find-test-file-name (file-name)
   "Find test file or source file of FILE-NAME."
-  (when-let* ((first-test-file-name (init-clojure-first-test-file-name file-name)))
-    (let* ((file-name-base (file-name-sans-extension first-test-file-name))
-           (try-extensions (init-clojure-try-extensions (file-name-extension first-test-file-name)))
-           (try-file-names (seq-map
-                            (lambda (extension) (concat file-name-base "." extension))
-                            try-extensions)))
-      (seq-find #'file-exists-p try-file-names))))
+  (seq-find #'file-exists-p (init-clojure-test-file-names file-name)))
 
 (defun init-clojure-set-find-test-file ()
   "Set `init-find-test-file-name' for Clojure mode."
