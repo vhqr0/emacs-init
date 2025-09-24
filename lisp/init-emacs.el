@@ -864,7 +864,7 @@ ARG see `init-consult-search'."
 (defvar-local init-goggles-changes nil)
 
 (defun init-goggles-pre-command ()
-  "Save current buffer."
+  "Reset change."
   (setq init-goggles-changes nil))
 
 (defun init-goggles-post-command ()
@@ -877,11 +877,11 @@ ARG see `init-consult-search'."
         (setq end (max end (cdr change)))
         (set-marker (car change) nil)
         (set-marker (cdr change) nil))
-      (pulse-momentary-highlight-region start end)))
-  (setq init-goggles-changes nil))
+      (pulse-momentary-highlight-region start end))
+    (setq init-goggles-changes nil)))
 
 (defun init-goggles-after-change (start end len)
-  "Push change to history.
+  "Push change to `init-goggles-changes'.
 START END LEN see `after-change-functions'."
   (when (and (/= len 0) (= start end))
     (when (> start (buffer-size))
