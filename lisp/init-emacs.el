@@ -861,40 +861,34 @@ ARG see `init-consult-search'."
 
 ;;; goggles
 
-(defvar init-goggles-buffer nil)
-(defvar init-goggles-changes nil)
+(defvar-local init-goggles-changes nil)
 
 (defun init-goggles-pre-command ()
   "Save current buffer."
-  (setq init-goggles-buffer (current-buffer))
   (setq init-goggles-changes nil))
 
 (defun init-goggles-post-command ()
   "Highlight change post command."
-  (when (and init-goggles-changes
-             (eq (current-buffer) init-goggles-buffer))
+  (when init-goggles-changes
     (let ((start most-positive-fixnum)
           (end 0))
       (dolist (change init-goggles-changes)
-        (when (eq init-goggles-buffer (marker-buffer (car change)))
-          (setq start (min start (car change)))
-          (setq end (max end (cdr change)))
-          (set-marker (car change) nil)
-          (set-marker (cdr change) nil)))
+        (setq start (min start (car change)))
+        (setq end (max end (cdr change)))
+        (set-marker (car change) nil)
+        (set-marker (cdr change) nil))
       (pulse-momentary-highlight-region start end)))
-  (setq init-goggles-buffer nil)
   (setq init-goggles-changes nil))
 
 (defun init-goggles-after-change (start end len)
   "Push change to history.
 START END LEN see `after-change-functions'."
-  (when (eq (current-buffer) init-goggles-buffer)
-    (when (and (/= len 0) (= start end))
-      (when (> start (buffer-size))
-        (setq start (- start 1)))
-      (setq end (1+ start)))
-    (let ((change (cons (copy-marker start) (copy-marker end))))
-      (push change init-goggles-changes))))
+  (when (and (/= len 0) (= start end))
+    (when (> start (buffer-size))
+      (setq start (- start 1)))
+    (setq end (1+ start)))
+  (let ((change (cons (copy-marker start) (copy-marker end))))
+    (push change init-goggles-changes)))
 
 (define-minor-mode init-goggles-mode
   "Init goggles mode."
@@ -912,15 +906,15 @@ START END LEN see `after-change-functions'."
 (add-hook 'text-mode-hook #'init-goggles-mode)
 (add-hook 'minibuffer-mode-hook #'init-goggles-mode)
 
-(defun init-around-evil-operator-do-pulse (func beg end &rest args)
-  "Around evil operator do pulse.
+(defun init-around-evil-operator-do-goggles (func beg end &rest args)
+  "Around evil operator do goggles.
 FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   (when (and init-goggles-mode (called-interactively-p 'interactive))
     (pulse-momentary-highlight-region beg end)
     (sit-for 0.05))
   (apply func beg end args))
 
-(defvar init-evil-pulse-commands
+(defvar init-evil-goggles-commands
   (list #'evil-yank
         #'evil-delete
         #'evil-change
@@ -934,8 +928,8 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
         #'init-evil-operator-narrow
         #'init-evil-operator-eval))
 
-(dolist (command init-evil-pulse-commands)
-  (advice-add command :around #'init-around-evil-operator-do-pulse))
+(dolist (command init-evil-goggles-commands)
+  (advice-add command :around #'init-around-evil-operator-do-goggles))
 
 ;;; list
 
