@@ -1158,12 +1158,6 @@ FUNC and ARGS see specific command."
 
 ;;;; elisp mode
 
-(defvar init-elisp-modes
-  '(emacs-lisp-mode lisp-interaction-mode))
-
-(defvar init-elisp-hooks
-  '(emacs-lisp-mode-hook lisp-interaction-mode-hook))
-
 (defvar init-elisp-last-sexp-commands
   (list #'eval-last-sexp
         #'eval-print-last-sexp
@@ -1180,7 +1174,7 @@ FUNC and ARGS see specific command."
 
 (add-hook 'emacs-lisp-mode-hook #'init-lisp-set-outline)
 
-(dolist (mode init-elisp-modes)
+(dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
   (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
 
 ;;;; flymake
@@ -2041,18 +2035,12 @@ Or else call `magit-status'."
 
 (require 'python)
 
-(defvar init-python-modes
-  '(python-mode python-ts-mode))
-
-(defvar init-python-hooks
-  '(python-base-mode-hook inferior-python-mode-hook))
-
 (setq python-shell-interpreter "python")
 (setq python-shell-interpreter-args "-m IPython --simple-prompt")
 
 (keymap-set python-base-mode-map "C-c C-k" #'python-shell-send-buffer)
 
-(dolist (mode init-python-modes)
+(dolist (mode '(python-mode python-ts-mode))
   (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
 
 ;;; end

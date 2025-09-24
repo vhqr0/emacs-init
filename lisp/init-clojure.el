@@ -11,9 +11,6 @@
 
 (require 'clojure-mode)
 
-(defvar init-clojure-modes
-  '(clojurec-mode clojure-mode clojurescript-mode))
-
 (add-hook 'clojure-mode-hook #'init-lisp-set-outline)
 
 (defun init-clojure-set-elec-pairs ()
@@ -29,7 +26,6 @@
   (let ((bounds (or (init-region-bounds) (bounds-of-thing-at-point 'sexp))))
     (replace-string-in-region "," "" (car bounds) (cdr bounds))))
 
-(keymap-set clojure-refactor-map ":" #'clojure-toggle-keyword-string)
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
 
 ;;;; find test file
@@ -94,7 +90,7 @@
 
 ;;;; eval
 
-(dolist (mode init-clojure-modes)
+(dolist (mode '(clojurec-mode clojure-mode clojurescript-mode))
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
