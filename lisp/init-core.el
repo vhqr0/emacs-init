@@ -50,6 +50,7 @@
 (defvar init-modules
   '(init-emacs
     ;; init-clojure
+    ;; init-python
     ;; init-pyim
     ;; init-roam
     ;; init-wsl

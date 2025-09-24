@@ -2031,18 +2031,6 @@ Or else call `magit-status'."
   (kbd "C-j") #'markdown-outline-next-same-level
   (kbd "C-k") #'markdown-outline-previous-same-level)
 
-;;;; python
-
-(require 'python)
-
-(setq python-shell-interpreter "python")
-(setq python-shell-interpreter-args "-m IPython --simple-prompt")
-
-(keymap-set python-base-mode-map "C-c C-k" #'python-shell-send-buffer)
-
-(dolist (mode '(python-mode python-ts-mode))
-  (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
-
 ;;; end
 
 (provide 'init-emacs)
