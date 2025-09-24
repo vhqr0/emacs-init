@@ -2042,7 +2042,7 @@ Or else call `magit-status'."
 (require 'python)
 
 (defvar init-python-modes
-  '(python-mode python-ts-mode inferior-python-mode))
+  '(python-mode python-ts-mode))
 
 (defvar init-python-hooks
   '(python-base-mode-hook inferior-python-mode-hook))
