@@ -18,29 +18,22 @@
 ;;; deps
 
 (defvar init-deps
-  '((init-emacs . (;; edit
+  '((init-emacs . (evil
+                   evil-surround
                    embark
                    paredit
-                   ;; evil
-                   evil
-                   evil-surround
-                   ;; compl
                    orderless
                    marginalia
                    vertico
                    consult
                    embark-consult
-                   ;; prog
                    yasnippet
                    company
-                   ;; special
                    wgrep
                    with-editor
                    git-modes
                    magit
                    orgit
-                   ;; lang
-                   ;; * markdown
                    markdown-mode
                    edit-indirect))
     (init-clojure . (clojure-mode cider))

@@ -96,6 +96,171 @@ With two or more universal ARG, open in current window."
     (insert-file-contents file)
     (buffer-substring-no-properties (point-min) (point-max))))
 
+;;; initial
+
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message nil)
+
+(defvar init-disable-ui-modes
+  '(blink-cursor-mode tooltip-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
+
+(defun init-disable-ui ()
+  "Disable various ui modes."
+  (interactive)
+  (dolist (mode init-disable-ui-modes)
+    (when (fboundp mode)
+      (funcall mode -1))))
+
+(add-hook 'after-init-hook #'init-disable-ui)
+
+;;; evil
+
+(defvar evil-want-keybinding)
+(setq evil-want-keybinding nil)
+
+(defvar evil-want-minibuffer)
+(setq evil-want-minibuffer t)
+
+(defvar evil-want-C-u-scroll)
+(defvar evil-want-C-w-delete)
+(defvar evil-want-Y-yank-to-eol)
+(setq evil-want-C-u-scroll t)
+(setq evil-want-C-w-delete t)
+(setq evil-want-Y-yank-to-eol t)
+
+(defvar evil-respect-visual-line-mode)
+(setq evil-respect-visual-line-mode t)
+
+(defvar evil-undo-system)
+(setq evil-undo-system 'undo-redo)
+
+(require 'evil)
+
+(setq evil-want-fine-undo t)
+(setq evil-symbol-word-search t)
+
+(setq evil-goto-definition-functions
+      '(evil-goto-definition-imenu evil-goto-definition-xref))
+
+(setq evil-emacs-state-modes nil)
+(setq evil-insert-state-modes nil)
+(setq evil-motion-state-modes nil)
+
+(add-hook 'after-init-hook #'evil-mode)
+
+(defvar init-evil-disable-adjust-cursor-commands
+  '(forward-sexp forward-list))
+
+(defun init-around-evil-adjust-cursor-do-filter (func &rest args)
+  "Dont adjust cursor after certain commands.
+FUNC and ARGS see `evil-set-cursor'."
+  (unless (memq this-command init-evil-disable-adjust-cursor-commands)
+    (apply func args)))
+
+(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-filter)
+
+(keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
+
+(keymap-unset evil-insert-state-map "C-@" t)
+(keymap-unset evil-insert-state-map "C-a" t)
+(keymap-unset evil-insert-state-map "C-k" t)
+(keymap-unset evil-insert-state-map "C-w" t)
+(keymap-unset evil-insert-state-map "C-e" t)
+(keymap-unset evil-insert-state-map "C-y" t)
+(keymap-unset evil-insert-state-map "C-d" t)
+(keymap-unset evil-insert-state-map "C-t" t)
+(keymap-unset evil-insert-state-map "C-n" t)
+(keymap-unset evil-insert-state-map "C-p" t)
+
+(keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
+(keymap-set evil-motion-state-map "q" #'quit-window)
+(keymap-unset evil-normal-state-map "q" t)
+
+(keymap-set evil-visual-state-map "m" #'evil-jump-item)
+(keymap-set evil-operator-state-map "m" #'evil-jump-item)
+(keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
+(keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
+
+(keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
+(keymap-set evil-motion-state-map "g R" #'revert-buffer)
+
+(set-keymap-parent evil-command-line-map minibuffer-local-map)
+
+(defvar-keymap init-evil-override-mode-map)
+
+(define-minor-mode init-evil-override-mode
+  "Override leader prefix map."
+  :group 'init-evil
+  :global t
+  :keymap init-evil-override-mode-map)
+
+(add-hook 'after-init-hook #'init-evil-override-mode)
+
+;;;; extra
+
+(require 'evil-surround)
+
+(add-to-list 'evil-surround-pairs-alist '(?r . ("[" . "]")))
+(add-to-list 'evil-surround-pairs-alist '(?a . ("<" . ">")))
+(add-to-list 'evil-surround-pairs-alist '(?# . ("#{" . "}")))
+
+(keymap-set evil-inner-text-objects-map "r" #'evil-inner-bracket)
+(keymap-set evil-outer-text-objects-map "r" #'evil-a-bracket)
+(keymap-set evil-inner-text-objects-map "a" #'evil-inner-angle)
+(keymap-set evil-outer-text-objects-map "a" #'evil-an-angle)
+
+(add-hook 'after-init-hook #'global-evil-surround-mode)
+
+(evil-define-operator init-evil-operator-comment (beg end)
+  :move-point nil
+  (interactive "<r>")
+  (comment-or-uncomment-region beg end))
+
+(evil-define-operator init-evil-operator-narrow (beg end)
+  :move-point nil
+  (interactive "<r>")
+  (narrow-to-region beg end))
+
+(defvar init-evil-eval-function-alist nil)
+
+(evil-define-operator init-evil-operator-eval (beg end)
+  :move-point nil
+  (interactive "<r>")
+  (when-let* ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
+    (funcall eval-function beg end)))
+
+(keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
+(keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
+(keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
+
+(evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
+  (evil-range
+   (save-excursion
+     (goto-char (line-beginning-position))
+     (back-to-indentation)
+     (point))
+   (line-end-position)
+   'exclusive))
+
+(evil-define-text-object init-evil-a-line (count &optional _beg _end _type)
+  (evil-range (line-beginning-position) (line-end-position) 'inclusive))
+
+(evil-define-text-object init-evil-inner-defun (count &optional beg end _type)
+  (evil-select-inner-object 'evil-defun beg end type count t))
+
+(evil-define-text-object init-evil-a-defun (count &optional beg end _type)
+  (evil-select-an-object 'evil-defun beg end type count t))
+
+(evil-define-text-object init-evil-text-object-entire (count &optional _beg _end _type)
+  (evil-range (point-min) (point-max) 'line))
+
+(keymap-set evil-inner-text-objects-map "l" #'init-evil-inner-line)
+(keymap-set evil-outer-text-objects-map "l" #'init-evil-a-line)
+(keymap-set evil-inner-text-objects-map "d" #'init-evil-inner-defun)
+(keymap-set evil-outer-text-objects-map "d" #'init-evil-a-defun)
+(keymap-set evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
+(keymap-set evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
+
 ;;; files
 
 (require 'files)
@@ -114,31 +279,23 @@ With two or more universal ARG, open in current window."
 (keymap-set ctl-x-x-map "<left>" #'previous-buffer)
 (keymap-set ctl-x-x-map "<right>" #'next-buffer)
 
-;;;; autosave
-
 (setq auto-save-visited-interval 0.5)
+
+(defun init-auto-save-p ()
+  "Predication of `auto-save-visited-mode'."
+  (not (evil-insert-state-p)))
+
+(setq auto-save-visited-predicate #'init-auto-save-p)
 
 (add-to-list 'minor-mode-alist '(auto-save-visited-mode " ASave"))
 
-(defvar init-disable-autosave-preds nil)
-
-(defun init-autosave-p ()
-  "Predication of `auto-save-visited-mode'."
-  (not (run-hook-with-args-until-success 'init-disable-autosave-preds)))
-
-(setq auto-save-visited-predicate #'init-autosave-p)
-
 (add-hook 'after-init-hook #'auto-save-visited-mode)
-
-;;;; autorevert
 
 (require 'autorevert)
 
 (setq auto-revert-check-vc-info t)
 
 (add-hook 'after-init-hook #'global-auto-revert-mode)
-
-;;;; recentf
 
 (require 'recentf)
 
@@ -148,13 +305,9 @@ With two or more universal ARG, open in current window."
 
 (keymap-set ctl-x-r-map "e" #'recentf-open)
 
-;;;; saveplace
-
 (require 'saveplace)
 
 (add-hook 'after-init-hook #'save-place-mode)
-
-;;;; solong
 
 (require 'so-long)
 
@@ -212,28 +365,7 @@ With two or more universal ARG, open in current window."
 
 (keymap-set project-prefix-map "t" #'init-project-find-test-file)
 
-;;; ui
-
-;;;; graphic
-
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message nil)
-
-(setq ring-bell-function #'ignore)
-
-(defvar init-disable-ui-modes
-  '(blink-cursor-mode tooltip-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
-
-(defun init-disable-ui ()
-  "Disable various ui modes."
-  (interactive)
-  (dolist (mode init-disable-ui-modes)
-    (when (fboundp mode)
-      (funcall mode -1))))
-
-(add-hook 'after-init-hook #'init-disable-ui)
-
-;;;; windows
+;;; window
 
 (require 'windmove)
 
@@ -258,6 +390,9 @@ With two or more universal ARG, open in current window."
 (keymap-set tab-prefix-map "<left>" #'tab-bar-history-back)
 (keymap-set tab-prefix-map "<right>" #'tab-bar-history-forward)
 
+(keymap-set evil-window-map "<left>" #'tab-bar-history-back)
+(keymap-set evil-window-map "<right>" #'tab-bar-history-forward)
+
 (keymap-global-set "C-S-N" #'make-frame-command)
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
 (keymap-global-set "C-S-W" #'tab-bar-close-tab)
@@ -274,7 +409,7 @@ With two or more universal ARG, open in current window."
 
 ;;; edit
 
-;;;; commands
+(setq ring-bell-function #'ignore)
 
 (setq disabled-command-function nil)
 (setq suggest-key-bindings nil)
@@ -283,26 +418,15 @@ With two or more universal ARG, open in current window."
 
 (add-to-list 'after-init-hook #'repeat-mode)
 
-(require 'embark)
-
-(keymap-global-set "M-o" #'embark-act)
-(keymap-global-set "M-O" #'embark-act-all)
-
-;;;; indent
+(setq word-wrap-by-category t)
 
 (setq-default indent-tabs-mode nil)
-
-(setq-default truncate-lines t)
-
-(setq word-wrap-by-category t)
 
 (defun init-indent-dwim ()
   "Do indent smartly."
   (interactive "*")
   (let ((bounds (init-region-or-buffer-bounds)))
     (indent-region (car bounds) (cdr bounds))))
-
-;;;; parens
 
 (require 'elec-pair)
 
@@ -328,13 +452,16 @@ With two or more universal ARG, open in current window."
 (keymap-global-set "C-M-<left>" #'paredit-backward-slurp-sexp)
 (keymap-global-set "C-M-<right>" #'paredit-backward-barf-sexp)
 
+(keymap-set evil-normal-state-map "M-r" #'raise-sexp)
+(keymap-set evil-normal-state-map "M-s" #'paredit-splice-sexp)
+
 (defun init-wrap-pair (&optional arg)
   "Insert pair, ARG see `insert-pair'."
   (interactive "*P")
   (insert-pair (or arg 1))
   (indent-sexp))
 
-;;;; visual
+(setq-default truncate-lines t)
 
 (defun init-set-trailing-whitespace-display ()
   "Set local display of trailing whitespace."
@@ -361,110 +488,27 @@ With two or more universal ARG, open in current window."
 
 (setq hl-line-sticky-flag t)
 
-;;;; goggles
+(require 'embark)
 
-(defvar init-goggles-buffer nil)
-(defvar init-goggles-changes nil)
+(keymap-global-set "M-o" #'embark-act)
+(keymap-global-set "M-O" #'embark-act-all)
 
-(defun init-goggles-pre-command ()
-  "Save current buffer."
-  (setq init-goggles-buffer (current-buffer))
-  (setq init-goggles-changes nil))
+;;; isearch
 
-(defun init-goggles-post-command ()
-  "Highlight change post command."
-  (when (and init-goggles-changes
-             (eq (current-buffer) init-goggles-buffer))
-    (let ((start most-positive-fixnum)
-          (end 0))
-      (dolist (change init-goggles-changes)
-        (when (eq init-goggles-buffer (marker-buffer (car change)))
-          (setq start (min start (car change)))
-          (setq end (max end (cdr change)))
-          (set-marker (car change) nil)
-          (set-marker (cdr change) nil)))
-      (pulse-momentary-highlight-region start end)))
-  (setq init-goggles-buffer nil)
-  (setq init-goggles-changes nil))
+(setq isearch-lazy-count t)
+(setq isearch-allow-scroll t)
+(setq isearch-allow-motion t)
+(setq isearch-yank-on-move t)
+(setq isearch-motion-changes-direction t)
+;; (setq isearch-repeat-on-direction-change t)
 
-(defun init-goggles-after-change (start end len)
-  "Push change to history.
-START END LEN see `after-change-functions'."
-  (when (eq (current-buffer) init-goggles-buffer)
-    (when (and (/= len 0) (= start end))
-      (when (> start (buffer-size))
-        (setq start (- start 1)))
-      (setq end (1+ start)))
-    (let ((change (cons (copy-marker start) (copy-marker end))))
-      (push change init-goggles-changes))))
+(keymap-set evil-motion-state-map "/" #'isearch-forward-regexp)
+(keymap-set evil-motion-state-map "?" #'isearch-backward-regexp)
 
-(define-minor-mode init-goggles-mode
-  "Init goggles mode."
-  :group 'init-goggles
-  (if init-goggles-mode
-      (progn
-        (add-hook 'pre-command-hook #'init-goggles-pre-command nil t)
-        (add-hook 'post-command-hook #'init-goggles-post-command nil t)
-        (add-hook 'after-change-functions #'init-goggles-after-change nil t))
-    (remove-hook 'pre-command-hook #'init-goggles-pre-command t)
-    (remove-hook 'post-command-hook #'init-goggles-post-command t)
-    (remove-hook 'after-change-functions #'init-goggles-after-change t)))
+(keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
+(keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
 
-(add-hook 'prog-mode-hook #'init-goggles-mode)
-(add-hook 'text-mode-hook #'init-goggles-mode)
-(add-hook 'minibuffer-mode-hook #'init-goggles-mode)
-
-;;; evil
-
-;; keybinding related options, must be set before evil loaded.
-
-(defvar evil-want-keybinding)
-(setq evil-want-keybinding nil)
-
-(defvar evil-want-minibuffer)
-(setq evil-want-minibuffer t)
-
-(defvar evil-want-C-u-scroll)
-(defvar evil-want-C-w-delete)
-(defvar evil-want-Y-yank-to-eol)
-(setq evil-want-C-u-scroll t)
-(setq evil-want-C-w-delete t)
-(setq evil-want-Y-yank-to-eol t)
-
-(defvar evil-respect-visual-line-mode)
-(setq evil-respect-visual-line-mode t)
-
-(defvar evil-undo-system)
-(setq evil-undo-system 'undo-redo)
-
-(require 'evil)
-
-(setq evil-want-fine-undo t)
-(setq evil-symbol-word-search t)
-
-(setq evil-goto-definition-functions
-      '(evil-goto-definition-imenu evil-goto-definition-xref))
-
-(setq evil-emacs-state-modes nil)
-(setq evil-insert-state-modes nil)
-(setq evil-motion-state-modes nil)
-
-(add-hook 'after-init-hook #'evil-mode)
-
-;; disable adjust cursor after specified commands
-
-(defvar init-evil-disable-adjust-cursor-commands
-  '(forward-sexp forward-list))
-
-(defun init-around-evil-adjust-cursor-do-filter (func &rest args)
-  "Dont adjust cursor after certain commands.
-FUNC and ARGS see `evil-set-cursor'."
-  (unless (memq this-command init-evil-disable-adjust-cursor-commands)
-    (apply func args)))
-
-(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-filter)
-
-;; disable adjust cursor in isearch mode
+(keymap-set embark-identifier-map "%" #'query-replace)
 
 (defun init-around-evil-adjust-cursor-do-disable-isearch (func &rest args)
   "Dont adjust cursor in isearch mode.
@@ -474,132 +518,51 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-disable-isearch)
 
-;; remove yank pop remap
+(defvar-keymap init-evil-isearch-override-mode-map)
 
-(keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
-
-;; remove some insert state bindings
-
-(keymap-unset evil-insert-state-map "C-@" t)
-(keymap-unset evil-insert-state-map "C-a" t)
-(keymap-unset evil-insert-state-map "C-k" t)
-(keymap-unset evil-insert-state-map "C-w" t)
-(keymap-unset evil-insert-state-map "C-e" t)
-(keymap-unset evil-insert-state-map "C-y" t)
-(keymap-unset evil-insert-state-map "C-d" t)
-(keymap-unset evil-insert-state-map "C-t" t)
-(keymap-unset evil-insert-state-map "C-n" t)
-(keymap-unset evil-insert-state-map "C-p" t)
-
-;; replace evil search with isearch
-
-(keymap-set evil-motion-state-map "/" #'isearch-forward-regexp)
-(keymap-set evil-motion-state-map "?" #'isearch-backward-regexp)
-
-(keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
-(keymap-set evil-motion-state-map "q" #'quit-window)
-(keymap-unset evil-normal-state-map "q" t)
-
-(keymap-set evil-visual-state-map "m" #'evil-jump-item)
-(keymap-set evil-operator-state-map "m" #'evil-jump-item)
-(keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
-(keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
-
-(keymap-set evil-normal-state-map "M-r" #'raise-sexp)
-(keymap-set evil-normal-state-map "M-s" #'paredit-splice-sexp)
-
-(keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
-(keymap-set evil-motion-state-map "g R" #'revert-buffer)
-
-(keymap-set evil-window-map "<left>" #'tab-bar-history-back)
-(keymap-set evil-window-map "<right>" #'tab-bar-history-forward)
-
-(set-keymap-parent evil-command-line-map minibuffer-local-map)
-
-(add-to-list 'init-disable-autosave-preds #'evil-insert-state-p)
-
-;;;; surround
-
-(require 'evil-surround)
-
-(add-to-list 'evil-surround-pairs-alist '(?r . ("[" . "]")))
-(add-to-list 'evil-surround-pairs-alist '(?a . ("<" . ">")))
-(add-to-list 'evil-surround-pairs-alist '(?# . ("#{" . "}")))
-
-(keymap-set evil-inner-text-objects-map "r" #'evil-inner-bracket)
-(keymap-set evil-outer-text-objects-map "r" #'evil-a-bracket)
-(keymap-set evil-inner-text-objects-map "a" #'evil-inner-angle)
-(keymap-set evil-outer-text-objects-map "a" #'evil-an-angle)
-
-(add-hook 'after-init-hook #'global-evil-surround-mode)
-
-;;;; extra
-
-;;;;; operators
-
-(evil-define-operator init-evil-operator-comment (beg end)
-  :move-point nil
-  (interactive "<r>")
-  (comment-or-uncomment-region beg end))
-
-(evil-define-operator init-evil-operator-narrow (beg end)
-  :move-point nil
-  (interactive "<r>")
-  (narrow-to-region beg end))
-
-(defvar init-evil-eval-function-alist nil)
-
-(evil-define-operator init-evil-operator-eval (beg end)
-  :move-point nil
-  (interactive "<r>")
-  (when-let* ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
-    (funcall eval-function beg end)))
-
-(keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
-(keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
-(keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
-
-;;;;; tobjs
-
-(evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
-  (evil-range
-   (save-excursion
-     (goto-char (line-beginning-position))
-     (back-to-indentation)
-     (point))
-   (line-end-position)
-   'exclusive))
-
-(evil-define-text-object init-evil-a-line (count &optional _beg _end _type)
-  (evil-range (line-beginning-position) (line-end-position) 'inclusive))
-
-(evil-define-text-object init-evil-inner-defun (count &optional beg end _type)
-  (evil-select-inner-object 'evil-defun beg end type count t))
-
-(evil-define-text-object init-evil-a-defun (count &optional beg end _type)
-  (evil-select-an-object 'evil-defun beg end type count t))
-
-(evil-define-text-object init-evil-text-object-entire (count &optional _beg _end _type)
-  (evil-range (point-min) (point-max) 'line))
-
-(keymap-set evil-inner-text-objects-map "l" #'init-evil-inner-line)
-(keymap-set evil-outer-text-objects-map "l" #'init-evil-a-line)
-(keymap-set evil-inner-text-objects-map "d" #'init-evil-inner-defun)
-(keymap-set evil-outer-text-objects-map "d" #'init-evil-a-defun)
-(keymap-set evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
-(keymap-set evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
-
-;;;;; override
-
-(defvar-keymap init-evil-override-mode-map)
-
-(define-minor-mode init-evil-override-mode
-  "Override leader prefix map."
+(define-minor-mode init-evil-isearch-override-mode
+  "Override isearch commands map."
   :group 'init-evil
   :global t
-  :keymap init-evil-override-mode-map)
+  :keymap init-evil-isearch-override-mode-map)
 
-(add-hook 'after-init-hook #'init-evil-override-mode)
+(add-hook 'after-init-hook #'init-evil-isearch-override-mode)
+
+(defun init-isearch-menu-item-filter (command)
+  "Return COMMAND when isearch enabled."
+  (when isearch-mode
+    command))
+
+(defun init-isearch-menu-item-filter-wrap (command)
+  "Wrap COMMAND with `init-isearch-menu-item-filter'."
+  `(menu-item "" ,command :filter init-isearch-menu-item-filter))
+
+(evil-define-key 'motion init-evil-isearch-override-mode-map
+  (kbd "C-u") (init-isearch-menu-item-filter-wrap #'universal-argument)
+  (kbd "C-f") (init-isearch-menu-item-filter-wrap #'forward-char)
+  (kbd "C-b") (init-isearch-menu-item-filter-wrap #'backward-char)
+  (kbd "C-a") (init-isearch-menu-item-filter-wrap #'move-beginning-of-line)
+  (kbd "C-e") (init-isearch-menu-item-filter-wrap #'move-end-of-line))
+
+(evil-set-initial-state 'occur-mode 'motion)
+(evil-set-initial-state 'occur-edit-mode 'normal)
+
+(keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
+
+(evil-define-key 'motion occur-mode-map
+  (kbd "RET") #'occur-mode-goto-occurrence
+  (kbd "<return>") #'occur-mode-goto-occurrence
+  "go" #'occur-mode-display-occurrence
+  (kbd "C-RET") #'occur-mode-display-occurrence
+  (kbd "C-<return>") #'occur-mode-display-occurrence
+  (kbd "TAB") #'occur-next
+  (kbd "S-TAB") #'occur-prev
+  (kbd "<tab>") #'occur-next
+  (kbd "<backtab>") #'occur-prev
+  "gj" #'next-error-no-select
+  "gk" #'previous-error-no-select
+  (kbd "C-j") #'next-error-no-select
+  (kbd "C-k") #'previous-error-no-select)
 
 ;;; input method
 
@@ -677,49 +640,8 @@ EVENT see `input-method-function'."
 
 ;;; minibuffer
 
-;;;; isearch
-
-(setq isearch-lazy-count t)
-(setq isearch-allow-scroll t)
-(setq isearch-allow-motion t)
-(setq isearch-yank-on-move t)
-(setq isearch-motion-changes-direction t)
-;; (setq isearch-repeat-on-direction-change t)
-
-(defvar-keymap init-evil-isearch-override-mode-map)
-
-(define-minor-mode init-evil-isearch-override-mode
-  "Override isearch commands map."
-  :group 'init-evil
-  :global t
-  :keymap init-evil-isearch-override-mode-map)
-
-(add-hook 'after-init-hook #'init-evil-isearch-override-mode)
-
-(defun init-isearch-menu-item-filter (command)
-  "Return COMMAND when isearch enabled."
-  (when isearch-mode
-    command))
-
-(defun init-isearch-menu-item-filter-wrap (command)
-  "Wrap COMMAND with `init-isearch-menu-item-filter'."
-  `(menu-item "" ,command :filter init-isearch-menu-item-filter))
-
-(evil-define-key 'motion init-evil-isearch-override-mode-map
-  (kbd "C-u") (init-isearch-menu-item-filter-wrap #'universal-argument)
-  (kbd "C-f") (init-isearch-menu-item-filter-wrap #'forward-char)
-  (kbd "C-b") (init-isearch-menu-item-filter-wrap #'backward-char)
-  (kbd "C-a") (init-isearch-menu-item-filter-wrap #'move-beginning-of-line)
-  (kbd "C-e") (init-isearch-menu-item-filter-wrap #'move-end-of-line))
-
-(keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
-(keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
-
-(keymap-set embark-identifier-map "%" #'query-replace)
-
-;;;; minibuffer
-
 (setq enable-recursive-minibuffers t)
+(setq read-extended-command-predicate #'command-completion-default-include-p)
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
@@ -735,12 +657,9 @@ EVENT see `input-method-function'."
 
 (add-hook 'after-init-hook #'savehist-mode)
 
-;;;; completion
-
 (setq completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
 (setq read-file-name-completion-ignore-case t)
-(setq read-extended-command-predicate #'command-completion-default-include-p)
 
 (require 'orderless)
 
@@ -800,7 +719,7 @@ FUNC ARGS see `vertico--setup'."
   (kbd "C-u") #'vertico-scroll-down
   (kbd "C-d") #'vertico-scroll-up)
 
-;;;; consult
+;;; search
 
 (require 'consult)
 (require 'embark-consult)
@@ -819,15 +738,13 @@ FUNC ARGS see `vertico--setup'."
 
 (add-hook 'after-init-hook #'init-consult-override-mode)
 
-;;;;; history
-
 (keymap-set init-consult-override-mode-map "<remap> <yank>" #'consult-yank-from-kill-ring)
 (keymap-set init-consult-override-mode-map "<remap> <yank-pop>" #'consult-yank-pop)
 (keymap-set init-consult-override-mode-map "<remap> <previous-matching-history-element>" #'consult-history)
 (keymap-set init-consult-override-mode-map "<remap> <eshell-previous-matching-input>" #'consult-history)
 (keymap-set init-consult-override-mode-map "<remap> <comint-history-isearch-backward-regexp>" #'consult-history)
 
-;;;;; search
+;;;; line
 
 (consult-customize consult-goto-line :preview-key 'any)
 
@@ -877,7 +794,7 @@ ARG see `init-consult-search'."
 (keymap-set embark-general-map "C-s" #'consult-line)
 (keymap-set embark-general-map "C-r" #'consult-line)
 
-;;;;; imenu
+;;;; imenu
 
 (require 'consult-imenu)
 
@@ -885,7 +802,7 @@ ARG see `init-consult-search'."
 
 (keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
 
-;;;;; outline
+;;;; outline
 
 (defvar init-consult-outline-history nil)
 
@@ -941,6 +858,512 @@ ARG see `init-consult-search'."
     (goto-char (cdr candidate))))
 
 (consult-customize init-consult-outline :preview-key 'any)
+
+;;; goggles
+
+(defvar init-goggles-buffer nil)
+(defvar init-goggles-changes nil)
+
+(defun init-goggles-pre-command ()
+  "Save current buffer."
+  (setq init-goggles-buffer (current-buffer))
+  (setq init-goggles-changes nil))
+
+(defun init-goggles-post-command ()
+  "Highlight change post command."
+  (when (and init-goggles-changes
+             (eq (current-buffer) init-goggles-buffer))
+    (let ((start most-positive-fixnum)
+          (end 0))
+      (dolist (change init-goggles-changes)
+        (when (eq init-goggles-buffer (marker-buffer (car change)))
+          (setq start (min start (car change)))
+          (setq end (max end (cdr change)))
+          (set-marker (car change) nil)
+          (set-marker (cdr change) nil)))
+      (pulse-momentary-highlight-region start end)))
+  (setq init-goggles-buffer nil)
+  (setq init-goggles-changes nil))
+
+(defun init-goggles-after-change (start end len)
+  "Push change to history.
+START END LEN see `after-change-functions'."
+  (when (eq (current-buffer) init-goggles-buffer)
+    (when (and (/= len 0) (= start end))
+      (when (> start (buffer-size))
+        (setq start (- start 1)))
+      (setq end (1+ start)))
+    (let ((change (cons (copy-marker start) (copy-marker end))))
+      (push change init-goggles-changes))))
+
+(define-minor-mode init-goggles-mode
+  "Init goggles mode."
+  :group 'init-goggles
+  (if init-goggles-mode
+      (progn
+        (add-hook 'pre-command-hook #'init-goggles-pre-command nil t)
+        (add-hook 'post-command-hook #'init-goggles-post-command nil t)
+        (add-hook 'after-change-functions #'init-goggles-after-change nil t))
+    (remove-hook 'pre-command-hook #'init-goggles-pre-command t)
+    (remove-hook 'post-command-hook #'init-goggles-post-command t)
+    (remove-hook 'after-change-functions #'init-goggles-after-change t)))
+
+(add-hook 'prog-mode-hook #'init-goggles-mode)
+(add-hook 'text-mode-hook #'init-goggles-mode)
+(add-hook 'minibuffer-mode-hook #'init-goggles-mode)
+
+(defun init-around-evil-operator-do-pulse (func beg end &rest args)
+  "Around evil operator do pulse.
+FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
+  (when (and init-goggles-mode (called-interactively-p 'interactive))
+    (pulse-momentary-highlight-region beg end)
+    (sit-for 0.05))
+  (apply func beg end args))
+
+(defvar init-evil-pulse-commands
+  (list #'evil-yank
+        #'evil-delete
+        #'evil-change
+        #'evil-indent
+        #'evil-shift-right
+        #'evil-shift-left
+        #'evil-fill-and-move
+        #'evil-surround-region
+        #'evil-Surround-region
+        #'init-evil-operator-comment
+        #'init-evil-operator-narrow
+        #'init-evil-operator-eval))
+
+(dolist (command init-evil-pulse-commands)
+  (advice-add command :around #'init-around-evil-operator-do-pulse))
+
+;;; list
+
+(require 'tabulated-list)
+
+(evil-set-initial-state 'tabulated-list-mode 'motion)
+
+(evil-define-key 'motion tabulated-list-mode-map
+  (kbd "TAB") #'forward-button
+  (kbd "S-TAB") #'backward-button
+  (kbd "<tab>") #'forward-button
+  (kbd "<backtab>") #'backward-button)
+
+;;; ibuffer
+
+(require 'ibuffer)
+(require 'ibuf-ext)
+
+(setq ibuffer-formats
+      '((mark modified read-only locked
+              " " (name 40 40 :left :elide)
+	      " " (size 9 -1 :right)
+	      " " (mode 16 16 :left :elide)
+              " " filename-and-process)
+        (mark " " (name 40 -1) " " filename)))
+
+(evil-set-initial-state 'ibuffer-mode 'motion)
+
+(evil-define-key 'motion ibuffer-mode-map
+  (kbd "RET") #'ibuffer-visit-buffer
+  (kbd "<return>") #'ibuffer-visit-buffer
+  "go" #'ibuffer-visit-buffer-other-window-noselect
+  (kbd "C-RET") #'ibuffer-visit-buffer-other-window-noselect
+  (kbd "C-<return>") #'ibuffer-visit-buffer-other-window-noselect
+  (kbd "TAB") #'ibuffer-forward-line
+  (kbd "S-TAB") #'ibuffer-backward-line
+  (kbd "<tab>") #'ibuffer-forward-line
+  (kbd "<backtab>") #'ibuffer-backward-line
+  "gj" #'ibuffer-forward-filter-group
+  "gk" #'ibuffer-backward-filter-group
+  (kbd "C-j") #'ibuffer-forward-filter-group
+  (kbd "C-k") #'ibuffer-backward-filter-group
+  "gr" #'ibuffer-update)
+
+;;; dirs
+
+;;;; dired
+
+(require 'dired)
+(require 'dired-x)
+(require 'wdired)
+
+(setq dired-dwim-target t)
+(setq dired-auto-revert-buffer t)
+(setq dired-listing-switches "-lha")
+
+(put 'dired-jump 'repeat-map nil)
+
+(keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
+
+(keymap-set dired-mode-map "C-c C-e" #'wdired-change-to-wdired-mode)
+
+(evil-set-initial-state 'dired-mode 'motion)
+(evil-set-initial-state 'wdired-mode 'normal)
+
+(defun init-dired-next-line-dwim ()
+  "Goto next line in Dired dwim."
+  (interactive)
+  (dired-next-line (if (bolp) 0 1)))
+
+(evil-define-key 'motion dired-mode-map
+  (kbd "RET") #'dired-find-file
+  (kbd "<return>") #'dired-find-file
+  "go" #'dired-display-file
+  (kbd "C-RET") #'dired-display-file
+  (kbd "C-<return>") #'dired-display-file
+  (kbd "TAB") #'init-dired-next-line-dwim
+  (kbd "S-TAB") #'dired-previous-line
+  (kbd "<tab>") #'init-dired-next-line-dwim
+  (kbd "<backtab>") #'dired-previous-line
+  "gj" #'dired-next-line
+  "gk" #'dired-previous-line
+  (kbd "C-j") #'dired-next-line
+  (kbd "C-k") #'dired-previous-line
+  "+" #'dired-create-directory)
+
+;;;; archive
+
+(require 'arc-mode)
+
+(evil-set-initial-state 'archive-mode 'motion)
+
+(defun init-archive-next-line-dwim ()
+  "Goto next line in Archive dwim."
+  (interactive)
+  (archive-next-line (if (bolp) 0 1)))
+
+(evil-define-key 'motion archive-mode-map
+  (kbd "RET") #'archive-extract
+  (kbd "<return>") #'archive-extract
+  "go" #'archive-display-other-window
+  (kbd "C-RET") #'archive-display-other-window
+  (kbd "C-<return>") #'archive-display-other-window
+  (kbd "TAB") #'init-archive-next-line-dwim
+  (kbd "S-TAB") #'archive-previous-line
+  (kbd "<tab>") #'init-archive-next-line-dwim
+  (kbd "<backtab>") #'archive-previous-line
+  "gj" #'archive-next-line
+  "gk" #'archive-previous-line
+  (kbd "C-j") #'archive-next-line
+  (kbd "C-k") #'archive-previous-line)
+
+;;; process
+
+;;;; compile
+
+(require 'compile)
+(require 'ansi-color)
+
+(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
+
+(evil-set-initial-state 'compilation-mode 'motion)
+
+(evil-define-key 'motion compilation-mode-map
+  (kbd "RET") #'compile-goto-error
+  (kbd "<return>") #'compile-goto-error
+  "go" #'compilation-display-error
+  (kbd "C-RET") #'compilation-display-error
+  (kbd "C-<return>") #'compilation-display-error
+  (kbd "TAB") #'compilation-next-error
+  (kbd "S-TAB") #'compilation-previous-error
+  (kbd "<tab>") #'compilation-next-error
+  (kbd "<backtab>") #'compilation-previous-error
+  "gj" #'next-error-no-select
+  "gk" #'previous-error-no-select
+  (kbd "C-j") #'next-error-no-select
+  (kbd "C-k") #'previous-error-no-select)
+
+;;;; grep
+
+(require 'wgrep)
+
+(setq wgrep-auto-save-buffer t)
+(setq wgrep-change-readonly-file t)
+
+(defvar init-rg-program "rg")
+
+(defun init-rg-dwim (&optional arg)
+  "RG dwim.
+Without universal ARG, rg in project directory.
+With one universal ARG, prompt for rg directory.
+With two universal ARG, edit rg command."
+  (interactive "P")
+  (let* ((default-directory (init-directory-interactive arg "Search directory: "))
+         (pattern-default (init-thing-at-point))
+         (pattern-prompt (if pattern-default
+                             (format "Search pattern (%s): " pattern-default)
+                           "Search pattern: "))
+         (pattern (read-regexp pattern-prompt pattern-default))
+         (command-default (format "%s -n --no-heading --color=always -S %s ." init-rg-program pattern))
+         (command (if (> (prefix-numeric-value arg) 4)
+                      (read-string "Search command: " command-default 'grep-history)
+                    command-default)))
+    (grep--save-buffers)
+    (compilation-start command 'grep-mode)))
+
+(defalias 'rg 'init-rg-dwim)
+
+(evil-set-initial-state 'grep-mode 'motion)
+
+(evil-define-key 'motion grep-mode-map
+  (kbd "RET") #'compile-goto-error
+  (kbd "<return>") #'compile-goto-error
+  "go" #'compilation-display-error
+  (kbd "C-RET") #'compilation-display-error
+  (kbd "C-<return>") #'compilation-display-error
+  (kbd "TAB") #'compilation-next-error
+  (kbd "S-TAB") #'compilation-previous-error
+  (kbd "<tab>") #'compilation-next-error
+  (kbd "<backtab>") #'compilation-previous-error
+  "gj" #'next-error-no-select
+  "gk" #'previous-error-no-select
+  (kbd "C-j") #'next-error-no-select
+  (kbd "C-k") #'previous-error-no-select)
+
+;;;; comint
+
+(require 'comint)
+
+(evil-define-key 'insert comint-mode-map
+  (kbd "M-r") #'comint-history-isearch-backward-regexp)
+
+(evil-define-key 'normal comint-mode-map
+  (kbd "RET") #'comint-send-input
+  (kbd "<return>") #'comint-send-input
+  "gj" #'comint-next-prompt
+  "gk" #'comint-previous-prompt
+  (kbd "C-j") #'comint-next-prompt
+  (kbd "C-k") #'comint-previous-prompt)
+
+;;;; eshell
+
+(require 'eshell)
+(require 'em-prompt)
+(require 'em-hist)
+(require 'em-cmpl)
+(require 'em-dirs)
+(require 'em-alias)
+
+(setq eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
+
+(defun init-eshell-set-outline ()
+  "Set outline vars for Eshell."
+  (setq-local outline-regexp "^[^#$\n]* [#$] ")
+  (setq-local outline-level (lambda () 1)))
+
+(add-hook 'eshell-mode-hook #'init-eshell-set-outline)
+
+(keymap-unset eshell-cmpl-mode-map "C-M-i" t)
+
+(evil-define-key 'insert eshell-hist-mode-map
+  (kbd "M-r") #'eshell-previous-matching-input)
+
+(evil-define-key 'normal eshell-mode-map
+  (kbd "RET") #'eshell-send-input
+  (kbd "<return>") #'eshell-send-input
+  "gj" #'eshell-next-prompt
+  "gk" #'eshell-previous-prompt
+  (kbd "C-j") #'eshell-next-prompt
+  (kbd "C-k") #'eshell-previous-prompt)
+
+(defun init-eshell-dwim-find-buffer ()
+  "Find eshell dwim buffer."
+  (seq-find
+   (lambda (buffer)
+     (and (eq (buffer-local-value 'major-mode buffer) 'eshell-mode)
+          (string-prefix-p eshell-buffer-name (buffer-name buffer))
+          (not (get-buffer-process buffer))
+          (not (get-buffer-window buffer))))
+   (buffer-list)))
+
+(defun init-eshell-dwim-get-buffer-create ()
+  "Get eshell dwim buffer, create if not exist."
+  (if-let* ((buffer (init-eshell-dwim-find-buffer)))
+      (let ((dir default-directory))
+        (with-current-buffer buffer
+          (eshell/cd dir)
+          (eshell-reset)
+          (current-buffer)))
+    (with-current-buffer (generate-new-buffer eshell-buffer-name)
+      (eshell-mode)
+      (current-buffer))))
+
+(defun init-eshell-dwim (&optional arg)
+  "Do open eshell smartly.
+ARG see `init-switch-to-buffer-split-window-interactive'."
+  (interactive "P")
+  (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer-create)))
+
+;;; vc
+
+;;;; diff
+
+(require 'diff)
+
+(evil-set-initial-state 'diff-mode 'motion)
+
+(evil-define-key 'motion diff-mode-shared-map
+  (kbd "RET") #'diff-goto-source
+  (kbd "<return>") #'diff-goto-source
+  "gj" #'diff-hunk-next
+  "gk" #'diff-hunk-prev
+  "gJ" #'diff-file-next
+  "gK" #'diff-file-prev
+  (kbd "C-j") #'diff-hunk-next
+  (kbd "C-k") #'diff-hunk-prev)
+
+;;;;; ediff
+
+(require 'ediff)
+
+(setq ediff-window-setup-function #'ediff-setup-windows-plain)
+
+;;;; logview
+
+(require 'log-view)
+
+(evil-set-initial-state 'log-view-mode 'motion)
+
+(evil-define-key 'motion log-view-mode-map
+  (kbd "TAB") #'log-view-toggle-entry-display
+  (kbd "<tab>") #'log-view-toggle-entry-display
+  (kbd "RET") #'log-view-toggle-entry-display
+  (kbd "<return>") #'log-view-toggle-entry-display
+  "gj" #'log-view-msg-next
+  "gk" #'log-view-msg-prev
+  (kbd "C-j") #'log-view-msg-next
+  (kbd "C-k") #'log-view-msg-prev)
+
+;;;; vc modes
+
+(require 'vc-dir)
+(require 'vc-annotate)
+
+(keymap-set vc-prefix-map "p" #'vc-push)
+
+(evil-set-initial-state 'vc-dir-mode 'motion)
+(evil-set-initial-state 'vc-annotate-mode 'motion)
+(evil-set-initial-state 'vc-git-log-view-mode 'motion)
+
+(evil-define-key 'motion vc-dir-mode-map
+  (kbd "RET") #'vc-dir-find-file
+  (kbd "<return>") #'vc-dir-find-file
+  "go" #'vc-dir-display-file
+  (kbd "C-RET") #'vc-dir-display-file
+  (kbd "C-<return>") #'vc-dir-display-file
+  "gj" #'vc-dir-next-line
+  "gk" #'vc-dir-previous-line
+  (kbd "C-j") #'vc-dir-next-line
+  (kbd "C-k") #'vc-dir-previous-line
+  "p" #'vc-push)
+
+(evil-define-key 'motion vc-annotate-mode-map
+  (kbd "RET") #'vc-annotate-goto-line
+  (kbd "<return>") #'vc-annotate-goto-line
+  "gj" #'vc-annotate-next-revision
+  "gk" #'vc-annotate-prev-revision
+  (kbd "C-j") #'vc-annotate-next-revision
+  (kbd "C-k") #'vc-annotate-prev-revision)
+
+;;; magit
+
+;;;; with editor
+
+(require 'with-editor)
+
+(add-hook 'after-init-hook #'shell-command-with-editor-mode)
+
+(add-hook 'shell-mode-hook #'with-editor-export-editor)
+(add-hook 'eshell-mode-hook #'with-editor-export-editor)
+
+;;;; magit section
+
+(require 'magit-section)
+
+(evil-set-initial-state 'magit-section-mode 'motion)
+
+(evil-define-key 'motion magit-section-mode-map
+  (kbd "TAB") #'magit-section-toggle
+  (kbd "S-TAB") #'magit-section-cycle-global
+  (kbd "<tab>") #'magit-section-toggle
+  (kbd "<backtab>") #'magit-section-cycle-global
+  "gj" #'magit-section-forward-sibling
+  "gk" #'magit-section-backward-sibling
+  (kbd "C-j") #'magit-section-forward-sibling
+  (kbd "C-k") #'magit-section-backward-sibling)
+
+;;;; magit
+
+(require 'magit)
+
+(defun init-magit-dwim (&optional arg)
+  "Call magit dwim.
+If in `magit-mode' derived mode, or with more than 2 universal ARG,
+or with universal arg and not in a file buffer, call `magit-dispatch';
+If with universal arg and in a file buffer, call `magit-file-dispatch';
+Or else call `magit-status'."
+  (interactive "P")
+  (let ((command (cond ((or
+                         ;; in a `magit-mode' derived mode
+                         (derived-mode-p 'magit-mode)
+                         ;; with more than 2 universal arg
+                         (> (prefix-numeric-value arg) 4)
+                         ;; with universal arg and not in a file
+                         (and arg (not buffer-file-name)))
+                        #'magit-dispatch)
+                       ;; with universal arg and in a file
+                       ((and arg buffer-file-name)
+                        #'magit-file-dispatch)
+                       (t
+                        #'magit-status))))
+    (setq this-command command)
+    (call-interactively this-command)))
+
+(evil-set-initial-state 'magit-mode 'motion)
+(evil-set-initial-state 'magit-status-mode 'motion)
+(evil-set-initial-state 'magit-diff-mode 'motion)
+(evil-set-initial-state 'magit-log-mode 'motion)
+(evil-set-initial-state 'magit-revision-mode 'motion)
+(evil-set-initial-state 'magit-stash-mode 'motion)
+(evil-set-initial-state 'magit-stashes-mode 'motion)
+(evil-set-initial-state 'magit-process-mode 'motion)
+
+(evil-define-key 'motion magit-mode-map
+  (kbd "RET") #'magit-visit-thing
+  (kbd "<return>") #'magit-visit-thing
+  "j" #'magit-next-line
+  "k" #'magit-previous-line
+  "q" #'magit-mode-bury-buffer
+  "gr" #'magit-refresh
+  "gR" #'magit-refresh-all
+  "p" #'magit-push)
+
+(evil-define-key 'visual magit-mode-map
+  "j" #'evil-next-line
+  "k" #'evil-previous-line)
+
+(evil-define-minor-mode-key 'motion 'magit-blob-mode
+  "gj" #'magit-blob-next
+  "gk" #'magit-blob-previous
+  (kbd "C-j") #'magit-blob-next
+  (kbd "C-k") #'magit-blob-previous
+  "q" #'magit-kill-this-buffer)
+
+(evil-define-minor-mode-key 'motion 'magit-blame-mode
+  "gj" #'magit-blame-next-chunk
+  "gk" #'magit-blame-previous-chunk
+  "gJ" #'magit-blame-next-chunk-same-commit
+  "gK" #'magit-blame-previous-chunk-same-commit
+  (kbd "C-j") #'magit-blame-next-chunk
+  (kbd "C-k") #'magit-blame-previous-chunk
+  "q" #'magit-blame-quit)
+
+;;; spell
+
+(require 'ispell)
+
+(setq ispell-dictionary "american")
 
 ;;; prog
 
@@ -1185,6 +1608,32 @@ FUNC and ARGS see specific command."
 
 (add-hook 'emacs-lisp-mode-hook #'flymake-mode)
 
+;;;; ielm
+
+(require 'ielm)
+
+(defun init-ielm-other-window ()
+  "Switch to elisp repl other window."
+  (interactive)
+  (pop-to-buffer (get-buffer-create "*ielm*"))
+  (ielm))
+
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
+  (keymap-set map "C-c C-z" #'init-ielm-other-window))
+
+(evil-define-key 'normal ielm-map
+  (kbd "RET") #'ielm-return
+  (kbd "<return>") #'ielm-return)
+
+;;;; lookup
+
+(defun init-describe-symbol-dwim ()
+  "Describe symbol at point."
+  (interactive)
+  (describe-symbol (intern (init-thing-at-point-or-throw))))
+
+(setq evil-lookup-func #'init-describe-symbol-dwim)
+
 ;;;; load
 
 (defvar-keymap init-load-map
@@ -1218,15 +1667,6 @@ FUNC and ARGS see specific command."
 (keymap-set help-map "5 V" #'find-variable-other-frame)
 (keymap-set help-map "5 K" #'find-function-on-key-other-frame)
 
-;;;; lookup
-
-(defun init-describe-symbol-dwim ()
-  "Describe symbol at point."
-  (interactive)
-  (describe-symbol (intern (init-thing-at-point-or-throw))))
-
-(setq evil-lookup-func #'init-describe-symbol-dwim)
-
 ;;;; help
 
 (require 'help-mode)
@@ -1257,370 +1697,6 @@ FUNC and ARGS see specific command."
   (kbd "<tab>") #'Info-next-reference
   (kbd "<backtab>") #'Info-prev-reference)
 
-;;;; ielm
-
-(require 'ielm)
-
-(defun init-ielm-other-window ()
-  "Switch to elisp repl other window."
-  (interactive)
-  (pop-to-buffer (get-buffer-create "*ielm*"))
-  (ielm))
-
-(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
-  (keymap-set map "C-c C-z" #'init-ielm-other-window))
-
-(evil-define-key 'normal ielm-map
-  (kbd "RET") #'ielm-return
-  (kbd "<return>") #'ielm-return)
-
-;;; special
-
-;;;; tabulated list
-
-(require 'tabulated-list)
-
-(evil-set-initial-state 'tabulated-list-mode 'motion)
-
-(evil-define-key 'motion tabulated-list-mode-map
-  (kbd "TAB") #'forward-button
-  (kbd "S-TAB") #'backward-button
-  (kbd "<tab>") #'forward-button
-  (kbd "<backtab>") #'backward-button)
-
-;;;; occur
-
-(evil-set-initial-state 'occur-mode 'motion)
-(evil-set-initial-state 'occur-edit-mode 'normal)
-
-(keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
-
-(evil-define-key 'motion occur-mode-map
-  (kbd "RET") #'occur-mode-goto-occurrence
-  (kbd "<return>") #'occur-mode-goto-occurrence
-  "go" #'occur-mode-display-occurrence
-  (kbd "C-RET") #'occur-mode-display-occurrence
-  (kbd "C-<return>") #'occur-mode-display-occurrence
-  (kbd "TAB") #'occur-next
-  (kbd "S-TAB") #'occur-prev
-  (kbd "<tab>") #'occur-next
-  (kbd "<backtab>") #'occur-prev
-  "gj" #'next-error-no-select
-  "gk" #'previous-error-no-select
-  (kbd "C-j") #'next-error-no-select
-  (kbd "C-k") #'previous-error-no-select)
-
-;;;; dired
-
-(require 'dired)
-(require 'dired-x)
-(require 'wdired)
-
-(setq dired-dwim-target t)
-(setq dired-auto-revert-buffer t)
-(setq dired-listing-switches "-lha")
-
-(put 'dired-jump 'repeat-map nil)
-
-(keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
-
-(keymap-set dired-mode-map "C-c C-e" #'wdired-change-to-wdired-mode)
-
-(evil-set-initial-state 'dired-mode 'motion)
-(evil-set-initial-state 'wdired-mode 'normal)
-
-(defun init-dired-next-line-dwim ()
-  "Goto next line in Dired dwim."
-  (interactive)
-  (dired-next-line (if (bolp) 0 1)))
-
-(evil-define-key 'motion dired-mode-map
-  (kbd "RET") #'dired-find-file
-  (kbd "<return>") #'dired-find-file
-  "go" #'dired-display-file
-  (kbd "C-RET") #'dired-display-file
-  (kbd "C-<return>") #'dired-display-file
-  (kbd "TAB") #'init-dired-next-line-dwim
-  (kbd "S-TAB") #'dired-previous-line
-  (kbd "<tab>") #'init-dired-next-line-dwim
-  (kbd "<backtab>") #'dired-previous-line
-  "gj" #'dired-next-line
-  "gk" #'dired-previous-line
-  (kbd "C-j") #'dired-next-line
-  (kbd "C-k") #'dired-previous-line
-  "+" #'dired-create-directory)
-
-;;;; archive
-
-(require 'arc-mode)
-
-(evil-set-initial-state 'archive-mode 'motion)
-
-(defun init-archive-next-line-dwim ()
-  "Goto next line in Archive dwim."
-  (interactive)
-  (archive-next-line (if (bolp) 0 1)))
-
-(evil-define-key 'motion archive-mode-map
-  (kbd "RET") #'archive-extract
-  (kbd "<return>") #'archive-extract
-  "go" #'archive-display-other-window
-  (kbd "C-RET") #'archive-display-other-window
-  (kbd "C-<return>") #'archive-display-other-window
-  (kbd "TAB") #'init-archive-next-line-dwim
-  (kbd "S-TAB") #'archive-previous-line
-  (kbd "<tab>") #'init-archive-next-line-dwim
-  (kbd "<backtab>") #'archive-previous-line
-  "gj" #'archive-next-line
-  "gk" #'archive-previous-line
-  (kbd "C-j") #'archive-next-line
-  (kbd "C-k") #'archive-previous-line)
-
-;;;; compile
-
-(require 'compile)
-(require 'ansi-color)
-
-(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
-
-(evil-set-initial-state 'compilation-mode 'motion)
-
-(evil-define-key 'motion compilation-mode-map
-  (kbd "RET") #'compile-goto-error
-  (kbd "<return>") #'compile-goto-error
-  "go" #'compilation-display-error
-  (kbd "C-RET") #'compilation-display-error
-  (kbd "C-<return>") #'compilation-display-error
-  (kbd "TAB") #'compilation-next-error
-  (kbd "S-TAB") #'compilation-previous-error
-  (kbd "<tab>") #'compilation-next-error
-  (kbd "<backtab>") #'compilation-previous-error
-  "gj" #'next-error-no-select
-  "gk" #'previous-error-no-select
-  (kbd "C-j") #'next-error-no-select
-  (kbd "C-k") #'previous-error-no-select)
-
-;;;; grep
-
-(require 'wgrep)
-
-(setq wgrep-auto-save-buffer t)
-(setq wgrep-change-readonly-file t)
-
-(defvar init-rg-program "rg")
-
-(defun init-rg-dwim (&optional arg)
-  "RG dwim.
-Without universal ARG, rg in project directory.
-With one universal ARG, prompt for rg directory.
-With two universal ARG, edit rg command."
-  (interactive "P")
-  (let* ((default-directory (init-directory-interactive arg "Search directory: "))
-         (pattern-default (init-thing-at-point))
-         (pattern-prompt (if pattern-default
-                             (format "Search pattern (%s): " pattern-default)
-                           "Search pattern: "))
-         (pattern (read-regexp pattern-prompt pattern-default))
-         (command-default (format "%s -n --no-heading --color=always -S %s ." init-rg-program pattern))
-         (command (if (> (prefix-numeric-value arg) 4)
-                      (read-string "Search command: " command-default 'grep-history)
-                    command-default)))
-    (grep--save-buffers)
-    (compilation-start command 'grep-mode)))
-
-(defalias 'rg 'init-rg-dwim)
-
-(evil-set-initial-state 'grep-mode 'motion)
-
-(evil-define-key 'motion grep-mode-map
-  (kbd "RET") #'compile-goto-error
-  (kbd "<return>") #'compile-goto-error
-  "go" #'compilation-display-error
-  (kbd "C-RET") #'compilation-display-error
-  (kbd "C-<return>") #'compilation-display-error
-  (kbd "TAB") #'compilation-next-error
-  (kbd "S-TAB") #'compilation-previous-error
-  (kbd "<tab>") #'compilation-next-error
-  (kbd "<backtab>") #'compilation-previous-error
-  "gj" #'next-error-no-select
-  "gk" #'previous-error-no-select
-  (kbd "C-j") #'next-error-no-select
-  (kbd "C-k") #'previous-error-no-select)
-
-;;;; diff
-
-(require 'diff)
-
-(evil-set-initial-state 'diff-mode 'motion)
-
-(evil-define-key 'motion diff-mode-shared-map
-  (kbd "RET") #'diff-goto-source
-  (kbd "<return>") #'diff-goto-source
-  "gj" #'diff-hunk-next
-  "gk" #'diff-hunk-prev
-  "gJ" #'diff-file-next
-  "gK" #'diff-file-prev
-  (kbd "C-j") #'diff-hunk-next
-  (kbd "C-k") #'diff-hunk-prev)
-
-;;;;; ediff
-
-(require 'ediff)
-
-(setq ediff-window-setup-function #'ediff-setup-windows-plain)
-
-;;;; logview
-
-(require 'log-view)
-
-(evil-set-initial-state 'log-view-mode 'motion)
-
-(evil-define-key 'motion log-view-mode-map
-  (kbd "TAB") #'log-view-toggle-entry-display
-  (kbd "<tab>") #'log-view-toggle-entry-display
-  (kbd "RET") #'log-view-toggle-entry-display
-  (kbd "<return>") #'log-view-toggle-entry-display
-  "gj" #'log-view-msg-next
-  "gk" #'log-view-msg-prev
-  (kbd "C-j") #'log-view-msg-next
-  (kbd "C-k") #'log-view-msg-prev)
-
-;;;; vc
-
-(require 'vc-dir)
-(require 'vc-annotate)
-
-(keymap-set vc-prefix-map "p" #'vc-push)
-
-(evil-set-initial-state 'vc-dir-mode 'motion)
-(evil-set-initial-state 'vc-annotate-mode 'motion)
-(evil-set-initial-state 'vc-git-log-view-mode 'motion)
-
-(evil-define-key 'motion vc-dir-mode-map
-  (kbd "RET") #'vc-dir-find-file
-  (kbd "<return>") #'vc-dir-find-file
-  "go" #'vc-dir-display-file
-  (kbd "C-RET") #'vc-dir-display-file
-  (kbd "C-<return>") #'vc-dir-display-file
-  "gj" #'vc-dir-next-line
-  "gk" #'vc-dir-previous-line
-  (kbd "C-j") #'vc-dir-next-line
-  (kbd "C-k") #'vc-dir-previous-line
-  "p" #'vc-push)
-
-(evil-define-key 'motion vc-annotate-mode-map
-  (kbd "RET") #'vc-annotate-goto-line
-  (kbd "<return>") #'vc-annotate-goto-line
-  "gj" #'vc-annotate-next-revision
-  "gk" #'vc-annotate-prev-revision
-  (kbd "C-j") #'vc-annotate-next-revision
-  (kbd "C-k") #'vc-annotate-prev-revision)
-
-;;;; comint
-
-(require 'comint)
-
-(evil-define-key 'insert comint-mode-map
-  (kbd "M-r") #'comint-history-isearch-backward-regexp)
-
-(evil-define-key 'normal comint-mode-map
-  (kbd "RET") #'comint-send-input
-  (kbd "<return>") #'comint-send-input
-  "gj" #'comint-next-prompt
-  "gk" #'comint-previous-prompt
-  (kbd "C-j") #'comint-next-prompt
-  (kbd "C-k") #'comint-previous-prompt)
-
-;;;; eshell
-
-(require 'eshell)
-(require 'em-prompt)
-(require 'em-hist)
-(require 'em-cmpl)
-(require 'em-dirs)
-(require 'em-alias)
-
-(setq eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
-
-(defun init-eshell-set-outline ()
-  "Set outline vars for Eshell."
-  (setq-local outline-regexp "^[^#$\n]* [#$] ")
-  (setq-local outline-level (lambda () 1)))
-
-(add-hook 'eshell-mode-hook #'init-eshell-set-outline)
-
-(keymap-unset eshell-cmpl-mode-map "C-M-i" t)
-
-(evil-define-key 'insert eshell-hist-mode-map
-  (kbd "M-r") #'eshell-previous-matching-input)
-
-(evil-define-key 'normal eshell-mode-map
-  (kbd "RET") #'eshell-send-input
-  (kbd "<return>") #'eshell-send-input
-  "gj" #'eshell-next-prompt
-  "gk" #'eshell-previous-prompt
-  (kbd "C-j") #'eshell-next-prompt
-  (kbd "C-k") #'eshell-previous-prompt)
-
-(defun init-eshell-dwim-find-buffer ()
-  "Find eshell dwim buffer."
-  (seq-find
-   (lambda (buffer)
-     (and (eq (buffer-local-value 'major-mode buffer) 'eshell-mode)
-          (string-prefix-p eshell-buffer-name (buffer-name buffer))
-          (not (get-buffer-process buffer))
-          (not (get-buffer-window buffer))))
-   (buffer-list)))
-
-(defun init-eshell-dwim-get-buffer-create ()
-  "Get eshell dwim buffer, create if not exist."
-  (if-let* ((buffer (init-eshell-dwim-find-buffer)))
-      (let ((dir default-directory))
-        (with-current-buffer buffer
-          (eshell/cd dir)
-          (eshell-reset)
-          (current-buffer)))
-    (with-current-buffer (generate-new-buffer eshell-buffer-name)
-      (eshell-mode)
-      (current-buffer))))
-
-(defun init-eshell-dwim (&optional arg)
-  "Do open eshell smartly.
-ARG see `init-switch-to-buffer-split-window-interactive'."
-  (interactive "P")
-  (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer-create)))
-
-;;;; ibuffer
-
-(require 'ibuffer)
-(require 'ibuf-ext)
-
-(setq ibuffer-formats
-      '((mark modified read-only locked
-              " " (name 40 40 :left :elide)
-	      " " (size 9 -1 :right)
-	      " " (mode 16 16 :left :elide)
-              " " filename-and-process)
-        (mark " " (name 40 -1) " " filename)))
-
-(evil-set-initial-state 'ibuffer-mode 'motion)
-
-(evil-define-key 'motion ibuffer-mode-map
-  (kbd "RET") #'ibuffer-visit-buffer
-  (kbd "<return>") #'ibuffer-visit-buffer
-  "go" #'ibuffer-visit-buffer-other-window-noselect
-  (kbd "C-RET") #'ibuffer-visit-buffer-other-window-noselect
-  (kbd "C-<return>") #'ibuffer-visit-buffer-other-window-noselect
-  (kbd "TAB") #'ibuffer-forward-line
-  (kbd "S-TAB") #'ibuffer-backward-line
-  (kbd "<tab>") #'ibuffer-forward-line
-  (kbd "<backtab>") #'ibuffer-backward-line
-  "gj" #'ibuffer-forward-filter-group
-  "gk" #'ibuffer-backward-filter-group
-  (kbd "C-j") #'ibuffer-forward-filter-group
-  (kbd "C-k") #'ibuffer-backward-filter-group
-  "gr" #'ibuffer-update)
-
 ;;;; custom
 
 (require 'cus-edit)
@@ -1638,107 +1714,132 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;;; package
 
-(require 'package)
-
 (evil-set-initial-state 'package-menu-mode 'motion)
 
-;;;; spell
+;;; org
 
-(require 'ispell)
+;;;; outline
 
-(setq ispell-dictionary "american")
+(require 'outline)
 
-;;;; with editor
+(evil-define-key 'motion outline-mode-map
+  (kbd "TAB") #'outline-toggle-children
+  (kbd "S-TAB") #'outline-show-all
+  (kbd "<tab>") #'outline-toggle-children
+  (kbd "<backtab>") #'outline-show-all
+  "gj" #'outline-forward-same-level
+  "gk" #'outline-backward-same-level
+  (kbd "C-j") #'outline-forward-same-level
+  (kbd "C-k") #'outline-backward-same-level)
 
-(require 'with-editor)
+;;;; org mode
 
-(add-hook 'after-init-hook #'shell-command-with-editor-mode)
+(require 'org)
+(require 'org-macs)
+(require 'org-agenda)
+(require 'org-capture)
+(require 'embark-org)
 
-(add-hook 'shell-mode-hook #'with-editor-export-editor)
-(add-hook 'eshell-mode-hook #'with-editor-export-editor)
+(add-to-list 'org-modules 'org-tempo)
 
+(setq org-special-ctrl-a/e t)
+(setq org-sort-function #'org-sort-function-fallback)
+(setq org-tags-sort-function #'org-string<)
 
-;;;; magit section
+(defun init-org-append-link ()
+  "Append org link."
+  (interactive)
+  (save-excursion
+    (unless (eolp)
+      (forward-char))
+    (call-interactively #'org-insert-link)))
 
-(require 'magit-section)
+(defun init-org-append-link-global ()
+  "Append org link outside org."
+  (interactive)
+  (save-excursion
+    (unless (eolp)
+      (forward-char))
+    (call-interactively #'org-insert-link-global)))
 
-(evil-set-initial-state 'magit-section-mode 'motion)
+(keymap-global-set "C-c o" #'org-open-at-point-global)
+(keymap-global-set "C-c l" #'org-insert-link-global)
 
-(evil-define-key 'motion magit-section-mode-map
-  (kbd "TAB") #'magit-section-toggle
-  (kbd "S-TAB") #'magit-section-cycle-global
-  (kbd "<tab>") #'magit-section-toggle
-  (kbd "<backtab>") #'magit-section-cycle-global
-  "gj" #'magit-section-forward-sibling
-  "gk" #'magit-section-backward-sibling
-  (kbd "C-j") #'magit-section-forward-sibling
-  (kbd "C-k") #'magit-section-backward-sibling)
+(keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
+(keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
+(keymap-set org-mode-map "<remap> <init-org-append-link-global>" #'init-org-append-link)
 
-;;;; magit
+(defun init-org-set-syntax ()
+  "Modify `org-mode' syntax table."
+  (modify-syntax-entry ?< "." org-mode-syntax-table)
+  (modify-syntax-entry ?> "." org-mode-syntax-table))
 
-(require 'magit)
+(add-hook 'org-mode-hook #'init-org-set-syntax)
 
-(defun init-magit-dwim (&optional arg)
-  "Call magit dwim.
-If in `magit-mode' derived mode, or with more than 2 universal ARG,
-or with universal arg and not in a file buffer, call `magit-dispatch';
-If with universal arg and in a file buffer, call `magit-file-dispatch';
-Or else call `magit-status'."
-  (interactive "P")
-  (let ((command (cond ((or
-                         ;; in a `magit-mode' derived mode
-                         (derived-mode-p 'magit-mode)
-                         ;; with more than 2 universal arg
-                         (> (prefix-numeric-value arg) 4)
-                         ;; with universal arg and not in a file
-                         (and arg (not buffer-file-name)))
-                        #'magit-dispatch)
-                       ;; with universal arg and in a file
-                       ((and arg buffer-file-name)
-                        #'magit-file-dispatch)
-                       (t
-                        #'magit-status))))
-    (setq this-command command)
-    (call-interactively this-command)))
+(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
+(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
+(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
 
-(evil-set-initial-state 'magit-mode 'motion)
-(evil-set-initial-state 'magit-status-mode 'motion)
-(evil-set-initial-state 'magit-diff-mode 'motion)
-(evil-set-initial-state 'magit-log-mode 'motion)
-(evil-set-initial-state 'magit-revision-mode 'motion)
-(evil-set-initial-state 'magit-stash-mode 'motion)
-(evil-set-initial-state 'magit-stashes-mode 'motion)
-(evil-set-initial-state 'magit-process-mode 'motion)
+(evil-define-key 'motion org-mode-map
+  (kbd "TAB") #'org-cycle
+  (kbd "S-TAB") #'org-shifttab
+  (kbd "<tab>") #'org-cycle
+  (kbd "<backtab>") #'org-shifttab)
 
-(evil-define-key 'motion magit-mode-map
-  (kbd "RET") #'magit-visit-thing
-  (kbd "<return>") #'magit-visit-thing
-  "j" #'magit-next-line
-  "k" #'magit-previous-line
-  "q" #'magit-mode-bury-buffer
-  "gr" #'magit-refresh
-  "gR" #'magit-refresh-all
-  "p" #'magit-push)
+(defun init-org-echo-link ()
+  "Echo org link in minibuffer."
+  (interactive)
+  (when (org-in-regexp org-link-any-re)
+    (let (message-log-max)
+      (message "%s" (match-string-no-properties 0)))))
 
-(evil-define-key 'visual magit-mode-map
-  "j" #'evil-next-line
-  "k" #'evil-previous-line)
+(keymap-set embark-org-link-map "e" #'init-org-echo-link)
 
-(evil-define-minor-mode-key 'motion 'magit-blob-mode
-  "gj" #'magit-blob-next
-  "gk" #'magit-blob-previous
-  (kbd "C-j") #'magit-blob-next
-  (kbd "C-k") #'magit-blob-previous
-  "q" #'magit-kill-this-buffer)
+;;;; agenda
 
-(evil-define-minor-mode-key 'motion 'magit-blame-mode
-  "gj" #'magit-blame-next-chunk
-  "gk" #'magit-blame-previous-chunk
-  "gJ" #'magit-blame-next-chunk-same-commit
-  "gK" #'magit-blame-previous-chunk-same-commit
-  (kbd "C-j") #'magit-blame-next-chunk
-  (kbd "C-k") #'magit-blame-previous-chunk
-  "q" #'magit-blame-quit)
+(setq org-directory (expand-file-name "org" user-emacs-directory))
+(setq org-agenda-files (list org-directory))
+(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
+
+(setq org-capture-templates
+      '(("t" "Todo"                      entry (file "") "* TODO %?\n%U")
+        ("a" "Todo With Annotation"      entry (file "") "* TODO %?\n%U\n%a")
+        ("i" "Todo With Initial Content" entry (file "") "* TODO %?\n%U\n%i")
+        ("c" "Todo With Kill Ring"       entry (file "") "* TODO %?\n%U\n%c")))
+
+(evil-set-initial-state 'org-agenda-mode 'motion)
+
+(evil-define-key 'motion org-agenda-mode-map
+  (kbd "RET") #'org-agenda-goto
+  (kbd "<return>") #'org-agenda-goto
+  "go" #'org-agenda-show
+  (kbd "C-RET") #'org-agenda-show
+  (kbd "C-<return>") #'org-agenda-show
+  "j" #'org-agenda-next-line
+  "k" #'org-agenda-previous-line
+  "gr" #'org-agenda-redo
+  "gR" #'org-agenda-redo-all)
+
+;;; markdown
+
+(require 'markdown-mode)
+(require 'edit-indirect)
+
+(setq markdown-special-ctrl-a/e t)
+(setq markdown-fontify-code-blocks-natively t)
+
+(keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
+(keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
+
+(evil-define-key 'motion markdown-mode-map
+  (kbd "TAB") #'markdown-cycle
+  (kbd "S-TAB") #'markdown-shifttab
+  (kbd "<tab>") #'markdown-cycle
+  (kbd "<backtab>") #'markdown-shifttab
+  "gj" #'markdown-outline-next-same-level
+  "gk" #'markdown-outline-previous-same-level
+  (kbd "C-j") #'markdown-outline-next-same-level
+  (kbd "C-k") #'markdown-outline-previous-same-level)
 
 ;;; leaders
 
@@ -1857,9 +1958,14 @@ Or else call `magit-status'."
  "d" #'dired
  "j" #'dired-jump
  "B" #'ibuffer
+ "S" #'init-rg-dwim
  "e" #'init-eshell-dwim
  "G" #'init-magit-dwim
- "S" #'init-rg-dwim
+ "A" #'org-agenda
+ "C" #'org-capture
+ "W" #'org-store-link
+ "O" #'org-open-at-point-global
+ "L" #'init-org-append-link-global
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
@@ -1891,145 +1997,13 @@ Or else call `magit-status'."
  "`" #'init-wrap-pair
  "\"" #'init-wrap-pair)
 
-;;; lang
-
-;;;; outline
-
-(require 'outline)
-
-(evil-define-key 'motion outline-mode-map
-  (kbd "TAB") #'outline-toggle-children
-  (kbd "S-TAB") #'outline-show-all
-  (kbd "<tab>") #'outline-toggle-children
-  (kbd "<backtab>") #'outline-show-all
-  "gj" #'outline-forward-same-level
-  "gk" #'outline-backward-same-level
-  (kbd "C-j") #'outline-forward-same-level
-  (kbd "C-k") #'outline-backward-same-level)
-
-;;;; org
-
-(require 'org)
-(require 'org-macs)
-(require 'org-agenda)
-(require 'org-capture)
-(require 'embark-org)
-
-(add-to-list 'org-modules 'org-tempo)
-
-(setq org-special-ctrl-a/e t)
-(setq org-sort-function #'org-sort-function-fallback)
-(setq org-tags-sort-function #'org-string<)
-
-(defun init-org-append-link ()
-  "Append org link."
-  (interactive)
-  (save-excursion
-    (unless (eolp)
-      (forward-char))
-    (call-interactively #'org-insert-link)))
-
-(defun init-org-append-link-global ()
-  "Append org link outside org."
-  (interactive)
-  (save-excursion
-    (unless (eolp)
-      (forward-char))
-    (call-interactively #'org-insert-link-global)))
-
-(keymap-global-set "C-c o" #'org-open-at-point-global)
-(keymap-global-set "C-c l" #'org-insert-link-global)
-
-(init-leader-global-set
- "A" #'org-agenda
- "C" #'org-capture
- "W" #'org-store-link
- "O" #'org-open-at-point-global
- "L" #'init-org-append-link-global)
-
-(keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
-(keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
-(keymap-set org-mode-map "<remap> <init-org-append-link-global>" #'init-org-append-link)
-
-(defun init-org-set-syntax ()
-  "Modify `org-mode' syntax table."
-  (modify-syntax-entry ?< "." org-mode-syntax-table)
-  (modify-syntax-entry ?> "." org-mode-syntax-table))
-
-(add-hook 'org-mode-hook #'init-org-set-syntax)
-
-(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
-(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
-(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
-
 (init-leader-set org-mode-map
   "n b" #'org-narrow-to-block
   "n s" #'org-narrow-to-subtree)
 
-(evil-define-key 'motion org-mode-map
-  (kbd "TAB") #'org-cycle
-  (kbd "S-TAB") #'org-shifttab
-  (kbd "<tab>") #'org-cycle
-  (kbd "<backtab>") #'org-shifttab)
-
-(defun init-org-echo-link ()
-  "Echo org link in minibuffer."
-  (interactive)
-  (when (org-in-regexp org-link-any-re)
-    (let (message-log-max)
-      (message "%s" (match-string-no-properties 0)))))
-
-(keymap-set embark-org-link-map "e" #'init-org-echo-link)
-
-;;;;; agenda
-
-(setq org-directory (expand-file-name "org" user-emacs-directory))
-(setq org-agenda-files (list org-directory))
-(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
-
-(setq org-capture-templates
-      '(("t" "Todo"                      entry (file "") "* TODO %?\n%U")
-        ("a" "Todo With Annotation"      entry (file "") "* TODO %?\n%U\n%a")
-        ("i" "Todo With Initial Content" entry (file "") "* TODO %?\n%U\n%i")
-        ("c" "Todo With Kill Ring"       entry (file "") "* TODO %?\n%U\n%c")))
-
-(evil-set-initial-state 'org-agenda-mode 'motion)
-
-(evil-define-key 'motion org-agenda-mode-map
-  (kbd "RET") #'org-agenda-goto
-  (kbd "<return>") #'org-agenda-goto
-  "go" #'org-agenda-show
-  (kbd "C-RET") #'org-agenda-show
-  (kbd "C-<return>") #'org-agenda-show
-  "j" #'org-agenda-next-line
-  "k" #'org-agenda-previous-line
-  "gr" #'org-agenda-redo
-  "gR" #'org-agenda-redo-all)
-
-;;;; markdown
-
-(require 'markdown-mode)
-(require 'edit-indirect)
-
-(setq markdown-special-ctrl-a/e t)
-(setq markdown-fontify-code-blocks-natively t)
-
-(keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
-(keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
-
 (init-leader-set markdown-mode-map
   "n b" #'markdown-narrow-to-block
   "n s" #'markdown-narrow-to-subtree)
-
-(evil-define-key 'motion markdown-mode-map
-  (kbd "TAB") #'markdown-cycle
-  (kbd "S-TAB") #'markdown-shifttab
-  (kbd "<tab>") #'markdown-cycle
-  (kbd "<backtab>") #'markdown-shifttab
-  "gj" #'markdown-outline-next-same-level
-  "gk" #'markdown-outline-previous-same-level
-  (kbd "C-j") #'markdown-outline-next-same-level
-  (kbd "C-k") #'markdown-outline-previous-same-level)
 
 ;;; end
 
