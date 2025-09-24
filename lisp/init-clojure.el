@@ -6,9 +6,6 @@
 ;;; Code:
 
 (require 'init-emacs)
-
-;;; major mode
-
 (require 'clojure-mode)
 
 (add-hook 'clojure-mode-hook #'init-lisp-set-outline)
@@ -27,8 +24,6 @@
     (replace-string-in-region "," "" (car bounds) (cdr bounds))))
 
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
-
-;;;; find test file
 
 (defvar init-clojure-try-extensions '("cljc" "clj" "cljs"))
 
