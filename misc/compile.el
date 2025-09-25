@@ -8,4 +8,4 @@
 
 (load-file (expand-file-name "emacs-init/lisp/init-core.el" user-emacs-directory))
 (package-initialize)
-(init-compile t)
+(init-compile)

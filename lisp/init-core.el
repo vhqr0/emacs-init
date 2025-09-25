@@ -56,6 +56,13 @@
    (lambda (module) (cdr (assq module init-deps)))
    init-modules))
 
+(defun init-module-files ()
+  "Return module files based on `init-modules'."
+  (seq-map
+   (lambda (module)
+     (expand-file-name (concat (symbol-name module) ".el") init-lisp-directory))
+   (cons 'init-core init-modules)))
+
 ;;; commands
 
 (require 'custom)
@@ -76,20 +83,23 @@
     (add-to-list 'package-selected-packages package))
   (custom-save-all))
 
-(defun init-install (&optional force)
-  "Install all required packages.  FORCE reinstall."
-  (interactive "P")
+(defun init-install ()
+  "Install all required packages."
+  (interactive)
   (dolist (package (init-packages))
-    (when (or force (not (package-installed-p package)))
-      (package-install package))))
+    (package-install package)))
 
-(defun init-compile (&optional force)
-  "Compile all module files.  FORCE recompile."
+(defun init-compile ()
+  "Compile all module files."
+  (interactive)
+  (dolist (file (init-module-files))
+    (byte-compile-file file)))
+
+(defun init-recompile (&optional force)
+  "Recompile all module files.  FORCE recompile."
   (interactive "P")
-  (let ((compile-function (if force #'byte-compile-file #'byte-recompile-file)))
-    (dolist (module (cons 'init-core init-modules))
-      (let ((file-name (expand-file-name (concat (symbol-name module) ".el") init-lisp-directory)))
-        (funcall compile-function file-name)))))
+  (dolist (file (init-module-files))
+    (byte-recompile-file file force)))
 
 (defun init-load ()
   "Load all module files."

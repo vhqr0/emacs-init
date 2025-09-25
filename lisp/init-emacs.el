@@ -1697,6 +1697,8 @@ FUNC and ARGS see specific command."
 
 ;;;; custom
 
+(require 'cus-edit)
+
 (evil-set-initial-state 'Custom-mode 'motion)
 
 (evil-define-key 'motion custom-mode-map
@@ -1709,6 +1711,8 @@ FUNC and ARGS see specific command."
   "q" #'Custom-buffer-done)
 
 ;;;; package
+
+(require 'package)
 
 (evil-set-initial-state 'package-menu-mode 'motion)
 
