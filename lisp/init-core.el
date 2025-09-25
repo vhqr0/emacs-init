@@ -88,8 +88,8 @@
   (interactive "P")
   (let ((compile-function (if force #'byte-compile-file #'byte-recompile-file)))
     (dolist (module (cons 'init-core init-modules))
-      (let ((filename (expand-file-name (concat (symbol-name module) ".el") init-lisp-directory)))
-        (funcall compile-function filename)))))
+      (let ((file-name (expand-file-name (concat (symbol-name module) ".el") init-lisp-directory)))
+        (funcall compile-function file-name)))))
 
 (defun init-load ()
   "Load all module files."
