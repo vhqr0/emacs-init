@@ -56,7 +56,7 @@
    (lambda (module) (cdr (assq module init-deps)))
    init-modules))
 
-;;; packages
+;;; commands
 
 (require 'package)
 (require 'cus-edit)
@@ -66,8 +66,6 @@
         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
         ("melpa"  . "https://melpa.org/packages/")))
 
-(setq package-check-signature nil)
-
 (setq package-quickstart t)
 
 (defun init-select-packages ()
@@ -76,8 +74,6 @@
   (dolist (package (init-packages))
     (add-to-list 'package-selected-packages package))
   (custom-save-all))
-
-;;; commands
 
 (defun init-install (&optional force)
   "Install all required packages.  FORCE reinstall."
