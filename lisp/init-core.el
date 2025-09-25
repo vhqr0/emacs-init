@@ -59,6 +59,7 @@
 ;;; packages
 
 (require 'package)
+(require 'cus-edit)
 
 (setq package-archives
       '(("gnu"    . "https://elpa.gnu.org/packages/")

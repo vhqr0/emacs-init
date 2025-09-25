@@ -1697,8 +1697,6 @@ FUNC and ARGS see specific command."
 
 ;;;; custom
 
-(require 'cus-edit)
-
 (evil-set-initial-state 'Custom-mode 'motion)
 
 (evil-define-key 'motion custom-mode-map
