@@ -181,12 +181,12 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
 (keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
 
-(define-key evil-motion-state-map "gf" 'find-file-at-point)
-(define-key evil-motion-state-map "]f" 'find-file-at-point)
-(define-key evil-motion-state-map "[f" 'find-file-at-point)
-(define-key evil-motion-state-map "gF" 'evil-find-file-at-point-with-line)
-(define-key evil-motion-state-map "]F" 'evil-find-file-at-point-with-line)
-(define-key evil-motion-state-map "[F" 'evil-find-file-at-point-with-line)
+(keymap-set evil-motion-state-map "g f" 'find-file-at-point)
+(keymap-set evil-motion-state-map "] f" 'find-file-at-point)
+(keymap-set evil-motion-state-map "[ f" 'find-file-at-point)
+(keymap-set evil-motion-state-map "g F" 'evil-find-file-at-point-with-line)
+(keymap-set evil-motion-state-map "] F" 'evil-find-file-at-point-with-line)
+(keymap-set evil-motion-state-map "[ F" 'evil-find-file-at-point-with-line)
 
 (keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
 (keymap-set evil-motion-state-map "g R" #'revert-buffer)
