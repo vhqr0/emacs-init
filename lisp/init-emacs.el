@@ -594,8 +594,6 @@ FUNC, ARGS see specified commands."
   (let ((init-ignore-toggle-input-method t))
     (apply func args)))
 
-;; disable hard coded input method toggles
-
 (dolist (func '(evil-local-mode
                 evil-emacs-state
                 evil-insert-state
