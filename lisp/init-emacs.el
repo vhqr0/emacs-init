@@ -151,13 +151,13 @@ With two or more universal ARG, open in current window."
 (defvar init-evil-disable-adjust-cursor-commands
   '(forward-sexp forward-list))
 
-(defun init-around-evil-adjust-cursor-do-filter (func &rest args)
+(defun init-evil-around-adjust-cursor-filter-commands (func &rest args)
   "Dont adjust cursor after certain commands.
 FUNC and ARGS see `evil-set-cursor'."
   (unless (memq this-command init-evil-disable-adjust-cursor-commands)
     (apply func args)))
 
-(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-filter)
+(advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-filter-commands)
 
 (keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
 
@@ -517,13 +517,13 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set embark-identifier-map "%" #'query-replace)
 
-(defun init-around-evil-adjust-cursor-do-disable-isearch (func &rest args)
+(defun init-evil-around-adjust-cursor-disable-isearch (func &rest args)
   "Dont adjust cursor in isearch mode.
 FUNC and ARGS see `evil-set-cursor'."
   (unless isearch-mode
     (apply func args)))
 
-(advice-add #'evil-adjust-cursor :around #'init-around-evil-adjust-cursor-do-disable-isearch)
+(advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-disable-isearch)
 
 (defvar-keymap init-evil-isearch-override-mode-map)
 
@@ -578,17 +578,17 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (defvar init-ignore-toggle-input-method nil)
 
-(defun init-around-toggle-input-method-do-check-ignore (func &rest args)
+(defun init-input-method-around-toggle-check-ignore (func &rest args)
   "Ignore toggle input method when `init-ignore-toggle-input-method' is set.
 FUNC, ARGS see `f/activate-input-method' and `f/deactivate-input-method'."
   (unless init-ignore-toggle-input-method
     (apply func args)))
 
-(advice-add #'toggle-input-method :around #'init-around-toggle-input-method-do-check-ignore)
-(advice-add #'activate-input-method :around #'init-around-toggle-input-method-do-check-ignore)
-(advice-add #'deactivate-input-method :around #'init-around-toggle-input-method-do-check-ignore)
+(advice-add #'toggle-input-method :around #'init-input-method-around-toggle-check-ignore)
+(advice-add #'activate-input-method :around #'init-input-method-around-toggle-check-ignore)
+(advice-add #'deactivate-input-method :around #'init-input-method-around-toggle-check-ignore)
 
-(defun init-around-ignore-toggle-input-method (func &rest args)
+(defun init-input-method-around-command-set-ignore (func &rest args)
   "Ignore toggle input method around command.
 FUNC, ARGS see specified commands."
   (let ((init-ignore-toggle-input-method t))
@@ -604,7 +604,7 @@ FUNC, ARGS see specified commands."
                 evil-motion-state
                 evil-normal-state
                 evil-visual-state))
-  (advice-add func :around #'init-around-ignore-toggle-input-method))
+  (advice-add func :around #'init-input-method-around-command-set-ignore))
 
 (dolist (state '(operator motion normal visual))
   (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
@@ -704,13 +704,13 @@ EVENT see `input-method-function'."
 
 (defvar init-vertico-disable-commands '(kill-buffer))
 
-(defun init-around-vertico-setup-do-filter (func &rest args)
+(defun init-vertico-around-setup-filter-commands (func &rest args)
   "Disable vertico around `init-vertico-disable-commands'.
 FUNC ARGS see `vertico--setup'."
   (unless (memq this-command init-vertico-disable-commands)
     (apply func args)))
 
-(advice-add 'vertico--setup :around #'init-around-vertico-setup-do-filter)
+(advice-add 'vertico--setup :around #'init-vertico-around-setup-filter-commands)
 
 (keymap-set vertico-map "C-x C-s" #'embark-export)
 
@@ -761,7 +761,7 @@ FUNC ARGS see `vertico--setup'."
 
 (consult-customize consult-line :preview-key 'any)
 
-(defun init-after-consult-line-set-search (&rest _args)
+(defun init-consult-line-after-search-set-history (&rest _args)
   "Set search history after `consult-line'."
   (let ((search (car consult--line-history)))
     (add-to-history 'regexp-search-ring search regexp-search-ring-max)
@@ -769,7 +769,7 @@ FUNC ARGS see `vertico--setup'."
     (setq isearch-regexp t)
     (setq isearch-forward t)))
 
-(advice-add #'consult-line :after #'init-after-consult-line-set-search)
+(advice-add #'consult-line :after #'init-consult-line-after-search-set-history)
 
 (defun init-consult-search (&optional arg initial)
   "Consult search with INITIAL.
@@ -913,7 +913,7 @@ START END LEN see `after-change-functions'."
 (add-hook 'text-mode-hook #'init-goggles-mode)
 (add-hook 'minibuffer-mode-hook #'init-goggles-mode)
 
-(defun init-around-evil-operator-do-goggles (func beg end &rest args)
+(defun init-evil-around-operator-goggles (func beg end &rest args)
   "Around evil operator do goggles.
 FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   (when (and init-goggles-mode (called-interactively-p 'interactive))
@@ -936,7 +936,7 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
     init-evil-operator-eval))
 
 (dolist (command init-evil-goggles-commands)
-  (advice-add command :around #'init-around-evil-operator-do-goggles))
+  (advice-add command :around #'init-evil-around-operator-goggles))
 
 ;;; list
 
@@ -1532,21 +1532,21 @@ EXPANSION may be:
 
 (add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
 
-(defun init-around-company-capf-set-styles (func &rest args)
+(defun init-company-around-capf-set-styles (func &rest args)
   "Set completion styles for `company-capf'.
 FUNC ARGS see `company-capf'."
   (let ((completion-styles '(basic partial-completion)))
     (apply func args)))
 
-(advice-add 'company-capf :around #'init-around-company-capf-set-styles)
+(advice-add 'company-capf :around #'init-company-around-capf-set-styles)
 
-(defun init-around-company-call-backend-do-check-evil (func command &rest args)
+(defun init-company-around-call-backend-check-evil (func command &rest args)
   "Check evil state before call company.
 FUNC COMMAND ARGS see `company-call-backend'."
   (unless (and evil-mode (eq evil-state 'normal) (eq command 'prefix))
     (apply func command args)))
 
-(advice-add #'company-call-backend :around #'init-around-company-call-backend-do-check-evil)
+(advice-add #'company-call-backend :around #'init-company-around-call-backend-check-evil)
 
 ;;;; eglot
 
