@@ -9,8 +9,5 @@
 
 (setq mac-command-modifier 'control)
 
-(setenv "GIT_ASKPASS" "git-gui--askpass")
-(setenv "SSH_ASKPASS" "git-gui--askpass")
-
 (provide 'init-mac)
 ;;; init-mac.el ends here
