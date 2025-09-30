@@ -1826,6 +1826,8 @@ FUNC and ARGS see specific command."
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
 
+(keymap-set markdown-mode-map "<remap> <init-consult-outline>" #'consult-imenu)
+
 (keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
 (keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
 
