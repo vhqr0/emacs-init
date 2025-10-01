@@ -560,8 +560,8 @@ FUNC and ARGS see `evil-set-cursor'."
   (kbd "RET") #'occur-mode-goto-occurrence
   (kbd "<return>") #'occur-mode-goto-occurrence
   "go" #'occur-mode-display-occurrence
-  (kbd "C-RET") #'occur-mode-display-occurrence
-  (kbd "C-<return>") #'occur-mode-display-occurrence
+  (kbd "M-RET") #'occur-mode-display-occurrence
+  (kbd "M-<return>") #'occur-mode-display-occurrence
   (kbd "TAB") #'occur-next
   (kbd "S-TAB") #'occur-prev
   (kbd "<tab>") #'occur-next
@@ -967,8 +967,8 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   (kbd "RET") #'ibuffer-visit-buffer
   (kbd "<return>") #'ibuffer-visit-buffer
   "go" #'ibuffer-visit-buffer-other-window-noselect
-  (kbd "C-RET") #'ibuffer-visit-buffer-other-window-noselect
-  (kbd "C-<return>") #'ibuffer-visit-buffer-other-window-noselect
+  (kbd "M-RET") #'ibuffer-visit-buffer-other-window-noselect
+  (kbd "M-<return>") #'ibuffer-visit-buffer-other-window-noselect
   (kbd "TAB") #'ibuffer-forward-line
   (kbd "S-TAB") #'ibuffer-backward-line
   (kbd "<tab>") #'ibuffer-forward-line
@@ -1009,8 +1009,8 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   (kbd "RET") #'dired-find-file
   (kbd "<return>") #'dired-find-file
   "go" #'dired-display-file
-  (kbd "C-RET") #'dired-display-file
-  (kbd "C-<return>") #'dired-display-file
+  (kbd "M-RET") #'dired-display-file
+  (kbd "M-<return>") #'dired-display-file
   (kbd "TAB") #'init-dired-next-line-dwim
   (kbd "S-TAB") #'dired-previous-line
   (kbd "<tab>") #'init-dired-next-line-dwim
@@ -1036,8 +1036,8 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   (kbd "RET") #'archive-extract
   (kbd "<return>") #'archive-extract
   "go" #'archive-display-other-window
-  (kbd "C-RET") #'archive-display-other-window
-  (kbd "C-<return>") #'archive-display-other-window
+  (kbd "M-RET") #'archive-display-other-window
+  (kbd "M-<return>") #'archive-display-other-window
   (kbd "TAB") #'init-archive-next-line-dwim
   (kbd "S-TAB") #'archive-previous-line
   (kbd "<tab>") #'init-archive-next-line-dwim
@@ -1062,8 +1062,8 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   (kbd "RET") #'compile-goto-error
   (kbd "<return>") #'compile-goto-error
   "go" #'compilation-display-error
-  (kbd "C-RET") #'compilation-display-error
-  (kbd "C-<return>") #'compilation-display-error
+  (kbd "M-RET") #'compilation-display-error
+  (kbd "M-<return>") #'compilation-display-error
   (kbd "TAB") #'compilation-next-error
   (kbd "S-TAB") #'compilation-previous-error
   (kbd "<tab>") #'compilation-next-error
@@ -1109,8 +1109,8 @@ With two universal ARG, edit rg command."
   (kbd "RET") #'compile-goto-error
   (kbd "<return>") #'compile-goto-error
   "go" #'compilation-display-error
-  (kbd "C-RET") #'compilation-display-error
-  (kbd "C-<return>") #'compilation-display-error
+  (kbd "M-RET") #'compilation-display-error
+  (kbd "M-<return>") #'compilation-display-error
   (kbd "TAB") #'compilation-next-error
   (kbd "S-TAB") #'compilation-previous-error
   (kbd "<tab>") #'compilation-next-error
@@ -1249,8 +1249,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "RET") #'vc-dir-find-file
   (kbd "<return>") #'vc-dir-find-file
   "go" #'vc-dir-display-file
-  (kbd "C-RET") #'vc-dir-display-file
-  (kbd "C-<return>") #'vc-dir-display-file
+  (kbd "M-RET") #'vc-dir-display-file
+  (kbd "M-<return>") #'vc-dir-display-file
   "gj" #'vc-dir-next-line
   "gk" #'vc-dir-previous-line
   (kbd "C-j") #'vc-dir-next-line
@@ -1386,15 +1386,15 @@ Or else call `magit-status'."
   (kbd "RET") #'flymake-goto-diagnostic
   (kbd "<return>") #'flymake-goto-diagnostic
   "go" #'flymake-show-diagnostic
-  (kbd "C-RET") #'flymake-show-diagnostic
-  (kbd "C-<return>") #'flymake-show-diagnostic)
+  (kbd "M-RET") #'flymake-show-diagnostic
+  (kbd "M-<return>") #'flymake-show-diagnostic)
 
 (evil-define-key 'motion flymake-project-diagnostics-mode-map
   (kbd "RET") #'flymake-goto-diagnostic
   (kbd "<return>") #'flymake-goto-diagnostic
   "go" #'flymake-show-diagnostic
-  (kbd "C-RET") #'flymake-show-diagnostic
-  (kbd "C-<return>") #'flymake-show-diagnostic)
+  (kbd "M-RET") #'flymake-show-diagnostic
+  (kbd "M-<return>") #'flymake-show-diagnostic)
 
 ;;;; eldoc
 
@@ -1416,8 +1416,8 @@ Or else call `magit-status'."
   (kbd "RET") #'xref-goto-xref
   (kbd "<return>") #'xref-goto-xref
   "go" #'xref-show-location-at-point
-  (kbd "C-RET") #'xref-show-location-at-point
-  (kbd "C-<return>") #'xref-show-location-at-point
+  (kbd "M-RET") #'xref-show-location-at-point
+  (kbd "M-<return>") #'xref-show-location-at-point
   "gj" #'xref-next-line
   "gk" #'xref-prev-line
   (kbd "C-j") #'xref-next-line
@@ -1811,8 +1811,8 @@ FUNC and ARGS see specific command."
   (kbd "RET") #'org-agenda-goto
   (kbd "<return>") #'org-agenda-goto
   "go" #'org-agenda-show
-  (kbd "C-RET") #'org-agenda-show
-  (kbd "C-<return>") #'org-agenda-show
+  (kbd "M-RET") #'org-agenda-show
+  (kbd "M-<return>") #'org-agenda-show
   "j" #'org-agenda-next-line
   "k" #'org-agenda-previous-line
   "gr" #'org-agenda-redo
