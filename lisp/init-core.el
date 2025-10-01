@@ -57,9 +57,6 @@
     ;; init-python
     ;; init-pyim
     ;; init-roam
-    ;; init-wsl
-    ;; init-win
-    ;; init-mac
     ))
 
 (defun init-packages ()
