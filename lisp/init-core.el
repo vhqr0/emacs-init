@@ -5,6 +5,17 @@
 
 ;;; Code:
 
+;;; essentials
+
+(setq gc-cons-percentage 0.2)
+(setq gc-cons-threshold (* 64 1024 1024))
+
+(setq read-process-output-max (* 1024 1024))
+
+(setq system-time-locale "C")
+
+(prefer-coding-system 'utf-8)
+
 ;;; directories
 
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))

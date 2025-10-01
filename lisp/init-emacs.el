@@ -7,14 +7,6 @@
 
 ;;; Code:
 
-;;; essentials
-
-(prefer-coding-system 'utf-8)
-
-(setq system-time-locale "C")
-
-(setq read-process-output-max (* 1024 1024))
-
 ;;; utils
 
 (defun init-diminish-minor-mode (mode)
