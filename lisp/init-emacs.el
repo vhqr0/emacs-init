@@ -1744,6 +1744,13 @@ FUNC and ARGS see specific command."
 (setq org-sort-function #'org-sort-function-fallback)
 (setq org-tags-sort-function #'org-string<)
 
+(defun init-org-set-syntax ()
+  "Modify `org-mode' syntax table."
+  (modify-syntax-entry ?< "." org-mode-syntax-table)
+  (modify-syntax-entry ?> "." org-mode-syntax-table))
+
+(add-hook 'org-mode-hook #'init-org-set-syntax)
+
 (defun init-org-append-link ()
   "Append org link."
   (interactive)
@@ -1767,12 +1774,7 @@ FUNC and ARGS see specific command."
 (keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
 (keymap-set org-mode-map "<remap> <init-org-append-link-global>" #'init-org-append-link)
 
-(defun init-org-set-syntax ()
-  "Modify `org-mode' syntax table."
-  (modify-syntax-entry ?< "." org-mode-syntax-table)
-  (modify-syntax-entry ?> "." org-mode-syntax-table))
-
-(add-hook 'org-mode-hook #'init-org-set-syntax)
+(keymap-set org-mode-map "<remap> <init-consult-outline>" #'consult-imenu)
 
 (keymap-set org-mode-map "C-c C-'" #'org-edit-special)
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
