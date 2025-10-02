@@ -49,14 +49,14 @@
                    edit-indirect))
     (init-clojure . (clojure-mode cider))
     (init-pyim . (pyim pyim-basedict posframe))
-    (init-roam . (org-roam))))
+    (init-org-roam . (org-roam))))
 
 (defvar init-modules
   '(init-emacs
     ;; init-clojure
     ;; init-python
     ;; init-pyim
-    ;; init-roam
+    ;; init-org-roam
     ))
 
 (defun init-packages ()

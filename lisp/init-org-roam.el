@@ -1,4 +1,4 @@
-;;; init-roam.el --- Init Org Roam -*- lexical-binding: t; no-native-compile: t -*-
+;;; init-org-roam.el --- Init Org Roam -*- lexical-binding: t; no-native-compile: t -*-
 
 ;;; Commentary:
 ;; Init configuration to use Org Roam note taking tool.
@@ -111,5 +111,5 @@
 
 (add-to-list 'embark-keymap-alist '(org-roam-ref init-org-roam-ref-map))
 
-(provide 'init-roam)
-;;; init-roam.el ends here
+(provide 'init-org-roam)
+;;; init-org-roam.el ends here
