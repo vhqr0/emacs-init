@@ -111,5 +111,7 @@
 
 (add-to-list 'embark-keymap-alist '(org-roam-ref init-org-roam-ref-map))
 
+;;; end
+
 (provide 'init-org-roam)
 ;;; init-org-roam.el ends here

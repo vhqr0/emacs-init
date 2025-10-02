@@ -124,5 +124,7 @@
   "gr" #'org-agenda-redo
   "gR" #'org-agenda-redo-all)
 
+;;; end
+
 (provide 'init-org)
 ;;; init-org.el ends here
