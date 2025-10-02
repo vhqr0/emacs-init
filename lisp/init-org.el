@@ -69,7 +69,8 @@
 
 (init-leader-global-set
  "W" #'org-store-link
- "O" #'org-open-at-point-global)
+ "O" #'org-open-at-point-global
+ "L" #'init-org-append-link-global)
 
 (keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
 (keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
