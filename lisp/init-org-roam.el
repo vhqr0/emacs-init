@@ -5,7 +5,7 @@
 
 ;;; Code:
 
-(require 'init-emacs)
+(require 'init-org)
 (require 'org-roam)
 
 (setq org-roam-directory (expand-file-name "notes" priv-directory))

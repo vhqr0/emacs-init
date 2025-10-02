@@ -44,18 +44,19 @@
                    with-editor
                    git-modes
                    magit
-                   orgit
-                   markdown-mode
-                   edit-indirect))
-    (init-clojure . (clojure-mode cider))
+                   orgit))
     (init-pyim . (pyim pyim-basedict posframe))
+    (init-clojure . (clojure-mode cider))
+    (init-markdown . (markdown-mode edit-indirect))
     (init-org-roam . (org-roam))))
 
 (defvar init-modules
   '(init-emacs
-    ;; init-clojure
-    ;; init-python
     ;; init-pyim
+    ;; init-python
+    ;; init-clojure
+    ;; init-markdown
+    ;; init-org
     ;; init-org-roam
     ))
 
