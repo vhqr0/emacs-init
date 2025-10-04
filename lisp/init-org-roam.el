@@ -81,7 +81,7 @@
   (let* ((type (get-text-property 0 'type ref))
          (path-end (seq-find
                     (lambda (pos) (get-text-property pos 'invisible ref))
-                    (cl-loop for i from 0 below (length ref) collect i)))
+                    (number-sequence 0 (1- (length ref)))))
          (path (substring ref 0 path-end)))
     (concat type ":" path)))
 
