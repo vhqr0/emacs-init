@@ -48,6 +48,17 @@
   "n b" #'org-narrow-to-block
   "n s" #'org-narrow-to-subtree)
 
+(keymap-global-set "C-c o" #'org-open-at-point-global)
+(keymap-global-set "C-c l" #'org-insert-link-global)
+
+(init-leader-global-set
+ "W" #'org-store-link
+ "O" #'org-open-at-point-global
+ "L" #'org-insert-link-global)
+
+(keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
+(keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
+
 (defun init-org-append-link ()
   "Append org link."
   (interactive)
@@ -64,17 +75,8 @@
       (forward-char))
     (call-interactively #'org-insert-link-global)))
 
-(keymap-global-set "C-c o" #'org-open-at-point-global)
-(keymap-global-set "C-c l" #'org-insert-link-global)
-
-(init-leader-global-set
- "W" #'org-store-link
- "O" #'org-open-at-point-global
- "L" #'init-org-append-link-global)
-
-(keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
-(keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
-(keymap-set org-mode-map "<remap> <init-org-append-link-global>" #'init-org-append-link)
+(keymap-set evil-normal-state-map "<remap> <org-insert-link>" #'init-org-append-link)
+(keymap-set evil-normal-state-map "<remap> <org-insert-link-global>" #'init-org-append-link-global)
 
 (defun init-org-echo-link ()
   "Echo org link in minibuffer."
