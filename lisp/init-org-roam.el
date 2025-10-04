@@ -15,28 +15,23 @@
 
 (add-hook 'after-init-hook #'org-roam-db-autosync-mode)
 
-(keymap-global-set "C-c n" #'org-roam-node-insert)
-
 (init-leader-global-set
  "N" #'org-roam-node-find
  "R" #'org-roam-ref-find)
 
-(defvar-keymap init-org-roam-buffer-mode-map
-  "C-c r" #'org-roam-buffer-toggle
-  "C-c a t" #'org-roam-tag-add
-  "C-c a r" #'org-roam-ref-add
-  "C-c a a" #'org-roam-alias-add
-  "C-c d t" #'org-roam-tag-remove
-  "C-c d r" #'org-roam-ref-remove
-  "C-c d a" #'org-roam-alias-remove)
+(defvar-keymap init-org-roam-command-map
+  "n" #'org-roam-node-find
+  "l" #'org-roam-node-insert
+  "c" #'org-roam-capture
+  "b" #'org-roam-buffer-toggle
+  "a" #'org-roam-alias-add
+  "A" #'org-roam-alias-remove
+  "t" #'org-roam-tag-add
+  "T" #'org-roam-tag-remove
+  "r" #'org-roam-ref-add
+  "R" #'org-roam-ref-remove)
 
-(define-minor-mode init-org-roam-buffer-mode
-  "Org Roam buffer minor mode."
-  :group 'init-org-roam
-  :lighter " Roam"
-  :keymap init-org-roam-buffer-mode-map)
-
-(add-hook 'org-roam-find-file-hook #'init-org-roam-buffer-mode)
+(keymap-global-set "C-c n" init-org-roam-command-map)
 
 ;;; embark
 
