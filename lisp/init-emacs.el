@@ -509,13 +509,13 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-set embark-identifier-map "%" #'query-replace)
 
-(defun init-evil-around-adjust-cursor-disable-isearch (func &rest args)
+(defun init-evil-around-adjust-cursor-check-isearch (func &rest args)
   "Dont adjust cursor in isearch mode.
 FUNC and ARGS see `evil-set-cursor'."
   (unless isearch-mode
     (apply func args)))
 
-(advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-disable-isearch)
+(advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-check-isearch)
 
 (defvar-keymap init-evil-isearch-override-mode-map)
 
