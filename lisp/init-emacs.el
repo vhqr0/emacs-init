@@ -605,7 +605,7 @@ FUNC, ARGS see specified commands."
        evil-local-mode
        (memq evil-state '(operator motion normal visual))))
 
-(defun init-around-input-method (func event)
+(defun init-wrap-input-method (func event)
   "Wrap a `input-method-function' FUNC that process ignore and jk escape.
 FUNC, EVENT see `input-method-function'."
   (if (init-ignore-input-method-p)
@@ -623,7 +623,7 @@ FUNC, EVENT see `input-method-function'."
 (defun init-input-method (event)
   "Default input method function.
 EVENT see `input-method-function'."
-  (init-around-input-method #'list event))
+  (init-wrap-input-method #'list event))
 
 (setq-default input-method-function #'init-input-method)
 
