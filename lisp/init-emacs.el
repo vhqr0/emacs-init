@@ -599,16 +599,16 @@ FUNC, ARGS see specified commands."
 (dolist (state '(operator motion normal visual))
   (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
 
-(defun init-disable-input-method-p ()
+(defun init-ignore-input-method-p ()
   "Predicate of input method."
   (and (not isearch-mode)
        evil-local-mode
        (memq evil-state '(operator motion normal visual))))
 
 (defun init-around-input-method (func event)
-  "Wrap a `input-method-function' FUNC that process disable and jk escape.
+  "Wrap a `input-method-function' FUNC that process ignore and jk escape.
 FUNC, EVENT see `input-method-function'."
-  (if (init-disable-input-method-p)
+  (if (init-ignore-input-method-p)
       (list event)
     (if (or (/= event ?j) (sit-for 0.15))
         (funcall func event)
