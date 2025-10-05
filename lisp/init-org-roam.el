@@ -11,7 +11,7 @@
 (setq org-roam-directory (expand-file-name "notes" priv-directory))
 
 (setq org-roam-node-display-template
-      (concat "${title:*} " (propertize "${tags:20}" 'face 'org-tag)))
+      (concat "${title:*} " (propertize "${tags:30}" 'face 'org-tag)))
 
 (add-hook 'after-init-hook #'org-roam-db-autosync-mode)
 
