@@ -43,13 +43,13 @@
 
 (keymap-set evil-normal-state-map "<remap> <org-roam-node-insert>" #'init-org-roam-node-append)
 
-(defvar-keymap init-org-roam-node-map
+(defvar-keymap init-org-roam-embark-node-map
   :parent embark-general-map
   "f" #'org-roam-node-find
   "l" #'org-roam-node-insert
   "c" #'org-roam-capture)
 
-(add-to-list 'embark-keymap-alist '(org-roam-node init-org-roam-node-map))
+(add-to-list 'embark-keymap-alist '(org-roam-node init-org-roam-embark-node-map))
 
 (provide 'init-org-roam)
 ;;; init-org-roam.el ends here
