@@ -24,10 +24,10 @@
   "l" #'org-roam-node-insert
   "c" #'org-roam-capture
   "b" #'org-roam-buffer-toggle
-  "a" #'org-roam-alias-add
-  "A" #'org-roam-alias-remove
   "t" #'org-roam-tag-add
   "T" #'org-roam-tag-remove
+  "a" #'org-roam-alias-add
+  "A" #'org-roam-alias-remove
   "r" #'org-roam-ref-add
   "R" #'org-roam-ref-remove)
 
