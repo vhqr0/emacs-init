@@ -33,6 +33,16 @@
 
 (keymap-global-set "C-c n" init-org-roam-command-map)
 
+(defun init-org-roam-node-append ()
+  "Append Org Roam node link."
+  (interactive)
+  (save-excursion
+    (unless (eolp)
+      (forward-char))
+    (call-interactively #'org-roam-node-insert)))
+
+(keymap-set evil-normal-state-map "<remap> <org-roam-node-insert>" #'init-org-roam-node-append)
+
 ;;; embark
 
 ;;;; node
