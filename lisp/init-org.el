@@ -42,11 +42,14 @@
 
 (add-hook 'org-mode-hook #'init-org-set-syntax)
 
-(keymap-set org-mode-map "<remap> <init-consult-outline>" #'consult-imenu)
+(defun init-org-set-narrow ()
+  "Set narrow function."
+  (setq-local init-narrow-to-block-function #'org-narrow-to-block)
+  (setq-local init-narrow-to-subtree-function #'org-narrow-to-subtree))
 
-(init-leader-set org-mode-map
-  "n b" #'org-narrow-to-block
-  "n s" #'org-narrow-to-subtree)
+(add-hook 'org-mode-hook #'init-org-set-narrow)
+
+(keymap-set org-mode-map "<remap> <init-consult-outline>" #'consult-imenu)
 
 (keymap-global-set "C-c o" #'org-open-at-point-global)
 (keymap-global-set "C-c l" #'org-insert-link-global)

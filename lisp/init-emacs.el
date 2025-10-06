@@ -487,6 +487,24 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (setq hl-line-sticky-flag t)
 
+(defvar-local init-narrow-to-block-function nil)
+(defvar-local init-narrow-to-subtree-function nil)
+
+(defun init-narrow-to-block ()
+  "Narrow to block based on local `init-narrow-to-block-function'."
+  (interactive)
+  (when init-narrow-to-block-function
+    (call-interactively init-narrow-to-block-function)))
+
+(defun init-narrow-to-subtree ()
+  "Narrow to subtree based on local `init-narrow-to-subtree-function'."
+  (interactive)
+  (when init-narrow-to-subtree-function
+    (call-interactively init-narrow-to-subtree-function)))
+
+(keymap-set narrow-map "b" #'init-narrow-to-block)
+(keymap-set narrow-map "s" #'init-narrow-to-subtree)
+
 (require 'embark)
 
 (keymap-global-set "M-o" #'embark-act)
