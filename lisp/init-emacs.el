@@ -1222,11 +1222,37 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "C-j") #'diff-hunk-next
   (kbd "C-k") #'diff-hunk-prev)
 
-;;;;; ediff
+;;;; ediff
 
 (require 'ediff)
 
 (setq ediff-window-setup-function #'ediff-setup-windows-plain)
+
+(evil-set-initial-state 'ediff-mode 'emacs)
+
+(defun init-ediff-scroll-up ()
+  "Scroll up in ediff."
+  (interactive)
+  (let ((last-command-event ?V))
+    (call-interactively #'ediff-scroll-vertically)))
+
+(defun init-ediff-scroll-down ()
+  "Scroll down in ediff."
+  (interactive)
+  (let ((last-command-event ?v))
+    (call-interactively #'ediff-scroll-vertically)))
+
+(defun init-ediff-setup-keymap-extra ()
+  "Setup extra ediff bindings."
+  (keymap-set ediff-mode-map "j" #'ediff-next-difference)
+  (keymap-set ediff-mode-map "k" #'ediff-previous-difference)
+  (keymap-set ediff-mode-map "g g" #'ediff-jump-to-difference)
+  (keymap-set ediff-mode-map "C-d" #'init-ediff-scroll-down)
+  (keymap-set ediff-mode-map "C-u" #'init-ediff-scroll-up)
+  (keymap-set ediff-mode-map "C-f" #'init-ediff-scroll-down)
+  (keymap-set ediff-mode-map "C-b" #'init-ediff-scroll-up))
+
+(advice-add #'ediff-setup-keymap :after #'init-ediff-setup-keymap-extra)
 
 ;;;; logview
 
