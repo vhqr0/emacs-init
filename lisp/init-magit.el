@@ -59,7 +59,7 @@ Or else call `magit-status'."
     (setq this-command command)
     (call-interactively this-command)))
 
-(init-leader-global-set
+(init-leader-set
  "G" #'init-magit-dwim)
 
 (evil-set-initial-state 'magit-mode 'motion)

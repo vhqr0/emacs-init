@@ -54,7 +54,7 @@
 (keymap-global-set "C-c o" #'org-open-at-point-global)
 (keymap-global-set "C-c l" #'org-insert-link-global)
 
-(init-leader-global-set
+(init-leader-set
  "W" #'org-store-link
  "O" #'org-open-at-point-global
  "L" #'org-insert-link-global)
@@ -112,7 +112,7 @@
         ("i" "Todo With Initial Content" entry (file "") "* TODO %?\n%U\n%i")
         ("c" "Todo With Kill Ring"       entry (file "") "* TODO %?\n%U\n%c")))
 
-(init-leader-global-set
+(init-leader-set
  "C" #'org-capture
  "A" #'org-agenda)
 

@@ -1633,22 +1633,15 @@ FUNC and ARGS see specific command."
 
 ;;; leaders
 
-(defun init-leader-bindings (clauses)
-  "Transforms `define-key' CLAUSES to binding alist."
-  (seq-map
-   (lambda (binding)
-     (cons (kbd (concat "SPC " (car binding))) (cadr binding)))
-   (seq-partition clauses 2)))
+(defvar-keymap init-leader-map)
 
-(defun init-leader-set (keymap &rest clauses)
-  "Define leader binding CLAUSES in KEYMAP."
-  (declare (indent defun))
-  (dolist (binding (init-leader-bindings clauses))
-    (evil-define-key* 'motion keymap (car binding) (cdr binding))))
+(evil-define-key 'motion init-evil-override-mode-map
+  (kbd "SPC") init-leader-map)
 
-(defun init-leader-global-set (&rest clauses)
-  "Define leader binding CLAUSES in `init-evil-override-mode-map'."
-  (apply #'init-leader-set init-evil-override-mode-map clauses))
+(defun init-leader-set (&rest clauses)
+  "Set leader binding CLAUSES in `init-leader-map'."
+  (dolist (binding (seq-partition clauses 2))
+    (keymap-set init-leader-map (car binding) (cadr binding))))
 
 (defun init-magic-prefix (prefix)
   "Magically read and execute command on PREFIX."
@@ -1688,7 +1681,7 @@ FUNC and ARGS see specific command."
         (list (if current-prefix-arg
                   (* 4 (prefix-numeric-value current-prefix-arg))
                 4)))
-  (set-transient-map (key-binding " ")))
+  (set-transient-map init-leader-map))
 
 (defvar init-magic-shift-special
   '((?1 . ?!) (?2 . ?@) (?3 . ?#) (?4 . ?$) (?5 . ?%) (?6 . ?^) (?7 . ?&) (?8 . ?*) (?9 . ?\() (?0 . ?\))
@@ -1725,7 +1718,7 @@ FUNC and ARGS see specific command."
   "e" #'flymake-show-buffer-diagnostics
   "E" #'flymake-show-project-diagnostics)
 
-(init-leader-global-set
+(init-leader-set
  "SPC" #'consult-buffer
  "\\" #'init-magic-shift
  "TAB" #'init-magic-shift
