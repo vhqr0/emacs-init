@@ -756,8 +756,8 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set init-consult-override-mode-map "<remap> <yank>" #'consult-yank-from-kill-ring)
 (keymap-set init-consult-override-mode-map "<remap> <yank-pop>" #'consult-yank-pop)
 (keymap-set init-consult-override-mode-map "<remap> <previous-matching-history-element>" #'consult-history)
-(keymap-set init-consult-override-mode-map "<remap> <eshell-previous-matching-input>" #'consult-history)
 (keymap-set init-consult-override-mode-map "<remap> <comint-history-isearch-backward-regexp>" #'consult-history)
+(keymap-set init-consult-override-mode-map "<remap> <eshell-previous-matching-input>" #'consult-history)
 
 ;;;; line
 
@@ -1716,8 +1716,8 @@ FUNC and ARGS see specific command."
               (if (commandp binding t)
                   (call-interactively binding)
                 (execute-kbd-macro binding)))
-          (user-error "Binding on SPC %c is not a command" shift-char))
-      (user-error "No binding found on SPC %c" shift-char))))
+          (user-error "Binding on <leader> %c is not a command" shift-char))
+      (user-error "No binding found on <leader> %c" shift-char))))
 
 (defvar-keymap init-minor-prefix-map
   "s" #'auto-save-visited-mode
