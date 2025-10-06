@@ -550,16 +550,16 @@ FUNC and ARGS see `evil-set-cursor'."
   (when isearch-mode
     command))
 
-(defun init-isearch-menu-item-filter-wrap (command)
+(defun init-isearch-wrap-menu-item-filter (command)
   "Wrap COMMAND with `init-isearch-menu-item-filter'."
   `(menu-item "" ,command :filter init-isearch-menu-item-filter))
 
 (evil-define-key 'motion init-evil-isearch-override-mode-map
-  (kbd "C-u") (init-isearch-menu-item-filter-wrap #'universal-argument)
-  (kbd "C-f") (init-isearch-menu-item-filter-wrap #'forward-char)
-  (kbd "C-b") (init-isearch-menu-item-filter-wrap #'backward-char)
-  (kbd "C-a") (init-isearch-menu-item-filter-wrap #'move-beginning-of-line)
-  (kbd "C-e") (init-isearch-menu-item-filter-wrap #'move-end-of-line))
+  (kbd "C-u") (init-isearch-wrap-menu-item-filter #'universal-argument)
+  (kbd "C-f") (init-isearch-wrap-menu-item-filter #'forward-char)
+  (kbd "C-b") (init-isearch-wrap-menu-item-filter #'backward-char)
+  (kbd "C-a") (init-isearch-wrap-menu-item-filter #'move-beginning-of-line)
+  (kbd "C-e") (init-isearch-wrap-menu-item-filter #'move-end-of-line))
 
 (evil-set-initial-state 'occur-mode 'motion)
 (evil-set-initial-state 'occur-edit-mode 'normal)
