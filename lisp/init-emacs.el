@@ -1643,6 +1643,22 @@ FUNC and ARGS see specific command."
   (dolist (binding (seq-partition clauses 2))
     (keymap-set init-leader-map (car binding) (cadr binding))))
 
+(defun init-leader-wrap-spc (command)
+  "Wrap COMMAND on spc as leader key."
+  (if (eq last-command-event 32)
+      (set-transient-map init-leader-map)
+    (setq this-command command)
+    (setq real-this-command command)
+    (call-interactively command)))
+
+(defun init-leader-or-scroll-up-command ()
+  "Leader aware scroll up command."
+  (interactive)
+  (init-leader-wrap-spc #'scroll-up-command))
+
+(evil-define-key 'motion init-evil-override-mode-map
+  [remap scroll-up-command] #'init-leader-or-scroll-up-command)
+
 (defun init-magic-prefix (prefix)
   "Magically read and execute command on PREFIX."
   (let ((char (read-char (concat prefix " C-"))))
@@ -1690,9 +1706,9 @@ FUNC and ARGS see specific command."
 (defun init-magic-shift ()
   "Magic shift."
   (interactive)
-  (let* ((char (read-char "SPC-"))
+  (let* ((char (read-char "<leader>-"))
          (shift-char (or (cdr (assq char init-magic-shift-special)) (upcase char))))
-    (if-let* ((binding (key-binding (vector 32 shift-char))))
+    (if-let* ((binding (lookup-key init-leader-map (vector shift-char))))
         (if (commandp binding)
             (progn
               (setq this-command binding)

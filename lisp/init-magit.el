@@ -20,8 +20,6 @@
 
 (require 'magit-section)
 
-(keymap-unset magit-section-mode-map "SPC")
-
 (evil-set-initial-state 'magit-section-mode 'motion)
 
 (evil-define-key 'motion magit-section-mode-map
