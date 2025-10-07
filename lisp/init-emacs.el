@@ -1307,6 +1307,36 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "C-j") #'vc-annotate-next-revision
   (kbd "C-k") #'vc-annotate-prev-revision)
 
+;;; image
+
+(require 'image)
+
+(keymap-set image-slice-map "i =" #'image-increase-size)
+(keymap-set image-slice-map "=" #'image-increase-size)
+(keymap-set image-slice-map "+" #'image-increase-size)
+(keymap-set image-slice-map "-" #'image-decrease-size)
+(keymap-set image--repeat-map "=" #'image-increase-size)
+
+(evil-define-key 'motion image-slice-map
+  "=" #'image-increase-size
+  "+" #'image-increase-size
+  "-" #'image-decrease-size)
+
+(evil-define-key 'normal image-slice-map
+  "=" #'image-increase-size)
+
+(require 'image-mode)
+
+(evil-set-initial-state 'image-mode 'motion)
+
+(evil-define-key 'motion image-mode-map
+  "gj" #'image-next-file
+  "gk" #'image-previous-file
+  (kbd "C-j") #'image-next-file
+  (kbd "C-k") #'image-previous-file
+  (kbd "C-u") #'image-scroll-down
+  (kbd "C-d") #'image-scroll-up)
+
 ;;; shr
 
 (require 'shr)
