@@ -103,6 +103,11 @@ Or else call `magit-status'."
 
 (require 'forge)
 
+(evil-set-initial-state 'forge-topic-mode 'motion)
+(evil-set-initial-state 'forge-discussion-mode 'motion)
+(evil-set-initial-state 'forge-issue-mode 'motion)
+(evil-set-initial-state 'forge-pullreq-mode 'motion)
+
 ;;; end
 
 (provide 'init-magit)
