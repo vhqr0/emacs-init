@@ -946,6 +946,12 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 (dolist (command init-evil-goggles-commands)
   (advice-add command :around #'init-evil-around-operator-goggles))
 
+;;; spell
+
+(require 'ispell)
+
+(setq ispell-dictionary "american")
+
 ;;; list
 
 (require 'tabulated-list)
@@ -1301,11 +1307,15 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "C-j") #'vc-annotate-next-revision
   (kbd "C-k") #'vc-annotate-prev-revision)
 
-;;; spell
+;;; eww
 
-(require 'ispell)
+(require 'eww)
 
-(setq ispell-dictionary "american")
+(evil-define-key 'normal eww-mode-map
+  (kbd "TAB") #'shr-next-link
+  (kbd "S-TAB") #'shr-previous-link
+  (kbd "<tab>") #'shr-next-link
+  (kbd "<backtab>") #'shr-previous-link)
 
 ;;; prog
 
@@ -1639,8 +1649,6 @@ FUNC and ARGS see specific command."
 ;;;; custom
 
 (require 'cus-edit)
-
-(evil-set-initial-state 'Custom-mode 'normal)
 
 (evil-define-key 'motion custom-mode-map
   (kbd "RET") #'Custom-newline
