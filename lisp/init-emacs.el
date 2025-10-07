@@ -1640,7 +1640,7 @@ FUNC and ARGS see specific command."
 
 (require 'cus-edit)
 
-(evil-set-initial-state 'Custom-mode 'motion)
+(evil-set-initial-state 'Custom-mode 'normal)
 
 (evil-define-key 'motion custom-mode-map
   (kbd "RET") #'Custom-newline
