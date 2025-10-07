@@ -1307,6 +1307,16 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (kbd "C-j") #'vc-annotate-next-revision
   (kbd "C-k") #'vc-annotate-prev-revision)
 
+;;; shr
+
+(require 'shr)
+
+(evil-define-key 'normal shr-map
+  (kbd "TAB") #'shr-next-link
+  (kbd "S-TAB") #'shr-previous-link
+  (kbd "<tab>") #'shr-next-link
+  (kbd "<backtab>") #'shr-previous-link)
+
 ;;; eww
 
 (require 'eww)
