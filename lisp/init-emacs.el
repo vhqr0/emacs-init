@@ -1330,12 +1330,14 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-set-initial-state 'image-mode 'motion)
 
 (evil-define-key 'motion image-mode-map
+  "j" #'image-next-line
+  "k" #'image-previous-line
+  (kbd "C-u") #'image-scroll-down
+  (kbd "C-d") #'image-scroll-up
   "gj" #'image-next-file
   "gk" #'image-previous-file
   (kbd "C-j") #'image-next-file
-  (kbd "C-k") #'image-previous-file
-  (kbd "C-u") #'image-scroll-down
-  (kbd "C-d") #'image-scroll-up)
+  (kbd "C-k") #'image-previous-file)
 
 ;;; shr
 
