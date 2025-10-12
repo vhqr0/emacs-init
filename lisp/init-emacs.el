@@ -168,6 +168,7 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-unset evil-insert-state-map "C-p" t)
 
 (keymap-unset evil-motion-state-map "RET" t)
+(keymap-unset evil-motion-state-map "SPC" t)
 
 (keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
 (keymap-set evil-motion-state-map "q" #'quit-window)
