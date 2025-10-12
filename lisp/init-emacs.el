@@ -113,6 +113,9 @@ With two or more universal ARG, open in current window."
 (defvar evil-want-minibuffer)
 (setq evil-want-minibuffer t)
 
+(defvar evil-want-C-i-jump)
+(setq evil-want-C-i-jump nil)
+
 (defvar evil-want-C-u-scroll)
 (defvar evil-want-C-w-delete)
 (defvar evil-want-Y-yank-to-eol)
