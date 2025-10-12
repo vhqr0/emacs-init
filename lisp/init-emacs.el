@@ -167,6 +167,8 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-unset evil-insert-state-map "C-n" t)
 (keymap-unset evil-insert-state-map "C-p" t)
 
+(keymap-unset evil-motion-state-map "RET" t)
+
 (keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
 (keymap-set evil-motion-state-map "q" #'quit-window)
 (keymap-unset evil-normal-state-map "q" t)
@@ -569,15 +571,6 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
 
 (evil-define-key 'motion occur-mode-map
-  (kbd "RET") #'occur-mode-goto-occurrence
-  (kbd "<return>") #'occur-mode-goto-occurrence
-  "go" #'occur-mode-display-occurrence
-  (kbd "M-RET") #'occur-mode-display-occurrence
-  (kbd "M-<return>") #'occur-mode-display-occurrence
-  (kbd "TAB") #'occur-next
-  (kbd "S-TAB") #'occur-prev
-  (kbd "<tab>") #'occur-next
-  (kbd "<backtab>") #'occur-prev
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
   (kbd "C-j") #'next-error-no-select
@@ -666,9 +659,7 @@ EVENT see `input-method-function'."
   (kbd "M-r") #'previous-matching-history-element)
 
 (evil-define-key 'normal minibuffer-local-map
-  (kbd "<escape>") #'abort-recursive-edit
-  (kbd "RET") #'exit-minibuffer
-  (kbd "<return>") #'exit-minibuffer)
+  (kbd "<escape>") #'abort-recursive-edit)
 
 (require 'savehist)
 
@@ -954,16 +945,6 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 
 (setq ispell-dictionary "american")
 
-;;; list
-
-(require 'tabulated-list)
-
-(evil-define-key 'motion tabulated-list-mode-map
-  (kbd "TAB") #'forward-button
-  (kbd "S-TAB") #'backward-button
-  (kbd "<tab>") #'forward-button
-  (kbd "<backtab>") #'backward-button)
-
 ;;; ibuffer
 
 (require 'ibuffer)
@@ -978,20 +959,10 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
         (mark " " (name 40 -1) " " filename)))
 
 (evil-define-key 'motion ibuffer-mode-map
-  (kbd "RET") #'ibuffer-visit-buffer
-  (kbd "<return>") #'ibuffer-visit-buffer
-  "go" #'ibuffer-visit-buffer-other-window-noselect
-  (kbd "M-RET") #'ibuffer-visit-buffer-other-window-noselect
-  (kbd "M-<return>") #'ibuffer-visit-buffer-other-window-noselect
-  (kbd "TAB") #'ibuffer-forward-line
-  (kbd "S-TAB") #'ibuffer-backward-line
-  (kbd "<tab>") #'ibuffer-forward-line
-  (kbd "<backtab>") #'ibuffer-backward-line
   "gj" #'ibuffer-forward-filter-group
   "gk" #'ibuffer-backward-filter-group
   (kbd "C-j") #'ibuffer-forward-filter-group
-  (kbd "C-k") #'ibuffer-backward-filter-group
-  "gr" #'ibuffer-update)
+  (kbd "C-k") #'ibuffer-backward-filter-group)
 
 ;;; dirs
 
@@ -1014,25 +985,9 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 (evil-set-initial-state 'dired-mode 'motion)
 (evil-set-initial-state 'wdired-mode 'normal)
 
-(defun init-dired-next-line-dwim ()
-  "Goto next line in Dired dwim."
-  (interactive)
-  (dired-next-line (if (bolp) 0 1)))
-
 (evil-define-key 'motion dired-mode-map
-  (kbd "RET") #'dired-find-file
-  (kbd "<return>") #'dired-find-file
-  "go" #'dired-display-file
-  (kbd "M-RET") #'dired-display-file
-  (kbd "M-<return>") #'dired-display-file
-  (kbd "TAB") #'init-dired-next-line-dwim
-  (kbd "S-TAB") #'dired-previous-line
-  (kbd "<tab>") #'init-dired-next-line-dwim
-  (kbd "<backtab>") #'dired-previous-line
-  "gj" #'dired-next-line
-  "gk" #'dired-previous-line
-  (kbd "C-j") #'dired-next-line
-  (kbd "C-k") #'dired-previous-line
+  "j" #'dired-next-line
+  "k" #'dired-previous-line
   "+" #'dired-create-directory)
 
 ;;;; archive
@@ -1041,25 +996,9 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 
 (evil-set-initial-state 'archive-mode 'motion)
 
-(defun init-archive-next-line-dwim ()
-  "Goto next line in Archive dwim."
-  (interactive)
-  (archive-next-line (if (bolp) 0 1)))
-
 (evil-define-key 'motion archive-mode-map
-  (kbd "RET") #'archive-extract
-  (kbd "<return>") #'archive-extract
-  "go" #'archive-display-other-window
-  (kbd "M-RET") #'archive-display-other-window
-  (kbd "M-<return>") #'archive-display-other-window
-  (kbd "TAB") #'init-archive-next-line-dwim
-  (kbd "S-TAB") #'archive-previous-line
-  (kbd "<tab>") #'init-archive-next-line-dwim
-  (kbd "<backtab>") #'archive-previous-line
-  "gj" #'archive-next-line
-  "gk" #'archive-previous-line
-  (kbd "C-j") #'archive-next-line
-  (kbd "C-k") #'archive-previous-line)
+  "j" #'archive-next-line
+  "k" #'archive-previous-line)
 
 ;;; process
 
@@ -1073,15 +1012,6 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 (evil-set-initial-state 'compilation-mode 'motion)
 
 (evil-define-key 'motion compilation-mode-map
-  (kbd "RET") #'compile-goto-error
-  (kbd "<return>") #'compile-goto-error
-  "go" #'compilation-display-error
-  (kbd "M-RET") #'compilation-display-error
-  (kbd "M-<return>") #'compilation-display-error
-  (kbd "TAB") #'compilation-next-error
-  (kbd "S-TAB") #'compilation-previous-error
-  (kbd "<tab>") #'compilation-next-error
-  (kbd "<backtab>") #'compilation-previous-error
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
   (kbd "C-j") #'next-error-no-select
@@ -1118,15 +1048,6 @@ With two universal ARG, edit rg command."
 (defalias 'rg 'init-rg-dwim)
 
 (evil-define-key 'motion grep-mode-map
-  (kbd "RET") #'compile-goto-error
-  (kbd "<return>") #'compile-goto-error
-  "go" #'compilation-display-error
-  (kbd "M-RET") #'compilation-display-error
-  (kbd "M-<return>") #'compilation-display-error
-  (kbd "TAB") #'compilation-next-error
-  (kbd "S-TAB") #'compilation-previous-error
-  (kbd "<tab>") #'compilation-next-error
-  (kbd "<backtab>") #'compilation-previous-error
   "gj" #'next-error-no-select
   "gk" #'previous-error-no-select
   (kbd "C-j") #'next-error-no-select
@@ -1140,8 +1061,6 @@ With two universal ARG, edit rg command."
   (kbd "M-r") #'comint-history-isearch-backward-regexp)
 
 (evil-define-key 'normal comint-mode-map
-  (kbd "RET") #'comint-send-input
-  (kbd "<return>") #'comint-send-input
   "gj" #'comint-next-prompt
   "gk" #'comint-previous-prompt
   (kbd "C-j") #'comint-next-prompt
@@ -1171,8 +1090,6 @@ With two universal ARG, edit rg command."
   (kbd "M-r") #'eshell-previous-matching-input)
 
 (evil-define-key 'normal eshell-mode-map
-  (kbd "RET") #'eshell-send-input
-  (kbd "<return>") #'eshell-send-input
   "gj" #'eshell-next-prompt
   "gk" #'eshell-previous-prompt
   (kbd "C-j") #'eshell-next-prompt
@@ -1215,12 +1132,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-set-initial-state 'diff-mode 'motion)
 
 (evil-define-key 'motion diff-mode-shared-map
-  (kbd "RET") #'diff-goto-source
-  (kbd "<return>") #'diff-goto-source
   "gj" #'diff-hunk-next
   "gk" #'diff-hunk-prev
-  "gJ" #'diff-file-next
-  "gK" #'diff-file-prev
   (kbd "C-j") #'diff-hunk-next
   (kbd "C-k") #'diff-hunk-prev)
 
@@ -1261,10 +1174,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (require 'log-view)
 
 (evil-define-key 'motion log-view-mode-map
-  (kbd "TAB") #'log-view-toggle-entry-display
-  (kbd "<tab>") #'log-view-toggle-entry-display
-  (kbd "RET") #'log-view-toggle-entry-display
-  (kbd "<return>") #'log-view-toggle-entry-display
   "gj" #'log-view-msg-next
   "gk" #'log-view-msg-prev
   (kbd "C-j") #'log-view-msg-next
@@ -1278,11 +1187,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set vc-prefix-map "p" #'vc-push)
 
 (evil-define-key 'motion vc-dir-mode-map
-  (kbd "RET") #'vc-dir-find-file
-  (kbd "<return>") #'vc-dir-find-file
-  "go" #'vc-dir-display-file
-  (kbd "M-RET") #'vc-dir-display-file
-  (kbd "M-<return>") #'vc-dir-display-file
   "gj" #'vc-dir-next-line
   "gk" #'vc-dir-previous-line
   (kbd "C-j") #'vc-dir-next-line
@@ -1290,8 +1194,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "p" #'vc-push)
 
 (evil-define-key 'motion vc-annotate-mode-map
-  (kbd "RET") #'vc-annotate-goto-line
-  (kbd "<return>") #'vc-annotate-goto-line
   "gj" #'vc-annotate-next-revision
   "gk" #'vc-annotate-prev-revision
   (kbd "C-j") #'vc-annotate-next-revision
@@ -1317,6 +1219,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'image-mode)
 
+(keymap-set image-mode-map "a =" #'image-increase-speed)
+
 (evil-set-initial-state 'image-mode 'motion)
 
 (evil-define-key 'motion image-mode-map
@@ -1328,26 +1232,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   "gk" #'image-previous-file
   (kbd "C-j") #'image-next-file
   (kbd "C-k") #'image-previous-file)
-
-;;; shr
-
-(require 'shr)
-
-(evil-define-key 'normal shr-map
-  (kbd "TAB") #'shr-next-link
-  (kbd "S-TAB") #'shr-previous-link
-  (kbd "<tab>") #'shr-next-link
-  (kbd "<backtab>") #'shr-previous-link)
-
-;;; eww
-
-(require 'eww)
-
-(evil-define-key 'normal eww-mode-map
-  (kbd "TAB") #'shr-next-link
-  (kbd "S-TAB") #'shr-previous-link
-  (kbd "<tab>") #'shr-next-link
-  (kbd "<backtab>") #'shr-previous-link)
 
 ;;; prog
 
@@ -1364,20 +1248,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
-(evil-define-key 'motion flymake-diagnostics-buffer-mode-map
-  (kbd "RET") #'flymake-goto-diagnostic
-  (kbd "<return>") #'flymake-goto-diagnostic
-  "go" #'flymake-show-diagnostic
-  (kbd "M-RET") #'flymake-show-diagnostic
-  (kbd "M-<return>") #'flymake-show-diagnostic)
-
-(evil-define-key 'motion flymake-project-diagnostics-mode-map
-  (kbd "RET") #'flymake-goto-diagnostic
-  (kbd "<return>") #'flymake-goto-diagnostic
-  "go" #'flymake-show-diagnostic
-  (kbd "M-RET") #'flymake-show-diagnostic
-  (kbd "M-<return>") #'flymake-show-diagnostic)
-
 ;;;; eldoc
 
 (require 'eldoc)
@@ -1393,16 +1263,10 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (setq xref-search-program 'ripgrep)
 
 (evil-define-key 'motion xref--xref-buffer-mode-map
-  (kbd "RET") #'xref-goto-xref
-  (kbd "<return>") #'xref-goto-xref
-  "go" #'xref-show-location-at-point
-  (kbd "M-RET") #'xref-show-location-at-point
-  (kbd "M-<return>") #'xref-show-location-at-point
   "gj" #'xref-next-line
   "gk" #'xref-prev-line
   (kbd "C-j") #'xref-next-line
-  (kbd "C-k") #'xref-prev-line
-  "gr" #'xref-revert-buffer)
+  (kbd "C-k") #'xref-prev-line)
 
 ;;;; abbrev
 
@@ -1597,10 +1461,6 @@ FUNC and ARGS see specific command."
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-z" #'init-ielm-other-window))
 
-(evil-define-key 'normal ielm-map
-  (kbd "RET") #'ielm-return
-  (kbd "<return>") #'ielm-return)
-
 ;;;; lookup
 
 (defun init-describe-symbol-dwim ()
@@ -1645,42 +1505,9 @@ FUNC and ARGS see specific command."
 
 ;;;; help
 
-(require 'help-mode)
-
-(evil-define-key 'motion help-mode-map
-  (kbd "TAB") #'forward-button
-  (kbd "S-TAB") #'backward-button
-  (kbd "<tab>") #'forward-button
-  (kbd "<backtab>") #'backward-button)
-
 (keymap-set help-map "B" #'describe-keymap)
 (keymap-set help-map "p" #'describe-package)
 (keymap-set help-map "P" #'finder-by-keyword)
-
-;;;; info
-
-(require 'info)
-
-(evil-define-key 'motion Info-mode-map
-  (kbd "RET") #'Info-follow-nearest-node
-  (kbd "<return>") #'Info-follow-nearest-node
-  (kbd "TAB") #'Info-next-reference
-  (kbd "S-TAB") #'Info-prev-reference
-  (kbd "<tab>") #'Info-next-reference
-  (kbd "<backtab>") #'Info-prev-reference)
-
-;;;; custom
-
-(require 'cus-edit)
-
-(evil-define-key 'motion custom-mode-map
-  (kbd "RET") #'Custom-newline
-  (kbd "<return>") #'Custom-newline
-  (kbd "TAB") #'widget-forward
-  (kbd "S-TAB") #'widget-backward
-  (kbd "<tab>") #'widget-forward
-  (kbd "<backtab>") #'widget-backward
-  "q" #'Custom-buffer-done)
 
 ;;; leaders
 

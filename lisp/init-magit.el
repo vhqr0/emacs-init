@@ -21,10 +21,6 @@
 (require 'magit-section)
 
 (evil-define-key 'motion magit-section-mode-map
-  (kbd "TAB") #'magit-section-toggle
-  (kbd "S-TAB") #'magit-section-cycle-global
-  (kbd "<tab>") #'magit-section-toggle
-  (kbd "<backtab>") #'magit-section-cycle-global
   "gj" #'magit-section-forward-sibling
   "gk" #'magit-section-backward-sibling
   (kbd "C-j") #'magit-section-forward-sibling
@@ -58,26 +54,26 @@ Or else call `magit-status'."
 (init-leader-set
  "G" #'init-magit-dwim)
 
+(keymap-set magit-mode-map "<remap> <quit-window>" #'magit-mode-bury-buffer)
+
 (evil-define-key 'motion magit-mode-map
-  (kbd "RET") #'magit-visit-thing
-  (kbd "<return>") #'magit-visit-thing
   "j" #'magit-next-line
   "k" #'magit-previous-line
-  "q" #'magit-mode-bury-buffer
-  "gr" #'magit-refresh
-  "gR" #'magit-refresh-all
   "p" #'magit-push)
 
 (evil-define-key 'visual magit-mode-map
   "j" #'evil-next-line
   "k" #'evil-previous-line)
 
+(keymap-set magit-blob-mode-map "<remap> <quit-window>" #'magit-kill-this-buffer)
+
 (evil-define-minor-mode-key 'motion 'magit-blob-mode
   "gj" #'magit-blob-next
   "gk" #'magit-blob-previous
   (kbd "C-j") #'magit-blob-next
-  (kbd "C-k") #'magit-blob-previous
-  "q" #'magit-kill-this-buffer)
+  (kbd "C-k") #'magit-blob-previous)
+
+(keymap-set magit-blame-mode-map "<remap> <quit-window>" #'magit-blame-quit)
 
 (evil-define-minor-mode-key 'motion 'magit-blame-mode
   "gj" #'magit-blame-next-chunk
@@ -85,8 +81,7 @@ Or else call `magit-status'."
   "gJ" #'magit-blame-next-chunk-same-commit
   "gK" #'magit-blame-previous-chunk-same-commit
   (kbd "C-j") #'magit-blame-next-chunk
-  (kbd "C-k") #'magit-blame-previous-chunk
-  "q" #'magit-blame-quit)
+  (kbd "C-k") #'magit-blame-previous-chunk)
 
 ;;; end
 

@@ -12,14 +12,16 @@
 (require 'outline)
 
 (evil-define-key 'motion outline-mode-map
-  (kbd "TAB") #'outline-toggle-children
-  (kbd "S-TAB") #'outline-show-all
-  (kbd "<tab>") #'outline-toggle-children
-  (kbd "<backtab>") #'outline-show-all
-  "gj" #'outline-forward-same-level
-  "gk" #'outline-backward-same-level
-  (kbd "C-j") #'outline-forward-same-level
-  (kbd "C-k") #'outline-backward-same-level)
+  "gj" #'outline-next-visible-heading
+  "gk" #'outline-previous-visible-heading
+  (kbd "C-j") #'outline-next-visible-heading
+  (kbd "C-k") #'outline-previous-visible-heading)
+
+(evil-define-minor-mode-key 'motion 'outline-minor-mode
+  "gj" #'outline-next-visible-heading
+  "gk" #'outline-previous-visible-heading
+  (kbd "C-j") #'outline-next-visible-heading
+  (kbd "C-k") #'outline-previous-visible-heading)
 
 ;;; org
 
@@ -94,12 +96,6 @@
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
 (keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
 
-(evil-define-key 'motion org-mode-map
-  (kbd "TAB") #'org-cycle
-  (kbd "S-TAB") #'org-shifttab
-  (kbd "<tab>") #'org-cycle
-  (kbd "<backtab>") #'org-shifttab)
-
 ;;; agenda
 
 (setq org-directory (expand-file-name "org" user-emacs-directory))
@@ -119,15 +115,8 @@
 (evil-set-initial-state 'org-agenda-mode 'motion)
 
 (evil-define-key 'motion org-agenda-mode-map
-  (kbd "RET") #'org-agenda-goto
-  (kbd "<return>") #'org-agenda-goto
-  "go" #'org-agenda-show
-  (kbd "M-RET") #'org-agenda-show
-  (kbd "M-<return>") #'org-agenda-show
   "j" #'org-agenda-next-line
-  "k" #'org-agenda-previous-line
-  "gr" #'org-agenda-redo
-  "gR" #'org-agenda-redo-all)
+  "k" #'org-agenda-previous-line)
 
 ;;; end
 

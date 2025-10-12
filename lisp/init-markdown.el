@@ -25,14 +25,10 @@
 (keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
 
 (evil-define-key 'motion markdown-mode-map
-  (kbd "TAB") #'markdown-cycle
-  (kbd "S-TAB") #'markdown-shifttab
-  (kbd "<tab>") #'markdown-cycle
-  (kbd "<backtab>") #'markdown-shifttab
-  "gj" #'markdown-outline-next-same-level
-  "gk" #'markdown-outline-previous-same-level
-  (kbd "C-j") #'markdown-outline-next-same-level
-  (kbd "C-k") #'markdown-outline-previous-same-level)
+  "gj" #'markdown-next-visible-heading
+  "gk" #'markdown-previous-visible-heading
+  (kbd "C-j") #'markdown-next-visible-heading
+  (kbd "C-k") #'markdown-previous-visible-heading)
 
 (provide 'init-markdown)
 ;;; init-markdown.el ends here
