@@ -655,9 +655,6 @@ EVENT see `input-method-function'."
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
-(evil-define-key 'insert minibuffer-local-map
-  (kbd "M-r") #'previous-matching-history-element)
-
 (evil-define-key 'normal minibuffer-local-map
   (kbd "<escape>") #'abort-recursive-edit)
 
@@ -736,6 +733,8 @@ FUNC ARGS see `vertico--setup'."
 
 (setq completion-in-region-function #'consult-completion-in-region)
 
+(keymap-set evil-insert-state-map "M-r" #'consult-history)
+
 (defvar-keymap init-consult-override-mode-map)
 
 (define-minor-mode init-consult-override-mode
@@ -748,9 +747,6 @@ FUNC ARGS see `vertico--setup'."
 
 (keymap-set init-consult-override-mode-map "<remap> <yank>" #'consult-yank-from-kill-ring)
 (keymap-set init-consult-override-mode-map "<remap> <yank-pop>" #'consult-yank-pop)
-(keymap-set init-consult-override-mode-map "<remap> <previous-matching-history-element>" #'consult-history)
-(keymap-set init-consult-override-mode-map "<remap> <comint-history-isearch-backward-regexp>" #'consult-history)
-(keymap-set init-consult-override-mode-map "<remap> <eshell-previous-matching-input>" #'consult-history)
 
 ;;;; line
 
@@ -1057,9 +1053,6 @@ With two universal ARG, edit rg command."
 
 (require 'comint)
 
-(evil-define-key 'insert comint-mode-map
-  (kbd "M-r") #'comint-history-isearch-backward-regexp)
-
 (evil-define-key 'normal comint-mode-map
   "gj" #'comint-next-prompt
   "gk" #'comint-previous-prompt
@@ -1085,9 +1078,6 @@ With two universal ARG, edit rg command."
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
-
-(evil-define-key 'insert eshell-hist-mode-map
-  (kbd "M-r") #'eshell-previous-matching-input)
 
 (evil-define-key 'normal eshell-mode-map
   "gj" #'eshell-next-prompt
