@@ -139,7 +139,7 @@ With two or more universal ARG, open in current window."
 
 (setq evil-emacs-state-modes nil)
 (setq evil-insert-state-modes nil)
-(setq evil-motion-state-modes nil)
+(setq evil-motion-state-modes '(special-mode))
 
 (add-hook 'after-init-hook #'evil-mode)
 
@@ -564,7 +564,6 @@ FUNC and ARGS see `evil-set-cursor'."
   (kbd "C-a") (init-isearch-wrap-menu-item-filter #'move-beginning-of-line)
   (kbd "C-e") (init-isearch-wrap-menu-item-filter #'move-end-of-line))
 
-(evil-set-initial-state 'occur-mode 'motion)
 (evil-set-initial-state 'occur-edit-mode 'normal)
 
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
@@ -959,8 +958,6 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 
 (require 'tabulated-list)
 
-(evil-set-initial-state 'tabulated-list-mode 'motion)
-
 (evil-define-key 'motion tabulated-list-mode-map
   (kbd "TAB") #'forward-button
   (kbd "S-TAB") #'backward-button
@@ -979,8 +976,6 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 	      " " (mode 16 16 :left :elide)
               " " filename-and-process)
         (mark " " (name 40 -1) " " filename)))
-
-(evil-set-initial-state 'ibuffer-mode 'motion)
 
 (evil-define-key 'motion ibuffer-mode-map
   (kbd "RET") #'ibuffer-visit-buffer
@@ -1121,8 +1116,6 @@ With two universal ARG, edit rg command."
     (compilation-start command 'grep-mode)))
 
 (defalias 'rg 'init-rg-dwim)
-
-(evil-set-initial-state 'grep-mode 'motion)
 
 (evil-define-key 'motion grep-mode-map
   (kbd "RET") #'compile-goto-error
@@ -1267,8 +1260,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'log-view)
 
-(evil-set-initial-state 'log-view-mode 'motion)
-
 (evil-define-key 'motion log-view-mode-map
   (kbd "TAB") #'log-view-toggle-entry-display
   (kbd "<tab>") #'log-view-toggle-entry-display
@@ -1285,10 +1276,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (require 'vc-annotate)
 
 (keymap-set vc-prefix-map "p" #'vc-push)
-
-(evil-set-initial-state 'vc-dir-mode 'motion)
-(evil-set-initial-state 'vc-annotate-mode 'motion)
-(evil-set-initial-state 'vc-git-log-view-mode 'motion)
 
 (evil-define-key 'motion vc-dir-mode-map
   (kbd "RET") #'vc-dir-find-file
@@ -1377,9 +1364,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
-(evil-set-initial-state 'flymake-diagnostics-buffer-mode 'motion)
-(evil-set-initial-state 'flymake-project-diagnostics-mode 'motion)
-
 (evil-define-key 'motion flymake-diagnostics-buffer-mode-map
   (kbd "RET") #'flymake-goto-diagnostic
   (kbd "<return>") #'flymake-goto-diagnostic
@@ -1407,8 +1391,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (require 'xref)
 
 (setq xref-search-program 'ripgrep)
-
-(evil-set-initial-state 'xref--xref-buffer-mode 'motion)
 
 (evil-define-key 'motion xref--xref-buffer-mode-map
   (kbd "RET") #'xref-goto-xref
@@ -1665,8 +1647,6 @@ FUNC and ARGS see specific command."
 
 (require 'help-mode)
 
-(evil-set-initial-state 'help-mode 'motion)
-
 (evil-define-key 'motion help-mode-map
   (kbd "TAB") #'forward-button
   (kbd "S-TAB") #'backward-button
@@ -1680,8 +1660,6 @@ FUNC and ARGS see specific command."
 ;;;; info
 
 (require 'info)
-
-(evil-set-initial-state 'Info-mode 'motion)
 
 (evil-define-key 'motion Info-mode-map
   (kbd "RET") #'Info-follow-nearest-node
@@ -1703,12 +1681,6 @@ FUNC and ARGS see specific command."
   (kbd "<tab>") #'widget-forward
   (kbd "<backtab>") #'widget-backward
   "q" #'Custom-buffer-done)
-
-;;;; package
-
-(require 'package)
-
-(evil-set-initial-state 'package-menu-mode 'motion)
 
 ;;; leaders
 

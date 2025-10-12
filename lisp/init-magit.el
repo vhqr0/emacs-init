@@ -20,8 +20,6 @@
 
 (require 'magit-section)
 
-(evil-set-initial-state 'magit-section-mode 'motion)
-
 (evil-define-key 'motion magit-section-mode-map
   (kbd "TAB") #'magit-section-toggle
   (kbd "S-TAB") #'magit-section-cycle-global
@@ -60,15 +58,6 @@ Or else call `magit-status'."
 (init-leader-set
  "G" #'init-magit-dwim)
 
-(evil-set-initial-state 'magit-mode 'motion)
-(evil-set-initial-state 'magit-status-mode 'motion)
-(evil-set-initial-state 'magit-diff-mode 'motion)
-(evil-set-initial-state 'magit-log-mode 'motion)
-(evil-set-initial-state 'magit-revision-mode 'motion)
-(evil-set-initial-state 'magit-stash-mode 'motion)
-(evil-set-initial-state 'magit-stashes-mode 'motion)
-(evil-set-initial-state 'magit-process-mode 'motion)
-
 (evil-define-key 'motion magit-mode-map
   (kbd "RET") #'magit-visit-thing
   (kbd "<return>") #'magit-visit-thing
@@ -98,15 +87,6 @@ Or else call `magit-status'."
   (kbd "C-j") #'magit-blame-next-chunk
   (kbd "C-k") #'magit-blame-previous-chunk
   "q" #'magit-blame-quit)
-
-;;; forge
-
-(require 'forge)
-
-(evil-set-initial-state 'forge-topic-mode 'motion)
-(evil-set-initial-state 'forge-discussion-mode 'motion)
-(evil-set-initial-state 'forge-issue-mode 'motion)
-(evil-set-initial-state 'forge-pullreq-mode 'motion)
 
 ;;; end
 
