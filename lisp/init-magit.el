@@ -56,14 +56,44 @@ Or else call `magit-status'."
 
 (keymap-set magit-mode-map "<remap> <quit-window>" #'magit-mode-bury-buffer)
 
-(evil-define-key 'motion magit-mode-map
-  "j" #'magit-next-line
-  "k" #'magit-previous-line
-  "p" #'magit-push)
+(evil-set-initial-state 'magit-mode 'normal)
 
-(evil-define-key 'visual magit-mode-map
-  "j" #'evil-next-line
-  "k" #'evil-previous-line)
+(evil-define-key 'normal magit-mode-map
+  "a" #'magit-cherry-apply
+  "A" #'magit-cherry-pick
+  "b" #'magit-branch
+  "B" #'magit-bisect
+  "c" #'magit-commit
+  "C" #'magit-clone
+  "d" #'magit-diff
+  "D" #'magit-diff-refresh
+  "e" #'magit-ediff-dwim
+  "E" #'magit-ediff
+  "f" #'magit-fetch
+  "F" #'magit-pull
+  "i" #'magit-gitignore
+  "I" #'magit-init
+  "m" #'magit-merge
+  "M" #'magit-remote
+  "o" #'magit-submodule
+  "O" #'magit-subtree
+  "p" #'magit-push
+  "P" #'magit-push
+  "r" #'magit-rebase
+  "R" #'magit-file-rename
+  "s" #'magit-stage-files
+  "S" #'magit-stage-modified
+  "t" #'magit-tag
+  "T" #'magit-notes
+  "u" #'magit-unstage-files
+  "U" #'magit-unstage-all
+  "w" #'magit-am
+  "W" #'magit-patch
+  "x" #'magit-reset-quickly
+  "X" #'magit-reset
+  "z" #'magit-stash
+  "Z" #'magit-worktree
+  "$" #'magit-process-buffer)
 
 (keymap-set magit-blob-mode-map "<remap> <quit-window>" #'magit-kill-this-buffer)
 
