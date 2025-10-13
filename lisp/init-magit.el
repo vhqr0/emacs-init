@@ -78,8 +78,6 @@ Or else call `magit-status'."
 (evil-define-minor-mode-key 'motion 'magit-blame-mode
   "gj" #'magit-blame-next-chunk
   "gk" #'magit-blame-previous-chunk
-  "gJ" #'magit-blame-next-chunk-same-commit
-  "gK" #'magit-blame-previous-chunk-same-commit
   (kbd "C-j") #'magit-blame-next-chunk
   (kbd "C-k") #'magit-blame-previous-chunk)
 

@@ -716,14 +716,14 @@ FUNC ARGS see `vertico--setup'."
 (evil-define-key 'normal vertico-map
   "j" #'vertico-next
   "k" #'vertico-previous
-  "gj" #'vertico-next-group
-  "gk" #'vertico-previous-group
-  (kbd "C-j") #'vertico-next-group
-  (kbd "C-k") #'vertico-previous-group
   "gg" #'vertico-first
   "G" #'vertico-last
   (kbd "C-u") #'vertico-scroll-down
-  (kbd "C-d") #'vertico-scroll-up)
+  (kbd "C-d") #'vertico-scroll-up
+  "gj" #'vertico-next-group
+  "gk" #'vertico-previous-group
+  (kbd "C-j") #'vertico-next-group
+  (kbd "C-k") #'vertico-previous-group)
 
 ;;; search
 
@@ -961,9 +961,7 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   (kbd "C-j") #'ibuffer-forward-filter-group
   (kbd "C-k") #'ibuffer-backward-filter-group)
 
-;;; dirs
-
-;;;; dired
+;;; dired
 
 (require 'dired)
 (require 'dired-x)
@@ -987,7 +985,7 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   "k" #'dired-previous-line
   "+" #'dired-create-directory)
 
-;;;; archive
+;;; archive
 
 (require 'arc-mode)
 
@@ -1178,17 +1176,9 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set vc-prefix-map "p" #'vc-push)
 
 (evil-define-key 'motion vc-dir-mode-map
-  "gj" #'vc-dir-next-line
-  "gk" #'vc-dir-previous-line
-  (kbd "C-j") #'vc-dir-next-line
-  (kbd "C-k") #'vc-dir-previous-line
+  "j" #'vc-dir-next-line
+  "k" #'vc-dir-previous-line
   "p" #'vc-push)
-
-(evil-define-key 'motion vc-annotate-mode-map
-  "gj" #'vc-annotate-next-revision
-  "gk" #'vc-annotate-prev-revision
-  (kbd "C-j") #'vc-annotate-next-revision
-  (kbd "C-k") #'vc-annotate-prev-revision)
 
 ;;; image
 
@@ -1217,6 +1207,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (evil-define-key 'motion image-mode-map
   "j" #'image-next-line
   "k" #'image-previous-line
+  "gg" #'image-bob
+  "G" #'image-eob
   (kbd "C-u") #'image-scroll-down
   (kbd "C-d") #'image-scroll-up
   "gj" #'image-next-file
