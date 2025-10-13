@@ -580,7 +580,9 @@ FUNC and ARGS see `evil-set-cursor'."
 ;;; input method
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
+(keymap-global-set "C-@" #'toggle-input-method)
 (keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
+(keymap-set isearch-mode-map "C-@" #'isearch-toggle-input-method)
 
 (defvar init-ignore-toggle-input-method nil)
 
