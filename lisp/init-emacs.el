@@ -131,6 +131,8 @@ With two or more universal ARG, open in current window."
 
 (require 'evil)
 
+(setq evil-mode-line-format '(before . mode-line-front-space))
+
 (setq evil-want-fine-undo t)
 (setq evil-symbol-word-search t)
 
