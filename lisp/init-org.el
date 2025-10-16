@@ -11,17 +11,21 @@
 
 (require 'outline)
 
-(evil-define-key 'motion outline-mode-map
-  "gj" #'outline-next-visible-heading
-  "gk" #'outline-previous-visible-heading
-  (kbd "C-j") #'outline-next-visible-heading
-  (kbd "C-k") #'outline-previous-visible-heading)
+(init-evil-keymap-set 'motion outline-mode-map
+  "g j" #'outline-next-visible-heading
+  "g k" #'outline-previous-visible-heading
+  "C-j" #'outline-next-visible-heading
+  "C-k" #'outline-previous-visible-heading)
 
-(evil-define-minor-mode-key 'motion 'outline-minor-mode
-  "gj" #'outline-next-visible-heading
-  "gk" #'outline-previous-visible-heading
-  (kbd "C-j") #'outline-next-visible-heading
-  (kbd "C-k") #'outline-previous-visible-heading)
+(init-evil-minor-mode-keymap-set 'motion 'outline-minor-mode
+  "TAB" #'outline-cycle
+  "S-TAB" #'outline-cycle-buffer
+  "<tab>" #'outline-cycle
+  "<backtab>" #'outline-cycle-buffer
+  "g j" #'outline-next-visible-heading
+  "g k" #'outline-previous-visible-heading
+  "C-j" #'outline-next-visible-heading
+  "C-k" #'outline-previous-visible-heading)
 
 ;;; org
 
@@ -114,7 +118,7 @@
 
 (evil-set-initial-state 'org-agenda-mode 'motion)
 
-(evil-define-key 'motion org-agenda-mode-map
+(init-evil-keymap-set 'motion org-agenda-mode-map
   "j" #'org-agenda-next-line
   "k" #'org-agenda-previous-line)
 

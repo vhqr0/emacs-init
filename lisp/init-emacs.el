@@ -193,6 +193,26 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (defvar-keymap init-evil-override-mode-map)
 
+(defun init-evil-keymap-set (state keymap &rest clauses)
+  "Set evil key.
+STATE KEYMAP CLAUSES see `evil-define-key*'."
+  (declare (indent defun))
+  (apply #'evil-define-key* state keymap
+         (seq-map-indexed
+          (lambda (v i)
+            (if (cl-oddp i) v (kbd v)))
+          clauses)))
+
+(defun init-evil-minor-mode-keymap-set (state mode &rest clauses)
+  "Set evil key in minor mode.
+STATE MODE CLAUSES see `evil-define-minor-mode-key'."
+  (declare (indent defun))
+  (apply #'evil-define-minor-mode-key state mode
+         (seq-map-indexed
+          (lambda (v i)
+            (if (cl-oddp i) v (kbd v)))
+          clauses)))
+
 (define-minor-mode init-evil-override-mode
   "Override leader prefix map."
   :group 'init-evil
@@ -560,22 +580,22 @@ FUNC and ARGS see `evil-set-cursor'."
   "Wrap COMMAND with `init-isearch-menu-item-filter'."
   `(menu-item "" ,command :filter init-isearch-menu-item-filter))
 
-(evil-define-key 'motion init-evil-isearch-override-mode-map
-  (kbd "C-u") (init-isearch-wrap-menu-item-filter #'universal-argument)
-  (kbd "C-f") (init-isearch-wrap-menu-item-filter #'forward-char)
-  (kbd "C-b") (init-isearch-wrap-menu-item-filter #'backward-char)
-  (kbd "C-a") (init-isearch-wrap-menu-item-filter #'move-beginning-of-line)
-  (kbd "C-e") (init-isearch-wrap-menu-item-filter #'move-end-of-line))
+(init-evil-keymap-set 'motion init-evil-isearch-override-mode-map
+  "C-u" (init-isearch-wrap-menu-item-filter #'universal-argument)
+  "C-f" (init-isearch-wrap-menu-item-filter #'forward-char)
+  "C-b" (init-isearch-wrap-menu-item-filter #'backward-char)
+  "C-a" (init-isearch-wrap-menu-item-filter #'move-beginning-of-line)
+  "C-e" (init-isearch-wrap-menu-item-filter #'move-end-of-line))
 
 (evil-set-initial-state 'occur-edit-mode 'normal)
 
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
 
-(evil-define-key 'motion occur-mode-map
-  "gj" #'next-error-no-select
-  "gk" #'previous-error-no-select
-  (kbd "C-j") #'next-error-no-select
-  (kbd "C-k") #'previous-error-no-select)
+(init-evil-keymap-set 'motion occur-mode-map
+  "g j" #'next-error-no-select
+  "g k" #'previous-error-no-select
+  "C-j" #'next-error-no-select
+  "C-k" #'previous-error-no-select)
 
 ;;; input method
 
@@ -658,8 +678,8 @@ EVENT see `input-method-function'."
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
-(evil-define-key 'normal minibuffer-local-map
-  (kbd "<escape>") #'abort-recursive-edit)
+(init-evil-keymap-set 'normal minibuffer-local-map
+  "<escape>" #'abort-recursive-edit)
 
 (require 'savehist)
 
@@ -715,17 +735,17 @@ FUNC ARGS see `vertico--setup'."
 
 (keymap-set vertico-map "C-x C-s" #'embark-export)
 
-(evil-define-key 'normal vertico-map
+(init-evil-keymap-set 'normal vertico-map
   "j" #'vertico-next
   "k" #'vertico-previous
-  "gg" #'vertico-first
+  "g g" #'vertico-first
   "G" #'vertico-last
-  (kbd "C-u") #'vertico-scroll-down
-  (kbd "C-d") #'vertico-scroll-up
-  "gj" #'vertico-next-group
-  "gk" #'vertico-previous-group
-  (kbd "C-j") #'vertico-next-group
-  (kbd "C-k") #'vertico-previous-group)
+  "C-u" #'vertico-scroll-down
+  "C-d" #'vertico-scroll-up
+  "g j" #'vertico-next-group
+  "g k" #'vertico-previous-group
+  "C-j" #'vertico-next-group
+  "C-k" #'vertico-previous-group)
 
 ;;; search
 
@@ -957,11 +977,11 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
               " " filename-and-process)
         (mark " " (name 40 -1) " " filename)))
 
-(evil-define-key 'motion ibuffer-mode-map
-  "gj" #'ibuffer-forward-filter-group
-  "gk" #'ibuffer-backward-filter-group
-  (kbd "C-j") #'ibuffer-forward-filter-group
-  (kbd "C-k") #'ibuffer-backward-filter-group)
+(init-evil-keymap-set 'motion ibuffer-mode-map
+  "g j" #'ibuffer-forward-filter-group
+  "g k" #'ibuffer-backward-filter-group
+  "C-j" #'ibuffer-forward-filter-group
+  "C-k" #'ibuffer-backward-filter-group)
 
 ;;; dired
 
@@ -982,7 +1002,7 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 (evil-set-initial-state 'dired-mode 'motion)
 (evil-set-initial-state 'wdired-mode 'normal)
 
-(evil-define-key 'motion dired-mode-map
+(init-evil-keymap-set 'motion dired-mode-map
   "j" #'dired-next-line
   "k" #'dired-previous-line
   "+" #'dired-create-directory)
@@ -993,7 +1013,7 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 
 (evil-set-initial-state 'archive-mode 'motion)
 
-(evil-define-key 'motion archive-mode-map
+(init-evil-keymap-set 'motion archive-mode-map
   "j" #'archive-next-line
   "k" #'archive-previous-line)
 
@@ -1008,11 +1028,11 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 
 (evil-set-initial-state 'compilation-mode 'motion)
 
-(evil-define-key 'motion compilation-mode-map
-  "gj" #'next-error-no-select
-  "gk" #'previous-error-no-select
-  (kbd "C-j") #'next-error-no-select
-  (kbd "C-k") #'previous-error-no-select)
+(init-evil-keymap-set 'motion compilation-mode-map
+  "g j" #'next-error-no-select
+  "g k" #'previous-error-no-select
+  "C-j" #'next-error-no-select
+  "C-k" #'previous-error-no-select)
 
 ;;;; grep
 
@@ -1044,21 +1064,21 @@ With two universal ARG, edit rg command."
 
 (defalias 'rg 'init-rg-dwim)
 
-(evil-define-key 'motion grep-mode-map
-  "gj" #'next-error-no-select
-  "gk" #'previous-error-no-select
-  (kbd "C-j") #'next-error-no-select
-  (kbd "C-k") #'previous-error-no-select)
+(init-evil-keymap-set 'motion grep-mode-map
+  "g j" #'next-error-no-select
+  "g k" #'previous-error-no-select
+  "C-j" #'next-error-no-select
+  "C-k" #'previous-error-no-select)
 
 ;;;; comint
 
 (require 'comint)
 
-(evil-define-key 'normal comint-mode-map
-  "gj" #'comint-next-prompt
-  "gk" #'comint-previous-prompt
-  (kbd "C-j") #'comint-next-prompt
-  (kbd "C-k") #'comint-previous-prompt)
+(init-evil-keymap-set 'normal comint-mode-map
+  "g j" #'comint-next-prompt
+  "g k" #'comint-previous-prompt
+  "C-j" #'comint-next-prompt
+  "C-k" #'comint-previous-prompt)
 
 ;;;; eshell
 
@@ -1080,11 +1100,11 @@ With two universal ARG, edit rg command."
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
 
-(evil-define-key 'normal eshell-mode-map
-  "gj" #'eshell-next-prompt
-  "gk" #'eshell-previous-prompt
-  (kbd "C-j") #'eshell-next-prompt
-  (kbd "C-k") #'eshell-previous-prompt)
+(init-evil-keymap-set 'normal eshell-mode-map
+  "g j" #'eshell-next-prompt
+  "g k" #'eshell-previous-prompt
+  "C-j" #'eshell-next-prompt
+  "C-k" #'eshell-previous-prompt)
 
 (defun init-eshell-dwim-find-buffer ()
   "Find eshell dwim buffer."
@@ -1122,11 +1142,11 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (evil-set-initial-state 'diff-mode 'motion)
 
-(evil-define-key 'motion diff-mode-shared-map
-  "gj" #'diff-hunk-next
-  "gk" #'diff-hunk-prev
-  (kbd "C-j") #'diff-hunk-next
-  (kbd "C-k") #'diff-hunk-prev)
+(init-evil-keymap-set 'motion diff-mode-shared-map
+  "g j" #'diff-hunk-next
+  "g k" #'diff-hunk-prev
+  "C-j" #'diff-hunk-next
+  "C-k" #'diff-hunk-prev)
 
 ;;;; ediff
 
@@ -1164,11 +1184,11 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'log-view)
 
-(evil-define-key 'motion log-view-mode-map
-  "gj" #'log-view-msg-next
-  "gk" #'log-view-msg-prev
-  (kbd "C-j") #'log-view-msg-next
-  (kbd "C-k") #'log-view-msg-prev)
+(init-evil-keymap-set 'motion log-view-mode-map
+  "g j" #'log-view-msg-next
+  "g k" #'log-view-msg-prev
+  "C-j" #'log-view-msg-next
+  "C-k" #'log-view-msg-prev)
 
 ;;;; vc modes
 
@@ -1177,7 +1197,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (keymap-set vc-prefix-map "p" #'vc-push)
 
-(evil-define-key 'motion vc-dir-mode-map
+(init-evil-keymap-set 'motion vc-dir-mode-map
   "j" #'vc-dir-next-line
   "k" #'vc-dir-previous-line
   "p" #'vc-push)
@@ -1192,12 +1212,12 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-slice-map "-" #'image-decrease-size)
 (keymap-set image--repeat-map "=" #'image-increase-size)
 
-(evil-define-key 'motion image-slice-map
+(init-evil-keymap-set 'motion image-slice-map
   "=" #'image-increase-size
   "+" #'image-increase-size
   "-" #'image-decrease-size)
 
-(evil-define-key 'normal image-slice-map
+(init-evil-keymap-set 'normal image-slice-map
   "=" #'image-increase-size)
 
 (require 'image-mode)
@@ -1206,17 +1226,17 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (evil-set-initial-state 'image-mode 'motion)
 
-(evil-define-key 'motion image-mode-map
+(init-evil-keymap-set 'motion image-mode-map
   "j" #'image-next-line
   "k" #'image-previous-line
-  "gg" #'image-bob
+  "g g" #'image-bob
   "G" #'image-eob
-  (kbd "C-u") #'image-scroll-down
-  (kbd "C-d") #'image-scroll-up
-  "gj" #'image-next-file
-  "gk" #'image-previous-file
-  (kbd "C-j") #'image-next-file
-  (kbd "C-k") #'image-previous-file)
+  "C-u" #'image-scroll-down
+  "C-d" #'image-scroll-up
+  "g j" #'image-next-file
+  "g k" #'image-previous-file
+  "C-j" #'image-next-file
+  "C-k" #'image-previous-file)
 
 ;;; prog
 
@@ -1247,11 +1267,11 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (setq xref-search-program 'ripgrep)
 
-(evil-define-key 'motion xref--xref-buffer-mode-map
-  "gj" #'xref-next-line
-  "gk" #'xref-prev-line
-  (kbd "C-j") #'xref-next-line
-  (kbd "C-k") #'xref-prev-line)
+(init-evil-keymap-set 'motion xref--xref-buffer-mode-map
+  "g j" #'xref-next-line
+  "g k" #'xref-prev-line
+  "C-j" #'xref-next-line
+  "C-k" #'xref-prev-line)
 
 ;;;; abbrev
 
@@ -1396,7 +1416,8 @@ FUNC COMMAND ARGS see `company-call-backend'."
 (defun init-lisp-set-outline ()
   "Set outline vars."
   (setq-local outline-regexp ";;[;*]+[\s\t]+")
-  (setq-local outline-level #'init-lisp-outline-level))
+  (setq-local outline-level #'init-lisp-outline-level)
+  (outline-minor-mode 1))
 
 (defun init-lisp-around-last-sexp-maybe-forward (func &rest args)
   "Around *-last-sexp command.
@@ -1498,8 +1519,8 @@ FUNC and ARGS see specific command."
 
 (defvar-keymap init-leader-map)
 
-(evil-define-key 'motion init-evil-override-mode-map
-  (kbd "SPC") init-leader-map)
+(init-evil-keymap-set 'motion init-evil-override-mode-map
+  "SPC" init-leader-map)
 
 (defun init-leader-set (&rest clauses)
   "Set leader binding CLAUSES in `init-leader-map'."
@@ -1519,8 +1540,8 @@ FUNC and ARGS see specific command."
   (interactive)
   (init-leader-wrap-spc #'scroll-up-command))
 
-(evil-define-key 'motion init-evil-override-mode-map
-  [remap scroll-up-command] #'init-leader-or-scroll-up-command)
+(init-evil-keymap-set 'motion init-evil-override-mode-map
+  "<remap> <scroll-up-command>" #'init-leader-or-scroll-up-command)
 
 (defun init-magic-prefix (prefix)
   "Magically read and execute command on PREFIX."
