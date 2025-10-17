@@ -94,7 +94,7 @@ With two or more universal ARG, open in current window."
 (setq initial-scratch-message nil)
 
 (defvar init-disable-ui-modes
-  '(blink-cursor-mode tooltip-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
+  '(blink-cursor-mode tool-bar-mode menu-bar-mode))
 
 (defun init-disable-ui ()
   "Disable various ui modes."
@@ -219,9 +219,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   "Override leader prefix map."
   :group 'init-evil
   :global t
+  :init-value t
   :keymap init-evil-override-mode-map)
-
-(add-hook 'after-init-hook #'init-evil-override-mode)
 
 ;;;; extra
 
@@ -401,6 +400,20 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 ;;; window
 
+(add-hook 'after-init-hook #'horizontal-scroll-bar-mode)
+
+(define-minor-mode init-arrow-scroll-mode
+  "Minor mode to use arrow keys to scroll around."
+  :group 'init-window
+  :global t
+  :init-value t)
+
+(init-evil-minor-mode-keymap-set 'motion 'init-arrow-scroll-mode
+  "<left>" #'evil-scroll-left
+  "<right>" #'evil-scroll-right
+  "<up>" #'evil-scroll-up
+  "<down>" #'evil-scroll-down)
+
 (require 'windmove)
 
 (windmove-default-keybindings)
@@ -409,6 +422,7 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 (require 'tab-bar)
 
+(setq tab-bar-position t)
 (setq tab-bar-tab-hints t)
 (setq tab-bar-select-tab-modifiers '(control meta))
 (setq tab-bar-close-last-tab-choice 'delete-frame)
@@ -576,9 +590,8 @@ FUNC and ARGS see `evil-set-cursor'."
   "Override isearch commands map."
   :group 'init-evil
   :global t
+  :init-value t
   :keymap init-evil-isearch-override-mode-map)
-
-(add-hook 'after-init-hook #'init-evil-isearch-override-mode)
 
 (defun init-isearch-menu-item-filter (command)
   "Return COMMAND when isearch enabled."
@@ -744,6 +757,9 @@ FUNC ARGS see `vertico--setup'."
 
 (keymap-set vertico-map "C-x C-s" #'embark-export)
 
+(keymap-set vertico-map "<remap> <evil-scroll-down>" #'vertico-scroll-up)
+(keymap-set vertico-map "<remap> <evil-scroll-up>" #'vertico-scroll-down)
+
 (init-evil-keymap-set 'normal vertico-map
   "j" #'vertico-next
   "k" #'vertico-previous
@@ -773,9 +789,8 @@ FUNC ARGS see `vertico--setup'."
   "Override consult commands."
   :group 'init-consult
   :global t
+  :init-value t
   :keymap init-consult-override-mode-map)
-
-(add-hook 'after-init-hook #'init-consult-override-mode)
 
 (keymap-set init-consult-override-mode-map "<remap> <yank>" #'consult-yank-from-kill-ring)
 (keymap-set init-consult-override-mode-map "<remap> <yank-pop>" #'consult-yank-pop)
@@ -1234,6 +1249,11 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "a =" #'image-increase-speed)
 
 (evil-set-initial-state 'image-mode 'motion)
+
+(keymap-set image-mode-map "<remap> <evil-scroll-down>" #'image-scroll-up)
+(keymap-set image-mode-map "<remap> <evil-scroll-up>" #'image-scroll-down)
+(keymap-set image-mode-map "<remap> <evil-scroll-left>" #'image-scroll-right)
+(keymap-set image-mode-map "<remap> <evil-scroll-right>" #'image-scroll-left)
 
 (init-evil-keymap-set 'motion image-mode-map
   "j" #'image-next-line
