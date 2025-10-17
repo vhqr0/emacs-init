@@ -292,7 +292,9 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 (setq column-number-mode t)
 (setq mode-line-percent-position '(6 "%q"))
-(setq mode-line-position-column-line-format '(" %l:%c"))
+(setq mode-line-position-line-format '(" %lL"))
+(setq mode-line-position-column-format '(" %CC"))
+(setq mode-line-position-column-line-format '(" %l:%C"))
 
 (require 'files)
 
