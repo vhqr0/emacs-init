@@ -1252,15 +1252,18 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-slice-map "=" #'image-increase-size)
 (keymap-set image-slice-map "+" #'image-increase-size)
 (keymap-set image-slice-map "-" #'image-decrease-size)
+(keymap-set image-slice-map "r" #'image-rotate)
 (keymap-set image--repeat-map "=" #'image-increase-size)
 
 (init-evil-keymap-set 'motion image-slice-map
   "=" #'image-increase-size
   "+" #'image-increase-size
-  "-" #'image-decrease-size)
+  "-" #'image-decrease-size
+  "r" #'image-rotate)
 
 (init-evil-keymap-set 'normal image-slice-map
-  "=" #'image-increase-size)
+  "=" #'image-increase-size
+  "r" #'image-rotate)
 
 (require 'image-mode)
 
@@ -1275,9 +1278,15 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "<remap> <evil-goto-first-line>" #'image-bob)
 (keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
 
+(keymap-set image-mode-map "C-=" #'image-increase-size)
+(keymap-set image-mode-map "C-+" #'image-increase-size)
+(keymap-set image-mode-map "C--" #'image-decrease-size)
+
 (init-evil-keymap-set 'motion image-mode-map
   "j" #'image-next-line
   "k" #'image-previous-line
+  "h" #'image-backward-hscroll
+  "l" #'image-forward-hscroll
   "g j" #'image-next-file
   "g k" #'image-previous-file
   "C-j" #'image-next-file
