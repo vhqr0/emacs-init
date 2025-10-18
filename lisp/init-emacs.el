@@ -615,9 +615,6 @@ FUNC and ARGS see `evil-set-cursor'."
   "C-a" (init-filtered-command #'init-isearch-filter #'move-beginning-of-line)
   "C-e" (init-filtered-command #'init-isearch-filter #'move-end-of-line))
 
-(keymap-set occur-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
-(keymap-set occur-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
-
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
 
 (evil-set-initial-state 'occur-edit-mode 'normal)
@@ -1056,18 +1053,9 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 
 (keymap-set project-prefix-map "C" #'project-recompile)
 
-(keymap-set compilation-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
-(keymap-set compilation-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
-(keymap-set compilation-minor-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
-(keymap-set compilation-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
-
 ;;;; grep
 
 (require 'grep)
-
-(keymap-set grep-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
-(keymap-set grep-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
-
 (require 'wgrep)
 
 (setq wgrep-auto-save-buffer t)
@@ -1291,9 +1279,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (require 'xref)
 
 (setq xref-search-program 'ripgrep)
-
-(keymap-set xref--xref-buffer-mode-map "<remap> <init-jump-next-placeholder>" #'xref-next-line)
-(keymap-set xref--xref-buffer-mode-map "<remap> <init-jump-previous-placeholder>" #'xref-prev-line)
 
 ;;;; abbrev
 
