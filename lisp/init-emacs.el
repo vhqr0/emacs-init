@@ -1170,13 +1170,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (init-evil-keymap-set 'motion vc-dir-mode-map
   "p" #'vc-push)
 
-;;;; diff
-
-(require 'diff)
-
-(keymap-set diff-mode-shared-map "<remap> <init-jump-next-placeholder>" #'diff-hunk-next)
-(keymap-set diff-mode-shared-map "<remap> <init-jump-previous-placeholder>" #'diff-hunk-prev)
-
 ;;;; ediff
 
 (require 'ediff)
