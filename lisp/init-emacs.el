@@ -759,14 +759,12 @@ FUNC ARGS see `vertico--setup'."
 
 (keymap-set vertico-map "<remap> <evil-scroll-down>" #'vertico-scroll-up)
 (keymap-set vertico-map "<remap> <evil-scroll-up>" #'vertico-scroll-down)
+(keymap-set vertico-map "<remap> <evil-goto-first-line>" #'vertico-first)
+(keymap-set vertico-map "<remap> <evil-goto-line>" #'vertico-last)
 
 (init-evil-keymap-set 'normal vertico-map
   "j" #'vertico-next
   "k" #'vertico-previous
-  "g g" #'vertico-first
-  "G" #'vertico-last
-  "C-u" #'vertico-scroll-down
-  "C-d" #'vertico-scroll-up
   "g j" #'vertico-next-group
   "g k" #'vertico-previous-group
   "C-j" #'vertico-next-group
@@ -1192,15 +1190,35 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (let ((last-command-event ?v))
     (call-interactively #'ediff-scroll-vertically)))
 
+(defun init-ediff-scroll-left ()
+  "Scroll left in ediff."
+  (interactive)
+  (let ((last-command-event ?>))
+    (call-interactively #'ediff-scroll-horizontally)))
+
+(defun init-ediff-scroll-right ()
+  "Scroll right in ediff."
+  (interactive)
+  (let ((last-command-event ?<))
+    (call-interactively #'ediff-scroll-horizontally)))
+
+(defun init-ediff-jump-to-last-difference ()
+  "Jump to last difference."
+  (interactive)
+  (ediff-jump-to-difference -1))
+
 (defun init-ediff-setup-keymap-extra ()
   "Setup extra ediff bindings."
   (keymap-set ediff-mode-map "j" #'ediff-next-difference)
   (keymap-set ediff-mode-map "k" #'ediff-previous-difference)
   (keymap-set ediff-mode-map "g g" #'ediff-jump-to-difference)
+  (keymap-set ediff-mode-map "G" #'init-ediff-jump-to-last-difference)
   (keymap-set ediff-mode-map "C-d" #'init-ediff-scroll-down)
   (keymap-set ediff-mode-map "C-u" #'init-ediff-scroll-up)
-  (keymap-set ediff-mode-map "C-f" #'init-ediff-scroll-down)
-  (keymap-set ediff-mode-map "C-b" #'init-ediff-scroll-up))
+  (keymap-set ediff-mode-map "<up>" #'init-ediff-scroll-up)
+  (keymap-set ediff-mode-map "<down>" #'init-ediff-scroll-down)
+  (keymap-set ediff-mode-map "<left>" #'init-ediff-scroll-left)
+  (keymap-set ediff-mode-map "<right>" #'init-ediff-scroll-right))
 
 (advice-add #'ediff-setup-keymap :after #'init-ediff-setup-keymap-extra)
 
@@ -1254,14 +1272,12 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "<remap> <evil-scroll-up>" #'image-scroll-down)
 (keymap-set image-mode-map "<remap> <evil-scroll-left>" #'image-scroll-right)
 (keymap-set image-mode-map "<remap> <evil-scroll-right>" #'image-scroll-left)
+(keymap-set image-mode-map "<remap> <evil-goto-first-line>" #'image-bob)
+(keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
 
 (init-evil-keymap-set 'motion image-mode-map
   "j" #'image-next-line
   "k" #'image-previous-line
-  "g g" #'image-bob
-  "G" #'image-eob
-  "C-u" #'image-scroll-down
-  "C-d" #'image-scroll-up
   "g j" #'image-next-file
   "g k" #'image-previous-file
   "C-j" #'image-next-file

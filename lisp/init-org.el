@@ -17,10 +17,14 @@
   "C-j" #'outline-next-visible-heading
   "C-k" #'outline-previous-visible-heading)
 
+(defvar init-outline-cycle-dwim
+  `(menu-item "" outline-cycle :filter
+              ,(lambda (cmd) (when (outline-on-heading-p) cmd))))
+
 (init-evil-minor-mode-keymap-set 'motion 'outline-minor-mode
-  "TAB" #'outline-cycle
+  "TAB" init-outline-cycle-dwim
   "S-TAB" #'outline-cycle-buffer
-  "<tab>" #'outline-cycle
+  "<tab>" init-outline-cycle-dwim
   "<backtab>" #'outline-cycle-buffer
   "g j" #'outline-next-visible-heading
   "g k" #'outline-previous-visible-heading
