@@ -11,25 +11,20 @@
 
 (require 'outline)
 
-(init-evil-keymap-set 'motion outline-mode-map
-  "g j" #'outline-next-visible-heading
-  "g k" #'outline-previous-visible-heading
-  "C-j" #'outline-next-visible-heading
-  "C-k" #'outline-previous-visible-heading)
+(keymap-set outline-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
+(keymap-set outline-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
+(keymap-set outline-minor-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
+(keymap-set outline-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
 
 (defvar init-outline-cycle-dwim
   `(menu-item "" outline-cycle :filter
-              ,(lambda (cmd) (when (outline-on-heading-p) cmd))))
+              ,(lambda (command) (when (outline-on-heading-p) command))))
 
 (init-evil-minor-mode-keymap-set 'motion 'outline-minor-mode
   "TAB" init-outline-cycle-dwim
   "S-TAB" #'outline-cycle-buffer
   "<tab>" init-outline-cycle-dwim
-  "<backtab>" #'outline-cycle-buffer
-  "g j" #'outline-next-visible-heading
-  "g k" #'outline-previous-visible-heading
-  "C-j" #'outline-next-visible-heading
-  "C-k" #'outline-previous-visible-heading)
+  "<backtab>" #'outline-cycle-buffer)
 
 ;;; org
 
@@ -52,14 +47,11 @@
 
 (add-hook 'org-mode-hook #'init-org-set-syntax)
 
-(defun init-org-set-narrow ()
-  "Set narrow function."
-  (setq-local init-narrow-to-block-function #'org-narrow-to-block)
-  (setq-local init-narrow-to-subtree-function #'org-narrow-to-subtree))
-
-(add-hook 'org-mode-hook #'init-org-set-narrow)
-
 (keymap-set org-mode-map "<remap> <init-consult-outline>" #'consult-imenu)
+(keymap-set org-mode-map "<remap> <init-narrow-to-block-placeholder>" #'org-narrow-to-block)
+(keymap-set org-mode-map "<remap> <init-narrow-to-subtree-placeholder>" #'org-narrow-to-subtree)
+(keymap-set org-mode-map "<remap> <init-jump-next-placeholder>" #'org-next-visible-heading)
+(keymap-set org-mode-map "<remap> <init-jump-previous-placeholder>" #'org-previous-visible-heading)
 
 (keymap-global-set "C-c o" #'org-open-at-point-global)
 (keymap-global-set "C-c l" #'org-insert-link-global)

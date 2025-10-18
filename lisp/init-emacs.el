@@ -536,23 +536,31 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 (setq hl-line-sticky-flag t)
 
-(defvar-local init-narrow-to-block-function nil)
-(defvar-local init-narrow-to-subtree-function nil)
-
-(defun init-narrow-to-block ()
-  "Narrow to block based on local `init-narrow-to-block-function'."
+(defun init-narrow-to-block-placeholder ()
+  "Placeholder to narrow to block command."
   (interactive)
-  (when init-narrow-to-block-function
-    (call-interactively init-narrow-to-block-function)))
+  (user-error "No narrow to block command remap on placeholder"))
 
-(defun init-narrow-to-subtree ()
-  "Narrow to subtree based on local `init-narrow-to-subtree-function'."
+(defun init-narrow-to-subtree-placeholder ()
+  "Placeholder to narrow to subtree command."
   (interactive)
-  (when init-narrow-to-subtree-function
-    (call-interactively init-narrow-to-subtree-function)))
+  (user-error "No narrow to subtree command remap on placeholder"))
 
-(keymap-set narrow-map "b" #'init-narrow-to-block)
-(keymap-set narrow-map "s" #'init-narrow-to-subtree)
+(keymap-set narrow-map "b" #'init-narrow-to-block-placeholder)
+(keymap-set narrow-map "s" #'init-narrow-to-subtree-placeholder)
+
+(defun init-jump-next-placeholder ()
+  "Placeholder to jump next command."
+  (interactive)
+  (user-error "No jump next command remap on placeholder"))
+
+(defun init-jump-previous-placeholder ()
+  "Placeholder to jump previous command."
+  (interactive)
+  (user-error "No jump previous command remap on placeholder"))
+
+(keymap-set evil-motion-state-map "C-j" #'init-jump-next-placeholder)
+(keymap-set evil-motion-state-map "C-k" #'init-jump-previous-placeholder)
 
 (require 'embark)
 
@@ -609,15 +617,12 @@ FUNC and ARGS see `evil-set-cursor'."
   "C-a" (init-isearch-wrap-menu-item-filter #'move-beginning-of-line)
   "C-e" (init-isearch-wrap-menu-item-filter #'move-end-of-line))
 
-(evil-set-initial-state 'occur-edit-mode 'normal)
-
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
 
-(init-evil-keymap-set 'motion occur-mode-map
-  "g j" #'next-error-no-select
-  "g k" #'previous-error-no-select
-  "C-j" #'next-error-no-select
-  "C-k" #'previous-error-no-select)
+(keymap-set occur-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
+(keymap-set occur-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
+
+(evil-set-initial-state 'occur-edit-mode 'normal)
 
 ;;; input method
 
@@ -761,14 +766,12 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set vertico-map "<remap> <evil-scroll-up>" #'vertico-scroll-down)
 (keymap-set vertico-map "<remap> <evil-goto-first-line>" #'vertico-first)
 (keymap-set vertico-map "<remap> <evil-goto-line>" #'vertico-last)
+(keymap-set vertico-map "<remap> <init-jump-next-placeholder>" #'vertico-next-group)
+(keymap-set vertico-map "<remap> <init-jump-previous-placeholder>" #'vertico-previous-group)
 
 (init-evil-keymap-set 'normal vertico-map
   "j" #'vertico-next
-  "k" #'vertico-previous
-  "g j" #'vertico-next-group
-  "g k" #'vertico-previous-group
-  "C-j" #'vertico-next-group
-  "C-k" #'vertico-previous-group)
+  "k" #'vertico-previous)
 
 ;;; search
 
@@ -999,12 +1002,6 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
               " " filename-and-process)
         (mark " " (name 40 -1) " " filename)))
 
-(init-evil-keymap-set 'motion ibuffer-mode-map
-  "g j" #'ibuffer-forward-filter-group
-  "g k" #'ibuffer-backward-filter-group
-  "C-j" #'ibuffer-forward-filter-group
-  "C-k" #'ibuffer-backward-filter-group)
-
 ;;; dired
 
 (require 'dired)
@@ -1044,19 +1041,22 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 ;;;; compile
 
 (require 'compile)
-(require 'ansi-color)
 
 (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
+(keymap-set compilation-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
+(keymap-set compilation-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
+(keymap-set compilation-minor-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
+(keymap-set compilation-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
+
 (evil-set-initial-state 'compilation-mode 'motion)
 
-(init-evil-keymap-set 'motion compilation-mode-map
-  "g j" #'next-error-no-select
-  "g k" #'previous-error-no-select
-  "C-j" #'next-error-no-select
-  "C-k" #'previous-error-no-select)
-
 ;;;; grep
+
+(require 'grep)
+
+(keymap-set grep-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
+(keymap-set grep-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
 
 (require 'wgrep)
 
@@ -1086,21 +1086,12 @@ With two universal ARG, edit rg command."
 
 (defalias 'rg 'init-rg-dwim)
 
-(init-evil-keymap-set 'motion grep-mode-map
-  "g j" #'next-error-no-select
-  "g k" #'previous-error-no-select
-  "C-j" #'next-error-no-select
-  "C-k" #'previous-error-no-select)
-
 ;;;; comint
 
 (require 'comint)
 
-(init-evil-keymap-set 'normal comint-mode-map
-  "g j" #'comint-next-prompt
-  "g k" #'comint-previous-prompt
-  "C-j" #'comint-next-prompt
-  "C-k" #'comint-previous-prompt)
+(keymap-set comint-mode-map "<remap> <init-jump-next-placeholder>" #'comint-next-prompt)
+(keymap-set comint-mode-map "<remap> <init-jump-previous-placeholder>" #'comint-previous-prompt)
 
 ;;;; eshell
 
@@ -1122,11 +1113,8 @@ With two universal ARG, edit rg command."
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
 
-(init-evil-keymap-set 'normal eshell-mode-map
-  "g j" #'eshell-next-prompt
-  "g k" #'eshell-previous-prompt
-  "C-j" #'eshell-next-prompt
-  "C-k" #'eshell-previous-prompt)
+(keymap-set eshell-mode-map "<remap> <init-jump-next-placeholder>" #'eshell-next-prompt)
+(keymap-set eshell-mode-map "<remap> <init-jump-previous-placeholder>" #'eshell-previous-prompt)
 
 (defun init-eshell-dwim-find-buffer ()
   "Find eshell dwim buffer."
@@ -1162,13 +1150,10 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'diff)
 
-(evil-set-initial-state 'diff-mode 'motion)
+(keymap-set diff-mode-shared-map "<remap> <init-jump-next-placeholder>" #'diff-hunk-next)
+(keymap-set diff-mode-shared-map "<remap> <init-jump-previous-placeholder>" #'diff-hunk-prev)
 
-(init-evil-keymap-set 'motion diff-mode-shared-map
-  "g j" #'diff-hunk-next
-  "g k" #'diff-hunk-prev
-  "C-j" #'diff-hunk-next
-  "C-k" #'diff-hunk-prev)
+(evil-set-initial-state 'diff-mode 'motion)
 
 ;;;; ediff
 
@@ -1226,11 +1211,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (require 'log-view)
 
-(init-evil-keymap-set 'motion log-view-mode-map
-  "g j" #'log-view-msg-next
-  "g k" #'log-view-msg-prev
-  "C-j" #'log-view-msg-next
-  "C-k" #'log-view-msg-prev)
+(keymap-set log-view-mode-map "<remap> <init-jump-next-placeholder>" #'log-view-msg-next)
+(keymap-set log-view-mode-map "<remap> <init-jump-previous-placeholder>" #'log-view-msg-prev)
 
 ;;;; vc modes
 
@@ -1269,7 +1251,9 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (keymap-set image-mode-map "a =" #'image-increase-speed)
 
-(evil-set-initial-state 'image-mode 'motion)
+(keymap-set image-mode-map "C-=" #'image-increase-size)
+(keymap-set image-mode-map "C-+" #'image-increase-size)
+(keymap-set image-mode-map "C--" #'image-decrease-size)
 
 (keymap-set image-mode-map "<remap> <evil-scroll-down>" #'image-scroll-up)
 (keymap-set image-mode-map "<remap> <evil-scroll-up>" #'image-scroll-down)
@@ -1277,20 +1261,16 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "<remap> <evil-scroll-right>" #'image-scroll-left)
 (keymap-set image-mode-map "<remap> <evil-goto-first-line>" #'image-bob)
 (keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
+(keymap-set image-mode-map "<remap> <init-jump-next-placeholder>" #'image-next-file)
+(keymap-set image-mode-map "<remap> <init-jump-previous-placeholder>" #'image-previous-file)
 
-(keymap-set image-mode-map "C-=" #'image-increase-size)
-(keymap-set image-mode-map "C-+" #'image-increase-size)
-(keymap-set image-mode-map "C--" #'image-decrease-size)
+(evil-set-initial-state 'image-mode 'motion)
 
 (init-evil-keymap-set 'motion image-mode-map
   "j" #'image-next-line
   "k" #'image-previous-line
   "h" #'image-backward-hscroll
-  "l" #'image-forward-hscroll
-  "g j" #'image-next-file
-  "g k" #'image-previous-file
-  "C-j" #'image-next-file
-  "C-k" #'image-previous-file)
+  "l" #'image-forward-hscroll)
 
 ;;; prog
 
@@ -1321,11 +1301,8 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (setq xref-search-program 'ripgrep)
 
-(init-evil-keymap-set 'motion xref--xref-buffer-mode-map
-  "g j" #'xref-next-line
-  "g k" #'xref-prev-line
-  "C-j" #'xref-next-line
-  "C-k" #'xref-prev-line)
+(keymap-set xref--xref-buffer-mode-map "<remap> <init-jump-next-placeholder>" #'xref-next-line)
+(keymap-set xref--xref-buffer-mode-map "<remap> <init-jump-previous-placeholder>" #'xref-prev-line)
 
 ;;;; abbrev
 

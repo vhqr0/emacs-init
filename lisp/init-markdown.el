@@ -12,23 +12,14 @@
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
 
-(defun init-markdown-set-narrow ()
-  "Set narrow function."
-  (setq-local init-narrow-to-block-function #'markdown-narrow-to-block)
-  (setq-local init-narrow-to-subtree-function #'markdown-narrow-to-subtree))
-
-(add-hook 'markdown-mode-hook #'init-markdown-set-narrow)
-
 (keymap-set markdown-mode-map "<remap> <init-consult-outline>" #'consult-imenu)
+(keymap-set markdown-mode-map "<remap> <init-narrow-to-block-placeholder>" #'markdown-narrow-to-block)
+(keymap-set markdown-mode-map "<remap> <init-narrow-to-subtree-placeholder>" #'markdown-narrow-to-subtree)
+(keymap-set markdown-mode-map "<remap> <init-jump-next-placeholder>" #'markdown-next-visible-heading)
+(keymap-set markdown-mode-map "<remap> <init-jump-previous-placeholder>" #'markdown-previous-visible-heading)
 
 (keymap-set markdown-mode-map "C-c C-'" #'markdown-edit-code-block)
 (keymap-set edit-indirect-mode-map "C-c C-'" #'edit-indirect-commit)
-
-(init-evil-keymap-set 'motion markdown-mode-map
-  "g j" #'markdown-next-visible-heading
-  "g k" #'markdown-previous-visible-heading
-  "C-j" #'markdown-next-visible-heading
-  "C-k" #'markdown-previous-visible-heading)
 
 (provide 'init-markdown)
 ;;; init-markdown.el ends here

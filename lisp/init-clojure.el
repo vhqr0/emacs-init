@@ -124,11 +124,8 @@
 (add-to-list 'consult-mode-histories
              '(cider-repl-mode cider-repl-input-history cider-repl-input-history-position cider-repl-bol-mark))
 
-(init-evil-keymap-set 'motion cider-repl-mode-map
-  "g j" #'cider-repl-next-prompt
-  "g k" #'cider-repl-previous-prompt
-  "C-j" #'cider-repl-next-prompt
-  "C-k" #'cider-repl-previous-prompt)
+(keymap-set cider-repl-mode-map "<remap> <init-jump-next-placeholder>" #'cider-repl-next-prompt)
+(keymap-set cider-repl-mode-map "<remap> <init-jump-previous-placeholder>" #'cider-repl-previous-prompt)
 
 (provide 'init-clojure)
 ;;; init-clojure.el ends here

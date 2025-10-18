@@ -20,11 +20,8 @@
 
 (require 'magit-section)
 
-(init-evil-keymap-set 'motion magit-section-mode-map
-  "g j" #'magit-section-forward-sibling
-  "g k" #'magit-section-backward-sibling
-  "C-j" #'magit-section-forward-sibling
-  "C-k" #'magit-section-backward-sibling)
+(keymap-set magit-section-mode-map "<remap> <init-jump-next-placeholder>" #'magit-section-forward-sibling)
+(keymap-set magit-section-mode-map "<remap> <init-jump-previous-placeholder>" #'magit-section-backward-sibling)
 
 ;;; magit
 
@@ -96,20 +93,12 @@ Or else call `magit-status'."
   "$" #'magit-process-buffer)
 
 (keymap-set magit-blob-mode-map "<remap> <quit-window>" #'magit-kill-this-buffer)
-
-(init-evil-minor-mode-keymap-set 'motion 'magit-blob-mode
-  "g j" #'magit-blob-next
-  "g k" #'magit-blob-previous
-  "C-j" #'magit-blob-next
-  "C-k" #'magit-blob-previous)
+(keymap-set magit-blob-mode-map "<remap> <init-jump-next-placeholder>" #'magit-blob-next)
+(keymap-set magit-blob-mode-map "<remap> <init-jump-previous-placeholder>" #'magit-blob-previous)
 
 (keymap-set magit-blame-mode-map "<remap> <quit-window>" #'magit-blame-quit)
-
-(init-evil-minor-mode-keymap-set 'motion 'magit-blame-mode
-  "g j" #'magit-blame-next-chunk
-  "g k" #'magit-blame-previous-chunk
-  "C-j" #'magit-blame-next-chunk
-  "C-k" #'magit-blame-previous-chunk)
+(keymap-set magit-blame-mode-map "<remap> <init-jump-next-placeholder>" #'magit-blame-next-chunk)
+(keymap-set magit-blame-mode-map "<remap> <init-jump-previous-placeholder>" #'magit-blame-previous-chunk)
 
 ;;; end
 
