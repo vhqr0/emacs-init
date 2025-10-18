@@ -11,24 +11,14 @@
 
 (require 'outline)
 
+(setq outline-minor-mode-cycle t)
+(setq outline-minor-mode-highlight 'override)
+(setq outline-minor-mode-use-buttons 'in-margins)
+
 (keymap-set outline-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
 (keymap-set outline-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
 (keymap-set outline-minor-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
 (keymap-set outline-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
-
-(defun init-outline-heading-filter (command)
-  "Return COMMAND when on outline heading."
-  (when (outline-on-heading-p)
-    command))
-
-(defvar init-outline-cycle
-  (init-filtered-command #'init-outline-heading-filter #'outline-cycle))
-
-(init-evil-minor-mode-keymap-set 'motion 'outline-minor-mode
-  "TAB" init-outline-cycle
-  "S-TAB" #'outline-cycle-buffer
-  "<tab>" init-outline-cycle
-  "<backtab>" #'outline-cycle-buffer)
 
 ;;; org
 
@@ -44,6 +34,16 @@
 (setq org-sort-function #'org-sort-function-fallback)
 (setq org-tags-sort-function #'org-string<)
 
+(setq org-directory (expand-file-name "org" user-emacs-directory))
+(setq org-agenda-files (list org-directory))
+(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
+
+(setq org-capture-templates
+      '(("t" "Todo"                      entry (file "") "* TODO %?\n%U")
+        ("a" "Todo With Annotation"      entry (file "") "* TODO %?\n%U\n%a")
+        ("i" "Todo With Initial Content" entry (file "") "* TODO %?\n%U\n%i")
+        ("c" "Todo With Kill Ring"       entry (file "") "* TODO %?\n%U\n%c")))
+
 (defun init-org-set-syntax ()
   "Modify `org-mode' syntax table."
   (modify-syntax-entry ?< "." org-mode-syntax-table)
@@ -57,13 +57,19 @@
 (keymap-set org-mode-map "<remap> <init-jump-next-placeholder>" #'org-next-visible-heading)
 (keymap-set org-mode-map "<remap> <init-jump-previous-placeholder>" #'org-previous-visible-heading)
 
-(keymap-global-set "C-c o" #'org-open-at-point-global)
-(keymap-global-set "C-c l" #'org-insert-link-global)
+(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
+(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
+(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
 
 (init-leader-set
+ "A" #'org-agenda
+ "C" #'org-capture
  "W" #'org-store-link
  "O" #'org-open-at-point-global
  "L" #'org-insert-link-global)
+
+(keymap-global-set "C-c o" #'org-open-at-point-global)
+(keymap-global-set "C-c l" #'org-insert-link-global)
 
 (keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
 (keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
@@ -95,31 +101,6 @@
       (message "%s" (match-string-no-properties 0)))))
 
 (keymap-set embark-org-link-map "e" #'init-org-echo-link)
-
-(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
-(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
-(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
-
-;;; agenda
-
-(setq org-directory (expand-file-name "org" user-emacs-directory))
-(setq org-agenda-files (list org-directory))
-(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
-
-(setq org-capture-templates
-      '(("t" "Todo"                      entry (file "") "* TODO %?\n%U")
-        ("a" "Todo With Annotation"      entry (file "") "* TODO %?\n%U\n%a")
-        ("i" "Todo With Initial Content" entry (file "") "* TODO %?\n%U\n%i")
-        ("c" "Todo With Kill Ring"       entry (file "") "* TODO %?\n%U\n%c")))
-
-(init-leader-set
- "C" #'org-capture
- "A" #'org-agenda)
-
-(keymap-set org-agenda-mode-map "<remap> <evil-next-line>" #'org-agenda-next-line)
-(keymap-set org-agenda-mode-map "<remap> <evil-previous-line>" #'org-agenda-previous-line)
-(keymap-set org-agenda-mode-map "<remap> <evil-next-visual-line>" #'org-agenda-next-line)
-(keymap-set org-agenda-mode-map "<remap> <evil-previous-visual-line>" #'org-agenda-previous-line)
 
 ;;; end
 

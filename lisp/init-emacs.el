@@ -1156,6 +1156,20 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;; vc
 
+;;;; vc modes
+
+(require 'vc-dir)
+
+(keymap-set vc-dir-mode-map "<remap> <evil-next-line>" #'vc-dir-next-line)
+(keymap-set vc-dir-mode-map "<remap> <evil-previous-line>" #'vc-dir-previous-line)
+(keymap-set vc-dir-mode-map "<remap> <evil-next-visual-line>" #'vc-dir-next-line)
+(keymap-set vc-dir-mode-map "<remap> <evil-previous-visual-line>" #'vc-dir-previous-line)
+
+(keymap-set vc-prefix-map "p" #'vc-push)
+
+(init-evil-keymap-set 'motion vc-dir-mode-map
+  "p" #'vc-push)
+
 ;;;; diff
 
 (require 'diff)
@@ -1214,28 +1228,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (keymap-set ediff-mode-map "<right>" #'init-ediff-scroll-right))
 
 (advice-add #'ediff-setup-keymap :after #'init-ediff-setup-keymap-extra)
-
-;;;; logview
-
-(require 'log-view)
-
-(keymap-set log-view-mode-map "<remap> <init-jump-next-placeholder>" #'log-view-msg-next)
-(keymap-set log-view-mode-map "<remap> <init-jump-previous-placeholder>" #'log-view-msg-prev)
-
-;;;; vc modes
-
-(require 'vc-dir)
-(require 'vc-annotate)
-
-(keymap-set vc-dir-mode-map "<remap> <evil-next-line>" #'vc-dir-next-line)
-(keymap-set vc-dir-mode-map "<remap> <evil-previous-line>" #'vc-dir-previous-line)
-(keymap-set vc-dir-mode-map "<remap> <evil-next-visual-line>" #'vc-dir-next-line)
-(keymap-set vc-dir-mode-map "<remap> <evil-previous-visual-line>" #'vc-dir-previous-line)
-
-(keymap-set vc-prefix-map "p" #'vc-push)
-
-(init-evil-keymap-set 'motion vc-dir-mode-map
-  "p" #'vc-push)
 
 ;;; image
 
