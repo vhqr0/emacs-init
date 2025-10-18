@@ -1091,6 +1091,13 @@ With two universal ARG, edit rg command."
 (keymap-set comint-mode-map "<remap> <init-jump-next-placeholder>" #'comint-next-prompt)
 (keymap-set comint-mode-map "<remap> <init-jump-previous-placeholder>" #'comint-previous-prompt)
 
+(defun init-comint-set-outline ()
+  "Set outline vars for comint."
+  (setq-local outline-regexp comint-prompt-regexp)
+  (setq-local outline-level (lambda () 1)))
+
+(add-hook 'comint-mode-hook #'init-comint-set-outline)
+
 ;;;; eshell
 
 (require 'eshell)
