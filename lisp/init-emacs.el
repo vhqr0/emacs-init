@@ -382,9 +382,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq project-switch-use-entire-map t)
 (setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
 
-(keymap-set project-prefix-map "j" #'project-dired)
-(keymap-set project-prefix-map "C" #'project-recompile)
-
 (defvar-local init-find-test-file-name-function nil)
 
 (defun init-project-find-test-file ()
@@ -617,10 +614,10 @@ FUNC and ARGS see `evil-set-cursor'."
   "C-a" (init-isearch-wrap-menu-item-filter #'move-beginning-of-line)
   "C-e" (init-isearch-wrap-menu-item-filter #'move-end-of-line))
 
-(keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
-
 (keymap-set occur-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
 (keymap-set occur-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
+
+(keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
 
 (evil-set-initial-state 'occur-edit-mode 'normal)
 
@@ -746,10 +743,6 @@ EVENT see `input-method-function'."
 (keymap-set vertico-mode-map "C-c b" #'vertico-repeat)
 (keymap-set vertico-mode-map "C-c z" #'vertico-suspend)
 
-(keymap-set vertico-map "C-l" #'vertico-directory-up)
-
-(add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
-
 (defvar init-vertico-disable-commands '(kill-buffer))
 
 (defun init-vertico-around-setup-filter-commands (func &rest args)
@@ -760,18 +753,22 @@ FUNC ARGS see `vertico--setup'."
 
 (advice-add 'vertico--setup :around #'init-vertico-around-setup-filter-commands)
 
-(keymap-set vertico-map "C-x C-s" #'embark-export)
+(add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
+
+(keymap-set vertico-map "C-l" #'vertico-directory-up)
 
 (keymap-set vertico-map "<remap> <evil-scroll-down>" #'vertico-scroll-up)
 (keymap-set vertico-map "<remap> <evil-scroll-up>" #'vertico-scroll-down)
+(keymap-set vertico-map "<remap> <evil-next-line>" #'vertico-next)
+(keymap-set vertico-map "<remap> <evil-previous-line>" #'vertico-previous)
+(keymap-set vertico-map "<remap> <evil-next-visual-line>" #'vertico-next)
+(keymap-set vertico-map "<remap> <evil-previous-visual-line>" #'vertico-previous)
 (keymap-set vertico-map "<remap> <evil-goto-first-line>" #'vertico-first)
 (keymap-set vertico-map "<remap> <evil-goto-line>" #'vertico-last)
 (keymap-set vertico-map "<remap> <init-jump-next-placeholder>" #'vertico-next-group)
 (keymap-set vertico-map "<remap> <init-jump-previous-placeholder>" #'vertico-previous-group)
 
-(init-evil-keymap-set 'normal vertico-map
-  "j" #'vertico-next
-  "k" #'vertico-previous)
+(keymap-set vertico-map "C-x C-s" #'embark-export)
 
 ;;; search
 
@@ -1015,26 +1012,38 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 (put 'dired-jump 'repeat-map nil)
 
 (keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
+(keymap-set project-prefix-map "j" #'project-dired)
+
+(keymap-set dired-mode-map "<remap> <evil-next-line>" #'dired-next-line)
+(keymap-set dired-mode-map "<remap> <evil-previous-line>" #'dired-previous-line)
+(keymap-set dired-mode-map "<remap> <evil-next-visual-line>" #'dired-next-line)
+(keymap-set dired-mode-map "<remap> <evil-previous-visual-line>" #'dired-previous-line)
 
 (keymap-set dired-mode-map "C-c C-e" #'wdired-change-to-wdired-mode)
 
-(evil-set-initial-state 'dired-mode 'motion)
-(evil-set-initial-state 'wdired-mode 'normal)
-
-(init-evil-keymap-set 'motion dired-mode-map
-  "j" #'dired-next-line
-  "k" #'dired-previous-line
-  "+" #'dired-create-directory)
+(init-evil-keymap-set 'normal dired-mode-map
+  "m" #'dired-mark
+  "u" #'dired-unmark
+  "U" #'dired-unmark-all-marks
+  "d" #'dired-flag-file-deletion
+  "x" #'dired-do-flagged-delete
+  "s" #'dired-sort-toggle-or-edit
+  "D" #'dired-do-delete
+  "C" #'dired-do-copy
+  "R" #'dired-do-rename
+  "+" #'dired-create-directory
+  "=" #'dired-diff
+  "!" #'dired-do-shell-command
+  "&" #'dired-do-async-shell-command)
 
 ;;; archive
 
 (require 'arc-mode)
 
-(evil-set-initial-state 'archive-mode 'motion)
-
-(init-evil-keymap-set 'motion archive-mode-map
-  "j" #'archive-next-line
-  "k" #'archive-previous-line)
+(keymap-set archive-mode-map "<remap> <evil-next-line>" #'archive-next-line)
+(keymap-set archive-mode-map "<remap> <evil-previous-line>" #'archive-previous-line)
+(keymap-set archive-mode-map "<remap> <evil-next-visual-line>" #'archive-next-line)
+(keymap-set archive-mode-map "<remap> <evil-previous-visual-line>" #'archive-previous-line)
 
 ;;; process
 
@@ -1044,12 +1053,12 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 
 (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
+(keymap-set project-prefix-map "C" #'project-recompile)
+
 (keymap-set compilation-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
 (keymap-set compilation-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
 (keymap-set compilation-minor-mode-map "<remap> <init-jump-next-placeholder>" #'next-error-no-select)
 (keymap-set compilation-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'previous-error-no-select)
-
-(evil-set-initial-state 'compilation-mode 'motion)
 
 ;;;; grep
 
@@ -1153,8 +1162,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set diff-mode-shared-map "<remap> <init-jump-next-placeholder>" #'diff-hunk-next)
 (keymap-set diff-mode-shared-map "<remap> <init-jump-previous-placeholder>" #'diff-hunk-prev)
 
-(evil-set-initial-state 'diff-mode 'motion)
-
 ;;;; ediff
 
 (require 'ediff)
@@ -1219,11 +1226,14 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (require 'vc-dir)
 (require 'vc-annotate)
 
+(keymap-set vc-dir-mode-map "<remap> <evil-next-line>" #'vc-dir-next-line)
+(keymap-set vc-dir-mode-map "<remap> <evil-previous-line>" #'vc-dir-previous-line)
+(keymap-set vc-dir-mode-map "<remap> <evil-next-visual-line>" #'vc-dir-next-line)
+(keymap-set vc-dir-mode-map "<remap> <evil-previous-visual-line>" #'vc-dir-previous-line)
+
 (keymap-set vc-prefix-map "p" #'vc-push)
 
 (init-evil-keymap-set 'motion vc-dir-mode-map
-  "j" #'vc-dir-next-line
-  "k" #'vc-dir-previous-line
   "p" #'vc-push)
 
 ;;; image
@@ -1235,16 +1245,13 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-slice-map "+" #'image-increase-size)
 (keymap-set image-slice-map "-" #'image-decrease-size)
 (keymap-set image-slice-map "r" #'image-rotate)
+
 (keymap-set image--repeat-map "=" #'image-increase-size)
 
-(init-evil-keymap-set 'motion image-slice-map
+(init-evil-keymap-set '(motion normal) image-slice-map
   "=" #'image-increase-size
   "+" #'image-increase-size
   "-" #'image-decrease-size
-  "r" #'image-rotate)
-
-(init-evil-keymap-set 'normal image-slice-map
-  "=" #'image-increase-size
   "r" #'image-rotate)
 
 (require 'image-mode)
@@ -1255,6 +1262,12 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "C-+" #'image-increase-size)
 (keymap-set image-mode-map "C--" #'image-decrease-size)
 
+(keymap-set image-mode-map "<remap> <evil-next-line>" #'image-next-line)
+(keymap-set image-mode-map "<remap> <evil-previous-line>" #'image-previous-line)
+(keymap-set image-mode-map "<remap> <evil-next-visual-line>" #'image-next-line)
+(keymap-set image-mode-map "<remap> <evil-previous-visual-line>" #'image-previous-line)
+(keymap-set image-mode-map "<remap> <evil-backward-char>" #'image-backward-hscroll)
+(keymap-set image-mode-map "<remap> <evil-forward-char>" #'image-forward-hscroll)
 (keymap-set image-mode-map "<remap> <evil-scroll-down>" #'image-scroll-up)
 (keymap-set image-mode-map "<remap> <evil-scroll-up>" #'image-scroll-down)
 (keymap-set image-mode-map "<remap> <evil-scroll-left>" #'image-scroll-right)
@@ -1263,14 +1276,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
 (keymap-set image-mode-map "<remap> <init-jump-next-placeholder>" #'image-next-file)
 (keymap-set image-mode-map "<remap> <init-jump-previous-placeholder>" #'image-previous-file)
-
-(evil-set-initial-state 'image-mode 'motion)
-
-(init-evil-keymap-set 'motion image-mode-map
-  "j" #'image-next-line
-  "k" #'image-previous-line
-  "h" #'image-backward-hscroll
-  "l" #'image-forward-hscroll)
 
 ;;; prog
 
@@ -1550,9 +1555,6 @@ FUNC and ARGS see specific command."
 
 (defvar-keymap init-leader-map)
 
-(init-evil-keymap-set 'motion init-evil-override-mode-map
-  "SPC" init-leader-map)
-
 (defun init-leader-set (&rest clauses)
   "Set leader binding CLAUSES in `init-leader-map'."
   (dolist (binding (seq-partition clauses 2))
@@ -1572,6 +1574,7 @@ FUNC and ARGS see specific command."
   (init-leader-wrap-spc #'scroll-up-command))
 
 (init-evil-keymap-set 'motion init-evil-override-mode-map
+  "SPC" init-leader-map
   "<remap> <scroll-up-command>" #'init-leader-or-scroll-up-command)
 
 (defun init-magic-prefix (prefix)

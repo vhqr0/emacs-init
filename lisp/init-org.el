@@ -112,11 +112,10 @@
  "C" #'org-capture
  "A" #'org-agenda)
 
-(evil-set-initial-state 'org-agenda-mode 'motion)
-
-(init-evil-keymap-set 'motion org-agenda-mode-map
-  "j" #'org-agenda-next-line
-  "k" #'org-agenda-previous-line)
+(keymap-set org-agenda-mode-map "<remap> <evil-next-line>" #'org-agenda-next-line)
+(keymap-set org-agenda-mode-map "<remap> <evil-previous-line>" #'org-agenda-previous-line)
+(keymap-set org-agenda-mode-map "<remap> <evil-next-visual-line>" #'org-agenda-next-line)
+(keymap-set org-agenda-mode-map "<remap> <evil-previous-visual-line>" #'org-agenda-previous-line)
 
 ;;; end
 
