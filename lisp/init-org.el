@@ -16,14 +16,18 @@
 (keymap-set outline-minor-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
 (keymap-set outline-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
 
-(defvar init-outline-cycle-dwim
-  `(menu-item "" outline-cycle :filter
-              ,(lambda (command) (when (outline-on-heading-p) command))))
+(defun init-outline-heading-filter (command)
+  "Return COMMAND when on outline heading."
+  (when (outline-on-heading-p)
+    command))
+
+(defvar init-outline-cycle
+  (init-filtered-command #'init-outline-heading-filter #'outline-cycle))
 
 (init-evil-minor-mode-keymap-set 'motion 'outline-minor-mode
-  "TAB" init-outline-cycle-dwim
+  "TAB" init-outline-cycle
   "S-TAB" #'outline-cycle-buffer
-  "<tab>" init-outline-cycle-dwim
+  "<tab>" init-outline-cycle
   "<backtab>" #'outline-cycle-buffer)
 
 ;;; org
