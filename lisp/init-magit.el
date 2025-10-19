@@ -34,14 +34,9 @@ or with universal arg and not in a file buffer, call `magit-dispatch';
 If with universal arg and in a file buffer, call `magit-file-dispatch';
 Or else call `magit-status'."
   (interactive "P")
-  (let ((command (cond ((or
-                         ;; with more than 2 universal arg
-                         (> (prefix-numeric-value arg) 4)
-                         ;; with universal arg and not in a file
-                         (and arg (not buffer-file-name)))
+  (let ((command (cond ((> (prefix-numeric-value arg) 4)
                         #'magit-dispatch)
-                       ;; with universal arg and in a file
-                       ((and arg buffer-file-name)
+                       (arg
                         #'magit-file-dispatch)
                        (t
                         #'magit-status))))
