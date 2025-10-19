@@ -1635,6 +1635,7 @@ FUNC and ARGS see specific command."
   "s" #'auto-save-visited-mode
   "r" #'global-auto-revert-mode
   "t" #'toggle-truncate-lines
+  "S" #'init-toggle-scroll-bar
   "v" #'visual-line-mode
   "w" #'whitespace-mode
   "W" #'whitespace-newline-mode
