@@ -300,6 +300,12 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq mode-line-position-column-format '(" %CC"))
 (setq mode-line-position-column-line-format '(" %l:%C"))
 
+(defun init-header-line-path ()
+  "Get path displayed in header line."
+  (expand-file-name (or buffer-file-name default-directory)))
+
+(setq-default header-line-format '(:eval (init-header-line-path)))
+
 (require 'files)
 
 (setq version-control t)
