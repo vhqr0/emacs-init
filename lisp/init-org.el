@@ -7,19 +7,6 @@
 
 (require 'init-emacs)
 
-;;; outline
-
-(require 'outline)
-
-(setq outline-minor-mode-cycle t)
-(setq outline-minor-mode-highlight 'override)
-(setq outline-minor-mode-use-buttons 'in-margins)
-
-(keymap-set outline-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
-(keymap-set outline-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
-(keymap-set outline-minor-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
-(keymap-set outline-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
-
 ;;; org
 
 (require 'org)
