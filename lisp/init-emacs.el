@@ -408,7 +408,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   "z s" #'vc-git-stash-snapshot
   "z p" #'vc-git-stash-pop)
 
-(defvar init-git-program "git")
 (defvar init-git-user-name "vhqr0")
 (defvar init-git-user-email "zq_cmd@163.com")
 
@@ -416,14 +415,14 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   "Init git repo."
   (interactive)
   (let ((directory default-directory)
-        (buffer (get-buffer-create "*git-init*")))
+        (buffer (get-buffer-create "*git-config*")))
     (save-window-excursion
       (with-current-buffer buffer
         (setq default-directory directory)
         (erase-buffer)
         (async-shell-command
          (format "%s config --local user.name %s && %s config --local user.email %s"
-                 init-git-program init-git-user-name init-git-program init-git-user-email)
+                 vc-git-program init-git-user-name vc-git-program init-git-user-email)
          (current-buffer))))))
 
 ;;; project
