@@ -411,6 +411,17 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 ;;; window
 
 (add-hook 'after-init-hook #'horizontal-scroll-bar-mode)
+(add-hook 'after-init-hook #'window-divider-mode)
+
+(defun init-toggle-scroll-bar ()
+  "Toggle scroll bar."
+  (interactive)
+  (if (or scroll-bar-mode horizontal-scroll-bar-mode)
+      (progn
+       (scroll-bar-mode -1)
+       (horizontal-scroll-bar-mode -1))
+    (scroll-bar-mode 1)
+    (horizontal-scroll-bar-mode 1)))
 
 (define-minor-mode init-arrow-scroll-mode
   "Minor mode to use arrow keys to scroll around."
@@ -1020,20 +1031,20 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
 (keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
 (keymap-set project-prefix-map "j" #'project-dired)
 
-(keymap-set dired-mode-map "<remap> <evil-next-line>" #'dired-next-line)
-(keymap-set dired-mode-map "<remap> <evil-previous-line>" #'dired-previous-line)
-(keymap-set dired-mode-map "<remap> <evil-next-visual-line>" #'dired-next-line)
-(keymap-set dired-mode-map "<remap> <evil-previous-visual-line>" #'dired-previous-line)
-
 (keymap-set dired-mode-map "C-c C-e" #'wdired-change-to-wdired-mode)
 
 (init-evil-keymap-set 'normal dired-mode-map
+  "j" #'dired-next-line
+  "k" #'dired-previous-line
+  "o" #'dired-find-file-other-window
   "m" #'dired-mark
   "u" #'dired-unmark
   "U" #'dired-unmark-all-marks
+  "t" #'dired-toggle-marks
   "d" #'dired-flag-file-deletion
   "x" #'dired-do-flagged-delete
   "s" #'dired-sort-toggle-or-edit
+  "i" #'dired-insert-subdir
   "D" #'dired-do-delete
   "C" #'dired-do-copy
   "R" #'dired-do-rename
@@ -1042,14 +1053,14 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   "!" #'dired-do-shell-command
   "&" #'dired-do-async-shell-command)
 
-;;; archive
-
 (require 'arc-mode)
 
-(keymap-set archive-mode-map "<remap> <evil-next-line>" #'archive-next-line)
-(keymap-set archive-mode-map "<remap> <evil-previous-line>" #'archive-previous-line)
-(keymap-set archive-mode-map "<remap> <evil-next-visual-line>" #'archive-next-line)
-(keymap-set archive-mode-map "<remap> <evil-previous-visual-line>" #'archive-previous-line)
+(init-evil-keymap-set 'normal archive-mode-map
+  "j" #'archive-next-line
+  "k" #'archive-previous-line
+  "o" #'archive-extract-other-window
+  "m" #'archive-mark
+  "C" #'archive-copy-file)
 
 ;;; process
 
