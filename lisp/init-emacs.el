@@ -378,6 +378,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (keymap-set vc-dir-mode-map "d" #'vc-diff)
 (keymap-set vc-dir-mode-map "t" #'vc-create-tag)
 
+(keymap-set vc-git-stash-map "d" #'vc-git-stash-show-at-point)
+
 (evil-set-initial-state 'vc-dir-mode 'normal)
 
 (init-evil-keymap-set 'normal vc-dir-mode-map
