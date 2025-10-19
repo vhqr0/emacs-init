@@ -1048,6 +1048,7 @@ FUNC BEG END ARGS see `evil-yank', `evil-delete', etc."
   "D" #'dired-do-delete
   "C" #'dired-do-copy
   "R" #'dired-do-rename
+  "Z" #'dired-do-compress
   "+" #'dired-create-directory
   "=" #'dired-diff
   "!" #'dired-do-shell-command
