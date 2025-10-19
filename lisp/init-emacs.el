@@ -365,6 +365,7 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq vc-handled-backends '(Git))
 (setq vc-display-status 'no-backend)
 (setq vc-make-backup-files t)
+(setq vc-find-revision-no-save t)
 
 (keymap-set ctl-x-x-map "v" #'vc-refresh-state)
 
