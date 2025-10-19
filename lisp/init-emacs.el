@@ -359,8 +359,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 ;;; vc
 
 (require 'vc)
-(require 'vc-git)
 (require 'vc-dir)
+(require 'vc-git)
 
 (setq vc-handled-backends '(Git))
 (setq vc-display-status 'no-backend)
