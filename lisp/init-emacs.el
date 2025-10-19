@@ -400,6 +400,11 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   "b l" #'vc-print-branch-log
   "b s" #'vc-switch-branch)
 
+(init-evil-minor-mode-keymap-set 'normal 'vc-dir-git-mode
+  "z c" #'vc-git-stash
+  "z s" #'vc-git-stash-snapshot
+  "z p" #'vc-git-stash-pop)
+
 (defvar init-git-program "git")
 (defvar init-git-user-name "vhqr0")
 (defvar init-git-user-email "zq_cmd@163.com")
