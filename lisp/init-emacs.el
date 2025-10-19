@@ -356,7 +356,7 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 (add-hook 'after-init-hook #'global-so-long-mode)
 
-;;;; vc
+;;; vc
 
 (require 'vc)
 (require 'vc-git)
@@ -366,6 +366,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq vc-make-backup-files t)
 
 (keymap-set ctl-x-x-map "v" #'vc-refresh-state)
+
+(keymap-set vc-prefix-map "p" #'vc-push)
 
 (defvar init-git-program "git")
 (defvar init-git-user-name "vhqr0")
@@ -385,7 +387,7 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
                  init-git-program init-git-user-name init-git-program init-git-user-email)
          (current-buffer))))))
 
-;;;; project
+;;; project
 
 (require 'project)
 
@@ -1155,23 +1157,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
   (interactive "P")
   (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer-create)))
 
-;;; vc
-
-;;;; vc modes
-
-(require 'vc-dir)
-
-(keymap-set vc-dir-mode-map "<remap> <evil-next-line>" #'vc-dir-next-line)
-(keymap-set vc-dir-mode-map "<remap> <evil-previous-line>" #'vc-dir-previous-line)
-(keymap-set vc-dir-mode-map "<remap> <evil-next-visual-line>" #'vc-dir-next-line)
-(keymap-set vc-dir-mode-map "<remap> <evil-previous-visual-line>" #'vc-dir-previous-line)
-
-(keymap-set vc-prefix-map "p" #'vc-push)
-
-(init-evil-keymap-set 'motion vc-dir-mode-map
-  "p" #'vc-push)
-
-;;;; ediff
+;;; ediff
 
 (require 'ediff)
 
