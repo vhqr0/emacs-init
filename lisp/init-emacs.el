@@ -176,6 +176,7 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-unset evil-motion-state-map "RET" t)
 (keymap-unset evil-motion-state-map "SPC" t)
+(keymap-unset evil-normal-state-map "DEL" t)
 
 (keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
 (keymap-set evil-motion-state-map "q" #'quit-window)
@@ -1009,6 +1010,7 @@ ARG see `init-consult-search'."
   "t" #'dired-toggle-marks
   "d" #'dired-flag-file-deletion
   "x" #'dired-do-flagged-delete
+  "w" #'dired-copy-filename-as-kill
   "s" #'dired-sort-toggle-or-edit
   "i" #'dired-insert-subdir
   "D" #'dired-do-delete
@@ -1027,6 +1029,7 @@ ARG see `init-consult-search'."
   "k" #'archive-previous-line
   "o" #'archive-extract-other-window
   "m" #'archive-mark
+  "u" #'archive-unflag
   "C" #'archive-copy-file)
 
 ;;; process
@@ -1227,6 +1230,11 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
 (keymap-set image-mode-map "<remap> <init-jump-next-placeholder>" #'image-next-file)
 (keymap-set image-mode-map "<remap> <init-jump-previous-placeholder>" #'image-previous-file)
+
+(init-evil-keymap-set 'normal image-mode-map
+  "m" #'image-mode-mark-file
+  "u" #'image-mode-unmark-file
+  "w" #'image-mode-copy-file-name-as-kill)
 
 ;;; prog
 
