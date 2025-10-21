@@ -38,7 +38,6 @@
 
 (add-hook 'org-mode-hook #'init-org-set-syntax)
 
-(keymap-set org-mode-map "<remap> <init-consult-outline>" #'consult-imenu)
 (keymap-set org-mode-map "<remap> <init-narrow-to-block-placeholder>" #'org-narrow-to-block)
 (keymap-set org-mode-map "<remap> <init-narrow-to-subtree-placeholder>" #'org-narrow-to-subtree)
 (keymap-set org-mode-map "<remap> <init-jump-next-placeholder>" #'org-next-visible-heading)

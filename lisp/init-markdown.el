@@ -12,7 +12,6 @@
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
 
-(keymap-set markdown-mode-map "<remap> <init-consult-outline>" #'consult-imenu)
 (keymap-set markdown-mode-map "<remap> <init-narrow-to-block-placeholder>" #'markdown-narrow-to-block)
 (keymap-set markdown-mode-map "<remap> <init-narrow-to-subtree-placeholder>" #'markdown-narrow-to-subtree)
 (keymap-set markdown-mode-map "<remap> <init-jump-next-placeholder>" #'markdown-next-visible-heading)
