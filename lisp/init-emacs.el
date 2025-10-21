@@ -922,7 +922,7 @@ ARG see `init-consult-search'."
       (while (re-search-forward bol-regex nil t)
         (save-excursion
           (setq line (line-number-at-pos))
-          (setq name (buffer-substring-no-properties (point) (line-end-position)))
+          (setq name (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
           (goto-char (match-beginning 0))
           (setq marker (point-marker))
           (setq level (funcall outline-level))
