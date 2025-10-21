@@ -596,19 +596,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 (setq hl-line-sticky-flag t)
 
-(defun init-jump-next-placeholder ()
-  "Placeholder to jump next command."
-  (interactive)
-  (user-error "No jump next command remap on placeholder"))
-
-(defun init-jump-previous-placeholder ()
-  "Placeholder to jump previous command."
-  (interactive)
-  (user-error "No jump previous command remap on placeholder"))
-
-(keymap-set evil-motion-state-map "C-j" #'init-jump-next-placeholder)
-(keymap-set evil-motion-state-map "C-k" #'init-jump-previous-placeholder)
-
 (require 'embark)
 
 (keymap-global-set "M-o" #'embark-act)
@@ -808,8 +795,6 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set vertico-map "<remap> <evil-previous-visual-line>" #'vertico-previous)
 (keymap-set vertico-map "<remap> <evil-goto-first-line>" #'vertico-first)
 (keymap-set vertico-map "<remap> <evil-goto-line>" #'vertico-last)
-(keymap-set vertico-map "<remap> <init-jump-next-placeholder>" #'vertico-next-group)
-(keymap-set vertico-map "<remap> <init-jump-previous-placeholder>" #'vertico-previous-group)
 
 (keymap-set vertico-map "C-x C-s" #'embark-export)
 
@@ -997,15 +982,16 @@ With two universal ARG, edit rg command."
 
 (require 'comint)
 
-(keymap-set comint-mode-map "<remap> <init-jump-next-placeholder>" #'comint-next-prompt)
-(keymap-set comint-mode-map "<remap> <init-jump-previous-placeholder>" #'comint-previous-prompt)
-
 (defun init-comint-set-outline ()
   "Set outline vars for comint."
   (setq-local outline-regexp comint-prompt-regexp)
   (setq-local outline-level (lambda () 1)))
 
 (add-hook 'comint-mode-hook #'init-comint-set-outline)
+
+(init-evil-keymap-set 'motion comint-mode-map
+  "M-n" #'comint-next-prompt
+  "M-p" #'comint-previous-prompt)
 
 ;;;; eshell
 
@@ -1027,8 +1013,9 @@ With two universal ARG, edit rg command."
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
 
-(keymap-set eshell-mode-map "<remap> <init-jump-next-placeholder>" #'eshell-next-prompt)
-(keymap-set eshell-mode-map "<remap> <init-jump-previous-placeholder>" #'eshell-previous-prompt)
+(init-evil-keymap-set 'motion eshell-mode-map
+  "M-n" #'eshell-next-prompt
+  "M-p" #'eshell-previous-prompt)
 
 (defun init-eshell-dwim-find-buffer ()
   "Find eshell dwim buffer."
@@ -1136,6 +1123,9 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "C-+" #'image-increase-size)
 (keymap-set image-mode-map "C--" #'image-decrease-size)
 
+(keymap-set image-mode-map "M-n" #'image-next-file)
+(keymap-set image-mode-map "M-p" #'image-previous-file)
+
 (keymap-set image-mode-map "<remap> <evil-next-line>" #'image-next-line)
 (keymap-set image-mode-map "<remap> <evil-previous-line>" #'image-previous-line)
 (keymap-set image-mode-map "<remap> <evil-next-visual-line>" #'image-next-line)
@@ -1148,8 +1138,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "<remap> <evil-scroll-right>" #'image-scroll-left)
 (keymap-set image-mode-map "<remap> <evil-goto-first-line>" #'image-bob)
 (keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
-(keymap-set image-mode-map "<remap> <init-jump-next-placeholder>" #'image-next-file)
-(keymap-set image-mode-map "<remap> <init-jump-previous-placeholder>" #'image-previous-file)
 
 (init-evil-keymap-set 'normal image-mode-map
   "m" #'image-mode-mark-file
@@ -1167,9 +1155,6 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 (setq flymake-no-changes-timeout 1)
 (setq flymake-show-diagnostics-at-end-of-line 'short)
-
-(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
-(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
 ;;;; eldoc
 
@@ -1331,11 +1316,6 @@ FUNC COMMAND ARGS see `company-call-backend'."
 (setq outline-minor-mode-cycle t)
 (setq outline-minor-mode-highlight 'override)
 (setq outline-minor-mode-use-buttons 'in-margins)
-
-(keymap-set outline-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
-(keymap-set outline-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
-(keymap-set outline-minor-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
-(keymap-set outline-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
 
 (defun init-outline-narrow-to-subtree ()
   "Narrow to outline subtree."

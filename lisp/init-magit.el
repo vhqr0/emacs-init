@@ -16,13 +16,6 @@
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)
 
-;;; magit section
-
-(require 'magit-section)
-
-(keymap-set magit-section-mode-map "<remap> <init-jump-next-placeholder>" #'magit-section-forward-sibling)
-(keymap-set magit-section-mode-map "<remap> <init-jump-previous-placeholder>" #'magit-section-backward-sibling)
-
 ;;; magit
 
 (require 'magit)
@@ -88,12 +81,12 @@ Or else call `magit-status'."
   "$" #'magit-process-buffer)
 
 (keymap-set magit-blob-mode-map "<remap> <quit-window>" #'magit-kill-this-buffer)
-(keymap-set magit-blob-mode-map "<remap> <init-jump-next-placeholder>" #'magit-blob-next)
-(keymap-set magit-blob-mode-map "<remap> <init-jump-previous-placeholder>" #'magit-blob-previous)
+(keymap-set magit-blob-mode-map "M-n" #'magit-blob-next)
+(keymap-set magit-blob-mode-map "M-p" #'magit-blob-previous)
 
 (keymap-set magit-blame-mode-map "<remap> <quit-window>" #'magit-blame-quit)
-(keymap-set magit-blame-mode-map "<remap> <init-jump-next-placeholder>" #'magit-blame-next-chunk)
-(keymap-set magit-blame-mode-map "<remap> <init-jump-previous-placeholder>" #'magit-blame-previous-chunk)
+(keymap-set magit-blame-mode-map "M-n" #'magit-blame-next-chunk)
+(keymap-set magit-blame-mode-map "M-p" #'magit-blame-previous-chunk)
 
 ;;; end
 
