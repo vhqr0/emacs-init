@@ -38,11 +38,6 @@
 
 (add-hook 'org-mode-hook #'init-org-set-syntax)
 
-(keymap-set org-mode-map "<remap> <init-narrow-to-block-placeholder>" #'org-narrow-to-block)
-(keymap-set org-mode-map "<remap> <init-narrow-to-subtree-placeholder>" #'org-narrow-to-subtree)
-(keymap-set org-mode-map "<remap> <init-jump-next-placeholder>" #'org-next-visible-heading)
-(keymap-set org-mode-map "<remap> <init-jump-previous-placeholder>" #'org-previous-visible-heading)
-
 (keymap-set org-mode-map "C-c C-'" #'org-edit-special)
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
 (keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)

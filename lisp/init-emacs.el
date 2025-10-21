@@ -596,19 +596,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 (setq hl-line-sticky-flag t)
 
-(defun init-narrow-to-block-placeholder ()
-  "Placeholder to narrow to block command."
-  (interactive)
-  (user-error "No narrow to block command remap on placeholder"))
-
-(defun init-narrow-to-subtree-placeholder ()
-  "Placeholder to narrow to subtree command."
-  (interactive)
-  (user-error "No narrow to subtree command remap on placeholder"))
-
-(keymap-set narrow-map "b" #'init-narrow-to-block-placeholder)
-(keymap-set narrow-map "s" #'init-narrow-to-subtree-placeholder)
-
 (defun init-jump-next-placeholder ()
   "Placeholder to jump next command."
   (interactive)
@@ -906,63 +893,6 @@ ARG see `init-consult-search'."
 (consult-customize consult-imenu :preview-key 'any)
 
 (keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
-
-;;;; outline
-
-(defvar init-consult-outline-history nil)
-
-(defun init-consult-outline-candidates ()
-  "Collect outline headings."
-  (consult--forbid-minibuffer)
-  (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
-        (stack-level 0)
-        stack cands line name level marker)
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward bol-regex nil t)
-        (save-excursion
-          (setq line (line-number-at-pos))
-          (setq name (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
-          (goto-char (match-beginning 0))
-          (setq marker (point-marker))
-          (setq level (funcall outline-level))
-          (while (<= level stack-level)
-            (pop stack)
-            (setq stack-level (1- stack-level)))
-          (while (> level stack-level)
-            (push "" stack)
-            (setq stack-level (1+ stack-level)))
-          (setq stack (cons name (cdr stack)))
-          (let* ((sep (propertize " / " 'face 'consult-line-number))
-                 (name (concat
-                        (propertize (format "%5d " line) 'face 'consult-line-number)
-                        (mapconcat #'identity (reverse stack) sep))))
-            (push (cons name marker) cands)))))
-    (nreverse cands)))
-
-(defun init-consult-outline-state ()
-  "Construct state for `init-consult-outline'."
-  (let ((jump (consult--jump-state)))
-    (lambda (action cand)
-      (funcall jump action (cdr cand)))))
-
-(defun init-consult-outline ()
-  "Enhanced version of `consult-outline' using counsel functionality."
-  (interactive)
-  (let ((candidate (consult--read
-                    (consult--slow-operation
-                        "Collecting headings..."
-                      (init-consult-outline-candidates))
-                    :prompt "Goto outline heading: "
-                    :state (init-consult-outline-state)
-                    :lookup #'consult--lookup-cons
-                    :sort nil
-                    :require-match t
-                    :history 'init-consult-outline-history
-                    :add-history (thing-at-point 'symbol))))
-    (goto-char (cdr candidate))))
-
-(consult-customize init-consult-outline :preview-key 'any)
 
 ;;; spell
 
@@ -1395,9 +1325,7 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 (keymap-set eglot-mode-map "<remap> <evil-lookup>" #'eldoc-doc-buffer)
 
-;;; elisp
-
-;;;; outline
+;;; outline
 
 (require 'outline)
 
@@ -1409,6 +1337,79 @@ FUNC COMMAND ARGS see `company-call-backend'."
 (keymap-set outline-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
 (keymap-set outline-minor-mode-map "<remap> <init-jump-next-placeholder>" #'outline-next-visible-heading)
 (keymap-set outline-minor-mode-map "<remap> <init-jump-previous-placeholder>" #'outline-previous-visible-heading)
+
+(defun init-outline-narrow-to-subtree ()
+  "Narrow to outline subtree."
+  (interactive)
+  (save-excursion
+    (save-match-data
+      (narrow-to-region
+       (progn (outline-back-to-heading t) (point))
+       (progn (outline-end-of-subtree)
+              (when (and (outline-on-heading-p) (not (eobp)))
+                (backward-char 1))
+              (point))))))
+
+(keymap-set narrow-map "s" #'init-outline-narrow-to-subtree)
+
+;;;; consult
+
+(defvar init-consult-outline-history nil)
+
+(defun init-consult-outline-candidates ()
+  "Collect outline headings."
+  (consult--forbid-minibuffer)
+  (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
+        (stack-level 0)
+        stack cands line name level marker)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward bol-regex nil t)
+        (save-excursion
+          (setq line (line-number-at-pos))
+          (setq name (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
+          (goto-char (match-beginning 0))
+          (setq marker (point-marker))
+          (setq level (funcall outline-level))
+          (while (<= level stack-level)
+            (pop stack)
+            (setq stack-level (1- stack-level)))
+          (while (> level stack-level)
+            (push "" stack)
+            (setq stack-level (1+ stack-level)))
+          (setq stack (cons name (cdr stack)))
+          (let* ((sep (propertize " / " 'face 'consult-line-number))
+                 (name (concat
+                        (propertize (format "%5d " line) 'face 'consult-line-number)
+                        (mapconcat #'identity (reverse stack) sep))))
+            (push (cons name marker) cands)))))
+    (nreverse cands)))
+
+(defun init-consult-outline-state ()
+  "Construct state for `init-consult-outline'."
+  (let ((jump (consult--jump-state)))
+    (lambda (action cand)
+      (funcall jump action (cdr cand)))))
+
+(defun init-consult-outline ()
+  "Enhanced version of `consult-outline' using counsel functionality."
+  (interactive)
+  (let ((candidate (consult--read
+                    (consult--slow-operation
+                        "Collecting headings..."
+                      (init-consult-outline-candidates))
+                    :prompt "Goto outline heading: "
+                    :state (init-consult-outline-state)
+                    :lookup #'consult--lookup-cons
+                    :sort nil
+                    :require-match t
+                    :history 'init-consult-outline-history
+                    :add-history (thing-at-point 'symbol))))
+    (goto-char (cdr candidate))))
+
+(consult-customize init-consult-outline :preview-key 'any)
+
+;;; elisp
 
 ;;;; lisp
 
