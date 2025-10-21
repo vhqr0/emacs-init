@@ -836,8 +836,6 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set init-consult-override-mode-map "<remap> <yank>" #'consult-yank-from-kill-ring)
 (keymap-set init-consult-override-mode-map "<remap> <yank-pop>" #'consult-yank-pop)
 
-;;;; line
-
 (consult-customize consult-goto-line :preview-key 'any)
 
 (keymap-set init-consult-override-mode-map "<remap> <goto-line>" #'consult-goto-line)
@@ -885,14 +883,6 @@ ARG see `init-consult-search'."
 
 (keymap-set embark-general-map "C-s" #'consult-line)
 (keymap-set embark-general-map "C-r" #'consult-line)
-
-;;;; imenu
-
-(require 'consult-imenu)
-
-(consult-customize consult-imenu :preview-key 'any)
-
-(keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
 
 ;;; spell
 
@@ -1188,6 +1178,15 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (setq eldoc-minor-mode-string nil)
 
 (keymap-set prog-mode-map "<remap> <display-local-help>" #'eldoc-doc-buffer)
+
+;;;; imenu
+
+(require 'imenu)
+(require 'consult-imenu)
+
+(consult-customize consult-imenu :preview-key 'any)
+
+(keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
 
 ;;;; xref
 
