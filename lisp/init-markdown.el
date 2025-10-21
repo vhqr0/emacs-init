@@ -12,6 +12,8 @@
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
 
+(add-hook 'markdown-mode-hook #'outline-minor-mode)
+
 (keymap-set markdown-mode-map "<remap> <init-narrow-to-block-placeholder>" #'markdown-narrow-to-block)
 (keymap-set markdown-mode-map "<remap> <init-narrow-to-subtree-placeholder>" #'markdown-narrow-to-subtree)
 (keymap-set markdown-mode-map "<remap> <init-jump-next-placeholder>" #'markdown-next-visible-heading)
