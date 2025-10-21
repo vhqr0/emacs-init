@@ -1352,6 +1352,13 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 (keymap-set narrow-map "s" #'init-outline-narrow-to-subtree)
 
+(defun init-outline-occur ()
+  "Occur outline heading."
+  (interactive)
+  (occur outline-regexp))
+
+(keymap-set search-map "O" #'init-outline-occur)
+
 ;;;; consult
 
 (defvar init-consult-outline-history nil)
