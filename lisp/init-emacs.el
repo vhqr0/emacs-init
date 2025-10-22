@@ -989,10 +989,6 @@ With two universal ARG, edit rg command."
 
 (add-hook 'comint-mode-hook #'init-comint-set-outline)
 
-(init-evil-keymap-set 'motion comint-mode-map
-  "M-n" #'comint-next-prompt
-  "M-p" #'comint-previous-prompt)
-
 ;;;; eshell
 
 (require 'eshell)
@@ -1012,10 +1008,6 @@ With two universal ARG, edit rg command."
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
-
-(init-evil-keymap-set 'motion eshell-mode-map
-  "M-n" #'eshell-next-prompt
-  "M-p" #'eshell-previous-prompt)
 
 (defun init-eshell-dwim-find-buffer ()
   "Find eshell dwim buffer."
