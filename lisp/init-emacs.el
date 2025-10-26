@@ -360,54 +360,13 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 ;;; vc
 
 (require 'vc)
-(require 'vc-dir)
 (require 'vc-git)
 
 (setq vc-handled-backends '(Git))
 (setq vc-display-status 'no-backend)
 (setq vc-make-backup-files t)
-(setq vc-find-revision-no-save t)
 
 (keymap-set ctl-x-x-map "v" #'vc-refresh-state)
-
-(keymap-set vc-prefix-map "f" #'vc-pull)
-(keymap-set vc-prefix-map "p" #'vc-push)
-(keymap-set vc-prefix-map "d" #'vc-diff)
-(keymap-set vc-prefix-map "t" #'vc-create-tag)
-
-(keymap-set vc-dir-mode-map "f" #'vc-pull)
-(keymap-set vc-dir-mode-map "d" #'vc-diff)
-(keymap-set vc-dir-mode-map "t" #'vc-create-tag)
-
-(keymap-set vc-git-stash-map "d" #'vc-git-stash-show-at-point)
-
-(evil-set-initial-state 'vc-dir-mode 'normal)
-
-(init-evil-keymap-set 'normal vc-dir-mode-map
-  "o" #'vc-dir-find-file-other-window
-  "v" #'vc-next-action
-  "m" #'vc-dir-mark
-  "M" #'vc-dir-mark-all-files
-  "u" #'vc-dir-unmark
-  "U" #'vc-dir-unmark-all-files
-  "x" #'vc-dir-hide-up-to-date
-  "f" #'vc-pull
-  "p" #'vc-push
-  "P" #'vc-push
-  "=" #'vc-diff
-  "d" #'vc-diff
-  "D" #'vc-root-diff
-  "t" #'vc-create-tag
-  "I" #'vc-log-incoming
-  "O" #'vc-log-outgoing
-  "b c" #'vc-create-branch
-  "b l" #'vc-print-branch-log
-  "b s" #'vc-switch-branch)
-
-(init-evil-minor-mode-keymap-set 'normal 'vc-dir-git-mode
-  "z c" #'vc-git-stash
-  "z s" #'vc-git-stash-snapshot
-  "z p" #'vc-git-stash-pop)
 
 (defvar init-git-user-name "vhqr0")
 (defvar init-git-user-email "zq_cmd@163.com")
@@ -1631,7 +1590,7 @@ FUNC and ARGS see specific command."
  "5" ctl-x-5-map
  "t" tab-prefix-map
  "p" project-prefix-map
- "v" vc-prefix-map
+ ;; "v" vc-prefix-map
  "x" ctl-x-x-map
  "r" ctl-x-r-map
  "h" help-map
