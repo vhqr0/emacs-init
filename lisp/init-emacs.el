@@ -834,19 +834,6 @@ ARG see `init-consult-search'."
 
 (setq ispell-dictionary "american")
 
-;;; ibuffer
-
-(require 'ibuffer)
-(require 'ibuf-ext)
-
-(setq ibuffer-formats
-      '((mark modified read-only locked
-              " " (name 40 40 :left :elide)
-	      " " (size 9 -1 :right)
-	      " " (mode 16 16 :left :elide)
-              " " filename-and-process)
-        (mark " " (name 40 -1) " " filename)))
-
 ;;; dired
 
 (require 'dired)
@@ -1513,7 +1500,6 @@ FUNC and ARGS see specific command."
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
- "B" #'ibuffer
  "S" #'init-rg-dwim
  "e" #'init-eshell-dwim
  "w" evil-window-map
