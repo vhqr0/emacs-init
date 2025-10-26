@@ -896,6 +896,36 @@ ARG see `init-consult-search'."
   "u" #'archive-unflag
   "C" #'archive-copy-file)
 
+;;; image
+
+(require 'image)
+(require 'image-mode)
+
+(keymap-set image-mode-map "<remap> <evil-next-line>" #'image-next-line)
+(keymap-set image-mode-map "<remap> <evil-previous-line>" #'image-previous-line)
+(keymap-set image-mode-map "<remap> <evil-next-visual-line>" #'image-next-line)
+(keymap-set image-mode-map "<remap> <evil-previous-visual-line>" #'image-previous-line)
+(keymap-set image-mode-map "<remap> <evil-backward-char>" #'image-backward-hscroll)
+(keymap-set image-mode-map "<remap> <evil-forward-char>" #'image-forward-hscroll)
+(keymap-set image-mode-map "<remap> <evil-scroll-down>" #'image-scroll-up)
+(keymap-set image-mode-map "<remap> <evil-scroll-up>" #'image-scroll-down)
+(keymap-set image-mode-map "<remap> <evil-scroll-left>" #'image-scroll-right)
+(keymap-set image-mode-map "<remap> <evil-scroll-right>" #'image-scroll-left)
+(keymap-set image-mode-map "<remap> <evil-goto-first-line>" #'image-bob)
+(keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
+
+(keymap-set image-mode-map "C-=" #'image-increase-size)
+(keymap-set image-mode-map "C-+" #'image-increase-size)
+(keymap-set image-mode-map "C--" #'image-decrease-size)
+
+(keymap-set image-mode-map "M-n" #'image-next-file)
+(keymap-set image-mode-map "M-p" #'image-previous-file)
+
+(init-evil-keymap-set 'normal image-mode-map
+  "m" #'image-mode-mark-file
+  "u" #'image-mode-unmark-file
+  "w" #'image-mode-copy-file-name-as-kill)
+
 ;;; process
 
 ;;;; compile
@@ -995,88 +1025,6 @@ With two universal ARG, edit rg command."
 ARG see `init-switch-to-buffer-split-window-interactive'."
   (interactive "P")
   (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer-create)))
-
-;;; ediff
-
-(require 'ediff)
-
-(setq ediff-window-setup-function #'ediff-setup-windows-plain)
-
-(evil-set-initial-state 'ediff-mode 'emacs)
-
-(defun init-ediff-scroll-up ()
-  "Scroll up in ediff."
-  (interactive)
-  (let ((last-command-event ?V))
-    (call-interactively #'ediff-scroll-vertically)))
-
-(defun init-ediff-scroll-down ()
-  "Scroll down in ediff."
-  (interactive)
-  (let ((last-command-event ?v))
-    (call-interactively #'ediff-scroll-vertically)))
-
-(defun init-ediff-scroll-left ()
-  "Scroll left in ediff."
-  (interactive)
-  (let ((last-command-event ?>))
-    (call-interactively #'ediff-scroll-horizontally)))
-
-(defun init-ediff-scroll-right ()
-  "Scroll right in ediff."
-  (interactive)
-  (let ((last-command-event ?<))
-    (call-interactively #'ediff-scroll-horizontally)))
-
-(defun init-ediff-jump-to-last-difference ()
-  "Jump to last difference."
-  (interactive)
-  (ediff-jump-to-difference -1))
-
-(defun init-ediff-setup-keymap-extra ()
-  "Setup extra ediff bindings."
-  (keymap-set ediff-mode-map "j" #'ediff-next-difference)
-  (keymap-set ediff-mode-map "k" #'ediff-previous-difference)
-  (keymap-set ediff-mode-map "g g" #'ediff-jump-to-difference)
-  (keymap-set ediff-mode-map "G" #'init-ediff-jump-to-last-difference)
-  (keymap-set ediff-mode-map "C-d" #'init-ediff-scroll-down)
-  (keymap-set ediff-mode-map "C-u" #'init-ediff-scroll-up)
-  (keymap-set ediff-mode-map "<up>" #'init-ediff-scroll-up)
-  (keymap-set ediff-mode-map "<down>" #'init-ediff-scroll-down)
-  (keymap-set ediff-mode-map "<left>" #'init-ediff-scroll-left)
-  (keymap-set ediff-mode-map "<right>" #'init-ediff-scroll-right))
-
-(advice-add #'ediff-setup-keymap :after #'init-ediff-setup-keymap-extra)
-
-;;; image
-
-(require 'image)
-(require 'image-mode)
-
-(keymap-set image-mode-map "<remap> <evil-next-line>" #'image-next-line)
-(keymap-set image-mode-map "<remap> <evil-previous-line>" #'image-previous-line)
-(keymap-set image-mode-map "<remap> <evil-next-visual-line>" #'image-next-line)
-(keymap-set image-mode-map "<remap> <evil-previous-visual-line>" #'image-previous-line)
-(keymap-set image-mode-map "<remap> <evil-backward-char>" #'image-backward-hscroll)
-(keymap-set image-mode-map "<remap> <evil-forward-char>" #'image-forward-hscroll)
-(keymap-set image-mode-map "<remap> <evil-scroll-down>" #'image-scroll-up)
-(keymap-set image-mode-map "<remap> <evil-scroll-up>" #'image-scroll-down)
-(keymap-set image-mode-map "<remap> <evil-scroll-left>" #'image-scroll-right)
-(keymap-set image-mode-map "<remap> <evil-scroll-right>" #'image-scroll-left)
-(keymap-set image-mode-map "<remap> <evil-goto-first-line>" #'image-bob)
-(keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
-
-(keymap-set image-mode-map "C-=" #'image-increase-size)
-(keymap-set image-mode-map "C-+" #'image-increase-size)
-(keymap-set image-mode-map "C--" #'image-decrease-size)
-
-(keymap-set image-mode-map "M-n" #'image-next-file)
-(keymap-set image-mode-map "M-p" #'image-previous-file)
-
-(init-evil-keymap-set 'normal image-mode-map
-  "m" #'image-mode-mark-file
-  "u" #'image-mode-unmark-file
-  "w" #'image-mode-copy-file-name-as-kill)
 
 ;;; prog
 
