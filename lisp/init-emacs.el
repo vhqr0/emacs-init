@@ -1051,31 +1051,7 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 ;;; image
 
 (require 'image)
-
-(keymap-set image-slice-map "i =" #'image-increase-size)
-(keymap-set image-slice-map "=" #'image-increase-size)
-(keymap-set image-slice-map "+" #'image-increase-size)
-(keymap-set image-slice-map "-" #'image-decrease-size)
-(keymap-set image-slice-map "r" #'image-rotate)
-
-(keymap-set image--repeat-map "=" #'image-increase-size)
-
-(init-evil-keymap-set '(motion normal) image-slice-map
-  "=" #'image-increase-size
-  "+" #'image-increase-size
-  "-" #'image-decrease-size
-  "r" #'image-rotate)
-
 (require 'image-mode)
-
-(keymap-set image-mode-map "a =" #'image-increase-speed)
-
-(keymap-set image-mode-map "C-=" #'image-increase-size)
-(keymap-set image-mode-map "C-+" #'image-increase-size)
-(keymap-set image-mode-map "C--" #'image-decrease-size)
-
-(keymap-set image-mode-map "M-n" #'image-next-file)
-(keymap-set image-mode-map "M-p" #'image-previous-file)
 
 (keymap-set image-mode-map "<remap> <evil-next-line>" #'image-next-line)
 (keymap-set image-mode-map "<remap> <evil-previous-line>" #'image-previous-line)
@@ -1089,6 +1065,13 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 (keymap-set image-mode-map "<remap> <evil-scroll-right>" #'image-scroll-left)
 (keymap-set image-mode-map "<remap> <evil-goto-first-line>" #'image-bob)
 (keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
+
+(keymap-set image-mode-map "C-=" #'image-increase-size)
+(keymap-set image-mode-map "C-+" #'image-increase-size)
+(keymap-set image-mode-map "C--" #'image-decrease-size)
+
+(keymap-set image-mode-map "M-n" #'image-next-file)
+(keymap-set image-mode-map "M-p" #'image-previous-file)
 
 (init-evil-keymap-set 'normal image-mode-map
   "m" #'image-mode-mark-file
