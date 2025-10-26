@@ -30,8 +30,10 @@
 
 (evil-set-initial-state 'magit-mode 'normal)
 
+(init-evil-keymap-set 'motion magit-mode-map
+  "," #'magit-dispatch)
+
 (init-evil-keymap-set 'normal magit-mode-map
-  "," #'magit-dispatch
   "a" #'magit-cherry-apply
   "A" #'magit-cherry-pick
   "b" #'magit-branch
@@ -67,9 +69,6 @@
   "z" #'magit-stash
   "Z" #'magit-worktree
   "$" #'magit-process-buffer)
-
-(init-evil-keymap-set 'visual magit-mode-map
-  "," #'magit-dispatch)
 
 (keymap-set magit-blob-mode-map "<remap> <quit-window>" #'magit-kill-this-buffer)
 (keymap-set magit-blob-mode-map "M-n" #'magit-blob-next)
