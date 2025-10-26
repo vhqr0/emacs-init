@@ -828,12 +828,6 @@ ARG see `init-consult-search'."
 (keymap-set embark-general-map "C-s" #'consult-line)
 (keymap-set embark-general-map "C-r" #'consult-line)
 
-;;; spell
-
-(require 'ispell)
-
-(setq ispell-dictionary "american")
-
 ;;; dired
 
 (require 'dired)
