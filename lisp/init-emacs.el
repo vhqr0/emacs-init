@@ -569,9 +569,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq isearch-motion-changes-direction t)
 ;; (setq isearch-repeat-on-direction-change t)
 
-(keymap-set evil-motion-state-map "/" #'isearch-forward-regexp)
-(keymap-set evil-motion-state-map "?" #'isearch-backward-regexp)
-
 (keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
 (keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
 
@@ -617,6 +614,11 @@ FUNC and ARGS see `evil-set-cursor'."
 (keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
 (keymap-set isearch-mode-map "C-@" #'isearch-toggle-input-method)
 
+(dolist (state '(operator motion normal visual))
+  (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
+
+;; ugly work around before https://github.com/emacs-evil/evil/pull/1995 merged
+
 (defvar init-ignore-toggle-input-method nil)
 
 (defun init-input-method-around-toggle-check-ignore (func &rest args)
@@ -645,8 +647,34 @@ FUNC, ARGS see specified commands."
                 evil-visual-state))
   (advice-add func :around #'init-input-method-around-command-set-ignore))
 
-(dolist (state '(operator motion normal visual))
-  (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
+(defun init-evil-override-search-incrementally (forward regexp-p)
+  "Override `evil-search-incrementally', do not change current input method.
+FORWARD, REGEXP-P see `evil-search-incrementally'."
+  (let ((evil-search-prompt (evil-search-prompt forward))
+        (isearch-search-fun-function 'evil-isearch-function)
+        (point (point))
+        search-nonincremental-instead)
+    (setq isearch-forward forward)
+    (evil-save-echo-area
+      (if forward
+          (isearch-forward regexp-p)
+        (isearch-backward regexp-p))
+      (evil-push-search-history isearch-string forward)
+      (when (/= (point) point)
+        (when (and forward isearch-other-end)
+          (goto-char isearch-other-end))
+        (when (and (eq point (point))
+                   (not (string= isearch-string "")))
+          (if forward
+              (isearch-repeat-forward)
+            (isearch-repeat-backward))
+          (isearch-exit)
+          (when (and forward isearch-other-end)
+            (goto-char isearch-other-end)))
+        (evil-flash-search-pattern
+         (evil-search-message isearch-string forward))))))
+
+(advice-add #'evil-search-incrementally :override #'init-evil-override-search-incrementally)
 
 (defun init-ignore-input-method-p ()
   "Predicate of input method."
@@ -831,7 +859,6 @@ ARG see `init-consult-search'."
 ;;; dired
 
 (require 'dired)
-(require 'dired-x)
 (require 'wdired)
 
 (setq dired-dwim-target t)
@@ -879,7 +906,6 @@ ARG see `init-consult-search'."
 
 ;;; image
 
-(require 'image)
 (require 'image-mode)
 
 (keymap-set image-mode-map "<remap> <evil-next-line>" #'image-next-line)
