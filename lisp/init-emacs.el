@@ -99,7 +99,7 @@ With two or more universal ARG, open in current window."
 (setq initial-scratch-message nil)
 
 (defvar init-disable-ui-modes
-  '(blink-cursor-mode tool-bar-mode menu-bar-mode))
+  '(blink-cursor-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
 
 (defun init-disable-ui ()
   "Disable various ui modes."
@@ -408,8 +408,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 ;;; window
 
-(add-hook 'after-init-hook #'horizontal-scroll-bar-mode)
-(add-hook 'after-init-hook #'window-divider-mode)
+;; (add-hook 'after-init-hook #'horizontal-scroll-bar-mode)
+;; (add-hook 'after-init-hook #'window-divider-mode)
 
 (defun init-toggle-scroll-bar ()
   "Toggle scroll bar."
