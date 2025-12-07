@@ -501,7 +501,7 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 (require 'paren)
 
-(setq show-paren-style 'expression)
+;; (setq show-paren-style 'expression)
 (setq show-paren-context-when-offscreen 'child-frame)
 
 (add-hook 'after-init-hook #'show-paren-mode)

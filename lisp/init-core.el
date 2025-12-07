@@ -82,7 +82,7 @@
         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
         ("melpa"  . "https://melpa.org/packages/")))
 
-(setq package-quickstart t)
+;; (setq package-quickstart t)
 
 (defun init-select-packages ()
   "Add required packages to selected packages."
