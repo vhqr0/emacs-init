@@ -1172,6 +1172,8 @@ FUNC COMMAND ARGS see `company-call-backend'."
 (setq flymake-no-changes-timeout 1)
 (setq flymake-show-diagnostics-at-end-of-line 'short)
 (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
+(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
+(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
 (require 'eldoc)
 (setq eldoc-minor-mode-string nil)
