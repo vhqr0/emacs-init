@@ -237,9 +237,6 @@ With two or more universal ARG, open in current window."
 (keymap-set evil-motion-state-map "] F" 'evil-find-file-at-point-with-line)
 (keymap-set evil-motion-state-map "[ F" 'evil-find-file-at-point-with-line)
 
-(keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
-(keymap-set evil-motion-state-map "g R" #'revert-buffer)
-
 (defvar init-evil-disable-adjust-cursor-commands
   '(forward-sexp forward-list))
 
@@ -293,7 +290,12 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq lock-file-name-transforms      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t)))
 (setq backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
+(setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
+
 (keymap-set ctl-x-x-map "G" #'revert-buffer)
+
+(keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
+(keymap-set evil-motion-state-map "g R" #'revert-buffer)
 
 (keymap-set ctl-x-x-map "<left>" #'previous-buffer)
 (keymap-set ctl-x-x-map "<right>" #'next-buffer)
@@ -540,6 +542,8 @@ FUNC and ARGS see `evil-set-cursor'."
   "C-a" (init-isearch-filtered-command #'move-beginning-of-line)
   "C-e" (init-isearch-filtered-command #'move-end-of-line))
 
+;;; occur
+
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
 (evil-set-initial-state 'occur-edit-mode 'normal)
 
@@ -691,18 +695,7 @@ EVENT see `input-method-function'."
 (keymap-set vertico-mode-map "C-c b" #'vertico-repeat)
 (keymap-set vertico-mode-map "C-c z" #'vertico-suspend)
 
-(defvar init-vertico-disable-commands '(kill-buffer))
-
-(defun init-vertico-around-setup-filter-commands (func &rest args)
-  "Disable vertico around `init-vertico-disable-commands'.
-FUNC ARGS see `vertico--setup'."
-  (unless (memq this-command init-vertico-disable-commands)
-    (apply func args)))
-
-(advice-add 'vertico--setup :around #'init-vertico-around-setup-filter-commands)
-
 (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
-
 (keymap-set vertico-map "C-l" #'vertico-directory-up)
 
 (keymap-set vertico-map "<remap> <evil-scroll-down>" #'vertico-scroll-up)
@@ -715,6 +708,16 @@ FUNC ARGS see `vertico--setup'."
 (keymap-set vertico-map "<remap> <evil-goto-line>" #'vertico-last)
 
 (keymap-set vertico-map "C-x C-s" #'embark-export)
+
+(defvar init-vertico-disable-commands '(kill-buffer))
+
+(defun init-vertico-around-setup-filter-commands (func &rest args)
+  "Disable vertico around `init-vertico-disable-commands'.
+FUNC ARGS see `vertico--setup'."
+  (unless (memq this-command init-vertico-disable-commands)
+    (apply func args)))
+
+(advice-add 'vertico--setup :around #'init-vertico-around-setup-filter-commands)
 
 ;;; search
 
@@ -1155,7 +1158,9 @@ FUNC ARGS see `company-capf'."
 (defun init-company-around-call-backend-check-evil (func command &rest args)
   "Check evil state before call company.
 FUNC COMMAND ARGS see `company-call-backend'."
-  (unless (and evil-mode (eq evil-state 'normal) (eq command 'prefix))
+  (unless (and (eq command 'prefix)
+               evil-local-mode
+               (not (memq evil-state '(insert replace emacs))))
     (apply func command args)))
 
 (advice-add #'company-call-backend :around #'init-company-around-call-backend-check-evil)
@@ -1222,15 +1227,8 @@ FUNC and ARGS see specific command."
 (dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
   (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
 
-;;;; flymake
-
-(setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
-
 (setq elisp-flymake-byte-compile-load-path load-path)
-
 (add-hook 'emacs-lisp-mode-hook #'flymake-mode)
-
-;;;; ielm
 
 (require 'ielm)
 
