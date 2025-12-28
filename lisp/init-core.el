@@ -40,11 +40,12 @@
                    embark-consult
                    yasnippet
                    company
-                   wgrep))
+                   wgrep
+                   markdown-mode
+                   edit-indirect))
     (init-pyim . (pyim pyim-basedict posframe))
     (init-magit . (git-modes with-editor magit forge orgit orgit-forge))
     (init-clojure . (clojure-mode cider))
-    (init-markdown . (markdown-mode edit-indirect))
     (init-org-roam . (org-roam))))
 
 (defvar init-modules
@@ -53,8 +54,6 @@
     ;; init-magit
     ;; init-python
     ;; init-clojure
-    ;; init-markdown
-    ;; init-org
     ;; init-org-roam
     ))
 
