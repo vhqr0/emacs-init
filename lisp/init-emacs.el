@@ -9,13 +9,6 @@
 
 ;;; utils
 
-(defun init-diminish-minor-mode (mode)
-  "Diminish MODE lighter."
-  (setq minor-mode-alist
-        (seq-remove
-         (lambda (alist) (eq (car alist) mode))
-         minor-mode-alist)))
-
 (defun init-region-bounds ()
   "Get region bounds."
   (when (use-region-p)
@@ -114,11 +107,10 @@ With two or more universal ARG, open in current window."
 (setq evil-want-minibuffer t)
 
 (defvar evil-want-C-i-jump)
-(setq evil-want-C-i-jump nil)
-
 (defvar evil-want-C-u-scroll)
 (defvar evil-want-C-w-delete)
 (defvar evil-want-Y-yank-to-eol)
+(setq evil-want-C-i-jump nil)
 (setq evil-want-C-u-scroll t)
 (setq evil-want-C-w-delete t)
 (setq evil-want-Y-yank-to-eol t)
@@ -130,6 +122,10 @@ With two or more universal ARG, open in current window."
 (setq evil-undo-system 'undo-redo)
 
 (require 'evil)
+(require 'evil-surround)
+
+(add-hook 'after-init-hook #'evil-mode)
+(add-hook 'after-init-hook #'global-evil-surround-mode)
 
 (setq evil-mode-line-format '(before . mode-line-front-space))
 
@@ -143,100 +139,9 @@ With two or more universal ARG, open in current window."
 (setq evil-insert-state-modes nil)
 (setq evil-motion-state-modes '(special-mode))
 
-(add-hook 'after-init-hook #'evil-mode)
-
-(defvar init-evil-disable-adjust-cursor-commands
-  '(forward-sexp forward-list))
-
-(defun init-evil-around-adjust-cursor-filter-commands (func &rest args)
-  "Dont adjust cursor after certain commands.
-FUNC and ARGS see `evil-set-cursor'."
-  (unless (memq this-command init-evil-disable-adjust-cursor-commands)
-    (apply func args)))
-
-(advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-filter-commands)
-
-(keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
-
-(keymap-unset evil-insert-state-map "C-@" t)
-(keymap-unset evil-insert-state-map "C-a" t)
-(keymap-unset evil-insert-state-map "C-k" t)
-(keymap-unset evil-insert-state-map "C-w" t)
-(keymap-unset evil-insert-state-map "C-e" t)
-(keymap-unset evil-insert-state-map "C-y" t)
-(keymap-unset evil-insert-state-map "C-d" t)
-(keymap-unset evil-insert-state-map "C-t" t)
-(keymap-unset evil-insert-state-map "C-n" t)
-(keymap-unset evil-insert-state-map "C-p" t)
-
-(keymap-unset evil-motion-state-map "RET" t)
-(keymap-unset evil-motion-state-map "SPC" t)
-(keymap-unset evil-normal-state-map "DEL" t)
-
-(keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
-(keymap-set evil-motion-state-map "q" #'quit-window)
-(keymap-unset evil-normal-state-map "q" t)
-
-(keymap-set evil-visual-state-map "m" #'evil-jump-item)
-(keymap-set evil-operator-state-map "m" #'evil-jump-item)
-(keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
-(keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
-
-(keymap-set evil-motion-state-map "g f" 'find-file-at-point)
-(keymap-set evil-motion-state-map "] f" 'find-file-at-point)
-(keymap-set evil-motion-state-map "[ f" 'find-file-at-point)
-(keymap-set evil-motion-state-map "g F" 'evil-find-file-at-point-with-line)
-(keymap-set evil-motion-state-map "] F" 'evil-find-file-at-point-with-line)
-(keymap-set evil-motion-state-map "[ F" 'evil-find-file-at-point-with-line)
-
-(keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
-(keymap-set evil-motion-state-map "g R" #'revert-buffer)
-
-(set-keymap-parent evil-command-line-map minibuffer-local-map)
-
-(defvar-keymap init-evil-override-mode-map)
-
-(defun init-evil-keymap-set (state keymap &rest clauses)
-  "Set evil key.
-STATE KEYMAP CLAUSES see `evil-define-key*'."
-  (declare (indent defun))
-  (apply #'evil-define-key* state keymap
-         (seq-map-indexed
-          (lambda (v i)
-            (if (cl-oddp i) v (kbd v)))
-          clauses)))
-
-(defun init-evil-minor-mode-keymap-set (state mode &rest clauses)
-  "Set evil key in minor mode.
-STATE MODE CLAUSES see `evil-define-minor-mode-key'."
-  (declare (indent defun))
-  (apply #'evil-define-minor-mode-key state mode
-         (seq-map-indexed
-          (lambda (v i)
-            (if (cl-oddp i) v (kbd v)))
-          clauses)))
-
-(define-minor-mode init-evil-override-mode
-  "Override leader prefix map."
-  :group 'init-evil
-  :global t
-  :init-value t
-  :keymap init-evil-override-mode-map)
-
-;;;; extra
-
-(require 'evil-surround)
-
 (add-to-list 'evil-surround-pairs-alist '(?r . ("[" . "]")))
 (add-to-list 'evil-surround-pairs-alist '(?a . ("<" . ">")))
 (add-to-list 'evil-surround-pairs-alist '(?# . ("#{" . "}")))
-
-(keymap-set evil-inner-text-objects-map "r" #'evil-inner-bracket)
-(keymap-set evil-outer-text-objects-map "r" #'evil-a-bracket)
-(keymap-set evil-inner-text-objects-map "a" #'evil-inner-angle)
-(keymap-set evil-outer-text-objects-map "a" #'evil-an-angle)
-
-(add-hook 'after-init-hook #'global-evil-surround-mode)
 
 (evil-define-operator init-evil-operator-comment (beg end)
   :move-point nil
@@ -255,10 +160,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   (interactive "<r>")
   (when-let* ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
     (funcall eval-function beg end)))
-
-(keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
-(keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
-(keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
 
 (evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
   (evil-range
@@ -281,6 +182,47 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (evil-define-text-object init-evil-text-object-entire (count &optional _beg _end _type)
   (evil-range (point-min) (point-max) 'line))
 
+(set-keymap-parent evil-command-line-map minibuffer-local-map)
+
+(keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
+
+(keymap-unset evil-insert-state-map "C-@" t)
+(keymap-unset evil-insert-state-map "C-a" t)
+(keymap-unset evil-insert-state-map "C-k" t)
+(keymap-unset evil-insert-state-map "C-w" t)
+(keymap-unset evil-insert-state-map "C-e" t)
+(keymap-unset evil-insert-state-map "C-y" t)
+(keymap-unset evil-insert-state-map "C-d" t)
+(keymap-unset evil-insert-state-map "C-t" t)
+(keymap-unset evil-insert-state-map "C-n" t)
+(keymap-unset evil-insert-state-map "C-p" t)
+
+(keymap-unset evil-motion-state-map "RET" t)
+(keymap-unset evil-motion-state-map "SPC" t)
+(keymap-unset evil-normal-state-map "DEL" t)
+
+(keymap-set evil-motion-state-map "<left>" #'evil-scroll-left)
+(keymap-set evil-motion-state-map "<right>" #'evil-scroll-right)
+(keymap-set evil-motion-state-map "<up>" #'evil-scroll-up)
+(keymap-set evil-motion-state-map "<down>" #'evil-scroll-down)
+
+(keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
+(keymap-set evil-motion-state-map "q" #'quit-window)
+(keymap-unset evil-normal-state-map "q" t)
+
+(keymap-set evil-visual-state-map "m" #'evil-jump-item)
+(keymap-set evil-operator-state-map "m" #'evil-jump-item)
+(keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
+(keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
+
+(keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
+(keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
+(keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
+
+(keymap-set evil-inner-text-objects-map "r" #'evil-inner-bracket)
+(keymap-set evil-outer-text-objects-map "r" #'evil-a-bracket)
+(keymap-set evil-inner-text-objects-map "a" #'evil-inner-angle)
+(keymap-set evil-outer-text-objects-map "a" #'evil-an-angle)
 (keymap-set evil-inner-text-objects-map "l" #'init-evil-inner-line)
 (keymap-set evil-outer-text-objects-map "l" #'init-evil-a-line)
 (keymap-set evil-inner-text-objects-map "d" #'init-evil-inner-defun)
@@ -288,21 +230,59 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (keymap-set evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
 (keymap-set evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
 
+(keymap-set evil-motion-state-map "g f" 'find-file-at-point)
+(keymap-set evil-motion-state-map "] f" 'find-file-at-point)
+(keymap-set evil-motion-state-map "[ f" 'find-file-at-point)
+(keymap-set evil-motion-state-map "g F" 'evil-find-file-at-point-with-line)
+(keymap-set evil-motion-state-map "] F" 'evil-find-file-at-point-with-line)
+(keymap-set evil-motion-state-map "[ F" 'evil-find-file-at-point-with-line)
+
+(keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
+(keymap-set evil-motion-state-map "g R" #'revert-buffer)
+
+(defvar init-evil-disable-adjust-cursor-commands
+  '(forward-sexp forward-list))
+
+(defun init-evil-around-adjust-cursor-filter-commands (func &rest args)
+  "Dont adjust cursor after certain commands.
+FUNC and ARGS see `evil-set-cursor'."
+  (unless (memq this-command init-evil-disable-adjust-cursor-commands)
+    (apply func args)))
+
+(advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-filter-commands)
+
+(defun init-evil-keymap-set (state keymap &rest clauses)
+  "Set evil key.
+STATE KEYMAP CLAUSES see `evil-define-key*'."
+  (declare (indent defun))
+  (apply #'evil-define-key* state keymap
+         (seq-map-indexed
+          (lambda (v i)
+            (if (cl-oddp i) v (kbd v)))
+          clauses)))
+
+(defun init-evil-minor-mode-keymap-set (state mode &rest clauses)
+  "Set evil key in minor mode.
+STATE MODE CLAUSES see `evil-define-minor-mode-key'."
+  (declare (indent defun))
+  (apply #'evil-define-minor-mode-key state mode
+         (seq-map-indexed
+          (lambda (v i)
+            (if (cl-oddp i) v (kbd v)))
+          clauses)))
+
 ;;; files
+
+(defun init-header-line-path ()
+  "Get path displayed in header line."
+  (expand-file-name (or buffer-file-name default-directory)))
 
 (setq column-number-mode t)
 (setq mode-line-percent-position '(6 "%q"))
 (setq mode-line-position-line-format '(" %lL"))
 (setq mode-line-position-column-format '(" %CC"))
 (setq mode-line-position-column-line-format '(" %l:%C"))
-
-(defun init-header-line-path ()
-  "Get path displayed in header line."
-  (expand-file-name (or buffer-file-name default-directory)))
-
 (setq-default header-line-format '(:eval (init-header-line-path)))
-
-(require 'files)
 
 (setq version-control t)
 (setq backup-by-copying t)
@@ -318,38 +298,28 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (keymap-set ctl-x-x-map "<left>" #'previous-buffer)
 (keymap-set ctl-x-x-map "<right>" #'next-buffer)
 
-(setq auto-save-visited-interval 0.5)
-
 (defun init-auto-save-p ()
   "Predication of `auto-save-visited-mode'."
   (not (evil-insert-state-p)))
 
+(setq auto-save-visited-interval 0.5)
 (setq auto-save-visited-predicate #'init-auto-save-p)
-
 (add-to-list 'minor-mode-alist '(auto-save-visited-mode " ASave"))
-
 (add-hook 'after-init-hook #'auto-save-visited-mode)
 
 (require 'autorevert)
-
 (setq auto-revert-check-vc-info t)
-
 (add-hook 'after-init-hook #'global-auto-revert-mode)
 
 (require 'recentf)
-
 (setq recentf-max-saved-items 500)
-
 (add-hook 'after-init-hook #'recentf-mode)
-
 (keymap-set ctl-x-r-map "e" #'recentf-open)
 
 (require 'saveplace)
-
 (add-hook 'after-init-hook #'save-place-mode)
 
 (require 'so-long)
-
 (add-hook 'after-init-hook #'global-so-long-mode)
 
 ;;; vc
@@ -403,9 +373,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 ;;; window
 
-;; (add-hook 'after-init-hook #'horizontal-scroll-bar-mode)
-;; (add-hook 'after-init-hook #'window-divider-mode)
-
 (defun init-toggle-scroll-bar ()
   "Toggle scroll bar."
   (interactive)
@@ -416,22 +383,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
     (scroll-bar-mode 1)
     (horizontal-scroll-bar-mode 1)))
 
-(define-minor-mode init-arrow-scroll-mode
-  "Minor mode to use arrow keys to scroll around."
-  :group 'init-window
-  :global t
-  :init-value t)
-
-(init-evil-minor-mode-keymap-set 'motion 'init-arrow-scroll-mode
-  "<left>" #'evil-scroll-left
-  "<right>" #'evil-scroll-right
-  "<up>" #'evil-scroll-up
-  "<down>" #'evil-scroll-down)
-
 (require 'windmove)
-
 (windmove-default-keybindings)
-
 (add-hook 'after-init-hook #'undelete-frame-mode)
 
 (require 'tab-bar)
@@ -441,8 +394,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq tab-bar-select-tab-modifiers '(control meta))
 (setq tab-bar-close-last-tab-choice 'delete-frame)
 
-(add-to-list 'after-init-hook #'tab-bar-mode)
-(add-to-list 'after-init-hook #'tab-bar-history-mode)
+(add-hook 'after-init-hook #'tab-bar-mode)
+(add-hook 'after-init-hook #'tab-bar-history-mode)
 
 (defvar-keymap init-tab-bar-history-repeat-map
   :repeat t
@@ -472,57 +425,10 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 ;;; edit
 
 (setq ring-bell-function #'ignore)
-
 (setq disabled-command-function nil)
 (setq suggest-key-bindings nil)
-
-(require 'repeat)
-
-(add-to-list 'after-init-hook #'repeat-mode)
-
 (setq word-wrap-by-category t)
-
 (setq-default indent-tabs-mode nil)
-
-(defun init-indent-dwim ()
-  "Do indent smartly."
-  (interactive "*")
-  (let ((bounds (init-region-or-buffer-bounds)))
-    (indent-region (car bounds) (cdr bounds))))
-
-(require 'elec-pair)
-
-(add-to-list 'after-init-hook #'electric-pair-mode)
-
-(require 'paren)
-
-;; (setq show-paren-style 'expression)
-(setq show-paren-context-when-offscreen 'child-frame)
-
-(add-hook 'after-init-hook #'show-paren-mode)
-
-(require 'paredit)
-
-(keymap-global-set "M-r" #'raise-sexp)
-(keymap-global-set "M-R" #'paredit-splice-sexp-killing-backward)
-(keymap-global-set "M-K" #'paredit-splice-sexp-killing-forward)
-(keymap-global-set "M-s" #'paredit-splice-sexp)
-(keymap-global-set "M-S" #'paredit-split-sexp)
-(keymap-global-set "M-J" #'paredit-join-sexps)
-(keymap-global-set "C-<left>" #'paredit-forward-barf-sexp)
-(keymap-global-set "C-<right>" #'paredit-forward-slurp-sexp)
-(keymap-global-set "C-M-<left>" #'paredit-backward-slurp-sexp)
-(keymap-global-set "C-M-<right>" #'paredit-backward-barf-sexp)
-
-(keymap-set evil-normal-state-map "M-r" #'raise-sexp)
-(keymap-set evil-normal-state-map "M-s" #'paredit-splice-sexp)
-
-(defun init-wrap-pair (&optional arg)
-  "Insert pair, ARG see `insert-pair'."
-  (interactive "*P")
-  (insert-pair (or arg 1))
-  (indent-sexp))
-
 (setq-default truncate-lines t)
 
 (defun init-set-trailing-whitespace-display ()
@@ -532,7 +438,18 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (add-hook 'text-mode-hook #'init-set-trailing-whitespace-display)
 (add-hook 'prog-mode-hook #'init-set-trailing-whitespace-display)
 
+(require 'hl-line)
+(setq hl-line-sticky-flag t)
+
 (require 'display-line-numbers)
+(add-hook 'text-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+(defun init-indent-dwim ()
+  "Do indent smartly."
+  (interactive "*")
+  (let ((bounds (init-region-or-buffer-bounds)))
+    (indent-region (car bounds) (cdr bounds))))
 
 (defun init-toggle-line-numbers-relative ()
   "Toggle local display type of line numbers."
@@ -543,17 +460,43 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
                 'relative))
   (display-line-numbers-mode 1))
 
-(add-hook 'text-mode-hook #'display-line-numbers-mode)
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-
-(require 'hl-line)
-
-(setq hl-line-sticky-flag t)
+(require 'repeat)
+(add-hook 'after-init-hook #'repeat-mode)
 
 (require 'embark)
-
 (keymap-global-set "M-o" #'embark-act)
 (keymap-global-set "M-O" #'embark-act-all)
+(keymap-set embark-identifier-map "%" #'query-replace)
+
+;;;; paredit
+
+(require 'elec-pair)
+(add-hook 'after-init-hook #'electric-pair-mode)
+
+(require 'paren)
+;; (setq show-paren-style 'expression)
+(setq show-paren-context-when-offscreen 'child-frame)
+(add-hook 'after-init-hook #'show-paren-mode)
+
+(require 'paredit)
+(keymap-global-set "M-r" #'raise-sexp)
+(keymap-global-set "M-R" #'paredit-splice-sexp-killing-backward)
+(keymap-global-set "M-K" #'paredit-splice-sexp-killing-forward)
+(keymap-global-set "M-s" #'paredit-splice-sexp)
+(keymap-global-set "M-S" #'paredit-split-sexp)
+(keymap-global-set "M-J" #'paredit-join-sexps)
+(keymap-global-set "C-<left>" #'paredit-forward-barf-sexp)
+(keymap-global-set "C-<right>" #'paredit-forward-slurp-sexp)
+(keymap-global-set "C-M-<left>" #'paredit-backward-slurp-sexp)
+(keymap-global-set "C-M-<right>" #'paredit-backward-barf-sexp)
+(keymap-set evil-normal-state-map "M-r" #'raise-sexp)
+(keymap-set evil-normal-state-map "M-s" #'paredit-splice-sexp)
+
+(defun init-wrap-pair (&optional arg)
+  "Insert pair, ARG see `insert-pair'."
+  (interactive "*P")
+  (insert-pair (or arg 1))
+  (indent-sexp))
 
 ;;; isearch
 
@@ -563,11 +506,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq isearch-yank-on-move t)
 (setq isearch-motion-changes-direction t)
 ;; (setq isearch-repeat-on-direction-change t)
-
-(keymap-set embark-general-map "C-M-s" #'embark-isearch-forward)
-(keymap-set embark-general-map "C-M-r" #'embark-isearch-backward)
-
-(keymap-set embark-identifier-map "%" #'query-replace)
 
 (defun init-evil-around-adjust-cursor-check-isearch (func &rest args)
   "Dont adjust cursor in isearch mode.
@@ -603,7 +541,6 @@ FUNC and ARGS see `evil-set-cursor'."
   "C-e" (init-isearch-filtered-command #'move-end-of-line))
 
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
-
 (evil-set-initial-state 'occur-edit-mode 'normal)
 
 ;;; input method
@@ -713,7 +650,17 @@ EVENT see `input-method-function'."
 
 ;;; minibuffer
 
+(require 'savehist)
+(require 'orderless)
+(require 'marginalia)
+
 (setq enable-recursive-minibuffers t)
+(setq completion-ignore-case t)
+(setq read-buffer-completion-ignore-case t)
+(setq read-file-name-completion-ignore-case t)
+(setq completion-styles '(orderless basic))
+(setq completion-category-defaults nil)
+(setq completion-category-overrides nil)
 (setq read-extended-command-predicate #'command-completion-default-include-p)
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
@@ -721,22 +668,7 @@ EVENT see `input-method-function'."
 (init-evil-keymap-set 'normal minibuffer-local-map
   "<escape>" #'abort-recursive-edit)
 
-(require 'savehist)
-
 (add-hook 'after-init-hook #'savehist-mode)
-
-(setq completion-ignore-case t)
-(setq read-buffer-completion-ignore-case t)
-(setq read-file-name-completion-ignore-case t)
-
-(require 'orderless)
-
-(setq completion-styles '(orderless basic))
-(setq completion-category-defaults nil)
-(setq completion-category-overrides nil)
-
-(require 'marginalia)
-
 (add-hook 'after-init-hook #'marginalia-mode)
 
 ;;;; vertico
@@ -787,6 +719,7 @@ FUNC ARGS see `vertico--setup'."
 ;;; search
 
 (require 'consult)
+(require 'consult-imenu)
 (require 'embark-consult)
 
 (setq consult-preview-key '(:debounce 0.3 any))
@@ -852,8 +785,88 @@ ARG see `init-consult-search'."
 (keymap-set search-map "s" #'init-consult-search)
 (keymap-global-set "C-s" #'init-consult-search-dwim)
 
-(keymap-set embark-general-map "C-s" #'consult-line)
-(keymap-set embark-general-map "C-r" #'consult-line)
+(consult-customize consult-imenu :preview-key 'any)
+
+(keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
+
+;;; outline
+
+(require 'outline)
+
+(setq outline-minor-mode-cycle t)
+(setq outline-minor-mode-highlight 'override)
+(setq outline-minor-mode-use-buttons 'in-margins)
+
+(defun init-outline-narrow-to-subtree ()
+  "Narrow to outline subtree."
+  (interactive)
+  (save-excursion
+    (save-match-data
+      (narrow-to-region
+       (progn (outline-back-to-heading t) (point))
+       (progn (outline-end-of-subtree)
+              (when (and (outline-on-heading-p) (not (eobp)))
+                (backward-char 1))
+              (point))))))
+
+(keymap-set narrow-map "s" #'init-outline-narrow-to-subtree)
+
+;;;; consult
+
+(defvar init-consult-outline-history nil)
+
+(defun init-consult-outline-candidates ()
+  "Collect outline headings."
+  (consult--forbid-minibuffer)
+  (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
+        (stack-level 0)
+        stack cands line name level marker)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward bol-regex nil t)
+        (save-excursion
+          (setq line (line-number-at-pos))
+          (setq name (buffer-substring (line-beginning-position) (line-end-position)))
+          (goto-char (match-beginning 0))
+          (setq marker (point-marker))
+          (setq level (funcall outline-level))
+          (while (<= level stack-level)
+            (pop stack)
+            (setq stack-level (1- stack-level)))
+          (while (> level stack-level)
+            (push "" stack)
+            (setq stack-level (1+ stack-level)))
+          (setq stack (cons name (cdr stack)))
+          (let* ((sep (propertize " / " 'face 'consult-line-number))
+                 (name (concat
+                        (propertize (format "%5d " line) 'face 'consult-line-number)
+                        (mapconcat #'identity (reverse stack) sep))))
+            (push (cons name marker) cands)))))
+    (nreverse cands)))
+
+(defun init-consult-outline-state ()
+  "Construct state for `init-consult-outline'."
+  (let ((jump (consult--jump-state)))
+    (lambda (action cand)
+      (funcall jump action (cdr cand)))))
+
+(defun init-consult-outline ()
+  "Enhanced version of `consult-outline' using counsel functionality."
+  (interactive)
+  (let ((candidate (consult--read
+                    (consult--slow-operation
+                        "Collecting headings..."
+                      (init-consult-outline-candidates))
+                    :prompt "Goto outline heading: "
+                    :state (init-consult-outline-state)
+                    :lookup #'consult--lookup-cons
+                    :sort nil
+                    :require-match t
+                    :history 'init-consult-outline-history
+                    :add-history (thing-at-point 'symbol))))
+    (goto-char (cdr candidate))))
+
+(consult-customize init-consult-outline :preview-key 'any)
 
 ;;; dired
 
@@ -1034,54 +1047,13 @@ ARG see `init-switch-to-buffer-split-window-interactive'."
 
 ;;; prog
 
-;;;; flymake
-
-(require 'flymake)
-(require 'flymake-proc)
-
-(remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
-
-(setq flymake-no-changes-timeout 1)
-(setq flymake-show-diagnostics-at-end-of-line 'short)
-
-;;;; eldoc
-
-(require 'eldoc)
-
-(setq eldoc-minor-mode-string nil)
-
-(keymap-set prog-mode-map "<remap> <display-local-help>" #'eldoc-doc-buffer)
-
-;;;; imenu
-
-(require 'imenu)
-(require 'consult-imenu)
-
-(consult-customize consult-imenu :preview-key 'any)
-
-(keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
-
-;;;; xref
-
-(require 'xref)
-
-(setq xref-search-program 'ripgrep)
-
 ;;;; abbrev
-
-(require 'abbrev)
 
 (setq-default abbrev-mode t)
 
-(init-diminish-minor-mode 'abbrev-mode)
-
 (defvar yas-alias-to-yas/prefix-p)
 (setq yas-alias-to-yas/prefix-p nil)
-
 (require 'yasnippet)
-
-(init-diminish-minor-mode 'yas-minor-mode)
-
 (add-hook 'after-init-hook #'yas-global-mode)
 
 (defun init-define-yas-abbrev (table abbrev snippet &optional env)
@@ -1142,6 +1114,8 @@ EXPANSION may be:
 (require 'company-dabbrev)
 (require 'company-dabbrev-code)
 
+(add-hook 'after-init-hook #'global-company-mode)
+
 (setq company-lighter-base "Company")
 (setq company-idle-delay 0.1)
 (setq company-minimum-prefix-length 2)
@@ -1154,11 +1128,8 @@ EXPANSION may be:
 (setq company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend company-echo-metadata-frontend))
 (setq company-backends '(company-files company-capf (company-dabbrev-code company-keywords) company-dabbrev))
 
-(add-hook 'after-init-hook #'global-company-mode)
-
 (keymap-unset company-active-map "M-n" t)
 (keymap-unset company-active-map "M-p" t)
-
 (keymap-set company-mode-map "C-c c" #'company-complete)
 
 (defvar init-minibuffer-company-backends '(company-capf))
@@ -1191,97 +1162,22 @@ FUNC COMMAND ARGS see `company-call-backend'."
 
 ;;;; eglot
 
+(require 'flymake)
+(require 'flymake-proc)
+(setq flymake-no-changes-timeout 1)
+(setq flymake-show-diagnostics-at-end-of-line 'short)
+(remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
+
+(require 'eldoc)
+(setq eldoc-minor-mode-string nil)
+(keymap-set prog-mode-map "<remap> <display-local-help>" #'eldoc-doc-buffer)
+
+(require 'xref)
+(setq xref-search-program 'ripgrep)
+
 (require 'eglot)
-
 (setq eglot-extend-to-xref t)
-
 (keymap-set eglot-mode-map "<remap> <evil-lookup>" #'eldoc-doc-buffer)
-
-;;; outline
-
-(require 'outline)
-
-(setq outline-minor-mode-cycle t)
-(setq outline-minor-mode-highlight 'override)
-(setq outline-minor-mode-use-buttons 'in-margins)
-
-(defun init-outline-narrow-to-subtree ()
-  "Narrow to outline subtree."
-  (interactive)
-  (save-excursion
-    (save-match-data
-      (narrow-to-region
-       (progn (outline-back-to-heading t) (point))
-       (progn (outline-end-of-subtree)
-              (when (and (outline-on-heading-p) (not (eobp)))
-                (backward-char 1))
-              (point))))))
-
-(keymap-set narrow-map "s" #'init-outline-narrow-to-subtree)
-
-(defun init-outline-occur ()
-  "Occur outline heading."
-  (interactive)
-  (occur outline-regexp))
-
-(keymap-set search-map "O" #'init-outline-occur)
-
-;;;; consult
-
-(defvar init-consult-outline-history nil)
-
-(defun init-consult-outline-candidates ()
-  "Collect outline headings."
-  (consult--forbid-minibuffer)
-  (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
-        (stack-level 0)
-        stack cands line name level marker)
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward bol-regex nil t)
-        (save-excursion
-          (setq line (line-number-at-pos))
-          (setq name (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
-          (goto-char (match-beginning 0))
-          (setq marker (point-marker))
-          (setq level (funcall outline-level))
-          (while (<= level stack-level)
-            (pop stack)
-            (setq stack-level (1- stack-level)))
-          (while (> level stack-level)
-            (push "" stack)
-            (setq stack-level (1+ stack-level)))
-          (setq stack (cons name (cdr stack)))
-          (let* ((sep (propertize " / " 'face 'consult-line-number))
-                 (name (concat
-                        (propertize (format "%5d " line) 'face 'consult-line-number)
-                        (mapconcat #'identity (reverse stack) sep))))
-            (push (cons name marker) cands)))))
-    (nreverse cands)))
-
-(defun init-consult-outline-state ()
-  "Construct state for `init-consult-outline'."
-  (let ((jump (consult--jump-state)))
-    (lambda (action cand)
-      (funcall jump action (cdr cand)))))
-
-(defun init-consult-outline ()
-  "Enhanced version of `consult-outline' using counsel functionality."
-  (interactive)
-  (let ((candidate (consult--read
-                    (consult--slow-operation
-                        "Collecting headings..."
-                      (init-consult-outline-candidates))
-                    :prompt "Goto outline heading: "
-                    :state (init-consult-outline-state)
-                    :lookup #'consult--lookup-cons
-                    :sort nil
-                    :require-match t
-                    :history 'init-consult-outline-history
-                    :add-history (thing-at-point 'symbol))))
-    (goto-char (cdr candidate))))
-
-(consult-customize init-consult-outline :preview-key 'any)
 
 ;;; elisp
 
@@ -1347,28 +1243,10 @@ FUNC and ARGS see specific command."
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-z" #'init-ielm-other-window))
 
-;;;; lookup
+;;;; help
 
-(defun init-describe-symbol-dwim ()
-  "Describe symbol at point."
-  (interactive)
-  (describe-symbol (intern (init-thing-at-point-or-throw))))
-
-(setq evil-lookup-func #'init-describe-symbol-dwim)
-
-;;;; load
-
-(defvar-keymap init-load-map
-  "f" #'load-file
-  "l" #'load-library
-  "t" #'load-theme)
-
-(keymap-set help-map "t" init-load-map)
-
-(consult-customize consult-theme :preview-key '(:debounce 0.5 any))
-(keymap-set init-consult-override-mode-map "<remap> <load-theme>" #'consult-theme)
-
-;;;; find
+(keymap-set help-map "B" #'describe-keymap)
+(keymap-set help-map "p" #'describe-package)
 
 (require 'find-func)
 
@@ -1389,13 +1267,33 @@ FUNC and ARGS see specific command."
 (keymap-set help-map "5 V" #'find-variable-other-frame)
 (keymap-set help-map "5 K" #'find-function-on-key-other-frame)
 
-;;;; help
+(defvar-keymap init-load-map
+  "f" #'load-file
+  "l" #'load-library
+  "t" #'load-theme)
 
-(keymap-set help-map "B" #'describe-keymap)
-(keymap-set help-map "p" #'describe-package)
-(keymap-set help-map "P" #'finder-by-keyword)
+(keymap-set help-map "t" init-load-map)
+
+(consult-customize consult-theme :preview-key '(:debounce 0.5 any))
+(keymap-set init-consult-override-mode-map "<remap> <load-theme>" #'consult-theme)
+
+(defun init-describe-symbol-dwim ()
+  "Describe symbol at point."
+  (interactive)
+  (describe-symbol (intern (init-thing-at-point-or-throw))))
+
+(setq evil-lookup-func #'init-describe-symbol-dwim)
 
 ;;; leaders
+
+(defvar-keymap init-evil-override-mode-map)
+
+(define-minor-mode init-evil-override-mode
+  "Override leader prefix map."
+  :group 'init-evil
+  :global t
+  :init-value t
+  :keymap init-evil-override-mode-map)
 
 (defvar-keymap init-leader-map)
 
