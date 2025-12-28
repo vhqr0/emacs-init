@@ -16,11 +16,6 @@
          (lambda (alist) (eq (car alist) mode))
          minor-mode-alist)))
 
-(defun init-filtered-command (filter command)
-  "Make filtered command.
-FILTER COMMAND see menu item."
-  `(menu-item "" ,command :filter ,filter))
-
 (defun init-region-bounds ()
   "Get region bounds."
   (when (use-region-p)
@@ -596,12 +591,16 @@ FUNC and ARGS see `evil-set-cursor'."
   (when isearch-mode
     command))
 
+(defun init-isearch-filtered-command (command)
+  "Make isearch filtered COMMAND."
+  `(menu-item "" ,command :filter init-isearch-filter))
+
 (init-evil-keymap-set 'motion init-evil-isearch-override-mode-map
-  "C-u" (init-filtered-command #'init-isearch-filter #'universal-argument)
-  "C-f" (init-filtered-command #'init-isearch-filter #'forward-char)
-  "C-b" (init-filtered-command #'init-isearch-filter #'backward-char)
-  "C-a" (init-filtered-command #'init-isearch-filter #'move-beginning-of-line)
-  "C-e" (init-filtered-command #'init-isearch-filter #'move-end-of-line))
+  "C-u" (init-isearch-filtered-command #'universal-argument)
+  "C-f" (init-isearch-filtered-command #'forward-char)
+  "C-b" (init-isearch-filtered-command #'backward-char)
+  "C-a" (init-isearch-filtered-command #'move-beginning-of-line)
+  "C-e" (init-isearch-filtered-command #'move-end-of-line))
 
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
 
