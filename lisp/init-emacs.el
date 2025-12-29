@@ -44,13 +44,6 @@
   "Get current project directory or default directory."
   (or (init-project-directory) default-directory))
 
-(defun init-directory-interactive (arg prompt)
-  "Get directory smartly.
-With universal ARG read directory with PROMPT."
-  (if arg
-      (read-directory-name prompt)
-    (init-directory)))
-
 (defun init-switch-to-buffer-split-window (buffer)
   "Switch to BUFFER split at this window."
   (let ((parent (window-parent (selected-window))))
@@ -62,18 +55,6 @@ With universal ARG read directory with PROMPT."
            (switch-to-buffer buffer))
           (t
            (switch-to-buffer-other-window buffer)))))
-
-(defun init-switch-to-buffer-split-window-interactive (arg buffer)
-  "Do switch to BUFFER in split window smartly, with interactive ARG.
-Without universal ARG, open in split window.
-With one universal ARG, open other window.
-With two or more universal ARG, open in current window."
-  (cond ((> (prefix-numeric-value arg) 4)
-         (switch-to-buffer buffer))
-        (arg
-         (switch-to-buffer-other-window buffer))
-        (t
-         (init-switch-to-buffer-split-window buffer))))
 
 (defun init-read-file-contents (file)
   "Read contents of text FILE."
@@ -380,8 +361,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   (interactive)
   (if (or scroll-bar-mode horizontal-scroll-bar-mode)
       (progn
-       (scroll-bar-mode -1)
-       (horizontal-scroll-bar-mode -1))
+        (scroll-bar-mode -1)
+        (horizontal-scroll-bar-mode -1))
     (scroll-bar-mode 1)
     (horizontal-scroll-bar-mode 1)))
 
@@ -974,7 +955,7 @@ Without universal ARG, rg in project directory.
 With one universal ARG, prompt for rg directory.
 With two universal ARG, edit rg command."
   (interactive "P")
-  (let* ((default-directory (init-directory-interactive arg "Search directory: "))
+  (let* ((default-directory (if arg (read-directory-name "Search directory: ") (init-directory)))
          (pattern-default (init-thing-at-point))
          (pattern-prompt (if pattern-default
                              (format "Search pattern (%s): " pattern-default)
@@ -1044,9 +1025,17 @@ With two universal ARG, edit rg command."
 
 (defun init-eshell-dwim (&optional arg)
   "Do open eshell smartly.
-ARG see `init-switch-to-buffer-split-window-interactive'."
+Without universal ARG, open in split window.
+With one universal ARG, open other window.
+With two or more universal ARG, open in current window."
   (interactive "P")
-  (init-switch-to-buffer-split-window-interactive arg (init-eshell-dwim-get-buffer-create)))
+  (let ((buffer (init-eshell-dwim-get-buffer-create)))
+    (cond ((> (prefix-numeric-value arg) 4)
+           (switch-to-buffer buffer))
+          (arg
+           (switch-to-buffer-other-window buffer))
+          (t
+           (init-switch-to-buffer-split-window buffer)))))
 
 ;;; prog
 
