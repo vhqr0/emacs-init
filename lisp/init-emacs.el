@@ -292,8 +292,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq lock-file-name-transforms      `((".*" ,(expand-file-name "lock/" user-emacs-directory) t)))
 (setq backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
-(setq trusted-content (list (file-name-as-directory (abbreviate-file-name init-lisp-directory))))
-
 (keymap-set ctl-x-x-map "G" #'revert-buffer)
 
 (keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
@@ -1091,9 +1089,6 @@ FUNC and ARGS see specific command."
 
 (dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
   (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
-
-(setq elisp-flymake-byte-compile-load-path load-path)
-(add-hook 'emacs-lisp-mode-hook #'flymake-mode)
 
 (require 'ielm)
 
