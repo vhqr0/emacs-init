@@ -710,8 +710,7 @@ ARG see `init-consult-search'."
 (keymap-global-set "C-s" #'init-consult-search-dwim)
 
 (consult-customize consult-imenu :preview-key 'any)
-
-(keymap-set init-consult-override-mode-map "<remap> <imenu>" #'consult-imenu)
+(consult-customize consult-outline :preview-key 'any)
 
 ;;; outline
 
@@ -734,63 +733,6 @@ ARG see `init-consult-search'."
               (point))))))
 
 (keymap-set narrow-map "s" #'init-outline-narrow-to-subtree)
-
-;;;; consult
-
-(defvar init-consult-outline-history nil)
-
-(defun init-consult-outline-candidates ()
-  "Collect outline headings."
-  (consult--forbid-minibuffer)
-  (let ((bol-regex (concat "^\\(?:" outline-regexp "\\)"))
-        (stack-level 0)
-        stack cands line name level marker)
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward bol-regex nil t)
-        (save-excursion
-          (setq line (line-number-at-pos))
-          (setq name (buffer-substring (line-beginning-position) (line-end-position)))
-          (goto-char (match-beginning 0))
-          (setq marker (point-marker))
-          (setq level (funcall outline-level))
-          (while (<= level stack-level)
-            (pop stack)
-            (setq stack-level (1- stack-level)))
-          (while (> level stack-level)
-            (push "" stack)
-            (setq stack-level (1+ stack-level)))
-          (setq stack (cons name (cdr stack)))
-          (let* ((sep (propertize " / " 'face 'consult-line-number))
-                 (name (concat
-                        (propertize (format "%5d " line) 'face 'consult-line-number)
-                        (mapconcat #'identity (reverse stack) sep))))
-            (push (cons name marker) cands)))))
-    (nreverse cands)))
-
-(defun init-consult-outline-state ()
-  "Construct state for `init-consult-outline'."
-  (let ((jump (consult--jump-state)))
-    (lambda (action cand)
-      (funcall jump action (cdr cand)))))
-
-(defun init-consult-outline ()
-  "Enhanced version of `consult-outline' using counsel functionality."
-  (interactive)
-  (let ((candidate (consult--read
-                    (consult--slow-operation
-                        "Collecting headings..."
-                      (init-consult-outline-candidates))
-                    :prompt "Goto outline heading: "
-                    :state (init-consult-outline-state)
-                    :lookup #'consult--lookup-cons
-                    :sort nil
-                    :require-match t
-                    :history 'init-consult-outline-history
-                    :add-history (thing-at-point 'symbol))))
-    (goto-char (cdr candidate))))
-
-(consult-customize init-consult-outline :preview-key 'any)
 
 ;;; dired
 
@@ -1221,6 +1163,7 @@ FUNC and ARGS see specific command."
 (require 'org-macs)
 (require 'org-agenda)
 (require 'org-capture)
+(require 'consult-org)
 (require 'embark-org)
 
 (add-to-list 'org-modules 'org-tempo)
@@ -1274,6 +1217,11 @@ FUNC and ARGS see specific command."
 
 (keymap-set evil-normal-state-map "<remap> <org-insert-link>" #'init-org-append-link)
 (keymap-set evil-normal-state-map "<remap> <org-insert-link-global>" #'init-org-append-link-global)
+
+(consult-customize consult-org-agenda :preview-key 'any)
+(consult-customize consult-org-heading :preview-key 'any)
+
+(keymap-set org-mode-map "<remap> <consult-imenu>" #'consult-org-heading)
 
 (defun init-org-echo-link ()
   "Echo org link in minibuffer."
@@ -1437,6 +1385,7 @@ FUNC and ARGS see specific command."
  "W" #'org-store-link
  "O" #'org-open-at-point-global
  "L" #'org-insert-link-global
+ "T" #'consult-org-agenda
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
@@ -1458,8 +1407,8 @@ FUNC and ARGS see specific command."
  "." #'xref-find-definitions
  "?" #'xref-find-references
  "," #'xref-go-back
- "i" #'imenu
- "l" #'init-consult-outline
+ "i" #'consult-imenu
+ "l" #'consult-outline
  "(" #'init-wrap-pair
  "[" #'init-wrap-pair
  "{" #'init-wrap-pair
