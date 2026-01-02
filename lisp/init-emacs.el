@@ -607,6 +607,9 @@ EVENT see `input-method-function'."
 
 (setq vertico-resize nil)
 
+(setq vertico-multiform-categories
+      '((file (:keymap . vertico-directory-map))))
+
 (add-hook 'after-init-hook #'vertico-mode)
 (add-hook 'after-init-hook #'vertico-multiform-mode)
 
@@ -615,8 +618,8 @@ EVENT see `input-method-function'."
 (keymap-set vertico-mode-map "C-c b" #'vertico-repeat)
 (keymap-set vertico-mode-map "C-c z" #'vertico-suspend)
 
+(keymap-set vertico-directory-map "C-l" #'vertico-directory-up)
 (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
-(keymap-set vertico-map "C-l" #'vertico-directory-up)
 
 (keymap-set vertico-map "<remap> <evil-scroll-down>" #'vertico-scroll-up)
 (keymap-set vertico-map "<remap> <evil-scroll-up>" #'vertico-scroll-down)
