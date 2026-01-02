@@ -438,6 +438,15 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (require 'hl-line)
 (require 'display-line-numbers)
 
+(defun init-toggle-line-numbers-relative ()
+  "Toggle local display type of line numbers."
+  (interactive)
+  (setq-local display-line-numbers-type
+              (if (eq display-line-numbers-type 'relative)
+                  t
+                'relative))
+  (display-line-numbers-mode 1))
+
 (defun init-set-line-modes ()
   "Set line modes."
   (setq-local show-trailing-whitespace t)
@@ -452,15 +461,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   (interactive "*")
   (let ((bounds (init-region-or-buffer-bounds)))
     (indent-region (car bounds) (cdr bounds))))
-
-(defun init-toggle-line-numbers-relative ()
-  "Toggle local display type of line numbers."
-  (interactive)
-  (setq-local display-line-numbers-type
-              (if (eq display-line-numbers-type 'relative)
-                  t
-                'relative))
-  (display-line-numbers-mode 1))
 
 (require 'repeat)
 (repeat-mode 1)
