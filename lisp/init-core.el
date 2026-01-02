@@ -44,7 +44,7 @@
                    markdown-mode
                    edit-indirect))
     (init-pyim . (pyim pyim-basedict posframe))
-    (init-magit . (git-modes with-editor magit forge orgit orgit-forge))
+    (init-magit . (git-modes with-editor magit orgit))
     (init-clojure . (clojure-mode cider))
     (init-org-roam . (org-roam))))
 
