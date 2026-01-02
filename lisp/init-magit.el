@@ -11,7 +11,7 @@
 
 (require 'with-editor)
 
-(add-hook 'after-init-hook #'shell-command-with-editor-mode)
+(shell-command-with-editor-mode 1)
 
 (add-hook 'shell-mode-hook #'with-editor-export-editor)
 (add-hook 'eshell-mode-hook #'with-editor-export-editor)

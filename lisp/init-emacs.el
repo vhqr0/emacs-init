@@ -108,8 +108,8 @@
 (require 'evil)
 (require 'evil-surround)
 
-(add-hook 'after-init-hook #'evil-mode)
-(add-hook 'after-init-hook #'global-evil-surround-mode)
+(evil-mode 1)
+(global-evil-surround-mode 1)
 
 (setq evil-mode-line-format '(before . mode-line-front-space))
 
@@ -389,7 +389,7 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 
 (require 'windmove)
 (windmove-default-keybindings)
-(add-hook 'after-init-hook #'undelete-frame-mode)
+(undelete-frame-mode 1)
 
 (require 'tab-bar)
 
@@ -398,8 +398,8 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq tab-bar-select-tab-modifiers '(control meta))
 (setq tab-bar-close-last-tab-choice 'delete-frame)
 
-(add-hook 'after-init-hook #'tab-bar-mode)
-(add-hook 'after-init-hook #'tab-bar-history-mode)
+(tab-bar-mode 1)
+(tab-bar-history-mode 1)
 
 (defvar-keymap init-tab-bar-history-repeat-map
   :repeat t
@@ -465,7 +465,7 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   (display-line-numbers-mode 1))
 
 (require 'repeat)
-(add-hook 'after-init-hook #'repeat-mode)
+(repeat-mode 1)
 
 (require 'embark)
 (keymap-global-set "M-o" #'embark-act)
@@ -475,12 +475,12 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 ;;;; paredit
 
 (require 'elec-pair)
-(add-hook 'after-init-hook #'electric-pair-mode)
+(electric-pair-mode 1)
 
 (require 'paren)
 ;; (setq show-paren-style 'expression)
 (setq show-paren-context-when-offscreen 'child-frame)
-(add-hook 'after-init-hook #'show-paren-mode)
+(show-paren-mode 1)
 
 (require 'paredit)
 (keymap-global-set "M-r" #'raise-sexp)
@@ -592,8 +592,8 @@ EVENT see `input-method-function'."
 (init-evil-keymap-set 'normal minibuffer-local-map
   "<escape>" #'abort-recursive-edit)
 
-(add-hook 'after-init-hook #'savehist-mode)
-(add-hook 'after-init-hook #'marginalia-mode)
+(savehist-mode 1)
+(marginalia-mode 1)
 
 ;;;; vertico
 
@@ -610,8 +610,8 @@ EVENT see `input-method-function'."
 (setq vertico-multiform-categories
       '((file (:keymap . vertico-directory-map))))
 
-(add-hook 'after-init-hook #'vertico-mode)
-(add-hook 'after-init-hook #'vertico-multiform-mode)
+(vertico-mode 1)
+(vertico-multiform-mode 1)
 
 (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 
@@ -978,7 +978,7 @@ EXPANSION may be:
 (require 'company-dabbrev)
 (require 'company-dabbrev-code)
 
-(add-hook 'after-init-hook #'global-company-mode)
+(global-company-mode 1)
 
 (setq company-lighter-base "Company")
 (setq company-idle-delay 0.1)
@@ -1108,12 +1108,6 @@ FUNC and ARGS see specific command."
 
 (keymap-set help-map "B" #'describe-keymap)
 (keymap-set help-map "p" #'describe-package)
-
-(require 'find-func)
-
-;; TODO remove special handle after 31.1
-(when (fboundp 'find-function-mode)
-  (add-hook 'after-init-hook 'find-function-mode))
 
 (keymap-set help-map "L" #'find-library)
 (keymap-set help-map "F" #'find-function)
