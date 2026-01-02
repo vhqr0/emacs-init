@@ -438,8 +438,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (require 'hl-line)
 (require 'display-line-numbers)
 
-(setq hl-line-sticky-flag t)
-
 (defun init-set-line-modes ()
   "Set line modes."
   (setq-local show-trailing-whitespace t)
