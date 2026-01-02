@@ -71,11 +71,6 @@
 ;;; magit
 
 (require 'magit)
-(require 'magit-extras)
-(require 'magit-ediff)
-(require 'magit-gitignore)
-(require 'magit-subtree)
-(require 'magit-patch)
 
 (init-leader-set
  "v" #'magit-file-dispatch
