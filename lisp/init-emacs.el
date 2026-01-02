@@ -320,12 +320,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (add-hook 'after-init-hook #'recentf-mode)
 (keymap-set ctl-x-r-map "e" #'recentf-open)
 
-(require 'saveplace)
-(add-hook 'after-init-hook #'save-place-mode)
-
-(require 'so-long)
-(add-hook 'after-init-hook #'global-so-long-mode)
-
 ;;; vc
 
 (require 'vc)
@@ -1351,7 +1345,6 @@ FUNC and ARGS see specific command."
   "h" #'hl-line-mode
   "n" #'display-line-numbers-mode
   "N" #'init-toggle-line-numbers-relative
-  "f" #'follow-mode
   "d" #'eldoc-doc-buffer
   "e" #'flymake-show-buffer-diagnostics
   "E" #'flymake-show-project-diagnostics)
