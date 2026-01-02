@@ -302,6 +302,12 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (keymap-set ctl-x-x-map "<left>" #'previous-buffer)
 (keymap-set ctl-x-x-map "<right>" #'next-buffer)
 
+(defun init-kill-current-buffer ()
+  "Confirm then kill current buffer."
+  (interactive)
+  (when (y-or-n-p "Kill current buffer?")
+    (kill-current-buffer)))
+
 (defun init-auto-save-p ()
   "Predication of `auto-save-visited-mode'."
   (not (evil-insert-state-p)))
@@ -625,16 +631,6 @@ EVENT see `input-method-function'."
 (keymap-set vertico-map "<remap> <evil-goto-line>" #'vertico-last)
 
 (keymap-set vertico-map "C-x C-s" #'embark-export)
-
-(defvar init-vertico-disable-commands '(kill-buffer))
-
-(defun init-vertico-around-setup-filter-commands (func &rest args)
-  "Disable vertico around `init-vertico-disable-commands'.
-FUNC ARGS see `vertico--setup'."
-  (unless (memq this-command init-vertico-disable-commands)
-    (apply func args)))
-
-(advice-add 'vertico--setup :around #'init-vertico-around-setup-filter-commands)
 
 ;;; search
 
@@ -1365,7 +1361,7 @@ FUNC and ARGS see specific command."
  "o" #'other-window
  "q" #'quit-window
  "b" #'switch-to-buffer
- "k" #'kill-buffer
+ "k" #'init-kill-current-buffer
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
