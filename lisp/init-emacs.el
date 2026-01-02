@@ -435,19 +435,19 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (setq-default indent-tabs-mode nil)
 (setq-default truncate-lines t)
 
-(defun init-set-trailing-whitespace-display ()
-  "Set local display of trailing whitespace."
-  (setq-local show-trailing-whitespace t))
-
-(add-hook 'text-mode-hook #'init-set-trailing-whitespace-display)
-(add-hook 'prog-mode-hook #'init-set-trailing-whitespace-display)
-
 (require 'hl-line)
+(require 'display-line-numbers)
+
 (setq hl-line-sticky-flag t)
 
-(require 'display-line-numbers)
-(add-hook 'text-mode-hook #'display-line-numbers-mode)
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(defun init-set-line-modes ()
+  "Set line modes."
+  (setq-local show-trailing-whitespace t)
+  (hl-line-mode 1)
+  (display-line-numbers-mode 1))
+
+(add-hook 'text-mode-hook #'init-set-line-modes)
+(add-hook 'prog-mode-hook #'init-set-line-modes)
 
 (defun init-indent-dwim ()
   "Do indent smartly."
