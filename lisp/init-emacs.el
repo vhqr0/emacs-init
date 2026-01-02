@@ -917,7 +917,11 @@ With two or more universal ARG, open in current window."
 
 (defvar yas-alias-to-yas/prefix-p)
 (setq yas-alias-to-yas/prefix-p nil)
+
 (require 'yasnippet)
+
+(setcdr (assq 'yas-minor-mode minor-mode-alist) '(" Yas"))
+
 (add-hook 'after-init-hook #'yas-global-mode)
 
 (defun init-define-yas-abbrev (table abbrev snippet &optional env)
