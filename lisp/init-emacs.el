@@ -99,6 +99,9 @@
 (defvar evil-respect-visual-line-mode)
 (setq evil-respect-visual-line-mode t)
 
+(defvar evil-search-module)
+(setq evil-search-module 'evil-search)
+
 (defvar evil-undo-system)
 (setq evil-undo-system 'undo-redo)
 
@@ -228,6 +231,24 @@ FUNC and ARGS see `evil-set-cursor'."
     (apply func args)))
 
 (advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-filter-commands)
+
+(defun init-evil-ex-delete-search-hl ()
+  "Delete `evil-ex-search' persistent highlight."
+  (evil-ex-delete-hl 'evil-ex-search))
+
+(defvar init-evil-ex-delete-search-hl-idle-delay 1.5)
+(defvar init-evil-ex-delete-search-hl-timer nil)
+
+(defun init-evil-ex-delete-search-hl-start-timer ()
+  "Start a thread to clean `evil-ex-search' persistent highlight."
+  (unless init-evil-ex-delete-search-hl-timer
+    (setq init-evil-ex-delete-search-hl-timer
+          (run-with-idle-timer
+           init-evil-ex-delete-search-hl-idle-delay
+           t
+           #'init-evil-ex-delete-search-hl))))
+
+(add-hook 'after-init-hook #'init-evil-ex-delete-search-hl-start-timer)
 
 (defun init-evil-keymap-set (state keymap &rest clauses)
   "Set evil key.
@@ -481,48 +502,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   (insert-pair (or arg 1))
   (indent-sexp))
 
-;;; isearch
-
-(setq isearch-lazy-count t)
-(setq isearch-allow-scroll t)
-(setq isearch-allow-motion t)
-(setq isearch-yank-on-move t)
-(setq isearch-motion-changes-direction t)
-;; (setq isearch-repeat-on-direction-change t)
-
-(defun init-evil-around-adjust-cursor-check-isearch (func &rest args)
-  "Dont adjust cursor in isearch mode.
-FUNC and ARGS see `evil-set-cursor'."
-  (unless isearch-mode
-    (apply func args)))
-
-(advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-check-isearch)
-
-(defvar-keymap init-evil-isearch-override-mode-map)
-
-(define-minor-mode init-evil-isearch-override-mode
-  "Override isearch commands map."
-  :group 'init-evil
-  :global t
-  :init-value t
-  :keymap init-evil-isearch-override-mode-map)
-
-(defun init-isearch-filter (command)
-  "Return COMMAND when isearch enabled."
-  (when isearch-mode
-    command))
-
-(defun init-isearch-filtered-command (command)
-  "Make isearch filtered COMMAND."
-  `(menu-item "" ,command :filter init-isearch-filter))
-
-(init-evil-keymap-set 'motion init-evil-isearch-override-mode-map
-  "C-u" (init-isearch-filtered-command #'universal-argument)
-  "C-f" (init-isearch-filtered-command #'forward-char)
-  "C-b" (init-isearch-filtered-command #'backward-char)
-  "C-a" (init-isearch-filtered-command #'move-beginning-of-line)
-  "C-e" (init-isearch-filtered-command #'move-end-of-line))
-
 ;;; occur
 
 (keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
@@ -532,8 +511,6 @@ FUNC and ARGS see `evil-set-cursor'."
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
 (keymap-global-set "C-@" #'toggle-input-method)
-(keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
-(keymap-set isearch-mode-map "C-@" #'isearch-toggle-input-method)
 
 (dolist (state '(operator motion normal visual))
   (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
@@ -568,39 +545,9 @@ FUNC, ARGS see specified commands."
                 evil-visual-state))
   (advice-add func :around #'init-input-method-around-command-set-ignore))
 
-(defun init-evil-override-search-incrementally (forward regexp-p)
-  "Override `evil-search-incrementally', do not change current input method.
-FORWARD, REGEXP-P see `evil-search-incrementally'."
-  (let ((evil-search-prompt (evil-search-prompt forward))
-        (isearch-search-fun-function 'evil-isearch-function)
-        (point (point))
-        search-nonincremental-instead)
-    (setq isearch-forward forward)
-    (evil-save-echo-area
-      (if forward
-          (isearch-forward regexp-p)
-        (isearch-backward regexp-p))
-      (evil-push-search-history isearch-string forward)
-      (when (/= (point) point)
-        (when (and forward isearch-other-end)
-          (goto-char isearch-other-end))
-        (when (and (eq point (point))
-                   (not (string= isearch-string "")))
-          (if forward
-              (isearch-repeat-forward)
-            (isearch-repeat-backward))
-          (isearch-exit)
-          (when (and forward isearch-other-end)
-            (goto-char isearch-other-end)))
-        (evil-flash-search-pattern
-         (evil-search-message isearch-string forward))))))
-
-(advice-add #'evil-search-incrementally :override #'init-evil-override-search-incrementally)
-
 (defun init-ignore-input-method-p ()
   "Predicate of input method."
-  (and (not isearch-mode)
-       evil-local-mode
+  (and evil-local-mode
        (memq evil-state '(operator motion normal visual))))
 
 (defun init-wrap-input-method (func event)
@@ -624,14 +571,6 @@ EVENT see `input-method-function'."
   (init-wrap-input-method #'list event))
 
 (setq-default input-method-function #'init-input-method)
-
-(defun init-set-default-input-method ()
-  "Set default input method function to `init-input-method'."
-  (unless input-method-function
-    (setq-local input-method-function #'init-input-method)))
-
-(add-hook 'isearch-mode-hook #'init-set-default-input-method)
-(advice-add #'isearch-toggle-input-method :after #'init-set-default-input-method)
 
 ;;; minibuffer
 
@@ -733,12 +672,10 @@ FUNC ARGS see `vertico--setup'."
 (consult-customize consult-line :preview-key 'any)
 
 (defun init-consult-line-after-search-set-history (&rest _args)
-  "Set search history after `consult-line'."
-  (let ((search (car consult--line-history)))
-    (add-to-history 'regexp-search-ring search regexp-search-ring-max)
-    (setq isearch-string search)
-    (setq isearch-regexp t)
-    (setq isearch-forward t)))
+  "Set `evil-ex-search-pattern' after `consult-line'."
+  (let ((pattern (car consult--line-history)))
+    (setq evil-ex-search-pattern (list pattern t t))
+    (evil-ex-search-activate-highlight evil-ex-search-pattern)))
 
 (advice-add #'consult-line :after #'init-consult-line-after-search-set-history)
 
@@ -955,7 +892,9 @@ Without universal ARG, rg in project directory.
 With one universal ARG, prompt for rg directory.
 With two universal ARG, edit rg command."
   (interactive "P")
-  (let* ((default-directory (if arg (read-directory-name "Search directory: ") (init-directory)))
+  (let* ((default-directory (if arg
+                                (read-directory-name "Search directory: ")
+                              (init-directory)))
          (pattern-default (init-thing-at-point))
          (pattern-prompt (if pattern-default
                              (format "Search pattern (%s): " pattern-default)
