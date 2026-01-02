@@ -754,7 +754,6 @@ ARG see `init-consult-search'."
   "t" #'dired-toggle-marks
   "d" #'dired-flag-file-deletion
   "x" #'dired-do-flagged-delete
-  "w" #'dired-copy-filename-as-kill
   "s" #'dired-sort-toggle-or-edit
   "i" #'dired-insert-subdir
   "D" #'dired-do-delete
@@ -802,8 +801,7 @@ ARG see `init-consult-search'."
 
 (init-evil-keymap-set 'normal image-mode-map
   "m" #'image-mode-mark-file
-  "u" #'image-mode-unmark-file
-  "w" #'image-mode-copy-file-name-as-kill)
+  "u" #'image-mode-unmark-file)
 
 ;;; process
 
