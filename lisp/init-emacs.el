@@ -634,7 +634,7 @@ EVENT see `input-method-function'."
 (require 'consult-imenu)
 (require 'embark-consult)
 
-(setq consult-preview-key '(:debounce 0.3 any))
+(setq consult-preview-key '(:debounce 0.2 any))
 
 (setq completion-in-region-function #'consult-completion-in-region)
 
@@ -651,14 +651,9 @@ EVENT see `input-method-function'."
 
 (keymap-set init-consult-override-mode-map "<remap> <yank>" #'consult-yank-from-kill-ring)
 (keymap-set init-consult-override-mode-map "<remap> <yank-pop>" #'consult-yank-pop)
-
-(consult-customize consult-goto-line :preview-key 'any)
-
 (keymap-set init-consult-override-mode-map "<remap> <goto-line>" #'consult-goto-line)
 
 (setq consult-line-start-from-top t)
-
-(consult-customize consult-line :preview-key 'any)
 
 (defun init-consult-line-after-search-set-history (&rest _args)
   "Set `evil-ex-search-pattern' after `consult-line'."
@@ -694,9 +689,6 @@ ARG see `init-consult-search'."
 
 (keymap-set search-map "s" #'init-consult-search)
 (keymap-global-set "C-s" #'init-consult-search-dwim)
-
-(consult-customize consult-imenu :preview-key 'any)
-(consult-customize consult-outline :preview-key 'any)
 
 ;;; outline
 
@@ -1196,9 +1188,6 @@ FUNC and ARGS see specific command."
 
 (keymap-set evil-normal-state-map "<remap> <org-insert-link>" #'init-org-append-link)
 (keymap-set evil-normal-state-map "<remap> <org-insert-link-global>" #'init-org-append-link-global)
-
-(consult-customize consult-org-agenda :preview-key 'any)
-(consult-customize consult-org-heading :preview-key 'any)
 
 (keymap-set org-mode-map "<remap> <consult-imenu>" #'consult-org-heading)
 
