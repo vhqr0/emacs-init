@@ -85,42 +85,17 @@
 (init-evil-keymap-set 'motion magit-mode-map
   "," #'magit-dispatch)
 
-(init-evil-keymap-set 'normal magit-mode-map
-  "a" #'magit-cherry-apply
-  "A" #'magit-cherry-pick
-  "b" #'magit-branch
-  "B" #'magit-bisect
-  "c" #'magit-commit
-  "C" #'magit-clone
-  "d" #'magit-diff
-  "D" #'magit-diff-refresh
-  "e" #'magit-ediff-dwim
-  "E" #'magit-ediff
-  "f" #'magit-fetch
-  "F" #'magit-pull
-  "i" #'magit-gitignore
-  "I" #'magit-init
-  "m" #'magit-merge
-  "M" #'magit-remote
-  "o" #'magit-submodule
-  "O" #'magit-subtree
-  "p" #'magit-push
-  "P" #'magit-push
-  "r" #'magit-rebase
-  "R" #'magit-file-rename
-  "s" #'magit-stage-files
-  "S" #'magit-stage-modified
-  "t" #'magit-tag
-  "T" #'magit-notes
-  "u" #'magit-unstage-files
-  "U" #'magit-unstage-all
-  "w" #'magit-am
-  "W" #'magit-patch
-  "x" #'magit-reset-quickly
-  "X" #'magit-reset
-  "z" #'magit-stash
-  "Z" #'magit-worktree
-  "$" #'magit-process-buffer)
+(defvar init-magit-normal-command-keys
+  (list
+   ?a ?A ?b ?B ?c ?C ?d ?D ?e ?E ?f ?F ?i ?I ?m ?M ?o ?O
+   ?p ?P ?r ?R ?s ?S ?t ?T ?u ?U ?w ?W ?x ?X ?z ?Z))
+
+(apply
+ #'evil-define-key* 'normal magit-mode-map
+ (seq-mapcat
+  (lambda (key)
+    (list (vector key) (lookup-key magit-mode-map (vector key))))
+  init-magit-normal-command-keys))
 
 (keymap-set magit-blob-mode-map "<remap> <quit-window>" #'magit-kill-this-buffer)
 (keymap-set magit-blob-mode-map "M-n" #'magit-blob-next)
