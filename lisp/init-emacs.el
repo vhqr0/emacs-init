@@ -40,28 +40,6 @@
   (when-let* ((project (project-current)))
     (project-root project)))
 
-(defun init-directory ()
-  "Get current project directory or default directory."
-  (or (init-project-directory) default-directory))
-
-(defun init-switch-to-buffer-split-window (buffer)
-  "Switch to BUFFER split at this window."
-  (let ((parent (window-parent (selected-window))))
-    (cond ((window-left-child parent)
-           (select-window (split-window-vertically))
-           (switch-to-buffer buffer))
-          ((window-top-child parent)
-           (select-window (split-window-horizontally))
-           (switch-to-buffer buffer))
-          (t
-           (switch-to-buffer-other-window buffer)))))
-
-(defun init-read-file-contents (file)
-  "Read contents of text FILE."
-  (with-temp-buffer
-    (insert-file-contents file)
-    (buffer-substring-no-properties (point-min) (point-max))))
-
 ;;; initial
 
 (setq inhibit-startup-screen t)
@@ -815,7 +793,8 @@ With two universal ARG, edit rg command."
   (interactive "P")
   (let* ((default-directory (if arg
                                 (read-directory-name "Search directory: ")
-                              (init-directory)))
+                              (or (init-project-directory)
+                                  default-directory)))
          (pattern-default (init-thing-at-point))
          (pattern-prompt (if pattern-default
                              (format "Search pattern (%s): " pattern-default)
@@ -885,17 +864,13 @@ With two universal ARG, edit rg command."
 
 (defun init-eshell-dwim (&optional arg)
   "Do open eshell smartly.
-Without universal ARG, open in split window.
-With one universal ARG, open other window.
-With two or more universal ARG, open in current window."
+Without universal ARG, open in other window.
+With universal ARG, open in this window."
   (interactive "P")
   (let ((buffer (init-eshell-dwim-get-buffer-create)))
-    (cond ((> (prefix-numeric-value arg) 4)
-           (switch-to-buffer buffer))
-          (arg
-           (switch-to-buffer-other-window buffer))
-          (t
-           (init-switch-to-buffer-split-window buffer)))))
+    (if arg
+        (switch-to-buffer buffer)
+      (switch-to-buffer-other-window buffer))))
 
 ;;; vc
 
@@ -1053,7 +1028,9 @@ EXPANSION may be:
   (interactive)
   (let ((file (or file init-abbrevs-file)))
     (when (file-exists-p file)
-      (let ((defs (read (init-read-file-contents file))))
+      (let ((defs (with-temp-buffer
+                    (insert-file-contents file)
+                    (read (buffer-string)))))
         (dolist (def defs)
           (init-define-abbrev-table (car def) (cdr def)))))))
 
