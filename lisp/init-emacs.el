@@ -7,23 +7,6 @@
 
 ;;; Code:
 
-;;; initial
-
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message nil)
-
-(defvar init-disable-ui-modes
-  '(blink-cursor-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
-
-(defun init-disable-ui ()
-  "Disable various ui modes."
-  (interactive)
-  (dolist (mode init-disable-ui-modes)
-    (when (fboundp mode)
-      (funcall mode -1))))
-
-(add-hook 'after-init-hook #'init-disable-ui)
-
 ;;; evil
 
 (defvar evil-want-keybinding)
@@ -214,6 +197,23 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
           (lambda (v i)
             (if (cl-oddp i) v (kbd v)))
           clauses)))
+
+;;; initial
+
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message nil)
+
+(defvar init-disable-ui-modes
+  '(blink-cursor-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
+
+(defun init-disable-ui ()
+  "Disable various ui modes."
+  (interactive)
+  (dolist (mode init-disable-ui-modes)
+    (when (fboundp mode)
+      (funcall mode -1))))
+
+(add-hook 'after-init-hook #'init-disable-ui)
 
 ;;; files
 
