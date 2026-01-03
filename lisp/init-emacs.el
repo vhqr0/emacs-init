@@ -436,15 +436,15 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 ;; ugly work around before https://github.com/emacs-evil/evil/pull/1995 merged
 
-(defvar init-input-method-ignore-toggle nil)
+(defvar init-ignore-toggle-input-method nil)
 
 (defun toggle-input-method@check-ignore (&rest _)
-  init-input-method-ignore-toggle)
+  init-ignore-toggle-input-method)
 
 (defun evil-state@ignore-toggle-input-method (func &rest args)
   "Ignore toggle input method around command.
 FUNC ARGS see specified commands."
-  (let ((init-input-method-ignore-toggle t))
+  (let ((init-ignore-toggle-input-method t))
     (apply func args)))
 
 (dolist (func '(toggle-input-method
@@ -462,15 +462,15 @@ FUNC ARGS see specified commands."
                 evil-visual-state))
   (advice-add func :around #'evil-state@ignore-toggle-input-method))
 
-(defun init-input-method-ignore-p ()
+(defun init-ignore-input-method-p ()
   "Predicate of input method."
   (and evil-local-mode
        (memq evil-state '(operator motion normal visual))))
 
-(defun init-input-method-wrap (func event)
+(defun init-wrap-input-method (func event)
   "Wrap a `input-method-function' FUNC that process ignore and jk escape.
 FUNC, EVENT see `input-method-function'."
-  (if (init-input-method-ignore-p)
+  (if (init-ignore-input-method-p)
       (list event)
     (if (or (/= event ?j) (sit-for 0.15))
         (funcall func event)
@@ -485,7 +485,7 @@ FUNC, EVENT see `input-method-function'."
 (defun init-input-method (event)
   "Default input method function.
 EVENT see `input-method-function'."
-  (init-input-method-wrap #'list event))
+  (init-wrap-input-method #'list event))
 
 (setq-default input-method-function #'init-input-method)
 
