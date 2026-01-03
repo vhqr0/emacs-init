@@ -7,39 +7,6 @@
 
 ;;; Code:
 
-;;; utils
-
-(defun init-region-bounds ()
-  "Get region bounds."
-  (when (use-region-p)
-    (cons (region-beginning) (region-end))))
-
-(defun init-buffer-bounds ()
-  "Get buffer bounds."
-  (cons (point-min) (point-max)))
-
-(defun init-region-or-buffer-bounds ()
-  "Get region bounds or buffer bounds."
-  (or (init-region-bounds) (init-buffer-bounds)))
-
-(defun init-region-content ()
-  "Get region content or nil."
-  (when-let* ((bounds (init-region-bounds)))
-    (buffer-substring (car bounds) (cdr bounds))))
-
-(defun init-thing-at-point ()
-  "Get thing at point dwim."
-  (or (init-region-content) (thing-at-point 'symbol)))
-
-(defun init-thing-at-point-or-throw ()
-  "Get thing at point dwim, or throw user error."
-  (or (init-thing-at-point) (user-error "No thing at point")))
-
-(defun init-project-directory ()
-  "Get current project directory."
-  (when-let* ((project (project-current)))
-    (project-root project)))
-
 ;;; initial
 
 (setq inhibit-startup-screen t)
@@ -435,8 +402,9 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
 (defun init-indent-dwim ()
   "Do indent smartly."
   (interactive "*")
-  (let ((bounds (init-region-or-buffer-bounds)))
-    (indent-region (car bounds) (cdr bounds))))
+  (if (use-region-p)
+      (indent-region (region-beginning) (region-end))
+    (indent-region (point-min) (point-max))))
 
 (require 'repeat)
 (repeat-mode 1)
@@ -656,9 +624,7 @@ With two universal ARG, prompt for directory to search with `consult-ripgrep'."
   "Consult search dwim.
 ARG see `init-consult-search'."
   (interactive "P")
-  (let ((thing (init-thing-at-point)))
-    (deactivate-mark)
-    (init-consult-search arg thing)))
+  (init-consult-search arg (thing-at-point 'symbol)))
 
 (keymap-set search-map "s" #'init-consult-search)
 (keymap-global-set "C-s" #'init-consult-search-dwim)
@@ -793,9 +759,10 @@ With two universal ARG, edit rg command."
   (interactive "P")
   (let* ((default-directory (if arg
                                 (read-directory-name "Search directory: ")
-                              (or (init-project-directory)
-                                  default-directory)))
-         (pattern-default (init-thing-at-point))
+                              (if-let* ((project (project-current)))
+                                  (project-root project)
+                                default-directory)))
+         (pattern-default (thing-at-point 'symbol))
          (pattern-prompt (if pattern-default
                              (format "Search pattern (%s): " pattern-default)
                            "Search pattern: "))
@@ -1199,7 +1166,7 @@ FUNC and ARGS see specific command."
 (defun init-describe-symbol-dwim ()
   "Describe symbol at point."
   (interactive)
-  (describe-symbol (intern (init-thing-at-point-or-throw))))
+  (describe-symbol (symbol-at-point)))
 
 (setq evil-lookup-func #'init-describe-symbol-dwim)
 
