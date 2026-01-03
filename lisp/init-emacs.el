@@ -438,6 +438,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (defvar init-ignore-toggle-input-method nil)
 
 (defun toggle-input-method@check-ignore (&rest _)
+  "Check ignore before toggle input method."
   init-ignore-toggle-input-method)
 
 (defun evil-state@ignore-toggle-input-method (func &rest args)
@@ -1069,6 +1070,7 @@ EXPANSION may be:
     (call-interactively func)))
 
 (defmacro init-define-next-sexp-command (last-sexp-command)
+  "Remap LAST-SEXP-COMMAND to next-sexp-command in evil motion state."
   (let ((next-sexp-command (intern (concat "init-next-sexp@" (symbol-name last-sexp-command)))))
     `(prog1
          (defun ,next-sexp-command ()
