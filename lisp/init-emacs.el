@@ -441,13 +441,13 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 (defvar init-input-method-ignore-toggle-p nil)
 
-(defun init-input-method-ignore-toggle-p (&rest _)
-  "Predicate of ignore toggle input method."
+(defun init-input-method-ignore-toggle-before-until (&rest _)
+  "Ignore toggle input method when `init-input-method-ignore-toggle-p' was set."
   init-input-method-ignore-toggle-p)
 
-(advice-add #'toggle-input-method :before-until #'init-input-method-ignore-toggle-p)
-(advice-add #'activate-input-method :before-until #'init-input-method-ignore-toggle-p)
-(advice-add #'deactivate-input-method :before-until #'init-input-method-ignore-toggle-p)
+(advice-add #'toggle-input-method :before-until #'init-input-method-ignore-toggle-before-until)
+(advice-add #'activate-input-method :before-until #'init-input-method-ignore-toggle-before-until)
+(advice-add #'deactivate-input-method :before-until #'init-input-method-ignore-toggle-before-until)
 
 (defun init-input-method-ignore-toggle-around (func &rest args)
   "Ignore toggle input method around command.
@@ -470,7 +470,7 @@ FUNC ARGS see specified commands."
   (and evil-local-mode
        (memq evil-state '(operator motion normal visual))))
 
-(defun init-wrap-input-method (func event)
+(defun init-input-method-wrap (func event)
   "Wrap a `input-method-function' FUNC that process ignore and jk escape.
 FUNC, EVENT see `input-method-function'."
   (if (init-input-method-ignore-p)
@@ -488,7 +488,7 @@ FUNC, EVENT see `input-method-function'."
 (defun init-input-method (event)
   "Default input method function.
 EVENT see `input-method-function'."
-  (init-wrap-input-method #'list event))
+  (init-input-method-wrap #'list event))
 
 (setq-default input-method-function #'init-input-method)
 

@@ -101,7 +101,7 @@
 
 (add-hook 'after-init-hook #'pyim-basedict-enable)
 
-(advice-add #'pyim-input-method :around #'init-wrap-input-method)
+(advice-add #'pyim-input-method :around #'init-input-method-wrap)
 
 (provide 'init-pyim)
 ;;; init-pyim.el ends here
