@@ -438,15 +438,19 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 (defvar init-input-method-ignore-toggle nil)
 
-(define-advice toggle-input-method (:before-until (&rest _) check-ignore) init-input-method-ignore-toggle)
-(define-advice activate-input-method (:before-until (&rest _) check-ignore) init-input-method-ignore-toggle)
-(define-advice deactivate-input-method (:before-until (&rest _) check-ignore) init-input-method-ignore-toggle)
+(defun toggle-input-method@check-ignore (&rest _)
+  init-input-method-ignore-toggle)
 
-(defun init-input-method-ignore-toggle-advice (func &rest args)
+(defun evil-state@ignore-toggle-input-method (func &rest args)
   "Ignore toggle input method around command.
 FUNC ARGS see specified commands."
   (let ((init-input-method-ignore-toggle t))
     (apply func args)))
+
+(dolist (func '(toggle-input-method
+                activate-input-method
+                deactivate-input-method))
+  (advice-add func :before-until #'toggle-input-method@check-ignore))
 
 (dolist (func '(evil-local-mode
                 evil-emacs-state
@@ -456,7 +460,7 @@ FUNC ARGS see specified commands."
                 evil-motion-state
                 evil-normal-state
                 evil-visual-state))
-  (advice-add func :around #'init-input-method-ignore-toggle-advice))
+  (advice-add func :around #'evil-state@ignore-toggle-input-method))
 
 (defun init-input-method-ignore-p ()
   "Predicate of input method."
