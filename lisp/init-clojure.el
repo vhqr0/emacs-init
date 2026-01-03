@@ -58,7 +58,13 @@
            (files (init-clojure-test-files file)))
       (if-let* ((file (seq-find #'file-exists-p files)))
           (find-file file)
-        (user-error "No test file found")))))
+        (if-let* ((file (car files)))
+            (find-file (read-file-name
+                        "Create test file: "
+                        (file-name-directory file)
+                        nil nil
+                        (file-name-nondirectory file)))
+          (user-error "No test file found"))))))
 
 (defun init-clojure-set-find-test-file ()
   "Set `init-find-test-file' for Clojure mode."
