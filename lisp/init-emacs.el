@@ -152,7 +152,7 @@
 (defvar init-evil-adjust-cursor-ignore-commands
   '(forward-sexp forward-list))
 
-(defun init-evil-adjust-cursor-ignore-before-until ()
+(defun init-evil-adjust-cursor-ignore-before-until (&rest _)
   "Ignore adjust cursor before certain commands."
   (memq this-command init-evil-adjust-cursor-ignore-commands))
 
@@ -392,7 +392,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
     (indent-region (point-min) (point-max))))
 
 (require 'repeat)
-(repeat-mode 1)
+(add-hook 'after-init-hook #'repeat-mode)
 
 (require 'embark)
 (keymap-global-set "M-o" #'embark-act)
@@ -439,22 +439,20 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 ;; ugly work around before https://github.com/emacs-evil/evil/pull/1995 merged
 
-(defvar init-ignore-toggle-input-method nil)
+(defvar init-input-method-ignore-toggle-p nil)
 
-(defun init-input-method-around-toggle-check-ignore (func &rest args)
-  "Ignore toggle input method when `init-ignore-toggle-input-method' is set.
-FUNC, ARGS see `f/activate-input-method' and `f/deactivate-input-method'."
-  (unless init-ignore-toggle-input-method
-    (apply func args)))
+(defun init-input-method-ignore-toggle-p (&rest _)
+  "Predicate of ignore toggle input method."
+  init-input-method-ignore-toggle-p)
 
-(advice-add #'toggle-input-method :around #'init-input-method-around-toggle-check-ignore)
-(advice-add #'activate-input-method :around #'init-input-method-around-toggle-check-ignore)
-(advice-add #'deactivate-input-method :around #'init-input-method-around-toggle-check-ignore)
+(advice-add #'toggle-input-method :before-until #'init-input-method-ignore-toggle-p)
+(advice-add #'activate-input-method :before-until #'init-input-method-ignore-toggle-p)
+(advice-add #'deactivate-input-method :before-until #'init-input-method-ignore-toggle-p)
 
-(defun init-input-method-around-command-set-ignore (func &rest args)
+(defun init-input-method-ignore-toggle-around (func &rest args)
   "Ignore toggle input method around command.
-FUNC, ARGS see specified commands."
-  (let ((init-ignore-toggle-input-method t))
+FUNC ARGS see specified commands."
+  (let ((init-input-method-ignore-toggle-p t))
     (apply func args)))
 
 (dolist (func '(evil-local-mode
@@ -465,9 +463,9 @@ FUNC, ARGS see specified commands."
                 evil-motion-state
                 evil-normal-state
                 evil-visual-state))
-  (advice-add func :around #'init-input-method-around-command-set-ignore))
+  (advice-add func :around #'init-input-method-ignore-toggle-around))
 
-(defun init-ignore-input-method-p ()
+(defun init-input-method-ignore-p ()
   "Predicate of input method."
   (and evil-local-mode
        (memq evil-state '(operator motion normal visual))))
@@ -475,7 +473,7 @@ FUNC, ARGS see specified commands."
 (defun init-wrap-input-method (func event)
   "Wrap a `input-method-function' FUNC that process ignore and jk escape.
 FUNC, EVENT see `input-method-function'."
-  (if (init-ignore-input-method-p)
+  (if (init-input-method-ignore-p)
       (list event)
     (if (or (/= event ?j) (sit-for 0.15))
         (funcall func event)
