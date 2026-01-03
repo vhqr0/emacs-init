@@ -91,7 +91,7 @@
 (evil-define-text-object init-evil-a-defun (count &optional beg end _type)
   (evil-select-an-object 'evil-defun beg end type count t))
 
-(evil-define-text-object init-evil-text-object-entire (count &optional _beg _end _type)
+(evil-define-text-object init-evil-an-entire (count &optional _beg _end _type)
   (evil-range (point-min) (point-max) 'line))
 
 (set-keymap-parent evil-command-line-map minibuffer-local-map)
@@ -139,8 +139,8 @@
 (keymap-set evil-outer-text-objects-map "l" #'init-evil-a-line)
 (keymap-set evil-inner-text-objects-map "d" #'init-evil-inner-defun)
 (keymap-set evil-outer-text-objects-map "d" #'init-evil-a-defun)
-(keymap-set evil-inner-text-objects-map "h" #'init-evil-text-object-entire)
-(keymap-set evil-outer-text-objects-map "h" #'init-evil-text-object-entire)
+(keymap-set evil-inner-text-objects-map "h" #'init-evil-an-entire)
+(keymap-set evil-outer-text-objects-map "h" #'init-evil-an-entire)
 
 (keymap-set evil-motion-state-map "g f" 'find-file-at-point)
 (keymap-set evil-motion-state-map "] f" 'find-file-at-point)
@@ -149,50 +149,35 @@
 (keymap-set evil-motion-state-map "] F" 'evil-find-file-at-point-with-line)
 (keymap-set evil-motion-state-map "[ F" 'evil-find-file-at-point-with-line)
 
-(defvar init-evil-disable-adjust-cursor-commands
+(defvar init-evil-adjust-cursor-ignore-commands
   '(forward-sexp forward-list))
 
-(defun init-evil-around-adjust-cursor-filter-commands (func &rest args)
-  "Dont adjust cursor after certain commands.
-FUNC and ARGS see `evil-set-cursor'."
-  (unless (memq this-command init-evil-disable-adjust-cursor-commands)
-    (apply func args)))
+(defun init-evil-adjust-cursor-ignore-before-until ()
+  "Ignore adjust cursor before certain commands."
+  (memq this-command init-evil-adjust-cursor-ignore-commands))
 
-(advice-add #'evil-adjust-cursor :around #'init-evil-around-adjust-cursor-filter-commands)
+(advice-add #'evil-adjust-cursor :before-until #'init-evil-adjust-cursor-ignore-before-until)
 
-(defun init-evil-ex-delete-search-hl ()
+(defun init-evil-search-clean ()
   "Delete `evil-ex-search' persistent highlight."
   (evil-ex-delete-hl 'evil-ex-search))
 
-(defvar init-evil-ex-delete-search-hl-idle-delay 1.5)
-(defvar init-evil-ex-delete-search-hl-timer nil)
+(defvar init-evil-search-clean-idle 1.5)
+(defvar init-evil-search-clean-timer nil)
 
-(defun init-evil-ex-delete-search-hl-start-timer ()
-  "Start a thread to clean `evil-ex-search' persistent highlight."
-  (unless init-evil-ex-delete-search-hl-timer
-    (setq init-evil-ex-delete-search-hl-timer
-          (run-with-idle-timer
-           init-evil-ex-delete-search-hl-idle-delay
-           t
-           #'init-evil-ex-delete-search-hl))))
+(defun init-evil-search-clean-start-timer ()
+  "Start a daemon to idle clean `evil-ex-search' persistent highlight."
+  (unless init-evil-search-clean-timer
+    (setq init-evil-search-clean-timer
+          (run-with-idle-timer init-evil-search-clean-idle t #'init-evil-search-clean))))
 
-(add-hook 'after-init-hook #'init-evil-ex-delete-search-hl-start-timer)
+(add-hook 'after-init-hook #'init-evil-search-clean-start-timer)
 
 (defun init-evil-keymap-set (state keymap &rest clauses)
   "Set evil key.
 STATE KEYMAP CLAUSES see `evil-define-key*'."
   (declare (indent defun))
   (apply #'evil-define-key* state keymap
-         (seq-map-indexed
-          (lambda (v i)
-            (if (cl-oddp i) v (kbd v)))
-          clauses)))
-
-(defun init-evil-minor-mode-keymap-set (state mode &rest clauses)
-  "Set evil key in minor mode.
-STATE MODE CLAUSES see `evil-define-minor-mode-key'."
-  (declare (indent defun))
-  (apply #'evil-define-minor-mode-key state mode
          (seq-map-indexed
           (lambda (v i)
             (if (cl-oddp i) v (kbd v)))
