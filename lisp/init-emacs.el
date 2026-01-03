@@ -152,11 +152,8 @@
 (defvar init-evil-adjust-cursor-ignore-commands
   '(forward-sexp forward-list))
 
-(defun init-evil-adjust-cursor-ignore-before-until (&rest _)
-  "Ignore adjust cursor before certain commands."
+(define-advice evil-adjust-cursor (:before-until (&rest _) ignore-commands)
   (memq this-command init-evil-adjust-cursor-ignore-commands))
-
-(advice-add #'evil-adjust-cursor :before-until #'init-evil-adjust-cursor-ignore-before-until)
 
 (defun init-evil-search-clean ()
   "Delete `evil-ex-search' persistent highlight."
@@ -579,13 +576,10 @@ EVENT see `input-method-function'."
 
 (setq consult-line-start-from-top t)
 
-(defun init-consult-line-set-history-after (&rest _args)
-  "Set `evil-ex-search-pattern' after `consult-line'."
+(define-advice consult-line (:after (&rest _) set-history)
   (let ((pattern (car consult--line-history)))
     (setq evil-ex-search-pattern (list pattern t t))
     (evil-ex-search-activate-highlight evil-ex-search-pattern)))
-
-(advice-add #'consult-line :after #'init-consult-line-set-history-after)
 
 (defun init-consult-search (&optional arg initial)
   "Consult search with INITIAL.
@@ -1025,22 +1019,14 @@ EXPANSION may be:
 
 (add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
 
-(defun init-company-capf-set-styles-around (func &rest args)
-  "Set completion styles for `company-capf'.
-FUNC ARGS see `company-capf'."
+(define-advice company-capf (:around (func &rest args) set-styles)
   (let ((completion-styles '(basic partial-completion)))
     (apply func args)))
 
-(advice-add 'company-capf :around #'init-company-capf-set-styles-around)
-
-(defun init-company-check-evil-before-until (command &rest _)
-  "Check evil state before call company.
-COMMAND see `company-call-backend'."
+(define-advice company-call-backend (:before-until (command &rest _) check-evil)
   (and (eq command 'prefix)
        evil-local-mode
        (not (memq evil-state '(insert replace emacs)))))
-
-(advice-add #'company-call-backend :before-until #'init-company-check-evil-before-until)
 
 ;;;; eglot
 
