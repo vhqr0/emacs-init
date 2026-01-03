@@ -41,17 +41,19 @@
                    yasnippet
                    company
                    wgrep
+                   git-modes
+                   with-editor
+                   magit
+                   orgit
                    markdown-mode
                    edit-indirect))
     (init-pyim . (pyim pyim-basedict posframe))
-    (init-magit . (git-modes with-editor magit orgit))
     (init-clojure . (clojure-mode cider))
     (init-org-roam . (org-roam))))
 
 (defvar init-modules
   '(init-emacs
     ;; init-pyim
-    ;; init-magit
     ;; init-python
     ;; init-clojure
     ;; init-org-roam
