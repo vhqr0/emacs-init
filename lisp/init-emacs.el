@@ -1025,23 +1025,22 @@ EXPANSION may be:
 
 (add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
 
-(defun init-company-around-capf-set-styles (func &rest args)
+(defun init-company-capf-set-styles-around (func &rest args)
   "Set completion styles for `company-capf'.
 FUNC ARGS see `company-capf'."
   (let ((completion-styles '(basic partial-completion)))
     (apply func args)))
 
-(advice-add 'company-capf :around #'init-company-around-capf-set-styles)
+(advice-add 'company-capf :around #'init-company-capf-set-styles-around)
 
-(defun init-company-around-call-backend-check-evil (func command &rest args)
+(defun init-company-check-evil-before-until (command &rest _)
   "Check evil state before call company.
-FUNC COMMAND ARGS see `company-call-backend'."
-  (unless (and (eq command 'prefix)
-               evil-local-mode
-               (not (memq evil-state '(insert replace emacs))))
-    (apply func command args)))
+COMMAND see `company-call-backend'."
+  (and (eq command 'prefix)
+       evil-local-mode
+       (not (memq evil-state '(insert replace emacs)))))
 
-(advice-add #'company-call-backend :around #'init-company-around-call-backend-check-evil)
+(advice-add #'company-call-backend :before-until #'init-company-check-evil-before-until)
 
 ;;;; eglot
 
@@ -1080,7 +1079,7 @@ FUNC COMMAND ARGS see `company-call-backend'."
   (setq-local outline-level #'init-lisp-outline-level)
   (outline-minor-mode 1))
 
-(defun init-lisp-around-last-sexp-maybe-forward (func &rest args)
+(defun init-lisp-last-sexp-maybe-forward-around (func &rest args)
   "Around *-last-sexp command.
 Save point and forward sexp before command if looking at an open paren.
 FUNC and ARGS see specific command."
@@ -1095,7 +1094,7 @@ FUNC and ARGS see specific command."
   '(eval-last-sexp eval-print-last-sexp pp-eval-last-sexp pp-macroexpand-last-sexp))
 
 (dolist (command init-elisp-last-sexp-commands)
-  (advice-add command :around #'init-lisp-around-last-sexp-maybe-forward))
+  (advice-add command :around #'init-lisp-last-sexp-maybe-forward-around))
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-k" #'eval-buffer)
