@@ -579,13 +579,13 @@ EVENT see `input-method-function'."
 
 (setq consult-line-start-from-top t)
 
-(defun init-consult-line-after-search-set-history (&rest _args)
+(defun init-consult-line-set-history-after (&rest _args)
   "Set `evil-ex-search-pattern' after `consult-line'."
   (let ((pattern (car consult--line-history)))
     (setq evil-ex-search-pattern (list pattern t t))
     (evil-ex-search-activate-highlight evil-ex-search-pattern)))
 
-(advice-add #'consult-line :after #'init-consult-line-after-search-set-history)
+(advice-add #'consult-line :after #'init-consult-line-set-history-after)
 
 (defun init-consult-search (&optional arg initial)
   "Consult search with INITIAL.
@@ -935,7 +935,7 @@ With universal ARG, open in this window."
 
 (add-hook 'after-init-hook #'yas-global-mode)
 
-(defun init-define-yas-abbrev (table abbrev snippet &optional env)
+(defun init-abbrev-yas-define (table abbrev snippet &optional env)
   "Define an ABBREV in TABLE, to expand a yas SNIPPET with ENV."
   (let ((length (length abbrev))
         (hook (make-symbol abbrev)))
@@ -945,7 +945,7 @@ With universal ARG, open in this window."
                    (yas-expand-snippet snippet (- point length) point env))))
     (define-abbrev table abbrev 'yas hook :system t)))
 
-(defun init-define-abbrev (table abbrev expansion)
+(defun init-abbrev-define (table abbrev expansion)
   "Define an ABBREV in TABLE, to expand as EXPANSION.
 EXPANSION may be:
 - text: (text \"expansion\")
@@ -955,11 +955,11 @@ EXPANSION may be:
     (cond ((eq expansion-type 'text)
            (define-abbrev table abbrev (car expansion) nil :system t))
           ((eq expansion-type 'yas)
-           (init-define-yas-abbrev table abbrev (car expansion) (cdr expansion)))
+           (init-abbrev-yas-define table abbrev (car expansion) (cdr expansion)))
           (t
            (user-error "Invalid abbrev expansion type")))))
 
-(defun init-define-abbrev-table (tablename defs)
+(defun init-abbrev-define-table (tablename defs)
   "Define abbrev table with TABLENAME and abbrevs DEFS."
   (let ((table (if (boundp tablename) (symbol-value tablename))))
     (unless table
@@ -968,23 +968,23 @@ EXPANSION may be:
     (unless (memq tablename abbrev-table-name-list)
       (push tablename abbrev-table-name-list))
     (dolist (def defs)
-      (init-define-abbrev table (car def) (cdr def)))))
+      (init-abbrev-define table (car def) (cdr def)))))
 
-(defvar init-abbrevs-file
+(defvar init-abbrev-file
   (expand-file-name "abbrevs.eld" priv-directory))
 
-(defun init-load-abbrevs (&optional file)
+(defun init-abbrev-load (&optional file)
   "Load abbrevs FILE."
   (interactive)
-  (let ((file (or file init-abbrevs-file)))
+  (let ((file (or file init-abbrev-file)))
     (when (file-exists-p file)
       (let ((defs (with-temp-buffer
                     (insert-file-contents file)
                     (read (buffer-string)))))
         (dolist (def defs)
-          (init-define-abbrev-table (car def) (cdr def)))))))
+          (init-abbrev-define-table (car def) (cdr def)))))))
 
-(add-hook 'after-init-hook #'init-load-abbrevs)
+(add-hook 'after-init-hook #'init-abbrev-load)
 
 ;;;; company
 
