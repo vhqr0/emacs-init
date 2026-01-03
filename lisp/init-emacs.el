@@ -1062,22 +1062,27 @@ EXPANSION may be:
   (setq-local outline-level #'init-lisp-outline-level)
   (outline-minor-mode 1))
 
-(defun init-lisp-last-sexp-advice (func &rest args)
-  "Around *-last-sexp command.
-Save point and forward sexp before command if looking at an open paren.
-FUNC and ARGS see specific command."
+(defun init-wrap-next-sexp-command (func)
+  "Goto sexp end, then call last-sexp command FUNC."
   (save-excursion
-    (when (looking-at-p "(\\|\\[\\|{")
-      (forward-sexp))
-    (apply func args)))
+    (when-let* ((end (cdr (bounds-of-thing-at-point 'sexp))))
+      (goto-char end))
+    (call-interactively func)))
+
+(defmacro init-define-next-sexp-command (last-sexp-command)
+  (let ((next-sexp-command (intern (concat "init-next-sexp@" (symbol-name last-sexp-command)))))
+    `(prog1
+         (defun ,next-sexp-command ()
+           (interactive)
+           (init-wrap-next-sexp-command ',last-sexp-command))
+       (define-key evil-motion-state-map [remap ,last-sexp-command] ',next-sexp-command))))
 
 ;;;; elisp
 
-(defvar init-elisp-last-sexp-commands
-  '(eval-last-sexp eval-print-last-sexp pp-eval-last-sexp pp-macroexpand-last-sexp))
-
-(dolist (command init-elisp-last-sexp-commands)
-  (advice-add command :around #'init-lisp-last-sexp-advice))
+(init-define-next-sexp-command eval-last-sexp)
+(init-define-next-sexp-command eval-print-last-sexp)
+(init-define-next-sexp-command pp-eval-last-sexp)
+(init-define-next-sexp-command pp-macroexpand-last-sexp)
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-k" #'eval-buffer)

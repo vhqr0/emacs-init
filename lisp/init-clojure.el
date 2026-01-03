@@ -68,25 +68,21 @@
 
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
-(defvar init-cider-last-sexp-commands
-  '(cider-eval-last-sexp
-    cider-eval-last-sexp-to-repl
-    cider-eval-last-sexp-in-context
-    cider-eval-last-sexp-and-replace
-    cider-pprint-eval-last-sexp
-    cider-pprint-eval-last-sexp-to-repl
-    cider-pprint-eval-last-sexp-to-comment
-    cider-insert-last-sexp-in-repl
-    cider-tap-last-sexp
-    cider-format-edn-last-sexp
-    cider-inspect-last-sexp
-    cider-macroexpand-1
-    cider-macroexpand-all
-    cider-macroexpand-1-inplace
-    cider-macroexpand-all-inplace))
-
-(dolist (command init-cider-last-sexp-commands)
-  (advice-add command :around #'init-lisp-last-sexp-advice))
+(init-define-next-sexp-command cider-eval-last-sexp)
+(init-define-next-sexp-command cider-eval-last-sexp-to-repl)
+(init-define-next-sexp-command cider-eval-last-sexp-in-context)
+(init-define-next-sexp-command cider-eval-last-sexp-and-replace)
+(init-define-next-sexp-command cider-pprint-eval-last-sexp)
+(init-define-next-sexp-command cider-pprint-eval-last-sexp-to-repl)
+(init-define-next-sexp-command cider-pprint-eval-last-sexp-to-comment)
+(init-define-next-sexp-command cider-insert-last-sexp-in-repl)
+(init-define-next-sexp-command cider-tap-last-sexp)
+(init-define-next-sexp-command cider-format-edn-last-sexp)
+(init-define-next-sexp-command cider-inspect-last-sexp)
+(init-define-next-sexp-command cider-macroexpand-1)
+(init-define-next-sexp-command cider-macroexpand-all)
+(init-define-next-sexp-command cider-macroexpand-1-inplace)
+(init-define-next-sexp-command cider-macroexpand-all-inplace)
 
 ;;;; eval
 
