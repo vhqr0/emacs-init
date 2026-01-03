@@ -436,20 +436,16 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 ;; ugly work around before https://github.com/emacs-evil/evil/pull/1995 merged
 
-(defvar init-input-method-ignore-toggle-p nil)
+(defvar init-input-method-ignore-toggle nil)
 
-(defun init-input-method-ignore-toggle-before-until (&rest _)
-  "Ignore toggle input method when `init-input-method-ignore-toggle-p' was set."
-  init-input-method-ignore-toggle-p)
+(define-advice toggle-input-method (:before-until (&rest _) check-ignore) init-input-method-ignore-toggle)
+(define-advice activate-input-method (:before-until (&rest _) check-ignore) init-input-method-ignore-toggle)
+(define-advice deactivate-input-method (:before-until (&rest _) check-ignore) init-input-method-ignore-toggle)
 
-(advice-add #'toggle-input-method :before-until #'init-input-method-ignore-toggle-before-until)
-(advice-add #'activate-input-method :before-until #'init-input-method-ignore-toggle-before-until)
-(advice-add #'deactivate-input-method :before-until #'init-input-method-ignore-toggle-before-until)
-
-(defun init-input-method-ignore-toggle-around (func &rest args)
+(defun init-input-method-ignore-toggle-advice (func &rest args)
   "Ignore toggle input method around command.
 FUNC ARGS see specified commands."
-  (let ((init-input-method-ignore-toggle-p t))
+  (let ((init-input-method-ignore-toggle t))
     (apply func args)))
 
 (dolist (func '(evil-local-mode
@@ -460,7 +456,7 @@ FUNC ARGS see specified commands."
                 evil-motion-state
                 evil-normal-state
                 evil-visual-state))
-  (advice-add func :around #'init-input-method-ignore-toggle-around))
+  (advice-add func :around #'init-input-method-ignore-toggle-advice))
 
 (defun init-input-method-ignore-p ()
   "Predicate of input method."
@@ -855,8 +851,7 @@ With universal ARG, open in this window."
   (interactive)
   (ediff-jump-to-difference -1))
 
-(defun init-ediff-setup-keymap-extra ()
-  "Setup extra ediff bindings."
+(define-advice ediff-setup-keymap (:after () evil)
   (keymap-set ediff-mode-map "j" #'ediff-next-difference)
   (keymap-set ediff-mode-map "k" #'ediff-previous-difference)
   (keymap-set ediff-mode-map "g g" #'ediff-jump-to-difference)
@@ -867,8 +862,6 @@ With universal ARG, open in this window."
   (keymap-set ediff-mode-map "<down>" #'init-ediff-scroll-down)
   (keymap-set ediff-mode-map "<left>" #'init-ediff-scroll-left)
   (keymap-set ediff-mode-map "<right>" #'init-ediff-scroll-right))
-
-(advice-add #'ediff-setup-keymap :after #'init-ediff-setup-keymap-extra)
 
 ;;;; with editor
 
@@ -1065,7 +1058,7 @@ EXPANSION may be:
   (setq-local outline-level #'init-lisp-outline-level)
   (outline-minor-mode 1))
 
-(defun init-lisp-last-sexp-maybe-forward-around (func &rest args)
+(defun init-lisp-last-sexp-advice (func &rest args)
   "Around *-last-sexp command.
 Save point and forward sexp before command if looking at an open paren.
 FUNC and ARGS see specific command."
@@ -1080,7 +1073,7 @@ FUNC and ARGS see specific command."
   '(eval-last-sexp eval-print-last-sexp pp-eval-last-sexp pp-macroexpand-last-sexp))
 
 (dolist (command init-elisp-last-sexp-commands)
-  (advice-add command :around #'init-lisp-last-sexp-maybe-forward-around))
+  (advice-add command :around #'init-lisp-last-sexp-advice))
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-k" #'eval-buffer)

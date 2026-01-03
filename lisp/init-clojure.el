@@ -86,7 +86,7 @@
     cider-macroexpand-all-inplace))
 
 (dolist (command init-cider-last-sexp-commands)
-  (advice-add command :around #'init-lisp-last-sexp-maybe-forward-around))
+  (advice-add command :around #'init-lisp-last-sexp-advice))
 
 ;;;; eval
 
