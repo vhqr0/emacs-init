@@ -27,36 +27,42 @@
 
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
 
-(defvar init-clojure-try-extensions '("cljc" "clj" "cljs"))
+(defvar init-clojure-extensions '("cljc" "clj" "cljs"))
 
-(defun init-clojure-try-extensions (extension)
-  "Return try extensions with prefer EXTENSION."
-  (cons extension (remove extension init-clojure-try-extensions)))
+(defun init-clojure-extensions (extension)
+  "Return clojure file extensions, given EXTENSION first."
+  (cons extension (remove extension init-clojure-extensions)))
 
-(defun init-clojure-first-test-file-name (file-name)
-  "Convert FILE-NAME to test or source file name with the first try extension."
+(defun init-clojure-test-file (file)
+  "Convert FILE to test file with same extension."
   (cond
-   ((string-match "^src/\\(.*\\)\\(\\.clj.?\\)$" file-name)
-    (concat "test/" (match-string 1 file-name) "_test" (match-string 2 file-name)))
-   ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file-name)
-    (concat "src/" (match-string 1 file-name) (match-string 2 file-name)))))
+   ((string-match "^src/\\(.*\\)\\(\\.clj.?\\)$" file)
+    (concat "test/" (match-string 1 file) "_test" (match-string 2 file)))
+   ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file)
+    (concat "src/" (match-string 1 file) (match-string 2 file)))))
 
-(defun init-clojure-test-file-names (file-name)
-  "Convert FILE-NAME to list of test or source files, sorted by try extensions."
-  (when-let* ((first-test-file-name (init-clojure-first-test-file-name file-name)))
-    (let ((file-name-base (file-name-sans-extension first-test-file-name))
-          (file-name-extension (file-name-extension first-test-file-name)))
+(defun init-clojure-test-files (file)
+  "Convert FILE to test files, with possible extensions."
+  (when-let* ((file (init-clojure-test-file file)))
+    (let ((base (file-name-sans-extension file))
+          (extension (file-name-extension file)))
       (seq-map
-       (lambda (extension) (concat file-name-base "." extension))
-       (init-clojure-try-extensions file-name-extension)))))
+       (lambda (extension) (concat base "." extension))
+       (init-clojure-extensions extension)))))
 
-(defun init-clojure-find-test-file-name (file-name)
-  "Find test file or source file of FILE-NAME."
-  (seq-find #'file-exists-p (init-clojure-test-file-names file-name)))
+(defun init-clojure-find-test-file ()
+  "Find test file of current buffer."
+  (if (not buffer-file-name)
+      (user-error "No buffer file name found")
+    (let* ((file (file-relative-name buffer-file-name))
+           (files (init-clojure-test-files file)))
+      (if-let* ((file (seq-find #'file-exists-p files)))
+          (find-file file)
+        (user-error "No test file found")))))
 
 (defun init-clojure-set-find-test-file ()
-  "Set `init-find-test-file-name' for Clojure mode."
-  (setq-local init-find-test-file-name-function #'init-clojure-find-test-file-name))
+  "Set `init-find-test-file' for Clojure mode."
+  (setq-local init-find-test-file-function #'init-clojure-find-test-file))
 
 (add-hook 'clojure-mode-hook #'init-clojure-set-find-test-file)
 

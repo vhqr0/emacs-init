@@ -287,16 +287,15 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (setq project-switch-use-entire-map t)
 (setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
 
-(defvar-local init-find-test-file-name-function nil)
+(defvar-local init-find-test-file-function nil)
 
 (defun init-project-find-test-file ()
-  "Find test file or source file of current file in project."
+  "Find test file in this project."
   (interactive)
-  (when init-find-test-file-name-function
-    (when-let* ((default-directory (project-root (project-current))))
-      (when-let* ((file-name (buffer-file-name)))
-        (when-let* ((test-file-name (funcall init-find-test-file-name-function (file-relative-name file-name))))
-          (find-file test-file-name))))))
+  (if (not init-find-test-file-function)
+      (user-error "No find test file function found")
+    (let ((default-directory (project-root (project-current t))))
+      (funcall init-find-test-file-function))))
 
 (keymap-set project-prefix-map "t" #'init-project-find-test-file)
 
