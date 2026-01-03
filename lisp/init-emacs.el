@@ -498,11 +498,6 @@ STATE MODE CLAUSES see `evil-define-minor-mode-key'."
   (insert-pair (or arg 1))
   (indent-sexp))
 
-;;; occur
-
-(keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
-(evil-set-initial-state 'occur-edit-mode 'normal)
-
 ;;; input method
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
@@ -711,6 +706,11 @@ ARG see `init-consult-search'."
               (point))))))
 
 (keymap-set narrow-map "s" #'init-outline-narrow-to-subtree)
+
+;;; occur
+
+(keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
+(evil-set-initial-state 'occur-edit-mode 'normal)
 
 ;;; dired
 
