@@ -1150,8 +1150,6 @@ EXPANSION may be:
 (require 'consult-org)
 (require 'embark-org)
 
-(add-to-list 'org-modules 'org-tempo)
-
 (setq org-special-ctrl-a/e t)
 (setq org-sort-function #'org-sort-function-fallback)
 (setq org-tags-sort-function #'org-string<)
