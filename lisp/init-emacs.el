@@ -929,18 +929,21 @@ With universal ARG, open in this window."
 (defun init-abbrev-yas-define (table abbrev snippet &optional env)
   "Define an ABBREV in TABLE, to expand a yas SNIPPET with ENV."
   (let ((length (length abbrev))
-        (hook (make-symbol abbrev)))
+        (hook (make-symbol abbrev))
+        (ensure-pair (car (alist-get 'ensure-pair env))))
     (put hook 'no-self-insert t)
     (fset hook (lambda ()
-                 (let ((point (point)))
-                   (yas-expand-snippet snippet (- point length) point env))))
+                 (backward-delete-char length)
+                 (when (and ensure-pair (/= ?\( (char-before)))
+                   (insert-pair 0 ?\( ?\)))
+                 (yas-expand-snippet snippet nil nil env)))
     (define-abbrev table abbrev 'yas hook :system t)))
 
 (defun init-abbrev-define (table abbrev expansion)
   "Define an ABBREV in TABLE, to expand as EXPANSION.
 EXPANSION may be:
 - text: (text \"expansion\")
-- yas: (yas \"expansion\" ENVSYM ENVVAL...)"
+- yas: (yas \"expansion\" (ENVSYM ENVVAL) ...)"
   (let ((expansion-type (car expansion))
         (expansion (cdr expansion)))
     (cond ((eq expansion-type 'text)
