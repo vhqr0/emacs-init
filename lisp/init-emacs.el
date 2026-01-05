@@ -933,7 +933,7 @@ With universal ARG, open in this window."
         (ensure-pair (car (alist-get 'ensure-pair env))))
     (put hook 'no-self-insert t)
     (fset hook (lambda ()
-                 (backward-delete-char length)
+                 (delete-char (- length))
                  (when (and ensure-pair (/= ?\( (char-before)))
                    (insert-pair 0 ?\( ?\)))
                  (yas-expand-snippet snippet nil nil env)))
