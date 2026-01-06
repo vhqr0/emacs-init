@@ -199,16 +199,11 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 ;;; files
 
-(defun init-header-line-path ()
-  "Get path displayed in header line."
-  (expand-file-name (or buffer-file-name default-directory)))
-
 (setq column-number-mode t)
 (setq mode-line-percent-position '(6 "%q"))
 (setq mode-line-position-line-format '(" %lL"))
 (setq mode-line-position-column-format '(" %CC"))
 (setq mode-line-position-column-line-format '(" %l:%C"))
-(setq-default header-line-format '(:eval (init-header-line-path)))
 
 (setq version-control t)
 (setq backup-by-copying t)
