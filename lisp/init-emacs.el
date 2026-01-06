@@ -877,7 +877,7 @@ With universal ARG, open in this window."
 
 (require 'magit)
 
-(keymap-global-set "<remap> <project-vc-dir>" #'magit-project-status)
+(keymap-set project-prefix-map "v" #'magit-project-status)
 
 (keymap-set magit-mode-map "<remap> <quit-window>" #'magit-mode-bury-buffer)
 
