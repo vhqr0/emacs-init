@@ -921,6 +921,9 @@ With universal ARG, open in this window."
 
 (setcdr (assq 'yas-minor-mode minor-mode-alist) '(" Yas"))
 
+(keymap-unset yas-minor-mode-map "TAB" t)
+(keymap-set yas-keymap "TAB" #'yas-next-field)
+
 (add-hook 'after-init-hook #'yas-global-mode)
 
 (defun init-abbrev-yas-define (table abbrev snippet &optional env)
