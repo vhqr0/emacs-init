@@ -1174,16 +1174,6 @@ EXPANSION may be:
 
 (add-hook 'org-mode-hook #'init-org-set-syntax)
 
-(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
-(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
-(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
-
-(keymap-global-set "C-c o" #'org-open-at-point-global)
-(keymap-global-set "C-c l" #'org-insert-link-global)
-
-(keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
-(keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
-
 (defun init-org-append-link ()
   "Append org link."
   (interactive)
@@ -1200,11 +1190,6 @@ EXPANSION may be:
       (forward-char))
     (call-interactively #'org-insert-link-global)))
 
-(keymap-set evil-normal-state-map "<remap> <org-insert-link>" #'init-org-append-link)
-(keymap-set evil-normal-state-map "<remap> <org-insert-link-global>" #'init-org-append-link-global)
-
-(keymap-set org-mode-map "<remap> <consult-imenu>" #'consult-org-heading)
-
 (defun init-org-echo-link ()
   "Echo org link in minibuffer."
   (interactive)
@@ -1212,7 +1197,22 @@ EXPANSION may be:
     (let (message-log-max)
       (message "%s" (match-string-no-properties 0)))))
 
+(keymap-global-set "C-c o" #'org-open-at-point-global)
+(keymap-global-set "C-c l" #'org-insert-link-global)
+
+(keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
+(keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
+
+(keymap-set evil-normal-state-map "<remap> <org-insert-link>" #'init-org-append-link)
+(keymap-set evil-normal-state-map "<remap> <org-insert-link-global>" #'init-org-append-link-global)
+
 (keymap-set embark-org-link-map "e" #'init-org-echo-link)
+
+(keymap-set org-mode-map "<remap> <consult-imenu>" #'consult-org-heading)
+
+(keymap-set org-mode-map "C-c C-'" #'org-edit-special)
+(keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
+(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
 
 ;;; markdown
 
