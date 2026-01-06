@@ -96,27 +96,15 @@
 (init-define-next-sexp-command cider-macroexpand-1-inplace)
 (init-define-next-sexp-command cider-macroexpand-all-inplace)
 
-;;;; eval
-
-(dolist (mode '(clojurec-mode clojure-mode clojurescript-mode))
-  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
-
 (keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
 (keymap-set cider-mode-map "C-c C-i" #'cider-insert-last-sexp-in-repl)
 (keymap-set cider-mode-map "C-c C-;" #'cider-pprint-eval-last-sexp-to-comment)
 
-;;;; lookup
+(dolist (mode '(clojurec-mode clojure-mode clojurescript-mode))
+  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "<remap> <evil-lookup>" #'cider-doc))
-
-(defun init-cider-repl-set-xref ()
-  "Set Xref backend for Cider REPL."
-  (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
-
-(add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
-
-;;;; format
 
 (defun init-cider-format-dwim ()
   "Do Cider format smartly."
@@ -130,7 +118,11 @@
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-M-q" #'cider-format-edn-last-sexp))
 
-;;;; repl
+(defun init-cider-repl-set-xref ()
+  "Set Xref backend for Cider REPL."
+  (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
+
+(add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
 
 (add-to-list 'consult-mode-histories
              '(cider-repl-mode cider-repl-input-history cider-repl-input-history-position cider-repl-bol-mark))

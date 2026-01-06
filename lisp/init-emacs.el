@@ -530,8 +530,12 @@ EVENT see `input-method-function'."
 (keymap-set vertico-mode-map "C-c b" #'vertico-repeat)
 (keymap-set vertico-mode-map "C-c z" #'vertico-suspend)
 
-(keymap-set vertico-directory-map "C-l" #'vertico-directory-up)
 (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
+
+(keymap-unset vertico-directory-map "RET" t)
+(keymap-set vertico-directory-map "C-l" #'vertico-directory-up)
+
+(keymap-set vertico-map "C-x C-s" #'embark-export)
 
 (keymap-set vertico-map "<remap> <evil-scroll-down>" #'vertico-scroll-up)
 (keymap-set vertico-map "<remap> <evil-scroll-up>" #'vertico-scroll-down)
@@ -541,8 +545,6 @@ EVENT see `input-method-function'."
 (keymap-set vertico-map "<remap> <evil-previous-visual-line>" #'vertico-previous)
 (keymap-set vertico-map "<remap> <evil-goto-first-line>" #'vertico-first)
 (keymap-set vertico-map "<remap> <evil-goto-line>" #'vertico-last)
-
-(keymap-set vertico-map "C-x C-s" #'embark-export)
 
 ;;; search
 
