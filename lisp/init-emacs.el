@@ -1341,7 +1341,6 @@ EXPANSION may be:
  "SPC" #'consult-buffer
  "\\" #'init-magic-shift
  "TAB" #'init-magic-shift
- "<tab>" #'init-magic-shift
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
