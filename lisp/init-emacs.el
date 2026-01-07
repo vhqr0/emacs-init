@@ -76,7 +76,6 @@
 (evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
   (evil-range
    (save-excursion
-     (goto-char (line-beginning-position))
      (back-to-indentation)
      (point))
    (line-end-position)
