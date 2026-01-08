@@ -1054,9 +1054,8 @@ EXPANSION may be:
 
 (defun init-lisp-outline-level ()
   "Return level of current outline heading."
-  (if (looking-at ";;\\([;*]+\\)")
-      (- (match-end 1) (match-beginning 1))
-    (funcall outline-level)))
+  (when (looking-at ";;\\([;*]+\\)")
+    (- (match-end 1) (match-beginning 1))))
 
 (defun init-lisp-set-outline ()
   "Set outline vars."
