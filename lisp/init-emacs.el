@@ -1214,6 +1214,13 @@ EXPANSION may be:
 
 (global-orglink-mode 1)
 
+(defun init-text-set-orglink-anywhere ()
+  "Set orglink for text modes."
+  (interactive)
+  (setq-local orglink-match-anywhere t))
+
+(add-hook 'text-mode-hook #'init-text-set-orglink-anywhere)
+
 (keymap-set org-mode-map "<remap> <consult-imenu>" #'consult-org-heading)
 
 (keymap-set org-mode-map "C-c C-'" #'org-edit-special)
