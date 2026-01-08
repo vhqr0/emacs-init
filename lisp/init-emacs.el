@@ -1150,6 +1150,7 @@ EXPANSION may be:
 (require 'org-capture)
 (require 'consult-org)
 (require 'embark-org)
+(require 'orglink)
 
 (setq org-special-ctrl-a/e t)
 (setq org-sort-function #'org-sort-function-fallback)
@@ -1205,6 +1206,13 @@ EXPANSION may be:
 (keymap-set evil-normal-state-map "<remap> <org-insert-link-global>" #'init-org-append-link-global)
 
 (keymap-set embark-org-link-map "e" #'init-org-echo-link)
+
+(define-advice orglink-mode--turn-on (:override () override)
+  (when (and (derived-mode-p 'text-mode 'prog-mode)
+             (not (derived-mode-p 'org-mode)))
+    (orglink-mode 1)))
+
+(global-orglink-mode 1)
 
 (keymap-set org-mode-map "<remap> <consult-imenu>" #'consult-org-heading)
 

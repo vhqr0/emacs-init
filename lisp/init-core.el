@@ -45,6 +45,7 @@
                    with-editor
                    magit
                    orgit
+                   orglink
                    markdown-mode
                    edit-indirect))
     (init-pyim . (pyim pyim-basedict posframe))
