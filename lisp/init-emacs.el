@@ -1162,6 +1162,11 @@ EXPANSION may be:
 (require 'embark-org)
 (require 'orglink)
 
+(add-to-list 'org-modules 'org-id)
+(add-to-list 'org-modules 'org-mouse)
+(add-to-list 'org-modules 'org-tempo)
+(add-to-list 'org-modules 'ol-eshell)
+
 (setq org-special-ctrl-a/e t)
 (setq org-sort-function #'org-sort-function-fallback)
 (setq org-tags-sort-function #'org-string<)
