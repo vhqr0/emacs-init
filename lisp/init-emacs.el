@@ -15,13 +15,14 @@
 (defvar evil-want-minibuffer)
 (setq evil-want-minibuffer t)
 
+(defvar evil-insert-state-bindings)
+(setq evil-insert-state-bindings nil)
+
 (defvar evil-want-C-i-jump)
 (defvar evil-want-C-u-scroll)
-(defvar evil-want-C-w-delete)
 (defvar evil-want-Y-yank-to-eol)
 (setq evil-want-C-i-jump nil)
 (setq evil-want-C-u-scroll t)
-(setq evil-want-C-w-delete t)
 (setq evil-want-Y-yank-to-eol t)
 
 (defvar evil-respect-visual-line-mode)
@@ -51,9 +52,22 @@
 (setq evil-insert-state-modes nil)
 (setq evil-motion-state-modes '(special-mode))
 
-(add-to-list 'evil-surround-pairs-alist '(?r . ("[" . "]")))
-(add-to-list 'evil-surround-pairs-alist '(?a . ("<" . ">")))
-(add-to-list 'evil-surround-pairs-alist '(?# . ("#{" . "}")))
+(setq-default evil-surround-pairs-alist
+              '((?\( . ("( " . " )"))
+                (?\{ . ("{ " . " }"))
+                (?\[ . ("[ " . " ]"))
+                (?\< . ("< " . " >"))
+                (?\) . ("(" . ")"))
+                (?\} . ("{" . "}"))
+                (?\] . ("[" . "]"))
+                (?\> . ("<" . ">"))
+                (?b  . ("(" . ")"))
+                (?B  . ("{" . "}"))
+                (?r  . ("[" . "]"))
+                (?a  . ("<" . ">"))
+                (?#  . ("#{" . "}"))
+                (?t  . evil-surround-read-tag)
+                (?f  . evil-surround-prefix-function)))
 
 (evil-define-operator init-evil-operator-comment (beg end)
   :move-point nil
@@ -97,17 +111,6 @@
 
 (keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
 
-(keymap-unset evil-insert-state-map "C-@" t)
-(keymap-unset evil-insert-state-map "C-a" t)
-(keymap-unset evil-insert-state-map "C-k" t)
-(keymap-unset evil-insert-state-map "C-w" t)
-(keymap-unset evil-insert-state-map "C-e" t)
-(keymap-unset evil-insert-state-map "C-y" t)
-(keymap-unset evil-insert-state-map "C-d" t)
-(keymap-unset evil-insert-state-map "C-t" t)
-(keymap-unset evil-insert-state-map "C-n" t)
-(keymap-unset evil-insert-state-map "C-p" t)
-
 (keymap-unset evil-motion-state-map "RET" t)
 (keymap-unset evil-motion-state-map "SPC" t)
 (keymap-unset evil-normal-state-map "DEL" t)
@@ -116,6 +119,13 @@
 (keymap-set evil-motion-state-map "<right>" #'evil-scroll-right)
 (keymap-set evil-motion-state-map "<up>" #'evil-scroll-up)
 (keymap-set evil-motion-state-map "<down>" #'evil-scroll-down)
+
+(keymap-set evil-insert-state-map "C-r" #'evil-paste-from-register)
+(keymap-set evil-insert-state-map "C-o" #'evil-execute-in-normal-state)
+
+(keymap-unset evil-motion-state-map "<down-mouse-1>")
+(keymap-unset evil-visual-state-map "<mouse-2>")
+(keymap-unset evil-normal-state-map "<mouse-2>")
 
 (keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
 (keymap-set evil-motion-state-map "q" #'quit-window)
