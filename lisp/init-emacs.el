@@ -1179,7 +1179,7 @@ EXPANSION may be:
       '(("t" "Todo"                      entry (file "") "* TODO %?\n%U")
         ("a" "Todo With Annotation"      entry (file "") "* TODO %?\n%U\n%a")
         ("i" "Todo With Initial Content" entry (file "") "* TODO %?\n%U\n%i")
-        ("c" "Todo With Kill Ring"       entry (file "") "* TODO %?\n%U\n%c")))
+        ("c" "Todo With Kill Ring Head"  entry (file "") "* TODO %?\n%U\n%c")))
 
 (defun init-org-set-syntax ()
   "Modify `org-mode' syntax table."
