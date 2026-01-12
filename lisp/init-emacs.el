@@ -559,7 +559,6 @@ EVENT see `input-method-function'."
 
 (require 'consult)
 (require 'consult-imenu)
-(require 'embark-consult)
 
 (setq consult-preview-key '(:debounce 0.2 any))
 
@@ -1159,7 +1158,6 @@ EXPANSION may be:
 (require 'org-agenda)
 (require 'org-capture)
 (require 'consult-org)
-(require 'embark-org)
 
 (add-to-list 'org-modules 'org-id)
 (add-to-list 'org-modules 'org-mouse)
@@ -1169,6 +1167,7 @@ EXPANSION may be:
 (setq org-special-ctrl-a/e t)
 (setq org-sort-function #'org-sort-function-fallback)
 (setq org-tags-sort-function #'org-string<)
+(setq org-link-descriptive nil)
 
 (setq org-directory (expand-file-name "org" user-emacs-directory))
 (setq org-agenda-files (list org-directory))
@@ -1203,13 +1202,6 @@ EXPANSION may be:
       (forward-char))
     (call-interactively #'org-insert-link-global)))
 
-(defun init-org-echo-link ()
-  "Echo org link in minibuffer."
-  (interactive)
-  (when (org-in-regexp org-link-any-re)
-    (let (message-log-max)
-      (message "%s" (match-string-no-properties 0)))))
-
 (keymap-global-set "C-c o" #'org-open-at-point-global)
 (keymap-global-set "C-c l" #'org-insert-link-global)
 
@@ -1218,8 +1210,6 @@ EXPANSION may be:
 
 (keymap-set evil-normal-state-map "<remap> <org-insert-link>" #'init-org-append-link)
 (keymap-set evil-normal-state-map "<remap> <org-insert-link-global>" #'init-org-append-link-global)
-
-(keymap-set embark-org-link-map "e" #'init-org-echo-link)
 
 (keymap-set org-mode-map "<remap> <consult-imenu>" #'consult-org-heading)
 
