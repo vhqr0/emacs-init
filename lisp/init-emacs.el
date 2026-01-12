@@ -315,8 +315,6 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
     (scroll-bar-mode 1)
     (horizontal-scroll-bar-mode 1)))
 
-(require 'windmove)
-(windmove-default-keybindings)
 (undelete-frame-mode 1)
 
 (require 'tab-bar)
