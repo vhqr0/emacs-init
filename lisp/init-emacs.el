@@ -615,7 +615,7 @@ ARG see `init-consult-search'."
 
 (setq outline-minor-mode-cycle t)
 (setq outline-minor-mode-highlight 'override)
-(setq outline-minor-mode-use-buttons 'in-margins)
+;; (setq outline-minor-mode-use-buttons 'in-margins)
 
 (defun init-outline-narrow-to-subtree ()
   "Narrow to outline subtree."
