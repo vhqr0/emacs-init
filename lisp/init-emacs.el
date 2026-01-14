@@ -320,8 +320,8 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'tab-bar)
 
 (setq tab-bar-position t)
-(setq tab-bar-tab-hints t)
-(setq tab-bar-select-tab-modifiers '(control meta))
+;; (setq tab-bar-tab-hints t)
+;; (setq tab-bar-select-tab-modifiers '(control meta))
 (setq tab-bar-close-last-tab-choice 'delete-frame)
 
 (tab-bar-mode 1)
@@ -346,8 +346,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (keymap-global-set "C--" #'text-scale-adjust)
 (keymap-global-set "C-+" #'text-scale-adjust)
 (keymap-global-set "C-=" #'text-scale-adjust)
-;; C-M-0 is used by tab-bar
-;; (keymap-global-set "C-M-0" #'global-text-scale-adjust)
+(keymap-global-set "C-M-0" #'global-text-scale-adjust)
 (keymap-global-set "C-M--" #'global-text-scale-adjust)
 (keymap-global-set "C-M-+" #'global-text-scale-adjust)
 (keymap-global-set "C-M-=" #'global-text-scale-adjust)
