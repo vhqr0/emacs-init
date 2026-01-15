@@ -807,15 +807,31 @@ With two universal ARG, edit rg command."
       (eshell-mode)
       (current-buffer))))
 
+(defun init-eshell-dwim-switch-to-buffer-split-window (buffer)
+  "Switch to BUFFER split at this window."
+  (let ((parent (window-parent (selected-window))))
+    (cond ((window-left-child parent)
+           (select-window (split-window-vertically))
+           (switch-to-buffer buffer))
+          ((window-top-child parent)
+           (select-window (split-window-horizontally))
+           (switch-to-buffer buffer))
+          (t
+           (switch-to-buffer-other-window buffer)))))
+
 (defun init-eshell-dwim (&optional arg)
   "Do open eshell smartly.
-Without universal ARG, open in other window.
-With universal ARG, open in this window."
+Without universal ARG, open in split window.
+With universal ARG, open in other window.
+With two universal ARG, open in this window."
   (interactive "P")
   (let ((buffer (init-eshell-dwim-get-buffer-create)))
-    (if arg
-        (switch-to-buffer buffer)
-      (switch-to-buffer-other-window buffer))))
+    (cond ((> (prefix-numeric-value arg) 4)
+           (switch-to-buffer buffer))
+          (arg
+           (switch-to-buffer-other-window buffer))
+          (t
+           (init-eshell-dwim-switch-to-buffer-split-window buffer)))))
 
 ;;; vc
 
