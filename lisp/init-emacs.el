@@ -394,6 +394,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'embark)
 (keymap-global-set "M-o" #'embark-act)
 (keymap-global-set "M-O" #'embark-act-all)
+(keymap-set minibuffer-mode-map "C-x C-s" #'embark-export)
 (keymap-set embark-identifier-map "%" #'query-replace)
 
 ;;;; paredit
@@ -540,8 +541,6 @@ EVENT see `input-method-function'."
 
 (keymap-unset vertico-directory-map "RET" t)
 (keymap-set vertico-directory-map "C-l" #'vertico-directory-up)
-
-(keymap-set vertico-map "C-x C-s" #'embark-export)
 
 (keymap-set vertico-map "<remap> <evil-scroll-down>" #'vertico-scroll-up)
 (keymap-set vertico-map "<remap> <evil-scroll-up>" #'vertico-scroll-down)
