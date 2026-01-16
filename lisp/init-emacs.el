@@ -261,7 +261,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'vc-git)
 
 (setq vc-handled-backends '(Git))
-(setq vc-display-status 'no-backend)
+;; (setq vc-display-status 'no-backend)
 (setq vc-make-backup-files t)
 
 (keymap-set ctl-x-x-map "v" #'vc-refresh-state)
