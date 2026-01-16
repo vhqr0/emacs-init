@@ -323,6 +323,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 ;; (setq tab-bar-tab-hints t)
 ;; (setq tab-bar-select-tab-modifiers '(control meta))
 (setq tab-bar-close-last-tab-choice 'delete-frame)
+(setq tab-bar-history-limit 20)
 
 (tab-bar-mode 1)
 (tab-bar-history-mode 1)
