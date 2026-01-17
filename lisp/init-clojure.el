@@ -75,8 +75,6 @@
 ;;; cider
 
 (require 'cider)
-(require 'cider-format)
-(require 'cider-macroexpansion)
 
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
@@ -105,15 +103,6 @@
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "<remap> <evil-lookup>" #'cider-doc))
-
-(defun init-cider-format-dwim ()
-  "Do Cider format smartly."
-  (interactive)
-  (if (use-region-p)
-      (call-interactively #'cider-format-region)
-    (call-interactively #'cider-format-buffer)))
-
-(keymap-set cider-mode-map "<remap> <init-indent-dwim>" #'init-cider-format-dwim)
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-M-q" #'cider-format-edn-last-sexp))

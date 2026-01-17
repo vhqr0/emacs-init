@@ -382,13 +382,6 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (add-hook 'text-mode-hook #'init-set-line-modes)
 (add-hook 'prog-mode-hook #'init-set-line-modes)
 
-(defun init-indent-dwim ()
-  "Do indent smartly."
-  (interactive "*")
-  (if (use-region-p)
-      (indent-region (region-beginning) (region-end))
-    (indent-region (point-min) (point-max))))
-
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
 
@@ -1400,7 +1393,7 @@ EXPANSION may be:
  "m" init-minor-prefix-map
  "$" #'ispell-word
  "%" #'query-replace-regexp
- "=" #'init-indent-dwim
+ "=" #'apheleia-format-buffer
  "+" #'delete-trailing-whitespace
  "." #'xref-find-definitions
  "?" #'xref-find-references

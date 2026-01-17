@@ -40,6 +40,7 @@
                    embark-consult
                    yasnippet
                    company
+                   apheleia
                    wgrep
                    git-modes
                    with-editor
