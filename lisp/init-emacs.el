@@ -1054,6 +1054,8 @@ EXPANSION may be:
 
 (require 'eldoc)
 (setq eldoc-minor-mode-string nil)
+(setq eldoc-echo-area-use-multiline-p nil)
+(setq eldoc-echo-area-prefer-doc-buffer t)
 (keymap-set prog-mode-map "<remap> <display-local-help>" #'eldoc-doc-buffer)
 
 (require 'xref)
