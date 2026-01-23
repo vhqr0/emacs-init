@@ -364,6 +364,11 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'hl-line)
 (require 'display-line-numbers)
 
+(defun init-toggle-trailing-whitespace ()
+  "Toggle `show-trailing-whitespace'."
+  (interactive)
+  (setq-local show-trailing-whitespace (not show-trailing-whitespace)))
+
 (defun init-toggle-line-numbers-relative ()
   "Toggle local display type of line numbers."
   (interactive)
