@@ -191,23 +191,6 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
             (if (cl-oddp i) v (kbd v)))
           clauses)))
 
-;;; initial
-
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message nil)
-
-(defvar init-disable-ui-modes
-  '(blink-cursor-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
-
-(defun init-disable-ui ()
-  "Disable various ui modes."
-  (interactive)
-  (dolist (mode init-disable-ui-modes)
-    (when (fboundp mode)
-      (funcall mode -1))))
-
-(add-hook 'after-init-hook #'init-disable-ui)
-
 ;;; files
 
 (setq column-number-mode t)
@@ -305,7 +288,22 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 (keymap-set project-prefix-map "t" #'init-project-find-test-file)
 
-;;; window
+;;; ui
+
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message nil)
+
+(defvar init-disable-ui-modes
+  '(blink-cursor-mode tool-bar-mode menu-bar-mode scroll-bar-mode))
+
+(defun init-disable-ui ()
+  "Disable various ui modes."
+  (interactive)
+  (dolist (mode init-disable-ui-modes)
+    (when (fboundp mode)
+      (funcall mode -1))))
+
+(add-hook 'after-init-hook #'init-disable-ui)
 
 (defun init-toggle-scroll-bar ()
   "Toggle scroll bar."
