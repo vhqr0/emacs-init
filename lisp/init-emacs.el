@@ -45,8 +45,7 @@
 (setq evil-want-fine-undo t)
 (setq evil-symbol-word-search t)
 
-(setq evil-goto-definition-functions
-      '(evil-goto-definition-imenu evil-goto-definition-xref))
+(setq evil-goto-definition-functions '(evil-goto-definition-xref))
 
 (setq evil-emacs-state-modes nil)
 (setq evil-insert-state-modes nil)
