@@ -1050,10 +1050,8 @@ EXPANSION may be:
 ;;;; eglot
 
 (require 'flymake)
-(require 'flymake-proc)
-(setq flymake-no-changes-timeout 1)
-(setq flymake-show-diagnostics-at-end-of-line 'short)
-(remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
+(setq flymake-no-changes-timeout 1.0)
+;; (setq flymake-show-diagnostics-at-end-of-line 'short)
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
