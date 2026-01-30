@@ -75,8 +75,6 @@
 
 ;;; commands
 
-(require 'custom)
-(require 'cus-edit)
 (require 'package)
 
 (setq package-archives
