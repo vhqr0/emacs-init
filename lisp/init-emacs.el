@@ -1280,7 +1280,7 @@ EXPANSION may be:
   (let ((char (read-char (concat prefix " C-"))))
     (if (= char ?\C-h)
         (describe-keymap (key-binding (kbd prefix)))
-      (let ((literal (= char ? ))
+      (let ((literal (= char ?\s))
             new-prefix binding)
         (when literal
           (setq char (read-char prefix)))
