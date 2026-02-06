@@ -275,6 +275,19 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (setq project-switch-use-entire-map t)
 (setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
 
+(defun init-project-switch-to-compile ()
+  "Switch to project compilation buffer."
+  (interactive)
+  (let ((default-directory (project-root (project-current t)))
+        (compilation-buffer-name-function
+         (or project-compilation-buffer-name-function
+             compilation-buffer-name-function)))
+    (if-let* ((buffer (get-buffer (compilation-buffer-name "compilation" nil nil))))
+        (switch-to-buffer buffer)
+      (user-error "No project compilation buffer found"))))
+
+(keymap-set project-prefix-map "C" #'init-project-switch-to-compile)
+
 (defvar-local init-find-test-file-function nil)
 
 (defun init-project-find-test-file ()
@@ -715,7 +728,19 @@ ARG see `init-consult-search'."
 
 (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
-(keymap-set project-prefix-map "C" #'project-recompile)
+(defun init-add-recompile-button (_proc)
+  "Add recompile button in compilation buffer."
+  (let (buffer-read-only)
+    (save-excursion
+      (goto-char (point-min))
+      (goto-char (line-end-position))
+      (newline 2)
+      (insert-button
+       (format "recompile: %s" (car compilation-arguments))
+       'action (lambda (_ov) (recompile t)))
+      (newline))))
+
+(add-hook 'compilation-start-hook #'init-add-recompile-button)
 
 ;;;; grep
 
