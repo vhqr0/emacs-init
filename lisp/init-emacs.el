@@ -734,11 +734,10 @@ ARG see `init-consult-search'."
     (save-excursion
       (goto-char (point-min))
       (goto-char (line-end-position))
-      (newline 2)
+      (newline)
       (insert-button
        (format "recompile: %s" (car compilation-arguments))
-       'action (lambda (_ov) (recompile t)))
-      (newline))))
+       'action (lambda (_ov) (recompile t))))))
 
 (add-hook 'compilation-start-hook #'init-add-recompile-button)
 
