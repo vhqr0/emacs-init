@@ -408,6 +408,27 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (keymap-set minibuffer-mode-map "C-x C-s" #'embark-export)
 (keymap-set embark-identifier-map "%" #'query-replace)
 
+(defun init-convert-timestamp-dwim (ts)
+  "Convert TS to time string dwim.
+Support posix seconds and milliseconds timestamp from 2001 to 2286."
+  (cond
+   ((<= 1000000000 ts 9999999999)
+    (format-time-string "%Z %Y-%m-%d %H:%M:%S" ts))
+   ((<= 1000000000000 ts 9999999999999)
+    (let ((ts (list 0 (/ ts 1000) (* 1000 (% ts 1000)) 0)))
+      (format-time-string "%Z %Y-%m-%d %H:%M:%S:%3N" ts)))))
+
+(defun init-echo-timestamp-dwim ()
+  "Echo timestamp at point dwim."
+  (interactive)
+  (if-let* ((ts (thing-at-point 'number)))
+      (if-let* ((s (init-convert-timestamp-dwim ts)))
+          (message s)
+        (user-error "Not a timestamp"))
+    (user-error "No number at point")))
+
+(keymap-set embark-identifier-map "t" #'init-echo-timestamp-dwim)
+
 ;;;; paredit
 
 (require 'elec-pair)
