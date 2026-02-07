@@ -1124,12 +1124,18 @@ EXPANSION may be:
 (setq eldoc-echo-area-prefer-doc-buffer t)
 (keymap-set prog-mode-map "<remap> <display-local-help>" #'eldoc-doc-buffer)
 
+(defun init-switch-to-doc-buffer-other-window ()
+  "Switch to eldoc buffer other window."
+  (interactive)
+  (eldoc-print-current-symbol-info)
+  (switch-to-buffer-other-window (eldoc-doc-buffer)))
+
 (require 'xref)
 (setq xref-search-program 'ripgrep)
 
 (require 'eglot)
 (setq eglot-extend-to-xref t)
-(keymap-set eglot-mode-map "<remap> <evil-lookup>" #'eldoc-doc-buffer)
+(keymap-set eglot-mode-map "<remap> <evil-lookup>" #'init-switch-to-doc-buffer-other-window)
 
 ;;; elisp
 
@@ -1191,6 +1197,8 @@ EXPANSION may be:
   (keymap-set map "C-c C-z" #'init-ielm-other-window))
 
 ;;;; help
+
+(setq help-window-select t)
 
 (keymap-set help-map "B" #'describe-keymap)
 (keymap-set help-map "p" #'describe-package)
