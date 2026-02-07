@@ -42,6 +42,12 @@
 
 (setq evil-mode-line-format '(before . mode-line-front-space))
 
+(setq evil-emacs-state-tag    (propertize " <E> " 'face 'highlight))
+(setq evil-insert-state-tag   (propertize " <I> " 'face 'highlight))
+(setq evil-replace-state-tag  (propertize " <R> " 'face 'highlight))
+(setq evil-visual-state-tag   (propertize " <V> " 'face 'highlight))
+(setq evil-operator-state-tag (propertize " <O> " 'face 'highlight))
+
 (setq evil-want-fine-undo t)
 (setq evil-symbol-word-search t)
 
