@@ -414,12 +414,12 @@ Support:
 - seconds and milliseconds duration in one day.
 - seconds and milliseconds posix timestamp from 2001 to 2286."
   (cond
-   ((<= 3600 ts 86400)
+   ((<= 90 ts 86400)
     (format "%02d:%02d:%02d"
             (/ ts 3600)
             (% (/ ts 60) 60)
             (% ts 60)))
-   ((<= 3600000 ts 86400000)
+   ((<= 90000 ts 86400000)
     (format "%02d:%02d:%02d:%03d"
             (/ ts 3600000)
             (% (/ ts 60000) 60)
