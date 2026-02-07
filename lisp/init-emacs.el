@@ -410,8 +410,21 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 (defun init-convert-timestamp-dwim (ts)
   "Convert TS to time string dwim.
-Support posix seconds and milliseconds timestamp from 2001 to 2286."
+Support:
+- seconds and milliseconds duration in one day.
+- seconds and milliseconds posix timestamp from 2001 to 2286."
   (cond
+   ((<= 3600 ts 86400)
+    (format "%02d:%02d:%02d"
+            (/ ts 3600)
+            (% (/ ts 60) 60)
+            (% ts 60)))
+   ((<= 3600000 ts 86400000)
+    (format "%02d:%02d:%02d:%03d"
+            (/ ts 3600000)
+            (% (/ ts 60000) 60)
+            (% (/ ts 1000) 60)
+            (% ts 1000)))
    ((<= 1000000000 ts 9999999999)
     (format-time-string "%Z %Y-%m-%d %H:%M:%S" ts))
    ((<= 1000000000000 ts 9999999999999)
