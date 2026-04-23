@@ -113,8 +113,17 @@
 
 (add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
 
-(add-to-list 'consult-mode-histories
-             '(cider-repl-mode cider-repl-input-history cider-repl-input-history-position cider-repl-bol-mark))
+(defun init-counsel-cider-repl-history ()
+  "Browse Cider REPL history."
+  (interactive)
+  (setq ivy-completion-beg (point))
+  (setq ivy-completion-end (point))
+  (ivy-read "History: " (ivy-history-contents cider-repl-input-history)
+            :keymap ivy-reverse-i-search-map
+            :action #'counsel--browse-history-action
+            :caller #'init-counsel-cider-repl-history))
+
+(keymap-set cider-repl-mode-map "<remap> <init-ivy-history-placeholder>" #'init-counsel-cider-repl-history)
 
 (provide 'init-clojure)
 ;;; init-clojure.el ends here

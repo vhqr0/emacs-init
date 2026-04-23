@@ -408,12 +408,6 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
 
-(require 'embark)
-(keymap-global-set "M-o" #'embark-act)
-(keymap-global-set "M-O" #'embark-act-all)
-(keymap-set minibuffer-mode-map "C-x C-s" #'embark-export)
-(keymap-set embark-identifier-map "%" #'query-replace)
-
 (defun init-convert-timestamp-dwim (ts)
   "Convert TS to time string dwim.
 Support:
@@ -445,8 +439,6 @@ Support:
           (message s)
         (user-error "Not a timestamp"))
     (user-error "No number at point")))
-
-(keymap-set embark-identifier-map "t" #'init-echo-timestamp-dwim)
 
 ;;;; paredit
 
@@ -544,17 +536,10 @@ EVENT see `input-method-function'."
 
 ;;; minibuffer
 
-(require 'savehist)
-(require 'orderless)
-(require 'marginalia)
-
 (setq enable-recursive-minibuffers t)
 (setq completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
 (setq read-file-name-completion-ignore-case t)
-(setq completion-styles '(orderless basic))
-(setq completion-category-defaults nil)
-(setq completion-category-overrides nil)
 (setq read-extended-command-predicate #'command-completion-default-include-p)
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
@@ -562,101 +547,74 @@ EVENT see `input-method-function'."
 (init-evil-keymap-set 'normal minibuffer-local-map
   "<escape>" #'abort-recursive-edit)
 
+(require 'savehist)
+
 (savehist-mode 1)
-(marginalia-mode 1)
 
-;;;; vertico
+;;;; ivy
 
-(defvar vertico-mode-map (make-sparse-keymap))
+(require 'amx)
+(require 'ivy)
+(require 'swiper)
+(require 'counsel)
 
-(require 'vertico)
-(require 'vertico-multiform)
-(require 'vertico-repeat)
-(require 'vertico-suspend)
-(require 'vertico-directory)
+(setq ivy-count-format "(%d/%d) ")
+(setq ivy-use-virtual-buffers t)
 
-(setq vertico-resize nil)
+(amx-mode 1)
+(ivy-mode 1)
+(counsel-mode 1)
 
-(setq vertico-multiform-categories
-      '((file (:keymap . vertico-directory-map))))
+(keymap-set ivy-mode-map "C-c b" #'ivy-resume)
 
-(vertico-mode 1)
-(vertico-multiform-mode 1)
+(define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
 
-(add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+(keymap-set ivy-minibuffer-map "<remap> <quit-window>" #'abort-recursive-edit)
+(keymap-set ivy-minibuffer-map "<remap> <evil-scroll-down>" #'ivy-scroll-up-command)
+(keymap-set ivy-minibuffer-map "<remap> <evil-scroll-up>" #'ivy-scroll-down-command)
+(keymap-set ivy-minibuffer-map "<remap> <evil-next-line>" #'ivy-next-line)
+(keymap-set ivy-minibuffer-map "<remap> <evil-previous-line>" #'ivy-previous-line)
+(keymap-set ivy-minibuffer-map "<remap> <evil-next-visual-line>" #'ivy-next-line)
+(keymap-set ivy-minibuffer-map "<remap> <evil-previous-visual-line>" #'ivy-previous-line)
+(keymap-set ivy-minibuffer-map "<remap> <evil-goto-first-line>" #'ivy-beginning-of-buffer)
+(keymap-set ivy-minibuffer-map "<remap> <evil-goto-line>" #'ivy-end-of-buffer)
 
-(keymap-set vertico-mode-map "C-c b" #'vertico-repeat)
-(keymap-set vertico-mode-map "C-c z" #'vertico-suspend)
+(keymap-set counsel-find-file-map "C-l" #'counsel-up-directory)
 
-(add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
+(keymap-set counsel-mode-map "<remap> <recentf-open>" #'counsel-recentf)
+(keymap-set counsel-mode-map "<remap> <company-search-candidates>" #'counsel-company)
 
-(keymap-unset vertico-directory-map "RET" t)
-(keymap-set vertico-directory-map "C-l" #'vertico-directory-up)
+(defun init-search (&optional initial-input)
+  "Search things dwim with optional INITIAL-INPUT."
+  (interactive)
+  (let ((arg (prefix-numeric-value current-prefix-arg)))
+    (if (>= arg 4)
+        (progn
+          (setq current-prefix-arg (- arg 4))
+          (counsel-rg initial-input))
+      (swiper initial-input))))
 
-(keymap-set vertico-map "<remap> <evil-scroll-down>" #'vertico-scroll-up)
-(keymap-set vertico-map "<remap> <evil-scroll-up>" #'vertico-scroll-down)
-(keymap-set vertico-map "<remap> <evil-next-line>" #'vertico-next)
-(keymap-set vertico-map "<remap> <evil-previous-line>" #'vertico-previous)
-(keymap-set vertico-map "<remap> <evil-next-visual-line>" #'vertico-next)
-(keymap-set vertico-map "<remap> <evil-previous-visual-line>" #'vertico-previous)
-(keymap-set vertico-map "<remap> <evil-goto-first-line>" #'vertico-first)
-(keymap-set vertico-map "<remap> <evil-goto-line>" #'vertico-last)
+(defun init-search-at-point ()
+  "Search things at point dwim."
+  (interactive)
+  (init-search (thing-at-point 'symbol)))
 
-;;; search
+(keymap-global-set "C-s" #'init-search-at-point)
+(keymap-set search-map "s" #'init-search)
 
-(require 'consult)
-(require 'consult-imenu)
+(defun init-ivy-history-placeholder ()
+  "Placeholder for ivy history."
+  (interactive)
+  (user-error "No history function for this major mode"))
 
-(setq consult-preview-key '(:debounce 0.2 any))
+(keymap-set evil-insert-state-map "M-r" #'init-ivy-history-placeholder)
 
-(setq completion-in-region-function #'consult-completion-in-region)
-
-(keymap-set evil-insert-state-map "M-r" #'consult-history)
-
-(defvar-keymap init-consult-override-mode-map)
-
-(define-minor-mode init-consult-override-mode
-  "Override consult commands."
-  :group 'init-consult
-  :global t
-  :init-value t
-  :keymap init-consult-override-mode-map)
-
-(keymap-set init-consult-override-mode-map "<remap> <yank>" #'consult-yank-from-kill-ring)
-(keymap-set init-consult-override-mode-map "<remap> <yank-pop>" #'consult-yank-pop)
-(keymap-set init-consult-override-mode-map "<remap> <goto-line>" #'consult-goto-line)
-
-(setq consult-line-start-from-top t)
-
-(define-advice consult-line (:after (&rest _) set-history)
-  (let ((pattern (car consult--line-history)))
-    (setq evil-ex-search-pattern (list pattern t t))
-    (evil-ex-search-activate-highlight evil-ex-search-pattern)))
-
-(defun init-consult-search (&optional arg initial)
-  "Consult search with INITIAL.
-Without universal ARG, search in this buffer with `consult-line'.
-With one universal ARG, search in project directory with `consult-ripgrep'.
-With two universal ARG, prompt for directory to search with `consult-ripgrep'."
-  (interactive "P")
-  (cond ((> (prefix-numeric-value arg) 4)
-         (setq this-command #'consult-ripgrep)
-         (consult-ripgrep t initial))
-        (arg
-         (setq this-command #'consult-ripgrep)
-         (consult-ripgrep nil initial))
-        (t
-         (setq this-command #'consult-line)
-         (consult-line initial))))
-
-(defun init-consult-search-dwim (&optional arg)
-  "Consult search dwim.
-ARG see `init-consult-search'."
-  (interactive "P")
-  (init-consult-search arg (thing-at-point 'symbol)))
-
-(keymap-set search-map "s" #'init-consult-search)
-(keymap-global-set "C-s" #'init-consult-search-dwim)
+(keymap-set ivy-minibuffer-map "<remap> <init-ivy-history-placeholder>" #'ivy-reverse-i-search)
+(keymap-set minibuffer-local-map "<remap> <init-ivy-history-placeholder>" #'counsel-minibuffer-history)
+(with-eval-after-load 'comint
+  (keymap-set comint-mode-map "<remap> <init-ivy-history-placeholder>" #'counsel-shell-history))
+(with-eval-after-load 'esh-mode
+  (keymap-set eshell-mode-map "<remap> <init-ivy-history-placeholder>" #'counsel-esh-history))
 
 ;;; outline
 
@@ -1223,9 +1181,6 @@ EXPANSION may be:
 
 (keymap-set help-map "t" init-load-map)
 
-(consult-customize consult-theme :preview-key '(:debounce 0.5 any))
-(keymap-set init-consult-override-mode-map "<remap> <load-theme>" #'consult-theme)
-
 (defun init-describe-symbol-dwim ()
   "Describe symbol at point."
   (interactive)
@@ -1239,7 +1194,6 @@ EXPANSION may be:
 (require 'org-macs)
 (require 'org-agenda)
 (require 'org-capture)
-(require 'consult-org)
 
 (add-to-list 'org-modules 'org-id)
 (add-to-list 'org-modules 'org-mouse)
@@ -1292,8 +1246,6 @@ EXPANSION may be:
 
 (keymap-set evil-normal-state-map "<remap> <org-insert-link>" #'init-org-append-link)
 (keymap-set evil-normal-state-map "<remap> <org-insert-link-global>" #'init-org-append-link-global)
-
-(keymap-set org-mode-map "<remap> <consult-imenu>" #'consult-org-heading)
 
 (keymap-set org-mode-map "C-c C-'" #'org-edit-special)
 (keymap-set org-src-mode-map "C-c C-'" #'org-edit-src-exit)
@@ -1423,7 +1375,7 @@ EXPANSION may be:
   "E" #'flymake-show-project-diagnostics)
 
 (init-leader-set
- "SPC" #'consult-buffer
+ "SPC" #'switch-to-buffer
  "\\" #'init-magic-shift
  "TAB" #'init-magic-shift
  "c" #'init-magic-C-c
@@ -1450,7 +1402,6 @@ EXPANSION may be:
  "W" #'org-store-link
  "O" #'org-open-at-point-global
  "L" #'org-insert-link-global
- "T" #'consult-org-agenda
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
@@ -1467,6 +1418,7 @@ EXPANSION may be:
  "n" narrow-map
  "a" abbrev-map
  "m" init-minor-prefix-map
+ "T" #'init-echo-timestamp-dwim
  "$" #'ispell-word
  "%" #'query-replace-regexp
  "=" #'apheleia-format-buffer
@@ -1474,8 +1426,8 @@ EXPANSION may be:
  "." #'xref-find-definitions
  "?" #'xref-find-references
  "," #'xref-go-back
- "i" #'consult-imenu
- "l" #'consult-outline
+ "i" #'imenu
+ "l" #'counsel-outline
  "(" #'init-wrap-pair
  "[" #'init-wrap-pair
  "{" #'init-wrap-pair

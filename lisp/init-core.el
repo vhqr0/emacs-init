@@ -31,13 +31,12 @@
 (defvar init-deps
   '((init-emacs . (evil
                    evil-surround
-                   embark
                    paredit
-                   orderless
-                   marginalia
-                   vertico
-                   consult
-                   embark-consult
+                   amx
+                   ivy
+                   ivy-hydra
+                   swiper
+                   counsel
                    yasnippet
                    company
                    apheleia
