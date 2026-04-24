@@ -124,6 +124,7 @@
             :caller #'init-counsel-cider-repl-history))
 
 (keymap-set cider-repl-mode-map "<remap> <init-ivy-history-placeholder>" #'init-counsel-cider-repl-history)
+(keymap-set cider-mode-map "<remap> <init-ivy-history-placeholder>" #'init-counsel-cider-repl-history)
 
 (provide 'init-clojure)
 ;;; init-clojure.el ends here
