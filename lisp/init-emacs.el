@@ -561,6 +561,9 @@ EVENT see `input-method-function'."
 (setq ivy-count-format "(%d/%d) ")
 (setq ivy-use-virtual-buffers t)
 
+(setcdr (assq 'ivy-mode minor-mode-alist) '(""))
+(setcdr (assq 'counsel-mode minor-mode-alist) '(""))
+
 (amx-mode 1)
 (ivy-mode 1)
 (counsel-mode 1)
