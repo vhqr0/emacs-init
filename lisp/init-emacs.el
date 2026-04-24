@@ -411,6 +411,9 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'avy)
 (avy-setup-default)
 (keymap-global-set "C-'" #'avy-goto-char-timer)
+(keymap-set evil-motion-state-map "g j" #'avy-goto-line-below)
+(keymap-set evil-motion-state-map "g k" #'avy-goto-line-above)
+(evil-define-minor-mode-key 'motion 'visual-line-mode "gj" nil "gk" nil)
 
 (defun init-convert-timestamp-dwim (ts)
   "Convert TS to time string dwim.
