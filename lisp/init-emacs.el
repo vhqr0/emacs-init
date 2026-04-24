@@ -409,6 +409,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (add-hook 'after-init-hook #'repeat-mode)
 
 (require 'avy)
+(setq avy-background t)
 (avy-setup-default)
 (keymap-global-set "C-'" #'avy-goto-char-timer)
 (keymap-set goto-map "j" #'avy-goto-line-below)
