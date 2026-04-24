@@ -32,8 +32,11 @@
   '((init-emacs . (evil
                    evil-surround
                    paredit
+                   avy
+                   hydra
                    amx
                    ivy
+                   ivy-avy
                    ivy-hydra
                    swiper
                    counsel

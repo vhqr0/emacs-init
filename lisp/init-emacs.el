@@ -408,6 +408,10 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
 
+(require 'avy)
+(avy-setup-default)
+(keymap-global-set "C-'" #'avy-goto-char-timer)
+
 (defun init-convert-timestamp-dwim (ts)
   "Convert TS to time string dwim.
 Support:
@@ -557,6 +561,8 @@ EVENT see `input-method-function'."
 
 (require 'amx)
 (require 'ivy)
+(require 'ivy-hydra)
+(require 'ivy-avy)
 (require 'swiper)
 (require 'counsel)
 
