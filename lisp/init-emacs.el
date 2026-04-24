@@ -581,8 +581,6 @@ EVENT see `input-method-function'."
 (keymap-set ivy-minibuffer-map "<remap> <evil-goto-first-line>" #'ivy-beginning-of-buffer)
 (keymap-set ivy-minibuffer-map "<remap> <evil-goto-line>" #'ivy-end-of-buffer)
 
-(keymap-set counsel-find-file-map "C-l" #'counsel-up-directory)
-
 (keymap-set counsel-mode-map "<remap> <recentf-open>" #'counsel-recentf)
 (keymap-set counsel-mode-map "<remap> <company-search-candidates>" #'counsel-company)
 
