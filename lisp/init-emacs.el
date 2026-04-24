@@ -931,8 +931,6 @@ With two universal ARG, open in this window."
 
 (require 'magit)
 
-(keymap-set project-prefix-map "v" #'magit-project-status)
-
 (keymap-set magit-mode-map "<remap> <quit-window>" #'magit-mode-bury-buffer)
 
 (evil-set-initial-state 'magit-mode 'normal)
@@ -1421,9 +1419,7 @@ EXPANSION may be:
  "5" ctl-x-5-map
  "t" tab-prefix-map
  "p" project-prefix-map
- ;; "v" vc-prefix-map
- "v" #'magit-file-dispatch
- "V" #'magit-dispatch
+ "v" vc-prefix-map
  "x" ctl-x-x-map
  "r" ctl-x-r-map
  "h" help-map
