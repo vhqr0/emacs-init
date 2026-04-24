@@ -570,8 +570,7 @@ EVENT see `input-method-function'."
 
 (keymap-set ivy-mode-map "C-c b" #'ivy-resume)
 
-(define-key ivy-minibuffer-map (kbd "C-x C-s") #'ivy-occur)
-
+(keymap-set ivy-minibuffer-map "<remap> <save-buffer>" #'ivy-occur)
 (keymap-set ivy-minibuffer-map "<remap> <quit-window>" #'abort-recursive-edit)
 (keymap-set ivy-minibuffer-map "<remap> <evil-scroll-down>" #'ivy-scroll-up-command)
 (keymap-set ivy-minibuffer-map "<remap> <evil-scroll-up>" #'ivy-scroll-down-command)
