@@ -436,7 +436,9 @@ Support:
   (interactive)
   (if-let* ((ts (thing-at-point 'number)))
       (if-let* ((s (init-convert-timestamp-dwim ts)))
-          (message s)
+          (progn
+            (kill-new s)
+            (message s))
         (user-error "Not a timestamp"))
     (user-error "No number at point")))
 
