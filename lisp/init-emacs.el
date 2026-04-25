@@ -616,19 +616,17 @@ EVENT see `input-method-function'."
 (keymap-global-set "C-s" #'init-search-at-point)
 (keymap-set search-map "s" #'init-search)
 
-(defun init-ivy-history-placeholder ()
-  "Placeholder for ivy history."
+(defun init-history-placeholder ()
+  "Search history command placeholder."
   (interactive)
-  (user-error "No history function for this major mode"))
+  (user-error "No history command available"))
 
-(keymap-set evil-insert-state-map "M-r" #'init-ivy-history-placeholder)
+(keymap-set evil-insert-state-map "M-r" #'init-history-placeholder)
 
-(keymap-set ivy-minibuffer-map "<remap> <init-ivy-history-placeholder>" #'ivy-reverse-i-search)
-(keymap-set minibuffer-local-map "<remap> <init-ivy-history-placeholder>" #'counsel-minibuffer-history)
-(with-eval-after-load 'comint
-  (keymap-set comint-mode-map "<remap> <init-ivy-history-placeholder>" #'counsel-shell-history))
-(with-eval-after-load 'esh-mode
-  (keymap-set eshell-mode-map "<remap> <init-ivy-history-placeholder>" #'counsel-esh-history))
+(keymap-set ivy-minibuffer-map "<remap> <init-history-placeholder>" #'ivy-reverse-i-search)
+(keymap-set minibuffer-local-map "<remap> <init-history-placeholder>" #'counsel-minibuffer-history)
+(with-eval-after-load 'comint (keymap-set comint-mode-map "<remap> <init-history-placeholder>" #'counsel-shell-history))
+(with-eval-after-load 'esh-mode (keymap-set eshell-mode-map "<remap> <init-history-placeholder>" #'counsel-esh-history))
 
 ;;; outline
 

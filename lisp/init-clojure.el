@@ -101,18 +101,6 @@
 (dolist (mode '(clojurec-mode clojure-mode clojurescript-mode))
   (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
 
-(dolist (map (list cider-mode-map cider-repl-mode-map))
-  (keymap-set map "<remap> <evil-lookup>" #'cider-doc))
-
-(dolist (map (list cider-mode-map cider-repl-mode-map))
-  (keymap-set map "C-M-q" #'cider-format-edn-last-sexp))
-
-(defun init-cider-repl-set-xref ()
-  "Set Xref backend for Cider REPL."
-  (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
-
-(add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
-
 (defun init-counsel-cider-repl-history ()
   "Browse Cider REPL history."
   (interactive)
@@ -123,8 +111,16 @@
             :action #'counsel--browse-history-action
             :caller #'init-counsel-cider-repl-history))
 
-(keymap-set cider-repl-mode-map "<remap> <init-ivy-history-placeholder>" #'init-counsel-cider-repl-history)
-(keymap-set cider-mode-map "<remap> <init-ivy-history-placeholder>" #'init-counsel-cider-repl-history)
+(dolist (map (list cider-mode-map cider-repl-mode-map))
+  (keymap-set map "C-M-q" #'cider-format-edn-last-sexp)
+  (keymap-set map "<remap> <evil-lookup>" #'cider-doc)
+  (keymap-set map "<remap> <init-history-placeholder>" #'init-counsel-cider-repl-history))
+
+(defun init-cider-repl-set-xref ()
+  "Set Xref backend for Cider REPL."
+  (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
+
+(add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
 
 (provide 'init-clojure)
 ;;; init-clojure.el ends here
