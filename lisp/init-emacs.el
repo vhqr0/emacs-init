@@ -930,6 +930,7 @@ With two universal ARG, open in this window."
 ;;;; magit
 
 (require 'magit)
+(require 'magit-extras)
 
 (keymap-set magit-mode-map "<remap> <quit-window>" #'magit-mode-bury-buffer)
 
