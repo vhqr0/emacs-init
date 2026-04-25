@@ -1395,6 +1395,7 @@ EXPANSION may be:
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
+ "y" #'yank-pop
  ";" #'eval-expression
  "!" #'shell-command
  "&" #'async-shell-command
