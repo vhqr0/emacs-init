@@ -33,22 +33,49 @@
   "Return clojure file extensions, given EXTENSION first."
   (cons extension (remove extension init-clojure-extensions)))
 
+;; (init-clojure-extensions "clj") => '("clj" "cljc" "cljs")
+;; (init-clojure-extensions "cljc") => '("cljc" "clj" "cljs")
+
+(defun init-clojure-file-with-extensions (file)
+  "Return clojure files with different extension, given FILE first."
+  (let ((base (file-name-sans-extension file))
+        (extension (file-name-extension file)))
+    (thread-last
+      (init-clojure-extensions extension)
+      (seq-map (lambda (extension) (concat base "." extension))))))
+
+;; (init-clojure-file-with-extensions "foo/bar.clj")
+;; => '("foo/bar.clj" "foo/bar.cljc" "foo/bar.cljs")
+;; (init-clojure-file-with-extensions "foo/bar.cljc")
+;; => '("foo/bar.cljc" "foo/bar.clj" "foo/bar.cljs")
+
 (defun init-clojure-test-file (file)
   "Convert FILE to test file with same extension."
-  (cond
-   ((string-match "^src/\\(.*\\)\\(\\.clj.?\\)$" file)
-    (concat "test/" (match-string 1 file) "_test" (match-string 2 file)))
-   ((string-match "^test/\\(.*\\)_test\\(\\.clj.?\\)$" file)
-    (concat "src/" (match-string 1 file) (match-string 2 file)))))
+  (let ((file (concat "/" file)))
+    (cond
+     ((string-match "\\(.*?\\)/src/\\(.*\\)\\(\\.clj.?\\)$" file)
+      (thread-first
+        (concat (match-string 1 file) "/test/" (match-string 2 file) "_test" (match-string 3 file))
+        (substring 1)))
+     ((string-match "\\(.*?\\)/test/\\(.*\\)_test\\(\\.clj.?\\)$" file)
+      (thread-first
+        (concat (match-string 1 file) "/src/" (match-string 2 file) (match-string 3 file))
+        (substring 1))))))
+
+;; (init-clojure-test-file "src/foo/bar.clj") => "test/foo/bar_test.clj"
+;; (init-clojure-test-file "test/foo/bar_test.clj") => "src/foo/bar.clj"
+;; (init-clojure-test-file "clojure/src/foo/bar.clj") => "clojure/test/foo/bar_test.clj"
+;; (init-clojure-test-file "clojure/test/foo/bar_test.clj") => "clojure/src/foo/bar.clj"
 
 (defun init-clojure-test-files (file)
   "Convert FILE to test files, with possible extensions."
   (when-let* ((file (init-clojure-test-file file)))
-    (let ((base (file-name-sans-extension file))
-          (extension (file-name-extension file)))
-      (seq-map
-       (lambda (extension) (concat base "." extension))
-       (init-clojure-extensions extension)))))
+    (init-clojure-file-with-extensions file)))
+
+;; (init-clojure-test-files "src/foo/bar.clj")
+;; => '("test/foo/bar_test.clj" "test/foo/bar_test.cljc" "test/foo/bar_test.cljs")
+;; (init-clojure-test-files "test/foo/bar_test.cljc")
+;; => '("src/foo/bar.cljc" "src/foo/bar.clj" "src/foo/bar.cljs")
 
 (defun init-clojure-find-test-file ()
   "Find test file of current buffer."
