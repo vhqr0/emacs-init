@@ -595,6 +595,9 @@ EVENT see `input-method-function'."
 (init-evil-keymap-set 'normal ivy-minibuffer-map
   "C-o" #'hydra-ivy/body)
 
+(keymap-set ivy-occur-mode-map "<remap> <revert-buffer-quick>" #'ivy-occur-revert-buffer)
+(keymap-set ivy-occur-mode-map "<remap> <revert-buffer>" #'ivy-occur-revert-buffer)
+
 (keymap-set counsel-mode-map "<remap> <recentf-open>" #'counsel-recentf)
 (keymap-set counsel-mode-map "<remap> <company-search-candidates>" #'counsel-company)
 
