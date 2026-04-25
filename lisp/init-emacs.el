@@ -957,9 +957,9 @@ With two universal ARG, open in this window."
 (keymap-set magit-blob-mode-map "M-n" #'magit-blob-next)
 (keymap-set magit-blob-mode-map "M-p" #'magit-blob-previous)
 
-(keymap-set magit-blame-mode-map "<remap> <quit-window>" #'magit-blame-quit)
-(keymap-set magit-blame-mode-map "M-n" #'magit-blame-next-chunk)
-(keymap-set magit-blame-mode-map "M-p" #'magit-blame-previous-chunk)
+(keymap-set magit-blame-read-only-mode-map "<remap> <quit-window>" #'magit-blame-quit)
+(keymap-set magit-blame-read-only-mode-map "M-n" #'magit-blame-next-chunk)
+(keymap-set magit-blame-read-only-mode-map "M-p" #'magit-blame-previous-chunk)
 
 ;;; prog
 
