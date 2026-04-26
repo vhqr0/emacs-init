@@ -655,7 +655,7 @@ EVENT see `input-method-function'."
 
 ;;; occur
 
-(keymap-set occur-mode-map "C-c C-e" #'occur-edit-mode)
+(keymap-set occur-mode-map "C-c C-p" #'occur-edit-mode)
 (evil-set-initial-state 'occur-edit-mode 'normal)
 
 ;;; dired
@@ -672,7 +672,7 @@ EVENT see `input-method-function'."
 (keymap-set ctl-x-4-map "j" #'dired-jump-other-window)
 (keymap-set project-prefix-map "j" #'project-dired)
 
-(keymap-set dired-mode-map "C-c C-e" #'wdired-change-to-wdired-mode)
+(keymap-set dired-mode-map "C-c C-p" #'wdired-change-to-wdired-mode)
 
 (init-evil-keymap-set 'normal dired-mode-map
   "j" #'dired-next-line
