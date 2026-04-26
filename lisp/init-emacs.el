@@ -1247,7 +1247,6 @@ EXPANSION may be:
 ;;; markdown
 
 (require 'markdown-mode)
-(require 'edit-indirect)
 
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
