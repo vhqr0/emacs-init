@@ -628,8 +628,6 @@ EVENT see `input-method-function'."
 
 (keymap-set ivy-minibuffer-map "<remap> <init-history-placeholder>" #'ivy-reverse-i-search)
 (keymap-set minibuffer-local-map "<remap> <init-history-placeholder>" #'counsel-minibuffer-history)
-(with-eval-after-load 'comint (keymap-set comint-mode-map "<remap> <init-history-placeholder>" #'counsel-shell-history))
-(with-eval-after-load 'esh-mode (keymap-set eshell-mode-map "<remap> <init-history-placeholder>" #'counsel-esh-history))
 
 ;;; outline
 
@@ -800,6 +798,8 @@ With two universal ARG, edit rg command."
 
 (add-hook 'comint-mode-hook #'init-comint-set-outline)
 
+(keymap-set comint-mode-map "<remap> <init-history-placeholder>" #'counsel-shell-history)
+
 ;;;; eshell
 
 (require 'eshell)
@@ -817,6 +817,8 @@ With two universal ARG, edit rg command."
   (setq-local outline-level (lambda () 1)))
 
 (add-hook 'eshell-mode-hook #'init-eshell-set-outline)
+
+(keymap-set eshell-mode-map "<remap> <init-history-placeholder>" #'counsel-esh-history)
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
 
