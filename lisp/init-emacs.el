@@ -1188,12 +1188,10 @@ EXPANSION may be:
 (keymap-set help-map "5 V" #'find-variable-other-frame)
 (keymap-set help-map "5 K" #'find-function-on-key-other-frame)
 
-(defvar-keymap init-load-map
-  "f" #'load-file
-  "l" #'load-library
-  "t" #'load-theme)
-
-(keymap-set help-map "t" init-load-map)
+(keymap-unset help-map "t" t)
+(keymap-set help-map "t f" #'load-file)
+(keymap-set help-map "t l" #'load-library)
+(keymap-set help-map "t t" #'load-theme)
 
 (defun init-describe-symbol-dwim ()
   "Describe symbol at point."
