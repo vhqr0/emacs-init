@@ -595,6 +595,14 @@ EVENT see `input-method-function'."
 (init-evil-keymap-set 'normal ivy-minibuffer-map
   "C-o" #'hydra-ivy/body)
 
+(defun init-ivy-up-directory ()
+  "Ivy up directory."
+  (interactive)
+  (when ivy--directory
+    (funcall #'counsel-up-directory)))
+
+(keymap-set ivy-minibuffer-map "C-l" #'init-ivy-up-directory)
+
 (keymap-set ivy-occur-mode-map "<remap> <revert-buffer-quick>" #'ivy-occur-revert-buffer)
 (keymap-set ivy-occur-mode-map "<remap> <revert-buffer>" #'ivy-occur-revert-buffer)
 
