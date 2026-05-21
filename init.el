@@ -1,11 +1,34 @@
-;;; init-emacs.el --- Init Emacs -*- lexical-binding: t; no-native-compile: t -*-
+;;; init.el --- Init Emacs -*- lexical-binding: t; no-native-compile: t -*-
 
 ;;; Commentary:
-;; Various init configuration for Emacs itself.
-
-(require 'init-core)
+;; My Emacs configuration.
 
 ;;; Code:
+
+;;; essentials
+
+(defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
+(defvar priv-directory (expand-file-name "emacs-priv" user-emacs-directory))
+
+(setq load-prefer-newer t)
+
+(setq gc-cons-percentage 0.2)
+(setq gc-cons-threshold (* 64 1024 1024))
+
+(setq read-process-output-max (* 1024 1024))
+
+(setq system-time-locale "C")
+
+(prefer-coding-system 'utf-8)
+
+(require 'package)
+
+(setq package-archives
+      '(("gnu"    . "https://elpa.gnu.org/packages/")
+        ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+        ("melpa"  . "https://melpa.org/packages/")))
+
+;; (setq package-quickstart t)
 
 ;;; evil
 
@@ -1210,6 +1233,165 @@ EXPANSION may be:
 
 (setq evil-lookup-func #'init-describe-symbol-dwim)
 
+;;; clojure
+
+(require 'clojure-mode)
+
+(add-hook 'clojure-mode-hook #'init-lisp-set-outline)
+
+(defun init-clojure-set-elec-pairs ()
+  "Set `electric-pair-pairs' for Clojure mode."
+  (setq-local electric-pair-pairs
+              (add-to-list 'electric-pair-pairs '(?` . ?`))))
+
+(add-hook 'clojure-mode-hook #'init-clojure-set-elec-pairs)
+
+(defun init-clojure-remove-comma-dwim ()
+  "Remove comma dwim."
+  (interactive)
+  (let ((bounds (if (use-region-p)
+                    (cons (region-beginning) (region-end))
+                  (bounds-of-thing-at-point 'sexp))))
+    (replace-string-in-region "," "" (car bounds) (cdr bounds))))
+
+(keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
+
+;;;; test
+
+(defvar init-clojure-extensions '("cljc" "clj" "cljs"))
+
+(defun init-clojure-extensions (extension)
+  "Return clojure file extensions, given EXTENSION first."
+  (cons extension (remove extension init-clojure-extensions)))
+
+;; (init-clojure-extensions "clj") => '("clj" "cljc" "cljs")
+;; (init-clojure-extensions "cljc") => '("cljc" "clj" "cljs")
+
+(defun init-clojure-file-with-extensions (file)
+  "Return clojure files with different extension, given FILE first."
+  (let ((base (file-name-sans-extension file))
+        (extension (file-name-extension file)))
+    (thread-last
+      (init-clojure-extensions extension)
+      (seq-map (lambda (extension) (concat base "." extension))))))
+
+;; (init-clojure-file-with-extensions "foo/bar.clj")
+;; => '("foo/bar.clj" "foo/bar.cljc" "foo/bar.cljs")
+;; (init-clojure-file-with-extensions "foo/bar.cljc")
+;; => '("foo/bar.cljc" "foo/bar.clj" "foo/bar.cljs")
+
+(defun init-clojure-test-file (file)
+  "Convert FILE to test file with same extension."
+  (let ((file (concat "/" file)))
+    (cond
+     ((string-match "\\(.*?\\)/src/\\(.*\\)\\(\\.clj.?\\)$" file)
+      (thread-first
+        (concat (match-string 1 file) "/test/" (match-string 2 file) "_test" (match-string 3 file))
+        (substring 1)))
+     ((string-match "\\(.*?\\)/test/\\(.*\\)_test\\(\\.clj.?\\)$" file)
+      (thread-first
+        (concat (match-string 1 file) "/src/" (match-string 2 file) (match-string 3 file))
+        (substring 1))))))
+
+;; (init-clojure-test-file "src/foo/bar.clj") => "test/foo/bar_test.clj"
+;; (init-clojure-test-file "test/foo/bar_test.clj") => "src/foo/bar.clj"
+;; (init-clojure-test-file "clojure/src/foo/bar.clj") => "clojure/test/foo/bar_test.clj"
+;; (init-clojure-test-file "clojure/test/foo/bar_test.clj") => "clojure/src/foo/bar.clj"
+
+(defun init-clojure-test-files (file)
+  "Convert FILE to test files, with possible extensions."
+  (when-let* ((file (init-clojure-test-file file)))
+    (init-clojure-file-with-extensions file)))
+
+;; (init-clojure-test-files "src/foo/bar.clj")
+;; => '("test/foo/bar_test.clj" "test/foo/bar_test.cljc" "test/foo/bar_test.cljs")
+;; (init-clojure-test-files "test/foo/bar_test.cljc")
+;; => '("src/foo/bar.cljc" "src/foo/bar.clj" "src/foo/bar.cljs")
+
+(defun init-clojure-find-test-file ()
+  "Find test file of current buffer."
+  (if (not buffer-file-name)
+      (user-error "No buffer file name found")
+    (let* ((file (file-relative-name buffer-file-name))
+           (files (init-clojure-test-files file)))
+      (if-let* ((file (seq-find #'file-exists-p files)))
+          (find-file file)
+        (if-let* ((file (car files)))
+            (find-file (read-file-name
+                        "Create test file: "
+                        (file-name-directory file)
+                        nil nil
+                        (file-name-nondirectory file)))
+          (user-error "No test file found"))))))
+
+(defun init-clojure-set-find-test-file ()
+  "Set `init-find-test-file' for Clojure mode."
+  (setq-local init-find-test-file-function #'init-clojure-find-test-file))
+
+(add-hook 'clojure-mode-hook #'init-clojure-set-find-test-file)
+
+;;;; cider
+
+(require 'cider)
+
+(setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
+
+(init-define-next-sexp-command cider-eval-last-sexp)
+(init-define-next-sexp-command cider-eval-last-sexp-to-repl)
+(init-define-next-sexp-command cider-eval-last-sexp-in-context)
+(init-define-next-sexp-command cider-eval-last-sexp-and-replace)
+(init-define-next-sexp-command cider-pprint-eval-last-sexp)
+(init-define-next-sexp-command cider-pprint-eval-last-sexp-to-repl)
+(init-define-next-sexp-command cider-pprint-eval-last-sexp-to-comment)
+(init-define-next-sexp-command cider-insert-last-sexp-in-repl)
+(init-define-next-sexp-command cider-tap-last-sexp)
+(init-define-next-sexp-command cider-format-edn-last-sexp)
+(init-define-next-sexp-command cider-inspect-last-sexp)
+(init-define-next-sexp-command cider-macroexpand-1)
+(init-define-next-sexp-command cider-macroexpand-all)
+(init-define-next-sexp-command cider-macroexpand-1-inplace)
+(init-define-next-sexp-command cider-macroexpand-all-inplace)
+
+(keymap-set cider-mode-map "C-c C-n" #'cider-repl-set-ns)
+(keymap-set cider-mode-map "C-c C-i" #'cider-insert-last-sexp-in-repl)
+(keymap-set cider-mode-map "C-c C-;" #'cider-pprint-eval-last-sexp-to-comment)
+
+(dolist (mode '(clojurec-mode clojure-mode clojurescript-mode))
+  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
+
+(defun init-counsel-cider-repl-history ()
+  "Browse Cider REPL history."
+  (interactive)
+  (setq ivy-completion-beg (point))
+  (setq ivy-completion-end (point))
+  (ivy-read "History: " (ivy-history-contents cider-repl-input-history)
+            :keymap ivy-reverse-i-search-map
+            :action #'counsel--browse-history-action
+            :caller #'init-counsel-cider-repl-history))
+
+(dolist (map (list cider-mode-map cider-repl-mode-map))
+  (keymap-set map "C-M-q" #'cider-format-edn-last-sexp)
+  (keymap-set map "<remap> <evil-lookup>" #'cider-doc)
+  (keymap-set map "<remap> <init-history-placeholder>" #'init-counsel-cider-repl-history))
+
+(defun init-cider-repl-set-xref ()
+  "Set Xref backend for Cider REPL."
+  (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
+
+(add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
+
+;;; python
+
+(require 'python)
+
+(setq python-shell-interpreter "python")
+(setq python-shell-interpreter-args "-m IPython --simple-prompt")
+
+(keymap-set python-base-mode-map "C-c C-k" #'python-shell-send-buffer)
+
+(dolist (mode '(python-mode python-ts-mode))
+  (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
+
 ;;; org
 
 (require 'org)
@@ -1252,12 +1434,146 @@ EXPANSION may be:
 
 (keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
 
+;;;; roam
+
+(require 'org-roam)
+
+(setq org-roam-directory (expand-file-name "notes" priv-directory))
+
+(setq org-roam-node-display-template
+      (concat "${title:*} " (propertize "${tags:30}" 'face 'org-tag)))
+
+(add-hook 'after-init-hook #'org-roam-db-autosync-mode)
+
+(defvar-keymap init-org-roam-command-map
+  "n" #'org-roam-node-find
+  "l" #'org-roam-node-insert
+  "c" #'org-roam-capture
+  "b" #'org-roam-buffer-toggle
+  "t" #'org-roam-tag-add
+  "T" #'org-roam-tag-remove
+  "a" #'org-roam-alias-add
+  "A" #'org-roam-alias-remove
+  "r" #'org-roam-ref-add
+  "R" #'org-roam-ref-remove)
+
+(keymap-global-set "C-c n" init-org-roam-command-map)
+
+(defun init-org-roam-node-append ()
+  "Append Org Roam node link."
+  (interactive)
+  (save-excursion
+    (unless (eolp)
+      (forward-char))
+    (call-interactively #'org-roam-node-insert)))
+
+(keymap-set evil-normal-state-map "<remap> <org-roam-node-insert>" #'init-org-roam-node-append)
+
 ;;; markdown
 
 (require 'markdown-mode)
 
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
+
+;;; pyim
+
+(require 'posframe)
+(require 'pyim)
+(require 'pyim-basedict)
+
+(setq default-input-method "pyim")
+
+(defvar init-pyim-zirjma-keymaps
+  '(("a"    "a"    "a"          )
+    ("b"    "b"    "ou"         )
+    ("c"    "c"    "iao"        )
+    ("d"    "d"    "uang" "iang")
+    ("e"    "e"    "e"          )
+    ("f"    "f"    "en"         )
+    ("g"    "g"    "eng"        )
+    ("h"    "h"    "ang"        )
+    ("i"    "ch"   "i"          )
+    ("j"    "j"    "an"         )
+    ("k"    "k"    "ao"         )
+    ("l"    "l"    "ai"         )
+    ("m"    "m"    "ian"        )
+    ("n"    "n"    "in"         )
+    ("o"    "o"    "uo"   "o"   )
+    ("p"    "p"    "un"         )
+    ("q"    "q"    "iu"         )
+    ("r"    "r"    "uan"  "er"  )
+    ("s"    "s"    "iong" "ong" )
+    ("t"    "t"    "ue"   "ve"  )
+    ("u"    "sh"   "u"          )
+    ("v"    "zh"   "v"    "ui"  )
+    ("w"    "w"    "ia"   "ua"  )
+    ("x"    "x"    "ie"         )
+    ("y"    "y"    "uai"  "ing" )
+    ("z"    "z"    "ei"         )
+    ("aa"   "a"                 )
+    ("ah"   "ang"               )
+    ("ai"   "ai"                )
+    ("aj"   "an"                )
+    ("ak"   "ao"                )
+    ("al"   "ai"                )
+    ("an"   "an"                )
+    ("ao"   "ao"                )
+    ("ee"   "e"                 )
+    ("ef"   "en"                )
+    ("eg"   "eng"               )
+    ("ei"   "ei"                )
+    ("en"   "en"                )
+    ("er"   "er"                )
+    ("ez"   "ei"                )
+    ("ob"   "ou"                )
+    ("oo"   "o"                 )
+    ("ou"   "ou"                )))
+
+(setq pyim-default-scheme 'zirjma)
+(setq pyim-pinyin-fuzzy-alist nil)
+(setq pyim-enable-shortcode nil)
+(setq pyim-candidates-search-buffer-p nil)
+(setq pyim-indicator-list nil)
+(setq pyim-page-tooltip '(posframe))
+
+(setq pyim-punctuation-dict
+      '(("'"  "‘"  "’")
+        ("\"" "“"  "”")
+        ("^"  "…"     )
+        ("$"  "¥"     )
+        ("("  "（"    )
+        (")"  "）"    )
+        ("["  "【"    )
+        ("]"  "】"    )
+        ("{"  "「"    )
+        ("}"  "」"    )
+        ("<"  "《"    )
+        (">"  "》"    )
+        ("?"  "？"    )
+        ("!"  "！"    )
+        (","  "，"    )
+        ("."  "。"    )
+        (";"  "；"    )
+        (":"  "："    )
+        ("\\" "、"    )))
+
+(pyim-scheme-add
+ `(zirjma
+   :document "zirjma"
+   :class shuangpin
+   :first-chars "abcdefghijklmnopqrstuvwxyz"
+   :rest-chars "abcdefghijklmnopqrstuvwxyz"
+   :prefer-triggers nil
+   :cregexp-support-p t
+   :keymaps ,init-pyim-zirjma-keymaps))
+
+(keymap-set pyim-mode-map "." #'pyim-page-next-page)
+(keymap-set pyim-mode-map "," #'pyim-page-previous-page)
+
+(add-hook 'after-init-hook #'pyim-basedict-enable)
+
+(advice-add #'pyim-input-method :around #'init-wrap-input-method)
 
 ;;; leaders
 
@@ -1396,6 +1712,8 @@ EXPANSION may be:
  "A" #'org-agenda
  "C" #'org-capture
  "W" #'org-store-link
+ "N" #'org-roam-node-find
+ "R" #'org-roam-ref-find
  "w" evil-window-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
@@ -1430,5 +1748,5 @@ EXPANSION may be:
 
 ;;; end
 
-(provide 'init-emacs)
-;;; init-emacs.el ends here
+(provide 'init)
+;;; init.el ends here
