@@ -503,70 +503,6 @@ Support:
   (insert-pair (or arg 1))
   (indent-sexp))
 
-;;; input method
-
-(keymap-global-set "C-SPC" #'toggle-input-method)
-(keymap-global-set "C-@" #'toggle-input-method)
-
-(dolist (state '(operator motion normal visual))
-  (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
-
-;; ugly work around before https://github.com/emacs-evil/evil/pull/1995 merged
-
-(defvar init-ignore-toggle-input-method nil)
-
-(defun toggle-input-method@check-ignore (&rest _)
-  "Check ignore before toggle input method."
-  init-ignore-toggle-input-method)
-
-(defun evil-state@ignore-toggle-input-method (func &rest args)
-  "Ignore toggle input method around command.
-FUNC ARGS see specified commands."
-  (let ((init-ignore-toggle-input-method t))
-    (apply func args)))
-
-(dolist (func '(toggle-input-method
-                activate-input-method
-                deactivate-input-method))
-  (advice-add func :before-until #'toggle-input-method@check-ignore))
-
-(dolist (func '(evil-local-mode
-                evil-emacs-state
-                evil-insert-state
-                evil-replace-state
-                evil-operator-state
-                evil-motion-state
-                evil-normal-state
-                evil-visual-state))
-  (advice-add func :around #'evil-state@ignore-toggle-input-method))
-
-(defun init-ignore-input-method-p ()
-  "Predicate of input method."
-  (and evil-local-mode
-       (memq evil-state '(operator motion normal visual))))
-
-(defun init-wrap-input-method (func event)
-  "Wrap a `input-method-function' FUNC that process ignore and jk escape.
-FUNC, EVENT see `input-method-function'."
-  (if (init-ignore-input-method-p)
-      (list event)
-    (if (or (/= event ?j) (sit-for 0.15))
-        (funcall func event)
-      (let ((next-event (read-event)))
-        (if (/= next-event ?k)
-            (progn
-              (push next-event unread-command-events)
-              (funcall func event))
-          (push 'escape unread-command-events)
-          nil)))))
-
-(defun init-input-method (event)
-  "Default input method function.
-EVENT see `input-method-function'."
-  (init-wrap-input-method #'list event))
-
-(setq-default input-method-function #'init-input-method)
-
 ;;; minibuffer
 
 (setq enable-recursive-minibuffers t)
@@ -1578,7 +1514,71 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
 
-;;; pyim
+;;; input method
+
+(keymap-global-set "C-SPC" #'toggle-input-method)
+(keymap-global-set "C-@" #'toggle-input-method)
+
+(dolist (state '(operator motion normal visual))
+  (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
+
+;; ugly work around before https://github.com/emacs-evil/evil/pull/1995 merged
+
+(defvar init-ignore-toggle-input-method nil)
+
+(defun toggle-input-method@check-ignore (&rest _)
+  "Check ignore before toggle input method."
+  init-ignore-toggle-input-method)
+
+(defun evil-state@ignore-toggle-input-method (func &rest args)
+  "Ignore toggle input method around command.
+FUNC ARGS see specified commands."
+  (let ((init-ignore-toggle-input-method t))
+    (apply func args)))
+
+(dolist (func '(toggle-input-method
+                activate-input-method
+                deactivate-input-method))
+  (advice-add func :before-until #'toggle-input-method@check-ignore))
+
+(dolist (func '(evil-local-mode
+                evil-emacs-state
+                evil-insert-state
+                evil-replace-state
+                evil-operator-state
+                evil-motion-state
+                evil-normal-state
+                evil-visual-state))
+  (advice-add func :around #'evil-state@ignore-toggle-input-method))
+
+(defun init-ignore-input-method-p ()
+  "Predicate of input method."
+  (and evil-local-mode
+       (memq evil-state '(operator motion normal visual))))
+
+(defun init-wrap-input-method (func event)
+  "Wrap a `input-method-function' FUNC that process ignore and jk escape.
+FUNC, EVENT see `input-method-function'."
+  (if (init-ignore-input-method-p)
+      (list event)
+    (if (or (/= event ?j) (sit-for 0.15))
+        (funcall func event)
+      (let ((next-event (read-event)))
+        (if (/= next-event ?k)
+            (progn
+              (push next-event unread-command-events)
+              (funcall func event))
+          (push 'escape unread-command-events)
+          nil)))))
+
+(defun init-input-method (event)
+  "Default input method function.
+EVENT see `input-method-function'."
+  (init-wrap-input-method #'list event))
+
+(setq-default input-method-function #'init-input-method)
+
+;;;; pyim
 
 (require 'posframe)
 (require 'pyim)
