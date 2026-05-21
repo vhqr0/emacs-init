@@ -1106,10 +1106,6 @@ EXPANSION may be:
 
 (add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
 
-(define-advice company-capf (:around (func &rest args) set-styles)
-  (let ((completion-styles '(basic partial-completion)))
-    (apply func args)))
-
 (define-advice company-call-backend (:before-until (command &rest _) check-evil)
   (and (eq command 'prefix)
        evil-local-mode
