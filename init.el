@@ -194,9 +194,10 @@
 
 (defun init-evil-search-clean ()
   "Delete `evil-ex-search' persistent highlight."
-  (dolist (buffer (buffer-list))
-    (with-current-buffer buffer
-      (evil-ex-delete-hl 'evil-ex-search))))
+  (unless (window-minibuffer-p)
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (evil-ex-delete-hl 'evil-ex-search)))))
 
 (defvar init-evil-search-clean-idle 1.5)
 (defvar init-evil-search-clean-timer nil)
