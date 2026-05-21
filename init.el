@@ -1111,18 +1111,14 @@ EXPANSION may be:
        evil-local-mode
        (not (memq evil-state '(insert replace emacs)))))
 
-;;;; eglot
-
-(require 'flymake)
-(setq flymake-no-changes-timeout 1.0)
-;; (setq flymake-show-diagnostics-at-end-of-line 'short)
-(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
-(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
+;;;; eldoc
 
 (require 'eldoc)
+
 (setq eldoc-minor-mode-string nil)
 (setq eldoc-echo-area-use-multiline-p nil)
 (setq eldoc-echo-area-prefer-doc-buffer t)
+
 (keymap-set prog-mode-map "<remap> <display-local-help>" #'eldoc-doc-buffer)
 
 (defun init-eldoc-other-window ()
@@ -1131,11 +1127,76 @@ EXPANSION may be:
   (eldoc-print-current-symbol-info)
   (switch-to-buffer-other-window (eldoc-doc-buffer)))
 
+;;;; flymake
+
+(require 'flymake)
+
+(setq flymake-no-changes-timeout 1.0)
+;; (setq flymake-show-diagnostics-at-end-of-line 'short)
+
+(keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
+(keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
+
+(defvar-local init-flymake-make-command-function nil)
+(defvar-local init-flymake-make-report-function nil)
+
+(defvar-local init-flymake-proc nil)
+
+(defun init-flymake-make-proc (buffer report-fn)
+  "Make Flymake process for BUFFER.
+REPORT-FN see `init-flymake-backend'."
+  (when-let* ((make-command-function (buffer-local-value 'init-flymake-make-command-function buffer)))
+    (when-let* ((command (funcall make-command-function)))
+      (let* ((proc-buffer-name (format "*init-flymake for %s*" (buffer-name buffer)))
+             (sentinel
+              (lambda (proc _event)
+                (when (memq (process-status proc) '(exit signal))
+                  (let ((proc-buffer (process-buffer proc)))
+                    (unwind-protect
+                        (if (eq proc (buffer-local-value 'init-flymake-proc buffer))
+                            (let ((make-report-function (buffer-local-value 'init-flymake-make-report-function buffer)))
+                              (with-current-buffer buffer
+                                (save-excursion
+                                  (save-restriction
+                                    (widen)
+                                    (with-current-buffer proc-buffer
+                                      (widen)
+                                      (goto-char (point-min))
+                                      (funcall report-fn (funcall make-report-function buffer)))))))
+                          (flymake-log :warning "Canceling obsolete checker %s" proc))
+                      (kill-buffer proc-buffer)))))))
+        (make-process
+         :name proc-buffer-name
+         :noquery t
+         :connection-type 'pipe
+         :buffer (generate-new-buffer-name proc-buffer-name)
+         :command command
+         :sentinel sentinel)))))
+
+(defun init-flymake-backend (report-fn &rest _args)
+  "Generic Flymake backend.
+REPORT-FN see `flymake-diagnostic-functions'."
+  (when-let* ((proc (init-flymake-make-proc (current-buffer) report-fn)))
+    (when (process-live-p init-flymake-proc)
+      (kill-process init-flymake-proc))
+    (setq init-flymake-proc proc)
+    (save-restriction
+      (widen)
+      (process-send-region proc (point-min) (point-max))
+      (process-send-eof proc))))
+
+;;;; xref
+
 (require 'xref)
+
 (setq xref-search-program 'ripgrep)
 
+;;;; eglot
+
 (require 'eglot)
+
 (setq eglot-extend-to-xref t)
+
 (keymap-set eglot-mode-map "<remap> <evil-lookup>" #'init-eldoc-other-window)
 
 ;;; elisp
@@ -1325,6 +1386,50 @@ EXPANSION may be:
   (setq-local init-find-test-file-function #'init-clojure-find-test-file))
 
 (add-hook 'clojure-mode-hook #'init-clojure-set-find-test-file)
+
+;;;; kondo
+
+(defvar init-clojure-kondo-program "clj-kondo")
+
+(defun init-clojure-kondo-make-command ()
+  "Make kondo command."
+  (when (executable-find init-clojure-kondo-program)
+    (let* ((buffer-file-name (buffer-file-name))
+           (lang (if (not buffer-file-name)
+                     "clj"
+                   (file-name-extension buffer-file-name))))
+      `(,init-clojure-kondo-program
+        "--lint" "-"
+        "--lang" ,lang
+        ,@(when buffer-file-name
+            `("--filename" ,buffer-file-name))))))
+
+(defconst init-clojure-kondo-diag-regexp
+  "^.+:\\([[:digit:]]+\\):\\([[:digit:]]+\\): \\([[:alpha:]]+\\): \\(.+\\)$")
+
+(defvar init-clojure-kondo-type-alist
+  '(("error" . :error) ("warning" . :warning)))
+
+(defun init-clojure-kondo-make-report (buffer)
+  "Make flymake report for kondo in source BUFFER."
+  (let (diags)
+    (while (search-forward-regexp init-clojure-kondo-diag-regexp nil t)
+      (let* ((row (string-to-number (match-string 1)))
+             (col (string-to-number (match-string 2)))
+             (type (or (cdr (assoc (match-string 3) init-clojure-kondo-type-alist)) :type))
+             (msg (match-string 4))
+             (region (flymake-diag-region buffer row col))
+             (diag (flymake-make-diagnostic buffer (car region) (cdr region) type msg)))
+        (push diag diags)))
+    (nreverse diags)))
+
+(defun init-clojure-set-kondo ()
+  "Set kondo Flymake backend."
+  (setq-local init-flymake-make-command-function #'init-clojure-kondo-make-command)
+  (setq-local init-flymake-make-report-function #'init-clojure-kondo-make-report)
+  (add-hook 'flymake-diagnostic-functions #'init-flymake-backend nil t))
+
+(add-hook 'clojure-mode-hook #'init-clojure-set-kondo)
 
 ;;;; cider
 
