@@ -4,6 +4,7 @@
     evil-surround
     paredit
     avy
+    ace-window
     hydra
     amx
     ivy

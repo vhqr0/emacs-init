@@ -432,12 +432,31 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
 
+(require 'ace-window)
+(setq aw-scope 'frame)
+(keymap-global-set "M-o" #'ace-window)
+
 (require 'avy)
 (setq avy-background t)
-(avy-setup-default)
 (keymap-global-set "C-'" #'avy-goto-char-timer)
 (keymap-set goto-map "j" #'avy-goto-line-below)
 (keymap-set goto-map "k" #'avy-goto-line-above)
+
+(defun init-avy-evil-search ()
+  "Jump to one of current evil search candidates."
+  (interactive)
+  (let ((avy-background nil)
+        (avy-all-windows nil))
+    (let ((regex (minibuffer-contents)))
+      (select-window (minibuffer-selected-window))
+      (if (avy-process (avy--regex-candidates regex))
+          (progn
+            (setq evil-ex-search-start-point (1- (point)))
+            (select-window (minibuffer-window))
+            (exit-minibuffer))
+        (select-window (minibuffer-window))))))
+
+(keymap-set evil-ex-search-keymap "C-'" #'init-avy-evil-search)
 
 (defun init-convert-timestamp-dwim (ts)
   "Convert TS to time string dwim.
