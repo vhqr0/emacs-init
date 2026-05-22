@@ -432,10 +432,6 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
 
-(require 'ace-window)
-(setq aw-scope 'frame)
-(keymap-global-set "M-o" #'ace-window)
-
 (require 'avy)
 (setq avy-background t)
 (keymap-global-set "C-'" #'avy-goto-char-timer)
