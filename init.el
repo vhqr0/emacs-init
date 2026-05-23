@@ -435,16 +435,16 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (defun init-occur-at-point ()
   "Occur thing at point."
   (interactive)
-  (when-let* ((symbol (thing-at-point 'symbol)))
-    (occur symbol)))
+  (occur (regexp-quote (thing-at-point 'symbol))))
 
 (defun init-query-replace-at-point ()
   "Query replace at point."
   (interactive)
-  (when-let* ((symbol (thing-at-point 'symbol)))
+  (let* ((bounds (bounds-of-thing-at-point 'symbol))
+         (from (buffer-substring (car bounds) (cdr bounds))))
+    (goto-char (car bounds))
     (query-replace
-     symbol
-     (query-replace-read-to symbol "Query replace" nil))))
+     from (query-replace-read-to from "Query replace" nil))))
 
 (require 'avy)
 (setq avy-background t)
