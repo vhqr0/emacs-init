@@ -432,6 +432,20 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
 
+(defun init-occur-at-point ()
+  "Occur thing at point."
+  (interactive)
+  (when-let* ((symbol (thing-at-point 'symbol)))
+    (occur symbol)))
+
+(defun init-query-replace-at-point ()
+  "Query replace at point."
+  (interactive)
+  (when-let* ((symbol (thing-at-point 'symbol)))
+    (query-replace
+     symbol
+     (query-replace-read-to symbol "Query replace" nil))))
+
 (require 'avy)
 (setq avy-background t)
 (keymap-global-set "C-'" #'avy-goto-char-timer)
@@ -595,7 +609,7 @@ Support:
       (swiper initial-input))))
 
 (defun init-search-at-point ()
-  "Search things at point dwim."
+  "Search thing at point."
   (interactive)
   (init-search (thing-at-point 'symbol)))
 
@@ -1824,8 +1838,6 @@ EVENT see `input-method-function'."
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
- "S" #'init-rg-dwim
- "e" #'init-eshell-dwim
  "A" #'org-agenda
  "C" #'org-capture
  "W" #'org-store-link
@@ -1846,8 +1858,12 @@ EVENT see `input-method-function'."
  "a" abbrev-map
  "m" init-minor-prefix-map
  "T" #'init-echo-timestamp-dwim
- "$" #'ispell-word
+ "e" #'init-eshell-dwim
+ "S" #'init-rg-dwim
+ "O" #'init-occur-at-point
+ "Q" #'init-query-replace-at-point
  "%" #'query-replace-regexp
+ "$" #'ispell-word
  "=" #'apheleia-format-buffer
  "+" #'delete-trailing-whitespace
  "." #'xref-find-definitions
