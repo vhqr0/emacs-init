@@ -1204,6 +1204,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (init-define-next-sexp-command pp-macroexpand-last-sexp)
 
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
+  (keymap-set map "C-c C-d" #'checkdoc)
   (keymap-set map "C-c C-k" #'eval-buffer)
   (keymap-set map "C-C C-l" #'load-file)
   (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp))
