@@ -400,6 +400,8 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (setq disabled-command-function nil)
 (setq suggest-key-bindings nil)
 (setq word-wrap-by-category t)
+(setq save-interprogram-paste-before-kill t)
+(setq kill-do-not-save-duplicates t)
 (setq-default indent-tabs-mode nil)
 (setq-default truncate-lines t)
 
