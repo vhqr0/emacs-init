@@ -666,12 +666,14 @@ Support:
 (evil-set-initial-state 'occur-edit-mode 'normal)
 
 (defun init-occur-edit-regexp ()
+  "Edit occur regexp."
   (interactive)
   (let ((regexp (read-string "Occur regexp: " (car occur-revert-arguments) 'regexp-history)))
     (setf (car occur-revert-arguments) regexp))
   (occur-revert-function nil nil))
 
 (defun init-occur-edit-buffer ()
+  "Edit occur buffer."
   (interactive)
   (let ((buffer (get-buffer (read-buffer "Occur buffer: " nil t))))
     (setq default-directory (buffer-local-value 'default-directory buffer))
@@ -701,6 +703,7 @@ Support:
     'local-map init-occur-header-edit-buffer-keymap)))
 
 (defun init-occur-set-header ()
+  "Set header."
   (setq header-line-format init-occur-header-line-format))
 
 (add-hook 'occur-mode-hook #'init-occur-set-header)
@@ -789,10 +792,12 @@ Support:
 (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
 (defun init-compile-edit-command ()
+  "Edit compile command."
   (interactive)
   (recompile t))
 
 (defun init-compile-edit-directory ()
+  "Edit compile directory."
   (interactive)
   (let ((directory (read-directory-name "Compile directory: ")))
     (setq default-directory directory)
@@ -822,6 +827,7 @@ Support:
     'local-map init-compile-header-edit-directory-keymap)))
 
 (defun init-compile-set-header ()
+  "Set header."
   (setq header-line-format init-compile-header-line-format))
 
 (add-hook 'compilation-mode-hook #'init-compile-set-header)
