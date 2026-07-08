@@ -554,6 +554,8 @@ Support:
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
+(evil-set-initial-state 'minibuffer-mode 'insert)
+
 (init-evil-keymap-set 'normal minibuffer-local-map
   "<escape>" #'abort-recursive-edit)
 
