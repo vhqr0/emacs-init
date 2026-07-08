@@ -314,6 +314,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (setq project-mode-line t)
 (setq project-switch-use-entire-map t)
 (setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
+(setq project-vc-merge-submodules nil)
 
 (defun init-project-switch-to-compile ()
   "Switch to project compilation buffer."
