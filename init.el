@@ -1139,7 +1139,7 @@ EXPANSION may be:
 (setq company-dabbrev-downcase nil)
 (setq company-dabbrev-ignore-case t)
 (setq company-dabbrev-code-ignore-case t)
-(setq company-frontends '(company-pseudo-tooltip-frontend company-preview-if-just-one-frontend company-echo-metadata-frontend))
+(setq company-frontends '(company-childframe-frontend company-preview-if-just-one-frontend company-echo-metadata-frontend))
 (setq company-backends '(company-files company-capf (company-dabbrev-code company-keywords) company-dabbrev))
 
 (keymap-unset company-active-map "M-n" t)
