@@ -19,6 +19,7 @@
     with-editor
     magit
     orgit
+    macrostep
     clojure-mode
     cider
     org-roam

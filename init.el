@@ -1311,6 +1311,11 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map))
   (keymap-set map "C-c C-z" #'init-ielm-other-window))
 
+(require 'macrostep)
+
+(dolist (map (list emacs-lisp-mode-map lisp-interaction-mode-map inferior-emacs-lisp-mode-map))
+  (keymap-set map "C-c e" #'macrostep-expand))
+
 ;;;; help
 
 (setq help-window-select t)
@@ -1487,6 +1492,8 @@ REPORT-FN see `flymake-diagnostic-functions'."
 ;;;; cider
 
 (require 'cider)
+(require 'cider-format)
+(require 'cider-macroexpansion)
 
 (setq cider-mode-line '(:eval (format " Cider[%s]" (cider--modeline-info))))
 
@@ -1533,6 +1540,48 @@ REPORT-FN see `flymake-diagnostic-functions'."
   (add-hook 'xref-backend-functions #'cider--xref-backend nil t))
 
 (add-hook 'cider-repl-mode-hook #'init-cider-repl-set-xref)
+
+;;;;; macrostep
+
+(defun init-cider-macrostep-macro-form-p (_sexp _env)
+  "Macro?"
+  t)
+
+(defun init-cider-macrostep-sexp-bounds ()
+  "Find bounds of macro sexp."
+  (interactive)
+  (bounds-of-thing-at-point 'sexp))
+
+(defun init-cider-macrostep-expand (sexp _env)
+  "Expand SEXP using Cider."
+  (or (cider-sync-request:macroexpand "macroexpand" sexp)
+      (user-error "Macro expansion failed")))
+
+(defun init-cider-macrostep-expand-1 (sexp _env)
+  "Expand SEXP using Cider."
+  (or (cider-sync-request:macroexpand "macroexpand-1" sexp)
+      (user-error "Macro expansion failed")))
+
+(defun init-cider-macrostep-insert (sexp _env)
+  "Insert expanded SEXP."
+  (insert (propertize sexp 'face 'macrostep-expansion-highlight-face)))
+
+(defun init-cider-set-macrostep ()
+  "Set Cider macroexpand backends."
+  (setq-local macrostep-environment-at-point-function #'ignore)
+  (setq-local macrostep-macro-form-p-function #'init-cider-macrostep-macro-form-p)
+  (setq-local macrostep-sexp-bounds-function #'init-cider-macrostep-sexp-bounds)
+  (setq-local macrostep-sexp-at-point-function #'buffer-substring-no-properties)
+  (setq-local macrostep-expand-function #'init-cider-macrostep-expand)
+  (setq-local macrostep-expand-1-function #'init-cider-macrostep-expand-1)
+  (setq-local macrostep-print-function #'init-cider-macrostep-insert))
+
+(dolist (hook '(cider-mode-hook cider-repl-mode-hook))
+  (add-hook hook #'init-cider-set-macrostep))
+
+(dolist (map (list cider-mode-map cider-repl-mode-map))
+  (keymap-set map "C-c e" #'macrostep-expand))
+
 
 ;;; python
 
