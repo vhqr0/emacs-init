@@ -1056,6 +1056,8 @@ With two universal ARG, open in this window."
 (require 'magit)
 (require 'magit-extras)
 
+(keymap-set project-prefix-map "m" #'magit-project-status)
+
 (keymap-set magit-mode-map "<remap> <quit-window>" #'magit-mode-bury-buffer)
 
 (evil-set-initial-state 'magit-mode 'normal)
