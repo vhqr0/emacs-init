@@ -21,6 +21,8 @@
 
 (prefer-coding-system 'utf-8)
 
+;;; package
+
 (require 'package)
 
 (setq package-archives
@@ -29,6 +31,42 @@
         ("melpa"  . "https://melpa.org/packages/")))
 
 ;; (setq package-quickstart t)
+
+(defvar init-packages
+  '(
+    evil
+    evil-surround
+    paredit
+    avy
+    hydra
+    amx
+    ivy
+    ivy-avy
+    ivy-hydra
+    swiper
+    counsel
+    yasnippet
+    company
+    apheleia
+    wgrep
+    git-modes
+    with-editor
+    magit
+    orgit
+    macrostep
+    clojure-mode
+    cider
+    org-roam
+    markdown-mode
+    edit-indirect
+    pyim
+    pyim-basedict
+    posframe
+    ))
+
+(when-let* ((packages (seq-remove #'package-installed-p init-packages)))
+  (package-refresh-contents)
+  (mapc #'package-install packages))
 
 ;;; evil
 
