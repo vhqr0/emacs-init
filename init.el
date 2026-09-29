@@ -71,9 +71,20 @@
 ;;; vim
 
 (require 'vim)
-(require 'vim-integrated)
 
 (vim-global-mode 1)
+
+(defun init-vim-merge (major modes map keys)
+  "Set KEYS in the MODES override maps of major mode MAJOR as bound in MAP.
+Each element of KEYS is either KEY or (FROM . KEY), where FROM is the key
+in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
+  (let (bindings)
+    (dolist (key keys)
+      (let* ((key (if (consp key) key (cons key key)))
+             (definition (keymap-lookup map (car key))))
+        (when (and definition (not (numberp definition)))
+          (setq bindings (nconc bindings (list (cdr key) definition))))))
+    (apply #'vim-major-mode-map-set major modes bindings)))
 
 (keymap-set vim-normal-mode-map "M-j" #'scroll-up-command)
 (keymap-set vim-normal-mode-map "M-k" #'scroll-down-command)
@@ -195,6 +206,19 @@
       (funcall init-find-test-file-function))))
 
 (keymap-set project-prefix-map "t" #'init-project-find-test-file)
+
+;;;; ibuffer
+
+(require 'ibuffer)
+
+(defvar init-ibuffer-keys
+  '(("n" . "j") ("p" . "k")
+    "d" "D" "m" "o" "O" "s" "S" "t" "u" "U" "x" "%")
+  "Keys merged from `ibuffer-mode-map'.")
+
+(vim-define-major-mode-map 'ibuffer-mode)
+
+(init-vim-merge 'ibuffer-mode '(normal visual) ibuffer-mode-map init-ibuffer-keys)
 
 ;;; ui
 
@@ -553,9 +577,25 @@ Support:
 
 (keymap-set dired-mode-map "C-c C-p" #'wdired-change-to-wdired-mode)
 
+(defvar init-dired-keys
+  '(("n" . "j") ("p" . "k")
+    "c" "C" "d" "D" "m" "o" "O" "r" "R" "s" "S" "t" "T" "u" "U" "x" "X" "%" "=" "~")
+  "Keys merged from `dired-mode-map'.")
+
+(vim-define-major-mode-map 'dired-mode)
+
+(init-vim-merge 'dired-mode '(normal visual) dired-mode-map init-dired-keys)
 
 (require 'arc-mode)
 
+(defvar init-archive-keys
+  '(("n" . "j") ("p" . "k")
+    "C" "m" "o" "u")
+  "Keys merged from `archive-mode-map'.")
+
+(vim-define-major-mode-map 'archive-mode)
+
+(init-vim-merge 'archive-mode '(normal visual) archive-mode-map init-archive-keys)
 
 ;;; image
 
@@ -568,6 +608,20 @@ Support:
 (keymap-set image-mode-map "M-n" #'image-next-file)
 (keymap-set image-mode-map "M-p" #'image-previous-file)
 
+(keymap-set image-mode-map "<remap> <vim-h>" #'image-backward-hscroll)
+(keymap-set image-mode-map "<remap> <vim-j>" #'image-next-line)
+(keymap-set image-mode-map "<remap> <vim-k>" #'image-previous-line)
+(keymap-set image-mode-map "<remap> <vim-l>" #'image-forward-hscroll)
+(keymap-set image-mode-map "<remap> <vim-gg>" #'image-bob)
+(keymap-set image-mode-map "<remap> <vim-G>" #'image-eob)
+
+(defvar init-image-keys
+  '("m" "u")
+  "Keys merged from `image-mode-map'.")
+
+(vim-define-major-mode-map 'image-mode)
+
+(init-vim-merge 'image-mode '(normal visual) image-mode-map init-image-keys)
 
 ;;; process
 
@@ -810,7 +864,7 @@ With two universal ARG, open in this window."
 
 (vim-define-major-mode-map 'magit-mode)
 
-(vim-integrated-merge 'magit-mode '(normal visual) magit-mode-map init-magit-keys)
+(init-vim-merge 'magit-mode '(normal visual) magit-mode-map init-magit-keys)
 
 (vim-major-mode-map-set
  'magit-mode '(normal visual)
@@ -1353,7 +1407,6 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-c e" #'macrostep-expand))
-
 
 ;;; python
 
