@@ -10,6 +10,8 @@
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
 (defvar priv-directory (expand-file-name "emacs-priv" user-emacs-directory))
 
+(add-to-list 'load-path (expand-file-name "vim.el" init-directory))
+
 (setq load-prefer-newer t)
 
 (setq gc-cons-percentage 0.2)
@@ -34,8 +36,6 @@
 
 (defvar init-packages
   '(
-    evil
-    evil-surround
     paredit
     avy
     hydra
@@ -68,195 +68,15 @@
   (package-refresh-contents)
   (mapc #'package-install packages))
 
-;;; evil
+;;; vim
 
-(defvar evil-want-keybinding)
-(setq evil-want-keybinding nil)
+(require 'vim)
+(require 'vim-integrated)
 
-(defvar evil-want-minibuffer)
-(setq evil-want-minibuffer t)
+(vim-global-mode 1)
 
-(defvar evil-insert-state-bindings)
-(setq evil-insert-state-bindings nil)
-
-(defvar evil-want-C-i-jump)
-(defvar evil-want-C-u-scroll)
-(defvar evil-want-Y-yank-to-eol)
-(setq evil-want-C-i-jump nil)
-(setq evil-want-C-u-scroll t)
-(setq evil-want-Y-yank-to-eol t)
-
-(defvar evil-respect-visual-line-mode)
-(setq evil-respect-visual-line-mode t)
-
-(defvar evil-search-module)
-(setq evil-search-module 'evil-search)
-
-(defvar evil-undo-system)
-(setq evil-undo-system 'undo-redo)
-
-(require 'evil)
-(require 'evil-surround)
-
-(evil-mode 1)
-(global-evil-surround-mode 1)
-
-(setq evil-mode-line-format '(before . mode-line-front-space))
-
-(setq evil-emacs-state-tag    (propertize " <E> " 'face 'highlight))
-(setq evil-insert-state-tag   (propertize " <I> " 'face 'highlight))
-(setq evil-replace-state-tag  (propertize " <R> " 'face 'highlight))
-(setq evil-visual-state-tag   (propertize " <V> " 'face 'highlight))
-(setq evil-operator-state-tag (propertize " <O> " 'face 'highlight))
-
-(setq evil-want-fine-undo t)
-(setq evil-symbol-word-search t)
-
-(setq evil-goto-definition-functions '(evil-goto-definition-xref))
-
-(setq evil-emacs-state-modes nil)
-(setq evil-insert-state-modes nil)
-(setq evil-motion-state-modes '(special-mode))
-
-(setq-default evil-surround-pairs-alist
-              '((?\( . ("( " . " )"))
-                (?\{ . ("{ " . " }"))
-                (?\[ . ("[ " . " ]"))
-                (?\< . ("< " . " >"))
-                (?\) . ("(" . ")"))
-                (?\} . ("{" . "}"))
-                (?\] . ("[" . "]"))
-                (?\> . ("<" . ">"))
-                (?b  . ("(" . ")"))
-                (?B  . ("{" . "}"))
-                (?r  . ("[" . "]"))
-                (?a  . ("<" . ">"))
-                (?#  . ("#{" . "}"))
-                (?t  . evil-surround-read-tag)
-                (?f  . evil-surround-prefix-function)))
-
-(evil-define-operator init-evil-operator-comment (beg end)
-  :move-point nil
-  (interactive "<r>")
-  (comment-or-uncomment-region beg end))
-
-(evil-define-operator init-evil-operator-narrow (beg end)
-  :move-point nil
-  (interactive "<r>")
-  (narrow-to-region beg end))
-
-(defvar init-evil-eval-function-alist nil)
-
-(evil-define-operator init-evil-operator-eval (beg end)
-  :move-point nil
-  (interactive "<r>")
-  (when-let* ((eval-function (cdr (assq major-mode init-evil-eval-function-alist))))
-    (funcall eval-function beg end)))
-
-(evil-define-text-object init-evil-inner-line (count &optional _beg _end _type)
-  (evil-range
-   (save-excursion
-     (back-to-indentation)
-     (point))
-   (line-end-position)
-   'exclusive))
-
-(evil-define-text-object init-evil-a-line (count &optional _beg _end _type)
-  (evil-range (line-beginning-position) (line-end-position) 'inclusive))
-
-(evil-define-text-object init-evil-inner-defun (count &optional beg end _type)
-  (evil-select-inner-object 'evil-defun beg end type count t))
-
-(evil-define-text-object init-evil-a-defun (count &optional beg end _type)
-  (evil-select-an-object 'evil-defun beg end type count t))
-
-(evil-define-text-object init-evil-an-entire (count &optional _beg _end _type)
-  (evil-range (point-min) (point-max) 'line))
-
-(set-keymap-parent evil-command-line-map minibuffer-local-map)
-
-(keymap-unset evil-normal-state-map "<remap> <yank-pop>" t)
-
-(keymap-unset evil-motion-state-map "RET" t)
-(keymap-unset evil-motion-state-map "SPC" t)
-(keymap-unset evil-normal-state-map "DEL" t)
-
-(keymap-set evil-motion-state-map "<left>" #'evil-scroll-left)
-(keymap-set evil-motion-state-map "<right>" #'evil-scroll-right)
-(keymap-set evil-motion-state-map "<up>" #'evil-scroll-up)
-(keymap-set evil-motion-state-map "<down>" #'evil-scroll-down)
-
-(keymap-set evil-insert-state-map "C-r" #'evil-paste-from-register)
-(keymap-set evil-insert-state-map "C-o" #'evil-execute-in-normal-state)
-
-(keymap-unset evil-motion-state-map "<down-mouse-1>")
-(keymap-unset evil-visual-state-map "<mouse-2>")
-(keymap-unset evil-normal-state-map "<mouse-2>")
-
-(keymap-set evil-motion-state-map "C-q" #'evil-record-macro)
-(keymap-set evil-motion-state-map "q" #'quit-window)
-(keymap-unset evil-normal-state-map "q" t)
-
-(keymap-set evil-visual-state-map "m" #'evil-jump-item)
-(keymap-set evil-operator-state-map "m" #'evil-jump-item)
-(keymap-set evil-operator-state-map "o" #'evil-inner-symbol)
-(keymap-set evil-operator-state-map "p" #'evil-inner-paragraph)
-
-(keymap-set evil-normal-state-map "g c" #'init-evil-operator-comment)
-(keymap-set evil-motion-state-map "g -" #'init-evil-operator-narrow)
-(keymap-set evil-motion-state-map "g y" #'init-evil-operator-eval)
-
-(keymap-set evil-inner-text-objects-map "r" #'evil-inner-bracket)
-(keymap-set evil-outer-text-objects-map "r" #'evil-a-bracket)
-(keymap-set evil-inner-text-objects-map "a" #'evil-inner-angle)
-(keymap-set evil-outer-text-objects-map "a" #'evil-an-angle)
-(keymap-set evil-inner-text-objects-map "l" #'init-evil-inner-line)
-(keymap-set evil-outer-text-objects-map "l" #'init-evil-a-line)
-(keymap-set evil-inner-text-objects-map "d" #'init-evil-inner-defun)
-(keymap-set evil-outer-text-objects-map "d" #'init-evil-a-defun)
-(keymap-set evil-inner-text-objects-map "h" #'init-evil-an-entire)
-(keymap-set evil-outer-text-objects-map "h" #'init-evil-an-entire)
-
-(keymap-set evil-motion-state-map "g f" 'find-file-at-point)
-(keymap-set evil-motion-state-map "] f" 'find-file-at-point)
-(keymap-set evil-motion-state-map "[ f" 'find-file-at-point)
-(keymap-set evil-motion-state-map "g F" 'evil-find-file-at-point-with-line)
-(keymap-set evil-motion-state-map "] F" 'evil-find-file-at-point-with-line)
-(keymap-set evil-motion-state-map "[ F" 'evil-find-file-at-point-with-line)
-
-(defvar init-evil-adjust-cursor-ignore-commands
-  '(forward-sexp forward-list))
-
-(define-advice evil-adjust-cursor (:before-until (&rest _) ignore-commands)
-  (memq this-command init-evil-adjust-cursor-ignore-commands))
-
-(defun init-evil-search-clean ()
-  "Delete `evil-ex-search' persistent highlight."
-  (unless (window-minibuffer-p)
-    (dolist (buffer (buffer-list))
-      (with-current-buffer buffer
-        (evil-ex-delete-hl 'evil-ex-search)))))
-
-(defvar init-evil-search-clean-idle 1.5)
-(defvar init-evil-search-clean-timer nil)
-
-(defun init-evil-search-clean-start-timer ()
-  "Start a daemon to idle clean `evil-ex-search' persistent highlight."
-  (unless init-evil-search-clean-timer
-    (setq init-evil-search-clean-timer
-          (run-with-idle-timer init-evil-search-clean-idle t #'init-evil-search-clean))))
-
-(add-hook 'after-init-hook #'init-evil-search-clean-start-timer)
-
-(defun init-evil-keymap-set (state keymap &rest clauses)
-  "Set evil key.
-STATE KEYMAP CLAUSES see `evil-define-key*'."
-  (declare (indent defun))
-  (apply #'evil-define-key* state keymap
-         (seq-map-indexed
-          (lambda (v i)
-            (if (cl-oddp i) v (kbd v)))
-          clauses)))
+(keymap-set vim-normal-mode-map "M-j" #'scroll-up-command)
+(keymap-set vim-normal-mode-map "M-k" #'scroll-down-command)
 
 ;;; files
 
@@ -276,9 +96,6 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (setq backup-directory-alist         `((".*" . ,(expand-file-name "backup/" user-emacs-directory))))
 
 (keymap-set ctl-x-x-map "G" #'revert-buffer)
-
-(keymap-set evil-motion-state-map "g r" #'revert-buffer-quick)
-(keymap-set evil-motion-state-map "g R" #'revert-buffer)
 
 (defvar-keymap init-header-revert-keymap
   "<header-line> <mouse-1>" #'revert-buffer)
@@ -301,7 +118,7 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 
 (defun init-auto-save-p ()
   "Predication of `auto-save-visited-mode'."
-  (not (evil-insert-state-p)))
+  (not vim-insert-mode))
 
 (setq auto-save-visited-interval 0.5)
 (setq auto-save-visited-predicate #'init-auto-save-p)
@@ -427,8 +244,8 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (keymap-set tab-prefix-map "<left>" #'tab-bar-history-back)
 (keymap-set tab-prefix-map "<right>" #'tab-bar-history-forward)
 
-(keymap-set evil-window-map "<left>" #'tab-bar-history-back)
-(keymap-set evil-window-map "<right>" #'tab-bar-history-forward)
+(keymap-set window-prefix-map "<left>" #'tab-bar-history-back)
+(keymap-set window-prefix-map "<right>" #'tab-bar-history-forward)
 
 (keymap-global-set "C-S-N" #'make-frame-command)
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
@@ -503,22 +320,6 @@ STATE KEYMAP CLAUSES see `evil-define-key*'."
 (keymap-set goto-map "j" #'avy-goto-line-below)
 (keymap-set goto-map "k" #'avy-goto-line-above)
 
-(defun init-avy-evil-search ()
-  "Jump to one of current evil search candidates."
-  (interactive)
-  (let ((avy-background nil)
-        (avy-all-windows nil))
-    (let ((regex (minibuffer-contents)))
-      (select-window (minibuffer-selected-window))
-      (if (avy-process (avy--regex-candidates regex))
-          (progn
-            (setq evil-ex-search-start-point (1- (point)))
-            (select-window (minibuffer-window))
-            (exit-minibuffer))
-        (select-window (minibuffer-window))))))
-
-(keymap-set evil-ex-search-keymap "C-'" #'init-avy-evil-search)
-
 (defun init-convert-timestamp-dwim (ts)
   "Convert TS to time string dwim.
 Support:
@@ -574,8 +375,8 @@ Support:
 (keymap-global-set "C-<right>" #'paredit-forward-slurp-sexp)
 (keymap-global-set "C-M-<left>" #'paredit-backward-slurp-sexp)
 (keymap-global-set "C-M-<right>" #'paredit-backward-barf-sexp)
-(keymap-set evil-normal-state-map "M-r" #'raise-sexp)
-(keymap-set evil-normal-state-map "M-s" #'paredit-splice-sexp)
+(keymap-set vim-normal-mode-map "M-r" #'raise-sexp)
+(keymap-set vim-normal-mode-map "M-s" #'paredit-splice-sexp)
 
 (defun init-wrap-pair (&optional arg)
   "Insert pair, ARG see `insert-pair'."
@@ -592,11 +393,6 @@ Support:
 (setq read-extended-command-predicate #'command-completion-default-include-p)
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
-
-(evil-set-initial-state 'minibuffer-mode 'insert)
-
-(init-evil-keymap-set 'normal minibuffer-local-map
-  "<escape>" #'abort-recursive-edit)
 
 (require 'savehist)
 
@@ -625,17 +421,10 @@ Support:
 
 (keymap-set ivy-minibuffer-map "<remap> <save-buffer>" #'ivy-occur)
 (keymap-set ivy-minibuffer-map "<remap> <quit-window>" #'abort-recursive-edit)
-(keymap-set ivy-minibuffer-map "<remap> <evil-scroll-down>" #'ivy-scroll-up-command)
-(keymap-set ivy-minibuffer-map "<remap> <evil-scroll-up>" #'ivy-scroll-down-command)
-(keymap-set ivy-minibuffer-map "<remap> <evil-next-line>" #'ivy-next-line)
-(keymap-set ivy-minibuffer-map "<remap> <evil-previous-line>" #'ivy-previous-line)
-(keymap-set ivy-minibuffer-map "<remap> <evil-next-visual-line>" #'ivy-next-line)
-(keymap-set ivy-minibuffer-map "<remap> <evil-previous-visual-line>" #'ivy-previous-line)
-(keymap-set ivy-minibuffer-map "<remap> <evil-goto-first-line>" #'ivy-beginning-of-buffer)
-(keymap-set ivy-minibuffer-map "<remap> <evil-goto-line>" #'ivy-end-of-buffer)
-
-(init-evil-keymap-set 'normal ivy-minibuffer-map
-  "C-o" #'hydra-ivy/body)
+(keymap-set ivy-minibuffer-map "<remap> <vim-j>" #'ivy-next-line)
+(keymap-set ivy-minibuffer-map "<remap> <vim-k>" #'ivy-previous-line)
+(keymap-set ivy-minibuffer-map "<remap> <vim-gg>" #'ivy-beginning-of-buffer)
+(keymap-set ivy-minibuffer-map "<remap> <vim-G>" #'ivy-end-of-buffer)
 
 (defun init-ivy-up-directory ()
   "Ivy up directory."
@@ -674,7 +463,7 @@ Support:
   (interactive)
   (user-error "No history command available"))
 
-(keymap-set evil-insert-state-map "M-r" #'init-history-placeholder)
+(keymap-set vim-insert-mode-map "M-r" #'init-history-placeholder)
 
 (keymap-set ivy-minibuffer-map "<remap> <init-history-placeholder>" #'ivy-reverse-i-search)
 (keymap-set minibuffer-local-map "<remap> <init-history-placeholder>" #'counsel-minibuffer-history)
@@ -704,7 +493,6 @@ Support:
 ;;; occur
 
 (keymap-set occur-mode-map "C-c C-p" #'occur-edit-mode)
-(evil-set-initial-state 'occur-edit-mode 'normal)
 
 (defun init-occur-edit-regexp ()
   "Edit occur regexp."
@@ -765,53 +553,13 @@ Support:
 
 (keymap-set dired-mode-map "C-c C-p" #'wdired-change-to-wdired-mode)
 
-(init-evil-keymap-set 'normal dired-mode-map
-  "j" #'dired-next-line
-  "k" #'dired-previous-line
-  "o" #'dired-find-file-other-window
-  "m" #'dired-mark
-  "u" #'dired-unmark
-  "U" #'dired-unmark-all-marks
-  "t" #'dired-toggle-marks
-  "d" #'dired-flag-file-deletion
-  "x" #'dired-do-flagged-delete
-  "s" #'dired-sort-toggle-or-edit
-  "i" #'dired-insert-subdir
-  "D" #'dired-do-delete
-  "C" #'dired-do-copy
-  "R" #'dired-do-rename
-  "Z" #'dired-do-compress
-  "+" #'dired-create-directory
-  "=" #'dired-diff
-  "!" #'dired-do-shell-command
-  "&" #'dired-do-async-shell-command)
 
 (require 'arc-mode)
 
-(init-evil-keymap-set 'normal archive-mode-map
-  "j" #'archive-next-line
-  "k" #'archive-previous-line
-  "o" #'archive-extract-other-window
-  "m" #'archive-mark
-  "u" #'archive-unflag
-  "C" #'archive-copy-file)
 
 ;;; image
 
 (require 'image-mode)
-
-(keymap-set image-mode-map "<remap> <evil-next-line>" #'image-next-line)
-(keymap-set image-mode-map "<remap> <evil-previous-line>" #'image-previous-line)
-(keymap-set image-mode-map "<remap> <evil-next-visual-line>" #'image-next-line)
-(keymap-set image-mode-map "<remap> <evil-previous-visual-line>" #'image-previous-line)
-(keymap-set image-mode-map "<remap> <evil-backward-char>" #'image-backward-hscroll)
-(keymap-set image-mode-map "<remap> <evil-forward-char>" #'image-forward-hscroll)
-(keymap-set image-mode-map "<remap> <evil-scroll-down>" #'image-scroll-up)
-(keymap-set image-mode-map "<remap> <evil-scroll-up>" #'image-scroll-down)
-(keymap-set image-mode-map "<remap> <evil-scroll-left>" #'image-scroll-right)
-(keymap-set image-mode-map "<remap> <evil-scroll-right>" #'image-scroll-left)
-(keymap-set image-mode-map "<remap> <evil-goto-first-line>" #'image-bob)
-(keymap-set image-mode-map "<remap> <evil-goto-line>" #'image-eob)
 
 (keymap-set image-mode-map "C-=" #'image-increase-size)
 (keymap-set image-mode-map "C-+" #'image-increase-size)
@@ -820,9 +568,6 @@ Support:
 (keymap-set image-mode-map "M-n" #'image-next-file)
 (keymap-set image-mode-map "M-p" #'image-previous-file)
 
-(init-evil-keymap-set 'normal image-mode-map
-  "m" #'image-mode-mark-file
-  "u" #'image-mode-unmark-file)
 
 ;;; process
 
@@ -999,8 +744,6 @@ With two universal ARG, open in this window."
 
 (setq ediff-window-setup-function #'ediff-setup-windows-plain)
 
-(evil-set-initial-state 'ediff-mode 'emacs)
-
 (defun init-ediff-scroll-up ()
   "Scroll up in ediff."
   (interactive)
@@ -1060,24 +803,18 @@ With two universal ARG, open in this window."
 
 (keymap-set magit-mode-map "<remap> <quit-window>" #'magit-mode-bury-buffer)
 
-(evil-set-initial-state 'magit-mode 'normal)
+(defvar init-magit-keys
+  '("a" "A" "b" "B" "c" "C" "d" "D" "e" "E" "f" "F" "i" "I" "m"
+    "o" "O" ("P" . "p") "P" "r" "R" "s" "S" "t" "T" "u" "U" "w" "W" "x" "X" "z")
+  "Keys merged from `magit-mode-map'.")
 
-(init-evil-keymap-set 'motion magit-mode-map
-  "," #'magit-dispatch)
+(vim-define-major-mode-map 'magit-mode)
 
-(defvar init-magit-normal-command-keys
-  (list
-   ?a ?A ?b ?B ?c ?C ?d ?D ?e ?E ?f ?F ?i ?I ?m ?M
-   ?o ?O ?r ?R ?s ?S ?t ?T ?u ?U ?w ?W ?x ?X ?z ?Z))
+(vim-integrated-merge 'magit-mode '(normal visual) magit-mode-map init-magit-keys)
 
-(apply
- #'evil-define-key* 'normal magit-mode-map
- "p" #'magit-push
- "P" #'magit-push
- (seq-mapcat
-  (lambda (key)
-    (list (vector key) (lookup-key magit-mode-map (vector key))))
-  init-magit-normal-command-keys))
+(vim-major-mode-map-set
+ 'magit-mode '(normal visual)
+ "," #'magit-dispatch)
 
 (keymap-set magit-blob-mode-map "<remap> <quit-window>" #'magit-kill-this-buffer)
 (keymap-set magit-blob-mode-map "M-n" #'magit-blob-next)
@@ -1198,10 +935,9 @@ EXPANSION may be:
 
 (add-hook 'minibuffer-mode-hook #'init-minibuffer-set-company)
 
-(define-advice company-call-backend (:before-until (command &rest _) check-evil)
+(define-advice company-call-backend (:before-until (command &rest _) check-vim)
   (and (eq command 'prefix)
-       evil-local-mode
-       (not (memq evil-state '(insert replace emacs)))))
+       (or vim-normal-mode vim-visual-mode)))
 
 ;;;; eldoc
 
@@ -1289,7 +1025,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (setq eglot-extend-to-xref t)
 
-(keymap-set eglot-mode-map "<remap> <evil-lookup>" #'init-eldoc-other-window)
+(keymap-set eglot-mode-map "<remap> <init-describe-symbol-dwim>" #'init-eldoc-other-window)
 
 ;;; elisp
 
@@ -1314,13 +1050,13 @@ REPORT-FN see `flymake-diagnostic-functions'."
     (call-interactively func)))
 
 (defmacro init-define-next-sexp-command (last-sexp-command)
-  "Remap LAST-SEXP-COMMAND to next-sexp-command in evil motion state."
+  "Remap LAST-SEXP-COMMAND to next-sexp-command in vim normal mode."
   (let ((next-sexp-command (intern (concat "init-next-sexp@" (symbol-name last-sexp-command)))))
     `(prog1
          (defun ,next-sexp-command ()
            (interactive)
            (init-wrap-next-sexp-command ',last-sexp-command))
-       (define-key evil-motion-state-map [remap ,last-sexp-command] ',next-sexp-command))))
+       (define-key vim-normal-mode-map [remap ,last-sexp-command] ',next-sexp-command))))
 
 ;;;; elisp
 
@@ -1336,9 +1072,6 @@ REPORT-FN see `flymake-diagnostic-functions'."
   (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp))
 
 (add-hook 'emacs-lisp-mode-hook #'init-lisp-set-outline)
-
-(dolist (mode '(emacs-lisp-mode lisp-interaction-mode))
-  (add-to-list 'init-evil-eval-function-alist `(,mode . eval-region)))
 
 (require 'ielm)
 
@@ -1386,7 +1119,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
   (interactive)
   (describe-symbol (symbol-at-point)))
 
-(setq evil-lookup-func #'init-describe-symbol-dwim)
+(keymap-set vim-normal-mode-map "K" #'init-describe-symbol-dwim)
 
 ;;; clojure
 
@@ -1557,8 +1290,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (keymap-set cider-mode-map "C-c C-i" #'cider-insert-last-sexp-in-repl)
 (keymap-set cider-mode-map "C-c C-;" #'cider-pprint-eval-last-sexp-to-comment)
 
-(dolist (mode '(clojurec-mode clojure-mode clojurescript-mode))
-  (add-to-list 'init-evil-eval-function-alist `(,mode . cider-eval-region)))
+(add-to-list 'vim-eval-function-alist '(clojure-mode . cider-eval-region))
 
 (defun init-counsel-cider-repl-history ()
   "Browse Cider REPL history."
@@ -1572,7 +1304,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-M-q" #'cider-format-edn-last-sexp)
-  (keymap-set map "<remap> <evil-lookup>" #'cider-doc)
+  (keymap-set map "<remap> <init-describe-symbol-dwim>" #'cider-doc)
   (keymap-set map "<remap> <init-history-placeholder>" #'init-counsel-cider-repl-history))
 
 (defun init-cider-repl-set-xref ()
@@ -1632,8 +1364,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (keymap-set python-base-mode-map "C-c C-k" #'python-shell-send-buffer)
 
-(dolist (mode '(python-mode python-ts-mode))
-  (add-to-list 'init-evil-eval-function-alist `(,mode . python-shell-send-region)))
+(add-to-list 'vim-eval-function-alist '(python-mode . python-shell-send-region))
 
 ;;; org
 
@@ -1710,7 +1441,7 @@ REPORT-FN see `flymake-diagnostic-functions'."
       (forward-char))
     (call-interactively #'org-roam-node-insert)))
 
-(keymap-set evil-normal-state-map "<remap> <org-roam-node-insert>" #'init-org-roam-node-append)
+(keymap-set vim-normal-mode-map "<remap> <org-roam-node-insert>" #'init-org-roam-node-append)
 
 ;;; markdown
 
@@ -1724,42 +1455,9 @@ REPORT-FN see `flymake-diagnostic-functions'."
 (keymap-global-set "C-SPC" #'toggle-input-method)
 (keymap-global-set "C-@" #'toggle-input-method)
 
-(dolist (state '(operator motion normal visual))
-  (setf (plist-get (cdr (assq state evil-state-properties)) :input-method) t))
-
-;; ugly work around before https://github.com/emacs-evil/evil/pull/1995 merged
-
-(defvar init-ignore-toggle-input-method nil)
-
-(defun toggle-input-method@check-ignore (&rest _)
-  "Check ignore before toggle input method."
-  init-ignore-toggle-input-method)
-
-(defun evil-state@ignore-toggle-input-method (func &rest args)
-  "Ignore toggle input method around command.
-FUNC ARGS see specified commands."
-  (let ((init-ignore-toggle-input-method t))
-    (apply func args)))
-
-(dolist (func '(toggle-input-method
-                activate-input-method
-                deactivate-input-method))
-  (advice-add func :before-until #'toggle-input-method@check-ignore))
-
-(dolist (func '(evil-local-mode
-                evil-emacs-state
-                evil-insert-state
-                evil-replace-state
-                evil-operator-state
-                evil-motion-state
-                evil-normal-state
-                evil-visual-state))
-  (advice-add func :around #'evil-state@ignore-toggle-input-method))
-
 (defun init-ignore-input-method-p ()
   "Predicate of input method."
-  (and evil-local-mode
-       (memq evil-state '(operator motion normal visual))))
+  (or vim-normal-mode vim-visual-mode))
 
 (defun init-wrap-input-method (func event)
   "Wrap a `input-method-function' FUNC that process ignore and jk escape.
@@ -1884,15 +1582,6 @@ EVENT see `input-method-function'."
 
 ;;; leaders
 
-(defvar-keymap init-evil-override-mode-map)
-
-(define-minor-mode init-evil-override-mode
-  "Override leader prefix map."
-  :group 'init-evil
-  :global t
-  :init-value t
-  :keymap init-evil-override-mode-map)
-
 (defvar-keymap init-leader-map)
 
 (defun init-leader-set (&rest clauses)
@@ -1913,9 +1602,8 @@ EVENT see `input-method-function'."
   (interactive)
   (init-leader-wrap-spc #'scroll-up-command))
 
-(init-evil-keymap-set 'motion init-evil-override-mode-map
-  "SPC" init-leader-map
-  "<remap> <scroll-up-command>" #'init-leader-or-scroll-up-command)
+(keymap-set vim-normal-mode-map "SPC" init-leader-map)
+(keymap-set vim-normal-mode-map "<remap> <scroll-up-command>" #'init-leader-or-scroll-up-command)
 
 (defun init-magic-prefix (prefix)
   "Magically read and execute command on PREFIX."
@@ -2019,7 +1707,7 @@ EVENT see `input-method-function'."
  "W" #'org-store-link
  "N" #'org-roam-node-find
  "R" #'org-roam-ref-find
- "w" evil-window-map
+ "w" window-prefix-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
  "t" tab-prefix-map
