@@ -74,6 +74,24 @@
 
 (vim-global-mode 1)
 
+(defvar-keymap init-leader-map)
+
+(defun init-leader-wrap-spc (command)
+  "Wrap COMMAND on spc as leader key."
+  (if (eq last-command-event 32)
+      (set-transient-map init-leader-map)
+    (setq this-command command)
+    (setq real-this-command command)
+    (call-interactively command)))
+
+(defun init-leader-or-scroll-up-command ()
+  "Leader aware scroll up command."
+  (interactive)
+  (init-leader-wrap-spc #'scroll-up-command))
+
+(keymap-set vim-normal-mode-map "SPC" init-leader-map)
+(keymap-set vim-normal-mode-map "<remap> <scroll-up-command>" #'init-leader-or-scroll-up-command)
+
 (defun init-vim-merge (major modes map keys)
   "Set KEYS in the MODES override maps of major mode MAJOR as bound in MAP.
 Each element of KEYS is either KEY or (FROM . KEY), where FROM is the key
@@ -294,6 +312,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (setq kill-do-not-save-duplicates t)
 (setq-default indent-tabs-mode nil)
 (setq-default truncate-lines t)
+
+(keymap-global-set "C-z" [escape])
 
 (require 'hl-line)
 (require 'display-line-numbers)
@@ -810,34 +830,30 @@ With two universal ARG, open in this window."
   (let ((last-command-event ?v))
     (call-interactively #'ediff-scroll-vertically)))
 
-(defun init-ediff-scroll-left ()
-  "Scroll left in ediff."
-  (interactive)
-  (let ((last-command-event ?>))
-    (call-interactively #'ediff-scroll-horizontally)))
-
-(defun init-ediff-scroll-right ()
-  "Scroll right in ediff."
-  (interactive)
-  (let ((last-command-event ?<))
-    (call-interactively #'ediff-scroll-horizontally)))
-
 (defun init-ediff-jump-to-last-difference ()
   "Jump to last difference."
   (interactive)
   (ediff-jump-to-difference -1))
 
-(define-advice ediff-setup-keymap (:after () evil)
+(define-advice ediff-setup-keymap (:after () vim)
   (keymap-set ediff-mode-map "j" #'ediff-next-difference)
   (keymap-set ediff-mode-map "k" #'ediff-previous-difference)
   (keymap-set ediff-mode-map "g g" #'ediff-jump-to-difference)
   (keymap-set ediff-mode-map "G" #'init-ediff-jump-to-last-difference)
-  (keymap-set ediff-mode-map "C-d" #'init-ediff-scroll-down)
-  (keymap-set ediff-mode-map "C-u" #'init-ediff-scroll-up)
-  (keymap-set ediff-mode-map "<up>" #'init-ediff-scroll-up)
-  (keymap-set ediff-mode-map "<down>" #'init-ediff-scroll-down)
-  (keymap-set ediff-mode-map "<left>" #'init-ediff-scroll-left)
-  (keymap-set ediff-mode-map "<right>" #'init-ediff-scroll-right))
+  (keymap-set ediff-mode-map "M-j" #'init-ediff-scroll-down)
+  (keymap-set ediff-mode-map "M-k" #'init-ediff-scroll-up)
+  (keymap-set ediff-mode-map "SPC" init-leader-map))
+
+(defvar-keymap vim-ediff-mode-normal-override-map)
+(defvar-keymap vim-ediff-mode-visual-override-map)
+(defvar-keymap vim-ediff-mode-insert-override-map)
+
+(setf (alist-get 'ediff-mode vim-major-mode-map-alist)
+      (list (cons 'normal vim-ediff-mode-normal-override-map)
+            (cons 'visual vim-ediff-mode-visual-override-map)
+            (cons 'insert vim-ediff-mode-insert-override-map)))
+
+(add-hook 'ediff-mode-hook #'vim-change-mode-to-default)
 
 ;;;; with editor
 
@@ -1635,28 +1651,10 @@ EVENT see `input-method-function'."
 
 ;;; leaders
 
-(defvar-keymap init-leader-map)
-
 (defun init-leader-set (&rest clauses)
   "Set leader binding CLAUSES in `init-leader-map'."
   (dolist (binding (seq-partition clauses 2))
     (keymap-set init-leader-map (car binding) (cadr binding))))
-
-(defun init-leader-wrap-spc (command)
-  "Wrap COMMAND on spc as leader key."
-  (if (eq last-command-event 32)
-      (set-transient-map init-leader-map)
-    (setq this-command command)
-    (setq real-this-command command)
-    (call-interactively command)))
-
-(defun init-leader-or-scroll-up-command ()
-  "Leader aware scroll up command."
-  (interactive)
-  (init-leader-wrap-spc #'scroll-up-command))
-
-(keymap-set vim-normal-mode-map "SPC" init-leader-map)
-(keymap-set vim-normal-mode-map "<remap> <scroll-up-command>" #'init-leader-or-scroll-up-command)
 
 (defun init-magic-prefix (prefix)
   "Magically read and execute command on PREFIX."
