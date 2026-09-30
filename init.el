@@ -109,6 +109,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 ;;; files
 
+(defalias 'w 'save-buffer)
+
 (setq column-number-mode t)
 (setq mode-line-percent-position '(6 "%q"))
 (setq mode-line-position-line-format '(" %lL"))
