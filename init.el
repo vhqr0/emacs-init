@@ -219,7 +219,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (defvar init-ibuffer-keys
   '(("n" . "j") ("p" . "k")
-    "d" "D" "m" "o" "O" "s" "S" "t" "u" "U" "x" "%")
+    "d" "D" "m" "M" "o" "O" "r" "R" "s" "S" "t" "T" "u" "U" "x" "X" "%" "=" "~")
   "Keys merged from `ibuffer-mode-map'.")
 
 (vim-define-major-mode-map 'ibuffer-mode)
@@ -594,7 +594,7 @@ Support:
 
 (defvar init-dired-keys
   '(("n" . "j") ("p" . "k")
-    "c" "C" "d" "D" "m" "o" "O" "r" "R" "s" "S" "t" "T" "u" "U" "x" "X" "%" "=" "~")
+    "c" "C" "d" "D" "m" "M" "o" "O" "r" "R" "s" "S" "t" "T" "u" "U" "x" "X" "%" "=" "~")
   "Keys merged from `dired-mode-map'.")
 
 (vim-define-major-mode-map 'dired-mode)
@@ -605,7 +605,7 @@ Support:
 
 (defvar init-archive-keys
   '(("n" . "j") ("p" . "k")
-    "C" "m" "o" "u")
+    "c" "C" "d" "D" "m" "M" "o" "O" "r" "R" "u" "U" "x" "X")
   "Keys merged from `archive-mode-map'.")
 
 (vim-define-major-mode-map 'archive-mode)
@@ -812,7 +812,7 @@ With two universal ARG, open in this window."
 (require 'log-view)
 
 (defvar init-log-view-keys
-  '("a" "C" "d" "D" "e" "f" "m" "R" "u" "U" "w" "x" "X" "=")
+  '("d" "D" "m" "u" "U" "=")
   "Keys merged from `log-view-mode-map'.")
 
 (vim-define-major-mode-map 'log-view-mode)
