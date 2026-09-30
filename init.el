@@ -344,6 +344,13 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
 
+(setq isearch-lazy-count t)
+(setq isearch-allow-scroll t)
+(setq isearch-allow-motion t)
+(setq isearch-yank-on-move t)
+(setq isearch-motion-changes-direction t)
+;; (setq isearch-repeat-on-direction-change t)
+
 (defun init-occur-at-point ()
   "Occur thing at point."
   (interactive)
