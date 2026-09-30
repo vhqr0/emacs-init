@@ -1532,10 +1532,12 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
 (keymap-global-set "C-@" #'toggle-input-method)
+(keymap-set isearch-mode-map "C-SPC" #'isearch-toggle-input-method)
+(keymap-set isearch-mode-map "C-@" #'isearch-toggle-input-method)
 
 (defun init-ignore-input-method-p ()
   "Predicate of input method."
-  (or vim-normal-mode vim-visual-mode))
+  (and (not isearch-mode) (or vim-normal-mode vim-visual-mode)))
 
 (defun init-wrap-input-method (func event)
   "Wrap a `input-method-function' FUNC that process ignore and jk escape.
@@ -1558,6 +1560,14 @@ EVENT see `input-method-function'."
   (init-wrap-input-method #'list event))
 
 (setq-default input-method-function #'init-input-method)
+
+(defun init-set-default-input-method ()
+  "Set default input method function to `init-input-method'."
+  (unless input-method-function
+    (setq-local input-method-function #'init-input-method)))
+
+(add-hook 'isearch-mode-hook #'init-set-default-input-method)
+(advice-add #'isearch-toggle-input-method :after #'init-set-default-input-method)
 
 ;;;; pyim
 
