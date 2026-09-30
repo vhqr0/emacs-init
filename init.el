@@ -76,21 +76,7 @@
 
 (defvar-keymap init-leader-map)
 
-(defun init-leader-wrap-spc (command)
-  "Wrap COMMAND on spc as leader key."
-  (if (eq last-command-event 32)
-      (set-transient-map init-leader-map)
-    (setq this-command command)
-    (setq real-this-command command)
-    (call-interactively command)))
-
-(defun init-leader-or-scroll-up-command ()
-  "Leader aware scroll up command."
-  (interactive)
-  (init-leader-wrap-spc #'scroll-up-command))
-
 (keymap-set vim-normal-mode-map "SPC" init-leader-map)
-(keymap-set vim-normal-mode-map "<remap> <scroll-up-command>" #'init-leader-or-scroll-up-command)
 
 (defun init-vim-merge (major modes map keys)
   "Set KEYS in the MODES override maps of major mode MAJOR as bound in MAP.
