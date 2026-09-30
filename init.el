@@ -807,6 +807,18 @@ With two universal ARG, open in this window."
 
 ;;; vc
 
+;;;; log view
+
+(require 'log-view)
+
+(defvar init-log-view-keys
+  '("a" "C" "d" "D" "e" "f" "m" "R" "u" "U" "w" "x" "X" "=")
+  "Keys merged from `log-view-mode-map'.")
+
+(vim-define-major-mode-map 'log-view-mode)
+
+(init-vim-merge 'log-view-mode '(normal visual) log-view-mode-map init-log-view-keys)
+
 ;;;; ediff
 
 (require 'ediff)
