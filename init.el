@@ -819,6 +819,19 @@ With two universal ARG, open in this window."
 
 (init-vim-merge 'log-view-mode '(normal visual) log-view-mode-map init-log-view-keys)
 
+;;;; vc dir
+
+(require 'vc-dir)
+
+(defvar init-vc-dir-keys
+  '(("n" . "j") ("p" . "k")
+    "d" "D" "m" "M" "u" "U" "x" "o" "O" "I" ("P" . "p") "P" "%" "=")
+  "Keys merged from `vc-dir-mode-map'.")
+
+(vim-define-major-mode-map 'vc-dir-mode)
+
+(init-vim-merge 'vc-dir-mode '(normal visual) vc-dir-mode-map init-vc-dir-keys)
+
 ;;;; ediff
 
 (require 'ediff)
