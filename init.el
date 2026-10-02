@@ -97,6 +97,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 ;;; files
 
+(require 'header-line-x)
+
 (defalias 'w 'save-buffer)
 
 (setq column-number-mode t)
@@ -460,20 +462,17 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 ;;; outline
 
 (require 'outline)
+(require 'outline-x)
 
 (setq outline-minor-mode-cycle t)
 (setq outline-minor-mode-highlight 'override)
 ;; (setq outline-minor-mode-use-buttons 'in-margins)
-
-(require 'outline-x)
 
 (keymap-set narrow-map "s" #'outline-x-narrow-to-subtree)
 
 ;;; occur
 
 (keymap-set occur-mode-map "C-c C-p" #'occur-edit-mode)
-
-(require 'header-line-x)
 
 (add-hook 'occur-mode-hook #'header-line-x-occur-setup)
 
@@ -1113,10 +1112,9 @@ EVENT see `input-method-function'."
 (require 'posframe)
 (require 'pyim)
 (require 'pyim-basedict)
+(require 'pyim-zirjma)
 
 (setq default-input-method "pyim")
-
-(require 'pyim-zirjma)
 
 (setq pyim-default-scheme 'zirjma)
 (setq pyim-pinyin-fuzzy-alist nil)
