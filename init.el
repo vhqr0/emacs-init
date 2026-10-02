@@ -116,16 +116,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set ctl-x-x-map "G" #'revert-buffer)
 
-(defvar-keymap init-header-revert-keymap
-  "<header-line> <mouse-1>" #'revert-buffer)
-
-(defvar init-revert-header-line-format
-  (propertize
-   "Revert"
-   'face 'mode-line-buffer-id
-   'mouse-face 'mode-line-highlight
-   'local-map init-header-revert-keymap))
-
 (keymap-set ctl-x-x-map "<left>" #'previous-buffer)
 (keymap-set ctl-x-x-map "<right>" #'next-buffer)
 
@@ -493,48 +483,9 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set occur-mode-map "C-c C-p" #'occur-edit-mode)
 
-(defun init-occur-edit-regexp ()
-  "Edit occur regexp."
-  (interactive)
-  (let ((regexp (read-string "Occur regexp: " (car occur-revert-arguments) 'regexp-history)))
-    (setf (car occur-revert-arguments) regexp))
-  (occur-revert-function nil nil))
+(require 'header-line-x)
 
-(defun init-occur-edit-buffer ()
-  "Edit occur buffer."
-  (interactive)
-  (let ((buffer (get-buffer (read-buffer "Occur buffer: " nil t))))
-    (setq default-directory (buffer-local-value 'default-directory buffer))
-    (setq occur-revert-arguments (list (car occur-revert-arguments) nil (list buffer))))
-  (occur-revert-function nil nil))
-
-(defvar-keymap init-occur-header-edit-regexp-keymap
-  "<header-line> <mouse-1>" #'init-occur-edit-regexp)
-
-(defvar-keymap init-occur-header-edit-buffer-keymap
-  "<header-line> <mouse-1>" #'init-occur-edit-buffer)
-
-(defvar init-occur-header-line-format
-  (concat
-   init-revert-header-line-format
-   " "
-   (propertize
-    "EditRegexp"
-    'face 'mode-line-buffer-id
-    'mouse-face 'mode-line-highlight
-    'local-map init-occur-header-edit-regexp-keymap)
-   " "
-   (propertize
-    "EditBuffer"
-    'face 'mode-line-buffer-id
-    'mouse-face 'mode-line-highlight
-    'local-map init-occur-header-edit-buffer-keymap)))
-
-(defun init-occur-set-header ()
-  "Set header."
-  (setq header-line-format init-occur-header-line-format))
-
-(add-hook 'occur-mode-hook #'init-occur-set-header)
+(add-hook 'occur-mode-hook #'header-line-x-occur-setup)
 
 ;;; dired
 
@@ -606,46 +557,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
-(defun init-compile-edit-command ()
-  "Edit compile command."
-  (interactive)
-  (recompile t))
-
-(defun init-compile-edit-directory ()
-  "Edit compile directory."
-  (interactive)
-  (let ((directory (read-directory-name "Compile directory: ")))
-    (setq default-directory directory)
-    (setq compilation-directory directory))
-  (apply #'compilation-start compilation-arguments))
-
-(defvar-keymap init-compile-header-edit-command-keymap
-  "<header-line> <mouse-1>" #'init-compile-edit-command)
-
-(defvar-keymap init-compile-header-edit-directory-keymap
-  "<header-line> <mouse-1>" #'init-compile-edit-directory)
-
-(defvar init-compile-header-line-format
-  (concat
-   init-revert-header-line-format
-   " "
-   (propertize
-    "EditCommand"
-    'face 'mode-line-buffer-id
-    'mouse-face 'mode-line-highlight
-    'local-map init-compile-header-edit-command-keymap)
-   " "
-   (propertize
-    "EditDirectory"
-    'face 'mode-line-buffer-id
-    'mouse-face 'mode-line-highlight
-    'local-map init-compile-header-edit-directory-keymap)))
-
-(defun init-compile-set-header ()
-  "Set header."
-  (setq header-line-format init-compile-header-line-format))
-
-(add-hook 'compilation-mode-hook #'init-compile-set-header)
+(add-hook 'compilation-mode-hook #'header-line-x-compile-setup)
 
 ;;;; grep
 
