@@ -59,6 +59,8 @@
     cider
     markdown-mode
     edit-indirect
+    denote
+    denote-markdown
     pyim
     pyim-basedict
     posframe
@@ -1030,6 +1032,14 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (vim-define-major-mode-map 'markdown-x-agenda-mode)
 
 (init-vim-merge 'markdown-x-agenda-mode '(normal visual) markdown-x-agenda-mode-map init-markdown-x-agenda-keys)
+
+;;;; denote
+
+(require 'denote)
+(require 'denote-markdown)
+
+(setq denote-directory (expand-file-name "denote" priv-directory))
+(setq denote-file-type 'markdown-yaml)
 
 ;;; input method
 
