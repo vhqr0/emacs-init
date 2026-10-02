@@ -54,11 +54,9 @@
     git-modes
     with-editor
     magit
-    orgit
     macrostep
     clojure-mode
     cider
-    org-roam
     markdown-mode
     edit-indirect
     pyim
@@ -982,91 +980,13 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-to-list 'vim-eval-function-alist '(python-mode . python-shell-send-region))
 
-;;; org
-
-(require 'org)
-(require 'org-macs)
-(require 'org-agenda)
-(require 'org-capture)
-
-(add-to-list 'org-modules 'org-id)
-(add-to-list 'org-modules 'org-mouse)
-(add-to-list 'org-modules 'org-tempo)
-(add-to-list 'org-modules 'ol-eshell)
-
-(setq org-special-ctrl-a/e t)
-(setq org-sort-function #'org-sort-function-fallback)
-(setq org-tags-sort-function #'org-string<)
-(setq org-link-descriptive nil)
-
-(setq org-directory (expand-file-name "org" user-emacs-directory))
-(setq org-agenda-files (list org-directory))
-(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
-
-(setq org-capture-templates
-      '(("t" "Todo"                      entry (file "") "* TODO %?\n%U")
-        ("a" "Todo With Annotation"      entry (file "") "* TODO %?\n%U\n%a")
-        ("i" "Todo With Initial Content" entry (file "") "* TODO %?\n%U\n%i")
-        ("c" "Todo With Kill Ring Head"  entry (file "") "* TODO %?\n%U\n%c")))
-
-(defun init-org-set-syntax ()
-  "Modify `org-mode' syntax table."
-  (modify-syntax-entry ?< "." org-mode-syntax-table)
-  (modify-syntax-entry ?> "." org-mode-syntax-table))
-
-(add-hook 'org-mode-hook #'init-org-set-syntax)
-
-(keymap-global-set "C-c o" #'org-open-at-point-global)
-(keymap-global-set "C-c l" #'org-insert-link-global)
-
-(keymap-set org-mode-map "<remap> <org-open-at-point-global>" #'org-open-at-point)
-(keymap-set org-mode-map "<remap> <org-insert-link-global>" #'org-insert-link)
-
-(keymap-set org-src-mode-map "C-c C-c" #'org-edit-src-exit)
-
-;;;; roam
-
-(require 'org-roam)
-
-(setq org-roam-directory (expand-file-name "notes" priv-directory))
-
-(setq org-roam-node-display-template
-      (concat "${title:*} " (propertize "${tags:30}" 'face 'org-tag)))
-
-(add-hook 'after-init-hook #'org-roam-db-autosync-mode)
-
-(defvar-keymap init-org-roam-command-map
-  "n" #'org-roam-node-find
-  "l" #'org-roam-node-insert
-  "c" #'org-roam-capture
-  "b" #'org-roam-buffer-toggle
-  "t" #'org-roam-tag-add
-  "T" #'org-roam-tag-remove
-  "a" #'org-roam-alias-add
-  "A" #'org-roam-alias-remove
-  "r" #'org-roam-ref-add
-  "R" #'org-roam-ref-remove)
-
-(keymap-global-set "C-c n" init-org-roam-command-map)
-
-(defun init-org-roam-node-append ()
-  "Append Org Roam node link."
-  (interactive)
-  (save-excursion
-    (unless (eolp)
-      (forward-char))
-    (call-interactively #'org-roam-node-insert)))
-
-(keymap-set vim-normal-mode-map "<remap> <org-roam-node-insert>" #'init-org-roam-node-append)
-
 ;;; markdown
 
 (require 'markdown-mode)
+(require 'markdown-x)
 
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
-
-(require 'markdown-x)
 
 (setq markdown-x-capture-major-mode #'markdown-mode)
 
@@ -1261,11 +1181,8 @@ EVENT see `input-method-function'."
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
- "A" #'org-agenda
- "C" #'org-capture
- "W" #'org-store-link
- "N" #'org-roam-node-find
- "R" #'org-roam-ref-find
+ "C" #'markdown-x-capture
+ "T" #'markdown-x-agenda-todo
  "w" window-prefix-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
