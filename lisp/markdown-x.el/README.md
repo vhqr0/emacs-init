@@ -19,8 +19,7 @@ without reindenting.
 Without templates, `markdown-x-capture` captures to
 `markdown-x-capture-default-file` (`~/.emacs.d/notes.md`) by
 `markdown-x-capture-default-template`: a TODO heading, the current time, the
-file and line where capture started, and the text of the line as indented
-code.
+file and line where capture started, and the text of the line in a code block.
 
 ```elisp
 (setq markdown-x-capture-major-mode #'markdown-mode)

@@ -990,6 +990,25 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (setq markdown-x-capture-major-mode #'markdown-mode)
 
+(setq markdown-x-capture-templates
+      `((?t "Todo" ,markdown-x-capture-default-file
+            "# TODO $0
+`(format-time-string \"%F %a %R\")`
+")
+        (?a "Todo With Context" ,markdown-x-capture-default-file
+            "# TODO $0
+`(format-time-string \"%F %a %R\")`
+`(or markdown-x-capture-origin-file (buffer-name markdown-x-capture-origin-buffer))` `markdown-x-capture-origin-line`
+\\`\\`\\`
+`(string-trim-right (or markdown-x-capture-origin-region markdown-x-capture-origin-line-text) \"\\n+\")`
+\\`\\`\\`
+")
+        (?i "Todo With Initial Content" ,markdown-x-capture-default-file
+            "# TODO $0
+`(format-time-string \"%F %a %R\")`
+`(or markdown-x-capture-origin-region (ignore-errors (current-kill 0 t)) \"\")`
+")))
+
 (keymap-set markdown-mode-map "C-c C-t" #'markdown-x-toggle-todo)
 
 ;;; input method

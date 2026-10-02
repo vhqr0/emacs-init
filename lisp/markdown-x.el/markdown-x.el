@@ -53,7 +53,9 @@ snippet, expanded and then appended to FILE.")
   "# TODO $0
 `(format-time-string \"%F %a %R\")`
 `(or markdown-x-capture-origin-file (buffer-name markdown-x-capture-origin-buffer))` `markdown-x-capture-origin-line`
-    `markdown-x-capture-origin-line-text`
+\\`\\`\\`
+`markdown-x-capture-origin-line-text`
+\\`\\`\\`
 "
   "Default capture template, used when `markdown-x-capture-templates' is nil.")
 

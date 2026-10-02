@@ -177,7 +177,7 @@
                (concat "\\`# TODO qux\n"
                        "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [A-Z][a-z]\\{2\\} [0-9]\\{2\\}:[0-9]\\{2\\}\n"
                        (regexp-quote (expand-file-name "inbox.md")) " 2\n"
-                       "    ## TODO foo\n\\'")
+                       "```\n## TODO foo\n```\n\\'")
                (markdown-x-test-read "default.md"))))))
 
 (ert-deftest markdown-x-test-capture-origin ()
