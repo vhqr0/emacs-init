@@ -10,7 +10,7 @@
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
 (defvar priv-directory (expand-file-name "emacs-priv" user-emacs-directory))
 
-(add-to-list 'load-path (expand-file-name "vim.el" init-directory))
+(add-to-list 'load-path (expand-file-name "lisp/vim.el" init-directory))
 
 (setq load-prefer-newer t)
 

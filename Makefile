@@ -5,4 +5,4 @@ setup:
 
 .PHONY: compile
 compile:
-	$(MAKE) -C vim.el compile
+	$(MAKE) -C lisp/vim.el compile

@@ -1,3 +1,3 @@
 [submodule "vim.el"]
-	path = vim.el
+	path = lisp/vim.el
 	url = git@github.com:vhqr0/vim.el
