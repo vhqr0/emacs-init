@@ -874,59 +874,11 @@ With two universal ARG, edit rg command."
 
 (add-hook 'after-init-hook #'yas-global-mode)
 
-(defun init-abbrev-yas-define (table abbrev snippet &optional env)
-  "Define an ABBREV in TABLE, to expand a yas SNIPPET with ENV."
-  (let ((length (length abbrev))
-        (hook (make-symbol abbrev))
-        (ensure-pair (car (alist-get 'ensure-pair env))))
-    (put hook 'no-self-insert t)
-    (fset hook (lambda ()
-                 (delete-char (- length))
-                 (when (and ensure-pair (/= ?\( (char-before)))
-                   (insert-pair 0 ?\( ?\)))
-                 (yas-expand-snippet snippet nil nil env)))
-    (define-abbrev table abbrev 'yas hook :system t)))
+(require 'simple-abbrev)
 
-(defun init-abbrev-define (table abbrev expansion)
-  "Define an ABBREV in TABLE, to expand as EXPANSION.
-EXPANSION may be:
-- text: (text \"expansion\")
-- yas: (yas \"expansion\" (ENVSYM ENVVAL) ...)"
-  (let ((expansion-type (car expansion))
-        (expansion (cdr expansion)))
-    (cond ((eq expansion-type 'text)
-           (define-abbrev table abbrev (car expansion) nil :system t))
-          ((eq expansion-type 'yas)
-           (init-abbrev-yas-define table abbrev (car expansion) (cdr expansion)))
-          (t
-           (user-error "Invalid abbrev expansion type")))))
+(setq simple-abbrev-file (expand-file-name "abbrevs.eld" priv-directory))
 
-(defun init-abbrev-define-table (tablename defs)
-  "Define abbrev table with TABLENAME and abbrevs DEFS."
-  (let ((table (if (boundp tablename) (symbol-value tablename))))
-    (unless table
-      (setq table (make-abbrev-table))
-      (set tablename table))
-    (unless (memq tablename abbrev-table-name-list)
-      (push tablename abbrev-table-name-list))
-    (dolist (def defs)
-      (init-abbrev-define table (car def) (cdr def)))))
-
-(defvar init-abbrev-file
-  (expand-file-name "abbrevs.eld" priv-directory))
-
-(defun init-abbrev-load (&optional file)
-  "Load abbrevs FILE."
-  (interactive)
-  (let ((file (or file init-abbrev-file)))
-    (when (file-exists-p file)
-      (let ((defs (with-temp-buffer
-                    (insert-file-contents file)
-                    (read (buffer-string)))))
-        (dolist (def defs)
-          (init-abbrev-define-table (car def) (cdr def)))))))
-
-(add-hook 'after-init-hook #'init-abbrev-load)
+(add-hook 'after-init-hook #'simple-abbrev-load)
 
 ;;;; company
 
@@ -1186,41 +1138,10 @@ EXPANSION may be:
 
 ;;;;; macrostep
 
-(defun init-cider-macrostep-macro-form-p (_sexp _env)
-  "Macro?"
-  t)
-
-(defun init-cider-macrostep-sexp-bounds ()
-  "Find bounds of macro sexp."
-  (interactive)
-  (bounds-of-thing-at-point 'sexp))
-
-(defun init-cider-macrostep-expand (sexp _env)
-  "Expand SEXP using Cider."
-  (or (cider-sync-request:macroexpand "macroexpand" sexp)
-      (user-error "Macro expansion failed")))
-
-(defun init-cider-macrostep-expand-1 (sexp _env)
-  "Expand SEXP using Cider."
-  (or (cider-sync-request:macroexpand "macroexpand-1" sexp)
-      (user-error "Macro expansion failed")))
-
-(defun init-cider-macrostep-insert (sexp _env)
-  "Insert expanded SEXP."
-  (insert (propertize sexp 'face 'macrostep-expansion-highlight-face)))
-
-(defun init-cider-set-macrostep ()
-  "Set Cider macroexpand backends."
-  (setq-local macrostep-environment-at-point-function #'ignore)
-  (setq-local macrostep-macro-form-p-function #'init-cider-macrostep-macro-form-p)
-  (setq-local macrostep-sexp-bounds-function #'init-cider-macrostep-sexp-bounds)
-  (setq-local macrostep-sexp-at-point-function #'buffer-substring-no-properties)
-  (setq-local macrostep-expand-function #'init-cider-macrostep-expand)
-  (setq-local macrostep-expand-1-function #'init-cider-macrostep-expand-1)
-  (setq-local macrostep-print-function #'init-cider-macrostep-insert))
+(require 'macrostep-cider)
 
 (dolist (hook '(cider-mode-hook cider-repl-mode-hook))
-  (add-hook hook #'init-cider-set-macrostep))
+  (add-hook hook #'macrostep-cider-setup))
 
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-c e" #'macrostep-expand))
