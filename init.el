@@ -1011,6 +1011,14 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set markdown-mode-map "C-c C-t" #'markdown-x-toggle-todo)
 
+(defvar init-markdown-x-agenda-keys
+  '("o")
+  "Keys merged from `markdown-x-agenda-mode-map'.")
+
+(vim-define-major-mode-map 'markdown-x-agenda-mode)
+
+(init-vim-merge 'markdown-x-agenda-mode '(normal visual) markdown-x-agenda-mode-map init-markdown-x-agenda-keys)
+
 ;;; input method
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
@@ -1201,7 +1209,7 @@ EVENT see `input-method-function'."
  "d" #'dired
  "j" #'dired-jump
  "C" #'markdown-x-capture
- "T" #'markdown-x-agenda-todo
+ "A" #'markdown-x-agenda-todo
  "w" window-prefix-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
