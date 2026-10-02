@@ -8,26 +8,38 @@
 ;;; Commentary:
 
 ;; Jump between source and test files of the current buffer in a project.
-;; Set `project-test-jump-function' in a major mode hook, then call
-;; `project-test-jump'.
+;; Call `project-test-jump', which finds the function to jump by the file
+;; extension in `project-test-jump-function-alist'.
 
 ;;; Code:
 
 (require 'project)
 (require 'subr-x)
 
-(defvar-local project-test-jump-function nil
-  "Function to find the test file of the current buffer.
-It is called with `default-directory' bound to the project root.")
+(defvar project-test-jump-function-alist
+  '(("clj" . project-test-jump-clojure-find-test-file)
+    ("cljc" . project-test-jump-clojure-find-test-file)
+    ("cljs" . project-test-jump-clojure-find-test-file))
+  "Alist of (EXTENSION . FUNCTION) used by `project-test-jump'.
+FUNCTION finds the test file of a buffer whose file name has
+EXTENSION.  It is called with `default-directory' bound to the project
+root.")
 
 ;;;###autoload
 (defun project-test-jump ()
-  "Find the test file of the current buffer in this project."
+  "Find the test file of the current buffer in this project.
+The function is looked up by the file extension in
+`project-test-jump-function-alist'."
   (interactive)
-  (if (not project-test-jump-function)
-      (user-error "No find test file function found")
+  (unless buffer-file-name
+    (user-error "No buffer file name found"))
+  (let ((function (alist-get (file-name-extension buffer-file-name)
+                             project-test-jump-function-alist
+                             nil nil #'equal)))
+    (unless function
+      (user-error "No find test file function found"))
     (let ((default-directory (project-root (project-current t))))
-      (funcall project-test-jump-function))))
+      (funcall function))))
 
 (defun project-test-jump-find-file (files)
   "Find the first existing file in FILES, or create the first one."
@@ -100,11 +112,6 @@ It is called with `default-directory' bound to the project root.")
       (user-error "No buffer file name found")
     (project-test-jump-find-file
      (project-test-jump-clojure-test-files (file-relative-name buffer-file-name)))))
-
-;;;###autoload
-(defun project-test-jump-clojure-setup ()
-  "Set `project-test-jump-function' for Clojure mode."
-  (setq-local project-test-jump-function #'project-test-jump-clojure-find-test-file))
 
 (provide 'project-test-jump)
 ;;; project-test-jump.el ends here

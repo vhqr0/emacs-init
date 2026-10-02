@@ -4,9 +4,10 @@ Jump between source and test files of the current buffer in a project.
 
 ## Usage
 
-Bind `project-test-jump`, and set `project-test-jump-function` locally in a
-major mode hook.  The function is called with `default-directory` bound to the
-project root.
+Bind `project-test-jump`.  It looks up the file extension of the current
+buffer in `project-test-jump-function-alist`, a list of `(EXTENSION .
+FUNCTION)`, and calls FUNCTION with `default-directory` bound to the project
+root.
 
 ```elisp
 (keymap-set project-prefix-map "t" #'project-test-jump)
@@ -17,9 +18,5 @@ creates the first one, which is handy to write such a function.
 
 ## Languages
 
-- Clojure: `src/foo/bar.clj` <-> `test/foo/bar_test.clj`, trying `.clj`,
-  `.cljc` and `.cljs`.
-
-  ```elisp
-  (add-hook 'clojure-mode-hook #'project-test-jump-clojure-setup)
-  ```
+- Clojure (`clj`, `cljc`, `cljs`): `src/foo/bar.clj` <-> `test/foo/bar_test.clj`,
+  trying `.clj`, `.cljc` and `.cljs`.

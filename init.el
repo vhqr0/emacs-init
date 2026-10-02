@@ -49,7 +49,6 @@
     counsel
     yasnippet
     company
-    apheleia
     wgrep
     git-modes
     with-editor
@@ -785,6 +784,10 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
 
+;;;; format
+
+(require 'simple-format)
+
 ;;;; xref
 
 (require 'xref)
@@ -905,9 +908,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
 
-(add-hook 'clojure-mode-hook #'project-test-jump-clojure-setup)
-
-(add-hook 'clojure-mode-hook #'flymake-x-clj-kondo-setup)
+(add-hook 'clojure-mode-hook #'flymake-x-setup)
 
 ;;;; cider
 
@@ -1252,7 +1253,7 @@ EVENT see `input-method-function'."
  "Q" #'init-query-replace-at-point
  "%" #'query-replace-regexp
  "$" #'ispell-word
- "=" #'apheleia-format-buffer
+ "=" #'simple-format-buffer
  "+" #'delete-trailing-whitespace
  "." #'xref-find-definitions
  "?" #'xref-find-references

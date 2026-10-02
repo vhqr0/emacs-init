@@ -8,67 +8,83 @@
 ;;; Commentary:
 
 ;; A generic Flymake backend running an external checker on the buffer.
-;; Set `flymake-x-make-command-function' and
-;; `flymake-x-make-report-function' locally, then add `flymake-x-backend'
-;; to `flymake-diagnostic-functions'.
+;; Add `flymake-x-backend' to `flymake-diagnostic-functions' locally, such
+;; as by `flymake-x-setup' in a mode hook.  It finds the checker by the
+;; major mode in `flymake-x-function-alist'.
 
 ;;; Code:
 
 (require 'flymake)
 
-(defvar-local flymake-x-make-command-function nil
-  "Function returning the checker command, or nil to skip checking.")
-
-(defvar-local flymake-x-make-report-function nil
-  "Function making diagnostics from the checker output.
-It is called with the source buffer in the checker output buffer.")
+(defvar flymake-x-function-alist
+  '((clojure-mode flymake-x-clj-kondo-make-command flymake-x-clj-kondo-make-report))
+  "Alist of (MAJOR COMMAND-FUNCTION REPORT-FUNCTION) used by `flymake-x-backend'.
+COMMAND-FUNCTION returns the checker command, or nil to skip checking.
+The buffer contents are sent to its standard input.  REPORT-FUNCTION is
+called with the source buffer in the checker output buffer, and
+returns the diagnostics.  A major mode uses the functions of its
+nearest ancestor in this alist.")
 
 (defvar-local flymake-x-proc nil
   "Current checker process.")
 
-(defun flymake-x-make-proc (buffer report-fn)
-  "Make Flymake process for BUFFER.
+(defun flymake-x-functions ()
+  "Return the (COMMAND-FUNCTION REPORT-FUNCTION) of the major mode."
+  (seq-some (lambda (major)
+              (alist-get major flymake-x-function-alist))
+            (derived-mode-all-parents major-mode)))
+
+(defun flymake-x-make-proc (buffer command report-function report-fn)
+  "Make Flymake process running COMMAND for BUFFER.
+REPORT-FUNCTION makes the diagnostics, see `flymake-x-function-alist'.
 REPORT-FN see `flymake-x-backend'."
-  (when-let* ((make-command-function (buffer-local-value 'flymake-x-make-command-function buffer)))
-    (when-let* ((command (funcall make-command-function)))
-      (let* ((proc-buffer-name (format "*flymake-x for %s*" (buffer-name buffer)))
-             (sentinel
-              (lambda (proc _event)
-                (when (memq (process-status proc) '(exit signal))
-                  (let ((proc-buffer (process-buffer proc)))
-                    (unwind-protect
-                        (if (eq proc (buffer-local-value 'flymake-x-proc buffer))
-                            (let ((make-report-function (buffer-local-value 'flymake-x-make-report-function buffer)))
-                              (with-current-buffer buffer
-                                (save-excursion
-                                  (save-restriction
-                                    (widen)
-                                    (with-current-buffer proc-buffer
-                                      (widen)
-                                      (goto-char (point-min))
-                                      (funcall report-fn (funcall make-report-function buffer)))))))
-                          (flymake-log :warning "Canceling obsolete checker %s" proc))
-                      (kill-buffer proc-buffer)))))))
-        (make-process
-         :name proc-buffer-name
-         :noquery t
-         :connection-type 'pipe
-         :buffer (generate-new-buffer-name proc-buffer-name)
-         :command command
-         :sentinel sentinel)))))
+  (let* ((proc-buffer-name (format "*flymake-x for %s*" (buffer-name buffer)))
+         (sentinel
+          (lambda (proc _event)
+            (when (memq (process-status proc) '(exit signal))
+              (let ((proc-buffer (process-buffer proc)))
+                (unwind-protect
+                    (if (eq proc (buffer-local-value 'flymake-x-proc buffer))
+                        (with-current-buffer buffer
+                          (save-excursion
+                            (save-restriction
+                              (widen)
+                              (with-current-buffer proc-buffer
+                                (widen)
+                                (goto-char (point-min))
+                                (funcall report-fn (funcall report-function buffer))))))
+                      (flymake-log :warning "Canceling obsolete checker %s" proc))
+                  (kill-buffer proc-buffer)))))))
+    (make-process
+     :name proc-buffer-name
+     :noquery t
+     :connection-type 'pipe
+     :buffer (generate-new-buffer-name proc-buffer-name)
+     :command command
+     :sentinel sentinel)))
 
 ;;;###autoload
 (defun flymake-x-backend (report-fn &rest _args)
   "Generic Flymake backend.
-REPORT-FN see `flymake-diagnostic-functions'."
-  (when-let* ((proc (flymake-x-make-proc (current-buffer) report-fn)))
-    (when (process-live-p flymake-x-proc)
-      (kill-process flymake-x-proc))
-    (setq flymake-x-proc proc)
-    (save-restriction
-      (widen)
-      (process-send-region proc (point-min) (point-max))
-      (process-send-eof proc))))
+The checker is found in `flymake-x-function-alist'.  REPORT-FN see
+`flymake-diagnostic-functions'."
+  (pcase-let* ((`(,command-function ,report-function) (flymake-x-functions))
+               (command (and command-function (funcall command-function))))
+    (if (null command)
+        (funcall report-fn nil)
+      (let ((proc (flymake-x-make-proc (current-buffer) command report-function report-fn)))
+        (when (process-live-p flymake-x-proc)
+          (kill-process flymake-x-proc))
+        (setq flymake-x-proc proc)
+        (save-restriction
+          (widen)
+          (process-send-region proc (point-min) (point-max))
+          (process-send-eof proc))))))
+
+;;;###autoload
+(defun flymake-x-setup ()
+  "Add `flymake-x-backend' to `flymake-diagnostic-functions' locally."
+  (add-hook 'flymake-diagnostic-functions #'flymake-x-backend nil t))
 
 ;;; clj-kondo
 
@@ -108,13 +124,6 @@ REPORT-FN see `flymake-diagnostic-functions'."
              (diag (flymake-make-diagnostic buffer (car region) (cdr region) type msg)))
         (push diag diags)))
     (nreverse diags)))
-
-;;;###autoload
-(defun flymake-x-clj-kondo-setup ()
-  "Set clj-kondo Flymake backend."
-  (setq-local flymake-x-make-command-function #'flymake-x-clj-kondo-make-command)
-  (setq-local flymake-x-make-report-function #'flymake-x-clj-kondo-make-report)
-  (add-hook 'flymake-diagnostic-functions #'flymake-x-backend nil t))
 
 (provide 'flymake-x)
 ;;; flymake-x.el ends here
