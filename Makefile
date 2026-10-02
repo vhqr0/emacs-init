@@ -16,3 +16,4 @@ compile:
 	$(MAKE) -C lisp/timestamp-at-point.el compile
 	$(MAKE) -C lisp/header-line-x.el compile
 	$(MAKE) -C lisp/outline-x.el compile
+	$(MAKE) -C lisp/markdown-x.el compile

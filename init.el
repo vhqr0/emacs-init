@@ -1066,6 +1066,12 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
 
+(require 'markdown-x)
+
+(setq markdown-x-capture-major-mode #'markdown-mode)
+
+(keymap-set markdown-mode-map "C-c C-t" #'markdown-x-toggle-todo)
+
 ;;; input method
 
 (keymap-global-set "C-SPC" #'toggle-input-method)
