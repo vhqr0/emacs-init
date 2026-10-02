@@ -990,24 +990,36 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (setq markdown-x-capture-major-mode #'markdown-mode)
 
+(defun init-capture-time ()
+  "Return the current time for capture templates."
+  (format-time-string "%F %a %R"))
+
+(defun init-capture-location ()
+  "Return the file and line where capture started."
+  (format "%s %d"
+          (or markdown-x-capture-origin-file
+              (buffer-name markdown-x-capture-origin-buffer))
+          markdown-x-capture-origin-line))
+
+(defun init-capture-context ()
+  "Return the region or the line where capture started."
+  (string-trim-right
+   (or markdown-x-capture-origin-region markdown-x-capture-origin-line-text)
+   "\n+"))
+
+(defun init-capture-initial ()
+  "Return the region where capture started or the last kill."
+  (string-trim-right
+   (or markdown-x-capture-origin-region (ignore-errors (current-kill 0 t)) "")
+   "\n+"))
+
 (setq markdown-x-capture-templates
       `((?t "Todo" ,markdown-x-capture-default-file
-            "# TODO $0
-`(format-time-string \"%F %a %R\")`
-")
+            "# TODO $0\n`(init-capture-time)`\n")
         (?a "Todo With Context" ,markdown-x-capture-default-file
-            "# TODO $0
-`(format-time-string \"%F %a %R\")`
-`(or markdown-x-capture-origin-file (buffer-name markdown-x-capture-origin-buffer))` `markdown-x-capture-origin-line`
-\\`\\`\\`
-`(string-trim-right (or markdown-x-capture-origin-region markdown-x-capture-origin-line-text) \"\\n+\")`
-\\`\\`\\`
-")
+            "# TODO $0\n`(init-capture-time)`\n`(init-capture-location)`\n\\`\\`\\`\n`(init-capture-context)`\n\\`\\`\\`\n")
         (?i "Todo With Initial Content" ,markdown-x-capture-default-file
-            "# TODO $0
-`(format-time-string \"%F %a %R\")`
-`(or markdown-x-capture-origin-region (ignore-errors (current-kill 0 t)) \"\")`
-")))
+            "# TODO $0\n`(init-capture-time)`\n`(init-capture-initial)`\n")))
 
 (keymap-set markdown-mode-map "C-c C-t" #'markdown-x-toggle-todo)
 
