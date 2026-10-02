@@ -465,19 +465,9 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (setq outline-minor-mode-highlight 'override)
 ;; (setq outline-minor-mode-use-buttons 'in-margins)
 
-(defun init-outline-narrow-to-subtree ()
-  "Narrow to outline subtree."
-  (interactive)
-  (save-excursion
-    (save-match-data
-      (narrow-to-region
-       (progn (outline-back-to-heading t) (point))
-       (progn (outline-end-of-subtree)
-              (when (and (outline-on-heading-p) (not (eobp)))
-                (backward-char 1))
-              (point))))))
+(require 'outline-x)
 
-(keymap-set narrow-map "s" #'init-outline-narrow-to-subtree)
+(keymap-set narrow-map "s" #'outline-x-narrow-to-subtree)
 
 ;;; occur
 
@@ -575,12 +565,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (require 'comint)
 
-(defun init-comint-set-outline ()
-  "Set outline vars for comint."
-  (setq-local outline-regexp comint-prompt-regexp)
-  (setq-local outline-level (lambda () 1)))
-
-(add-hook 'comint-mode-hook #'init-comint-set-outline)
+(add-hook 'comint-mode-hook #'outline-x-comint-setup)
 
 (keymap-set comint-mode-map "<remap> <init-history-placeholder>" #'counsel-shell-history)
 
@@ -593,12 +578,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (setq eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
 
-(defun init-eshell-set-outline ()
-  "Set outline vars for Eshell."
-  (setq-local outline-regexp "^[^#$\n]* [#$] ")
-  (setq-local outline-level (lambda () 1)))
-
-(add-hook 'eshell-mode-hook #'init-eshell-set-outline)
+(add-hook 'eshell-mode-hook #'outline-x-eshell-setup)
 
 (keymap-set eshell-mode-map "<remap> <init-history-placeholder>" #'counsel-esh-history)
 
@@ -825,17 +805,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 ;;;; lisp
 
-(defun init-lisp-outline-level ()
-  "Return level of current outline heading."
-  (when (looking-at ";;\\([;*]+\\)")
-    (- (match-end 1) (match-beginning 1))))
-
-(defun init-lisp-set-outline ()
-  "Set outline vars."
-  (setq-local outline-regexp ";;[;*]+[\s\t]+")
-  (setq-local outline-level #'init-lisp-outline-level)
-  (outline-minor-mode 1))
-
 (defun init-wrap-next-sexp-command (func)
   "Goto sexp end, then call last-sexp command FUNC."
   (save-excursion
@@ -865,7 +834,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
   (keymap-set map "C-c C-l" #'load-file)
   (keymap-set map "C-c C-m" #'pp-macroexpand-last-sexp))
 
-(add-hook 'emacs-lisp-mode-hook #'init-lisp-set-outline)
+(add-hook 'emacs-lisp-mode-hook #'outline-x-lisp-setup)
 
 (require 'ielm)
 
@@ -919,7 +888,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (require 'clojure-mode)
 
-(add-hook 'clojure-mode-hook #'init-lisp-set-outline)
+(add-hook 'clojure-mode-hook #'outline-x-lisp-setup)
 
 (defun init-clojure-set-elec-pairs ()
   "Set `electric-pair-pairs' for Clojure mode."
