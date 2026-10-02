@@ -11,3 +11,6 @@ compile:
 	$(MAKE) -C lisp/eshell-dwim.el compile
 	$(MAKE) -C lisp/simple-abbrev.el compile
 	$(MAKE) -C lisp/macrostep-cider.el compile
+	$(MAKE) -C lisp/pyim-zirjma.el compile
+	$(MAKE) -C lisp/rg-dwim.el compile
+	$(MAKE) -C lisp/timestamp-at-point.el compile

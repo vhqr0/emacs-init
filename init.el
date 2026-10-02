@@ -351,39 +351,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set goto-map "j" #'avy-goto-line-below)
 (keymap-set goto-map "k" #'avy-goto-line-above)
 
-(defun init-convert-timestamp-dwim (ts)
-  "Convert TS to time string dwim.
-Support:
-- seconds and milliseconds duration in one day.
-- seconds and milliseconds posix timestamp from 2001 to 2286."
-  (cond
-   ((<= 90 ts 86400)
-    (format "%02d:%02d:%02d"
-            (/ ts 3600)
-            (mod (/ ts 60) 60)
-            (mod ts 60)))
-   ((<= 90000 ts 86400000)
-    (format "%02d:%02d:%02d:%03d"
-            (/ ts 3600000)
-            (mod (/ ts 60000) 60)
-            (mod (/ ts 1000) 60)
-            (mod ts 1000)))
-   ((<= 1000000000 ts 9999999999)
-    (format-time-string "%Z %Y-%m-%d %H:%M:%S" ts))
-   ((<= 1000000000000 ts 9999999999999)
-    (let ((ts (list 0 (/ ts 1000) (* 1000 (% ts 1000)) 0)))
-      (format-time-string "%Z %Y-%m-%d %H:%M:%S:%3N" ts)))))
-
-(defun init-echo-timestamp-dwim ()
-  "Echo timestamp at point dwim."
-  (interactive)
-  (if-let* ((ts (thing-at-point 'number)))
-      (if-let* ((s (init-convert-timestamp-dwim ts)))
-          (progn
-            (kill-new s)
-            (message s))
-        (user-error "Not a timestamp"))
-    (user-error "No number at point")))
+(require 'timestamp-at-point)
 
 ;;;; paredit
 
@@ -687,32 +655,9 @@ Support:
 (setq wgrep-auto-save-buffer t)
 (setq wgrep-change-readonly-file t)
 
-(defvar init-rg-program "rg")
+(require 'rg-dwim)
 
-(defun init-rg-dwim (&optional arg)
-  "RG dwim.
-Without universal ARG, rg in project directory.
-With one universal ARG, prompt for rg directory.
-With two universal ARG, edit rg command."
-  (interactive "P")
-  (let* ((default-directory (if arg
-                                (read-directory-name "Search directory: ")
-                              (if-let* ((project (project-current)))
-                                  (project-root project)
-                                default-directory)))
-         (pattern-default (thing-at-point 'symbol))
-         (pattern-prompt (if pattern-default
-                             (format "Search pattern (%s): " pattern-default)
-                           "Search pattern: "))
-         (pattern (read-regexp pattern-prompt pattern-default))
-         (command-default (format "%s -n --no-heading --color=always -S %s ." init-rg-program pattern))
-         (command (if (> (prefix-numeric-value arg) 4)
-                      (read-string "Search command: " command-default 'grep-history)
-                    command-default)))
-    (grep--save-buffers)
-    (compilation-start command 'grep-mode)))
-
-(defalias 'rg 'init-rg-dwim)
+(defalias 'rg 'rg-dwim)
 
 ;;;; comint
 
@@ -1290,51 +1235,7 @@ EVENT see `input-method-function'."
 
 (setq default-input-method "pyim")
 
-(defvar init-pyim-zirjma-keymaps
-  '(("a"    "a"    "a"          )
-    ("b"    "b"    "ou"         )
-    ("c"    "c"    "iao"        )
-    ("d"    "d"    "uang" "iang")
-    ("e"    "e"    "e"          )
-    ("f"    "f"    "en"         )
-    ("g"    "g"    "eng"        )
-    ("h"    "h"    "ang"        )
-    ("i"    "ch"   "i"          )
-    ("j"    "j"    "an"         )
-    ("k"    "k"    "ao"         )
-    ("l"    "l"    "ai"         )
-    ("m"    "m"    "ian"        )
-    ("n"    "n"    "in"         )
-    ("o"    "o"    "uo"   "o"   )
-    ("p"    "p"    "un"         )
-    ("q"    "q"    "iu"         )
-    ("r"    "r"    "uan"  "er"  )
-    ("s"    "s"    "iong" "ong" )
-    ("t"    "t"    "ue"   "ve"  )
-    ("u"    "sh"   "u"          )
-    ("v"    "zh"   "v"    "ui"  )
-    ("w"    "w"    "ia"   "ua"  )
-    ("x"    "x"    "ie"         )
-    ("y"    "y"    "uai"  "ing" )
-    ("z"    "z"    "ei"         )
-    ("aa"   "a"                 )
-    ("ah"   "ang"               )
-    ("ai"   "ai"                )
-    ("aj"   "an"                )
-    ("ak"   "ao"                )
-    ("al"   "ai"                )
-    ("an"   "an"                )
-    ("ao"   "ao"                )
-    ("ee"   "e"                 )
-    ("ef"   "en"                )
-    ("eg"   "eng"               )
-    ("ei"   "ei"                )
-    ("en"   "en"                )
-    ("er"   "er"                )
-    ("ez"   "ei"                )
-    ("ob"   "ou"                )
-    ("oo"   "o"                 )
-    ("ou"   "ou"                )))
+(require 'pyim-zirjma)
 
 (setq pyim-default-scheme 'zirjma)
 (setq pyim-pinyin-fuzzy-alist nil)
@@ -1363,16 +1264,6 @@ EVENT see `input-method-function'."
         (";"  "；"    )
         (":"  "："    )
         ("\\" "、"    )))
-
-(pyim-scheme-add
- `(zirjma
-   :document "zirjma"
-   :class shuangpin
-   :first-chars "abcdefghijklmnopqrstuvwxyz"
-   :rest-chars "abcdefghijklmnopqrstuvwxyz"
-   :prefer-triggers nil
-   :cregexp-support-p t
-   :keymaps ,init-pyim-zirjma-keymaps))
 
 (keymap-set pyim-mode-map "." #'pyim-page-next-page)
 (keymap-set pyim-mode-map "," #'pyim-page-previous-page)
@@ -1504,9 +1395,9 @@ EVENT see `input-method-function'."
  "n" narrow-map
  "a" abbrev-map
  "m" init-minor-prefix-map
- "T" #'init-echo-timestamp-dwim
+ "T" #'timestamp-at-point
  "e" #'eshell-dwim
- "S" #'init-rg-dwim
+ "S" #'rg-dwim
  "O" #'init-occur-at-point
  "Q" #'init-query-replace-at-point
  "%" #'query-replace-regexp
