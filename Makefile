@@ -6,3 +6,6 @@ setup:
 .PHONY: compile
 compile:
 	$(MAKE) -C lisp/vim.el compile
+	$(MAKE) -C lisp/project-test-jump.el compile
+	$(MAKE) -C lisp/flymake-x.el compile
+	$(MAKE) -C lisp/eshell-dwim.el compile

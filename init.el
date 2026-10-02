@@ -10,7 +10,9 @@
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
 (defvar priv-directory (expand-file-name "emacs-priv" user-emacs-directory))
 
-(add-to-list 'load-path (expand-file-name "lisp/vim.el" init-directory))
+(dolist (dir (directory-files (expand-file-name "lisp" init-directory) t "\\`[^.]"))
+  (when (file-directory-p dir)
+    (add-to-list 'load-path dir)))
 
 (setq load-prefer-newer t)
 
@@ -182,6 +184,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 ;;;; project
 
 (require 'project)
+(require 'project-test-jump)
 
 (setq project-mode-line t)
 (setq project-switch-use-entire-map t)
@@ -200,18 +203,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
       (user-error "No project compilation buffer found"))))
 
 (keymap-set project-prefix-map "C" #'init-project-switch-to-compile)
-
-(defvar-local init-find-test-file-function nil)
-
-(defun init-project-find-test-file ()
-  "Find test file in this project."
-  (interactive)
-  (if (not init-find-test-file-function)
-      (user-error "No find test file function found")
-    (let ((default-directory (project-root (project-current t))))
-      (funcall init-find-test-file-function))))
-
-(keymap-set project-prefix-map "t" #'init-project-find-test-file)
+(keymap-set project-prefix-map "t" #'project-test-jump)
 
 ;;;; ibuffer
 
@@ -738,11 +730,9 @@ With two universal ARG, edit rg command."
 ;;;; eshell
 
 (require 'eshell)
-(require 'em-prompt)
-(require 'em-hist)
 (require 'em-cmpl)
-(require 'em-dirs)
 (require 'em-alias)
+(require 'eshell-dwim)
 
 (setq eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
 
@@ -756,54 +746,6 @@ With two universal ARG, edit rg command."
 (keymap-set eshell-mode-map "<remap> <init-history-placeholder>" #'counsel-esh-history)
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
-
-(defun init-eshell-dwim-find-buffer ()
-  "Find eshell dwim buffer."
-  (seq-find
-   (lambda (buffer)
-     (and (eq (buffer-local-value 'major-mode buffer) 'eshell-mode)
-          (string-prefix-p eshell-buffer-name (buffer-name buffer))
-          (not (get-buffer-process buffer))
-          (not (get-buffer-window buffer))))
-   (buffer-list)))
-
-(defun init-eshell-dwim-get-buffer-create ()
-  "Get eshell dwim buffer, create if not exist."
-  (if-let* ((buffer (init-eshell-dwim-find-buffer)))
-      (let ((dir default-directory))
-        (with-current-buffer buffer
-          (eshell/cd dir)
-          (eshell-reset)
-          (current-buffer)))
-    (with-current-buffer (generate-new-buffer eshell-buffer-name)
-      (eshell-mode)
-      (current-buffer))))
-
-(defun init-eshell-dwim-switch-to-buffer-split-window (buffer)
-  "Switch to BUFFER split at this window."
-  (let ((parent (window-parent (selected-window))))
-    (cond ((window-left-child parent)
-           (select-window (split-window-vertically))
-           (switch-to-buffer buffer))
-          ((window-top-child parent)
-           (select-window (split-window-horizontally))
-           (switch-to-buffer buffer))
-          (t
-           (switch-to-buffer-other-window buffer)))))
-
-(defun init-eshell-dwim (&optional arg)
-  "Do open eshell smartly.
-Without universal ARG, open in split window.
-With universal ARG, open in other window.
-With two universal ARG, open in this window."
-  (interactive "P")
-  (let ((buffer (init-eshell-dwim-get-buffer-create)))
-    (cond ((> (prefix-numeric-value arg) 4)
-           (switch-to-buffer buffer))
-          (arg
-           (switch-to-buffer-other-window buffer))
-          (t
-           (init-eshell-dwim-switch-to-buffer-split-window buffer)))))
 
 ;;; vc
 
@@ -1048,60 +990,13 @@ EXPANSION may be:
 ;;;; flymake
 
 (require 'flymake)
+(require 'flymake-x)
 
 (setq flymake-no-changes-timeout 1.0)
 ;; (setq flymake-show-diagnostics-at-end-of-line 'short)
 
 (keymap-set flymake-mode-map "M-n" #'flymake-goto-next-error)
 (keymap-set flymake-mode-map "M-p" #'flymake-goto-prev-error)
-
-(defvar-local init-flymake-make-command-function nil)
-(defvar-local init-flymake-make-report-function nil)
-
-(defvar-local init-flymake-proc nil)
-
-(defun init-flymake-make-proc (buffer report-fn)
-  "Make Flymake process for BUFFER.
-REPORT-FN see `init-flymake-backend'."
-  (when-let* ((make-command-function (buffer-local-value 'init-flymake-make-command-function buffer)))
-    (when-let* ((command (funcall make-command-function)))
-      (let* ((proc-buffer-name (format "*init-flymake for %s*" (buffer-name buffer)))
-             (sentinel
-              (lambda (proc _event)
-                (when (memq (process-status proc) '(exit signal))
-                  (let ((proc-buffer (process-buffer proc)))
-                    (unwind-protect
-                        (if (eq proc (buffer-local-value 'init-flymake-proc buffer))
-                            (let ((make-report-function (buffer-local-value 'init-flymake-make-report-function buffer)))
-                              (with-current-buffer buffer
-                                (save-excursion
-                                  (save-restriction
-                                    (widen)
-                                    (with-current-buffer proc-buffer
-                                      (widen)
-                                      (goto-char (point-min))
-                                      (funcall report-fn (funcall make-report-function buffer)))))))
-                          (flymake-log :warning "Canceling obsolete checker %s" proc))
-                      (kill-buffer proc-buffer)))))))
-        (make-process
-         :name proc-buffer-name
-         :noquery t
-         :connection-type 'pipe
-         :buffer (generate-new-buffer-name proc-buffer-name)
-         :command command
-         :sentinel sentinel)))))
-
-(defun init-flymake-backend (report-fn &rest _args)
-  "Generic Flymake backend.
-REPORT-FN see `flymake-diagnostic-functions'."
-  (when-let* ((proc (init-flymake-make-proc (current-buffer) report-fn)))
-    (when (process-live-p init-flymake-proc)
-      (kill-process init-flymake-proc))
-    (setq init-flymake-proc proc)
-    (save-restriction
-      (widen)
-      (process-send-region proc (point-min) (point-max))
-      (process-send-eof proc))))
 
 ;;;; xref
 
@@ -1234,123 +1129,9 @@ REPORT-FN see `flymake-diagnostic-functions'."
 
 (keymap-set clojure-refactor-map "," #'init-clojure-remove-comma-dwim)
 
-;;;; test
+(add-hook 'clojure-mode-hook #'project-test-jump-clojure-setup)
 
-(defvar init-clojure-extensions '("cljc" "clj" "cljs"))
-
-(defun init-clojure-extensions (extension)
-  "Return clojure file extensions, given EXTENSION first."
-  (cons extension (remove extension init-clojure-extensions)))
-
-;; (init-clojure-extensions "clj") => '("clj" "cljc" "cljs")
-;; (init-clojure-extensions "cljc") => '("cljc" "clj" "cljs")
-
-(defun init-clojure-file-with-extensions (file)
-  "Return clojure files with different extension, given FILE first."
-  (let ((base (file-name-sans-extension file))
-        (extension (file-name-extension file)))
-    (thread-last
-      (init-clojure-extensions extension)
-      (seq-map (lambda (extension) (concat base "." extension))))))
-
-;; (init-clojure-file-with-extensions "foo/bar.clj")
-;; => '("foo/bar.clj" "foo/bar.cljc" "foo/bar.cljs")
-;; (init-clojure-file-with-extensions "foo/bar.cljc")
-;; => '("foo/bar.cljc" "foo/bar.clj" "foo/bar.cljs")
-
-(defun init-clojure-test-file (file)
-  "Convert FILE to test file with same extension."
-  (let ((file (concat "/" file)))
-    (cond
-     ((string-match "\\(.*?\\)/src/\\(.*\\)\\(\\.clj.?\\)$" file)
-      (thread-first
-        (concat (match-string 1 file) "/test/" (match-string 2 file) "_test" (match-string 3 file))
-        (substring 1)))
-     ((string-match "\\(.*?\\)/test/\\(.*\\)_test\\(\\.clj.?\\)$" file)
-      (thread-first
-        (concat (match-string 1 file) "/src/" (match-string 2 file) (match-string 3 file))
-        (substring 1))))))
-
-;; (init-clojure-test-file "src/foo/bar.clj") => "test/foo/bar_test.clj"
-;; (init-clojure-test-file "test/foo/bar_test.clj") => "src/foo/bar.clj"
-;; (init-clojure-test-file "clojure/src/foo/bar.clj") => "clojure/test/foo/bar_test.clj"
-;; (init-clojure-test-file "clojure/test/foo/bar_test.clj") => "clojure/src/foo/bar.clj"
-
-(defun init-clojure-test-files (file)
-  "Convert FILE to test files, with possible extensions."
-  (when-let* ((file (init-clojure-test-file file)))
-    (init-clojure-file-with-extensions file)))
-
-;; (init-clojure-test-files "src/foo/bar.clj")
-;; => '("test/foo/bar_test.clj" "test/foo/bar_test.cljc" "test/foo/bar_test.cljs")
-;; (init-clojure-test-files "test/foo/bar_test.cljc")
-;; => '("src/foo/bar.cljc" "src/foo/bar.clj" "src/foo/bar.cljs")
-
-(defun init-clojure-find-test-file ()
-  "Find test file of current buffer."
-  (if (not buffer-file-name)
-      (user-error "No buffer file name found")
-    (let* ((file (file-relative-name buffer-file-name))
-           (files (init-clojure-test-files file)))
-      (if-let* ((file (seq-find #'file-exists-p files)))
-          (find-file file)
-        (if-let* ((file (car files)))
-            (find-file (read-file-name
-                        "Create test file: "
-                        (file-name-directory file)
-                        nil nil
-                        (file-name-nondirectory file)))
-          (user-error "No test file found"))))))
-
-(defun init-clojure-set-find-test-file ()
-  "Set `init-find-test-file' for Clojure mode."
-  (setq-local init-find-test-file-function #'init-clojure-find-test-file))
-
-(add-hook 'clojure-mode-hook #'init-clojure-set-find-test-file)
-
-;;;; kondo
-
-(defvar init-clojure-kondo-program "clj-kondo")
-
-(defun init-clojure-kondo-make-command ()
-  "Make kondo command."
-  (when (executable-find init-clojure-kondo-program)
-    (let* ((buffer-file-name (buffer-file-name))
-           (lang (if (not buffer-file-name)
-                     "clj"
-                   (file-name-extension buffer-file-name))))
-      `(,init-clojure-kondo-program
-        "--lint" "-"
-        "--lang" ,lang
-        ,@(when buffer-file-name
-            `("--filename" ,buffer-file-name))))))
-
-(defconst init-clojure-kondo-diag-regexp
-  "^.+:\\([[:digit:]]+\\):\\([[:digit:]]+\\): \\([[:alpha:]]+\\): \\(.+\\)$")
-
-(defvar init-clojure-kondo-type-alist
-  '(("error" . :error) ("warning" . :warning)))
-
-(defun init-clojure-kondo-make-report (buffer)
-  "Make flymake report for kondo in source BUFFER."
-  (let (diags)
-    (while (search-forward-regexp init-clojure-kondo-diag-regexp nil t)
-      (let* ((row (string-to-number (match-string 1)))
-             (col (string-to-number (match-string 2)))
-             (type (or (cdr (assoc (match-string 3) init-clojure-kondo-type-alist)) :type))
-             (msg (match-string 4))
-             (region (flymake-diag-region buffer row col))
-             (diag (flymake-make-diagnostic buffer (car region) (cdr region) type msg)))
-        (push diag diags)))
-    (nreverse diags)))
-
-(defun init-clojure-set-kondo ()
-  "Set kondo Flymake backend."
-  (setq-local init-flymake-make-command-function #'init-clojure-kondo-make-command)
-  (setq-local init-flymake-make-report-function #'init-clojure-kondo-make-report)
-  (add-hook 'flymake-diagnostic-functions #'init-flymake-backend nil t))
-
-(add-hook 'clojure-mode-hook #'init-clojure-set-kondo)
+(add-hook 'clojure-mode-hook #'flymake-x-clj-kondo-setup)
 
 ;;;; cider
 
@@ -1803,7 +1584,7 @@ EVENT see `input-method-function'."
  "a" abbrev-map
  "m" init-minor-prefix-map
  "T" #'init-echo-timestamp-dwim
- "e" #'init-eshell-dwim
+ "e" #'eshell-dwim
  "S" #'init-rg-dwim
  "O" #'init-occur-at-point
  "Q" #'init-query-replace-at-point
