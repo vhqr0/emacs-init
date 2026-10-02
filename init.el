@@ -60,7 +60,6 @@
     markdown-mode
     edit-indirect
     denote
-    denote-markdown
     pyim
     pyim-basedict
     posframe
