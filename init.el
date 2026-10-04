@@ -14,6 +14,11 @@
   (when (file-directory-p dir)
     (add-to-list 'load-path dir)))
 
+(dolist (dir (directory-files (expand-file-name "theme" init-directory) t "\\`[^.]"))
+  (when (file-directory-p dir)
+    (add-to-list 'load-path dir)
+    (add-to-list 'custom-theme-load-path dir)))
+
 (setq load-prefer-newer t)
 
 (setq gc-cons-percentage 0.2)

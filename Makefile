@@ -18,3 +18,4 @@ compile:
 	$(MAKE) -C lisp/outline-x.el compile
 	$(MAKE) -C lisp/markdown-x.el compile
 	$(MAKE) -C lisp/simple-format.el compile
+	$(MAKE) -C theme/modus-themes-x.el compile
