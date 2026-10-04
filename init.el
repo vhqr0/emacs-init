@@ -353,6 +353,19 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (setq show-paren-context-when-offscreen 'child-frame)
 (show-paren-mode 1)
 
+(define-advice show-paren--default (:around (func) vim)
+  (if (not vim-normal-mode)
+      (funcall func)
+    (pcase (syntax-class (syntax-after (point)))
+      (4 (save-restriction
+           (narrow-to-region (point) (point-max))
+           (funcall func)))
+      (5 (save-excursion
+           (forward-char 1)
+           (save-restriction
+             (narrow-to-region (point-min) (point))
+             (funcall func)))))))
+
 (require 'paredit)
 (keymap-global-set "M-r" #'raise-sexp)
 (keymap-global-set "M-R" #'paredit-splice-sexp-killing-backward)
