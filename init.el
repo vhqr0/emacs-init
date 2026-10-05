@@ -143,6 +143,9 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (add-hook 'after-init-hook #'recentf-mode)
 (keymap-set ctl-x-r-map "e" #'recentf-open)
 
+(require 'open-externally)
+(keymap-set vim-normal-mode-map "g x" #'open-externally-at-point)
+
 ;;;; vc
 
 (require 'vc)
@@ -1243,6 +1246,7 @@ EVENT see `input-method-function'."
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
+ "X" #'open-externally
  "C" #'markdown-x-capture
  "A" #'markdown-x-agenda-todo
  "w" window-prefix-map
