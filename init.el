@@ -291,6 +291,13 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (require 'hl-line)
 (require 'display-line-numbers)
 
+(defun init-hl-line-range ()
+  "Return the current line range, or nil when the region is active."
+  (unless (region-active-p)
+    (cons (line-beginning-position) (line-beginning-position 2))))
+
+(setq-default hl-line-range-function #'init-hl-line-range)
+
 (defun init-toggle-trailing-whitespace ()
   "Toggle `show-trailing-whitespace'."
   (interactive)
