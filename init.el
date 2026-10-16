@@ -1059,7 +1059,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 ;;;; denote
 
 (require 'denote)
-(require 'denote-markdown)
 
 (setq denote-directory (expand-file-name "denote" priv-directory))
 (setq denote-file-type 'markdown-yaml)
