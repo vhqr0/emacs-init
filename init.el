@@ -415,12 +415,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (require 'counsel)
 
 (setq ivy-count-format "(%d/%d) ")
-(setq ivy-use-virtual-buffers t)
-
-(setcdr (assq 'ivy-mode minor-mode-alist) '(""))
-(setcdr (assq 'counsel-mode minor-mode-alist) '(""))
-
-(keymap-set ivy-mode-map "C-c b" #'ivy-resume)
 
 (keymap-set ivy-minibuffer-map "<remap> <save-buffer>" #'ivy-occur)
 (keymap-set ivy-minibuffer-map "<remap> <quit-window>" #'abort-recursive-edit)
@@ -429,19 +423,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set ivy-minibuffer-map "<remap> <vim-gg>" #'ivy-beginning-of-buffer)
 (keymap-set ivy-minibuffer-map "<remap> <vim-G>" #'ivy-end-of-buffer)
 
-(defun init-ivy-up-directory ()
-  "Ivy up directory."
-  (interactive)
-  (when ivy--directory
-    (funcall #'counsel-up-directory)))
-
-(keymap-set ivy-minibuffer-map "C-l" #'init-ivy-up-directory)
-
 (keymap-set ivy-occur-mode-map "<remap> <revert-buffer-quick>" #'ivy-occur-revert-buffer)
 (keymap-set ivy-occur-mode-map "<remap> <revert-buffer>" #'ivy-occur-revert-buffer)
-
-(keymap-set counsel-mode-map "<remap> <recentf-open>" #'counsel-recentf)
-(keymap-set counsel-mode-map "<remap> <company-search-candidates>" #'counsel-company)
 
 (defun init-search (&optional initial-input)
   "Search things dwim with optional INITIAL-INPUT."
