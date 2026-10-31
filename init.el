@@ -407,6 +407,22 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (savehist-mode 1)
 
+;;;; icomplete
+
+(require 'icomplete)
+(require 'iselect)
+
+(setq completion-styles '(flex))
+
+(icomplete-mode 1)
+
+(keymap-set icomplete-minibuffer-map "C-s" #'iselect-complete)
+
+(keymap-set iselect-minibuffer-map "<remap> <vim-j>" #'iselect-next)
+(keymap-set iselect-minibuffer-map "<remap> <vim-k>" #'iselect-previous)
+(keymap-set iselect-minibuffer-map "<remap> <vim-gg>" #'iselect-first)
+(keymap-set iselect-minibuffer-map "<remap> <vim-G>" #'iselect-last)
+
 ;;;; ivy
 
 (require 'amx)
@@ -421,10 +437,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (setcdr (assq 'ivy-mode minor-mode-alist) '(""))
 (setcdr (assq 'counsel-mode minor-mode-alist) '(""))
-
-(amx-mode 1)
-(ivy-mode 1)
-(counsel-mode 1)
 
 (keymap-set ivy-mode-map "C-c b" #'ivy-resume)
 
@@ -759,6 +771,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-unset company-active-map "M-n" t)
 (keymap-unset company-active-map "M-p" t)
+(keymap-set company-active-map "C-s" #'iselect-company)
 (keymap-set company-mode-map "C-c c" #'company-complete)
 
 (defvar init-minibuffer-company-backends '(company-capf))
@@ -1228,13 +1241,13 @@ EVENT see `input-method-function'."
   "E" #'flymake-show-project-diagnostics)
 
 (init-leader-set
- "SPC" #'switch-to-buffer
+ "SPC" #'iselect-files
  "\\" #'init-magic-shift
  "TAB" #'init-magic-shift
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
- "y" #'yank-pop
+ "y" #'iselect-kill-ring
  ";" #'eval-expression
  "!" #'shell-command
  "&" #'async-shell-command
@@ -1286,6 +1299,8 @@ EVENT see `input-method-function'."
  "'" #'init-wrap-pair
  "`" #'init-wrap-pair
  "\"" #'init-wrap-pair)
+
+(keymap-set vim-normal-mode-map "C-p" #'iselect-project-files)
 
 ;;; end
 
