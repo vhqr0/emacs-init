@@ -410,6 +410,11 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set vim-insert-mode-map "M-r" #'iselect-history)
 
+(add-hook 'iselect-buffer-mode-hook #'hl-line-mode)
+(add-hook 'iselect-buffer-mode-hook #'display-line-numbers-mode)
+(add-hook 'iselect-update-hook #'hl-line-highlight)
+(add-hook 'iselect-move-hook #'hl-line-highlight)
+
 ;;;; ivy
 
 (require 'counsel)
