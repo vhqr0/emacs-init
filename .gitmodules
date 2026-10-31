@@ -1,3 +1,6 @@
 [submodule "vim.el"]
 	path = lisp/vim.el
 	url = git@github.com:vhqr0/vim.el
+[submodule "iselect.el"]
+	path = lisp/iselect.el
+	url = git@github.com:vhqr0/iselect.el
