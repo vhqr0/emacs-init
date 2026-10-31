@@ -39,13 +39,6 @@
 (defvar init-packages
   '(
     paredit
-    avy
-    hydra
-    amx
-    ivy
-    ivy-avy
-    ivy-hydra
-    swiper
     counsel
     yasnippet
     company
@@ -342,12 +335,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
     (query-replace
      from (query-replace-read-to from "Query replace" nil))))
 
-(require 'avy)
-(setq avy-background t)
-(keymap-global-set "C-'" #'avy-goto-char-timer)
-(keymap-set goto-map "j" #'avy-goto-line-below)
-(keymap-set goto-map "k" #'avy-goto-line-above)
-
 (require 'timestamp-at-point)
 
 ;;;; paredit
@@ -425,11 +412,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 ;;;; ivy
 
-(require 'amx)
-(require 'ivy)
-(require 'ivy-hydra)
-(require 'ivy-avy)
-(require 'swiper)
 (require 'counsel)
 
 (setq ivy-count-format "(%d/%d) ")
