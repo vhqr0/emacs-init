@@ -407,8 +407,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (savehist-mode 1)
 
-;;;; icomplete
-
 (require 'icomplete)
 (require 'iselect)
 
@@ -422,6 +420,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set iselect-minibuffer-map "<remap> <vim-k>" #'iselect-previous)
 (keymap-set iselect-minibuffer-map "<remap> <vim-gg>" #'iselect-first)
 (keymap-set iselect-minibuffer-map "<remap> <vim-G>" #'iselect-last)
+
+(keymap-set vim-insert-mode-map "M-r" #'iselect-history)
 
 ;;;; ivy
 
@@ -478,16 +478,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-global-set "C-s" #'init-search-at-point)
 (keymap-set search-map "s" #'init-search)
-
-(defun init-history-placeholder ()
-  "Search history command placeholder."
-  (interactive)
-  (user-error "No history command available"))
-
-(keymap-set vim-insert-mode-map "M-r" #'init-history-placeholder)
-
-(keymap-set ivy-minibuffer-map "<remap> <init-history-placeholder>" #'ivy-reverse-i-search)
-(keymap-set minibuffer-local-map "<remap> <init-history-placeholder>" #'counsel-minibuffer-history)
 
 ;;; outline
 
@@ -596,8 +586,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-hook 'comint-mode-hook #'outline-x-comint-setup)
 
-(keymap-set comint-mode-map "<remap> <init-history-placeholder>" #'counsel-shell-history)
-
 ;;;; eshell
 
 (require 'eshell)
@@ -608,8 +596,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (setq eshell-aliases-file (expand-file-name "eshell-alias.esh" priv-directory))
 
 (add-hook 'eshell-mode-hook #'outline-x-eshell-setup)
-
-(keymap-set eshell-mode-map "<remap> <init-history-placeholder>" #'counsel-esh-history)
 
 (keymap-unset eshell-cmpl-mode-map "C-M-i" t)
 
@@ -973,20 +959,14 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-to-list 'vim-eval-function-alist '(clojure-mode . cider-eval-region))
 
-(defun init-counsel-cider-repl-history ()
-  "Browse Cider REPL history."
-  (interactive)
-  (setq ivy-completion-beg (point))
-  (setq ivy-completion-end (point))
-  (ivy-read "History: " (ivy-history-contents cider-repl-input-history)
-            :keymap ivy-reverse-i-search-map
-            :action #'counsel--browse-history-action
-            :caller #'init-counsel-cider-repl-history))
-
 (dolist (map (list cider-mode-map cider-repl-mode-map))
   (keymap-set map "C-M-q" #'cider-format-edn-last-sexp)
-  (keymap-set map "<remap> <init-describe-symbol-dwim>" #'cider-doc)
-  (keymap-set map "<remap> <init-history-placeholder>" #'init-counsel-cider-repl-history))
+  (keymap-set map "<remap> <init-describe-symbol-dwim>" #'cider-doc))
+
+(add-to-list 'iselect-history-alist
+             '(cider-repl-mode cider-repl-input-history
+                               cider-repl-input-history-position
+                               cider-repl-input-start-mark))
 
 (defun init-cider-repl-set-xref ()
   "Set Xref backend for Cider REPL."
