@@ -1197,7 +1197,7 @@ EVENT see `input-method-function'."
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
- "y" #'iselect-kill-ring
+ "y" #'yank-pop
  ";" #'eval-expression
  "!" #'shell-command
  "&" #'async-shell-command
