@@ -4,3 +4,6 @@
 [submodule "iselect.el"]
 	path = lisp/iselect.el
 	url = git@github.com:vhqr0/iselect.el
+[submodule "ifilter.el"]
+	path = lisp/ifilter.el
+	url = git@github.com:vhqr0/ifilter.el

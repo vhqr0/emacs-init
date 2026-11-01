@@ -396,6 +396,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (require 'icomplete)
 (require 'iselect)
+(require 'ifilter)
 
 (setq completion-styles '(flex))
 
@@ -414,6 +415,9 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (add-hook 'iselect-buffer-mode-hook #'display-line-numbers-mode)
 (add-hook 'iselect-update-hook #'hl-line-highlight)
 (add-hook 'iselect-move-hook #'hl-line-highlight)
+
+(add-hook 'ifilter-mode-hook #'hl-line-mode)
+(add-hook 'ifilter-mode-hook #'display-line-numbers-mode)
 
 ;;;; ivy
 
@@ -1197,7 +1201,9 @@ EVENT see `input-method-function'."
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
- "y" #'yank-pop
+ "y" #'ifilter-kill-ring
+ "i" #'ifilter-imenu
+ "l" #'ifilter-outline
  ";" #'eval-expression
  "!" #'shell-command
  "&" #'async-shell-command
@@ -1240,8 +1246,6 @@ EVENT see `input-method-function'."
  "." #'xref-find-definitions
  "?" #'xref-find-references
  "," #'xref-go-back
- "i" #'imenu
- "l" #'counsel-outline
  "(" #'init-wrap-pair
  "[" #'init-wrap-pair
  "{" #'init-wrap-pair
