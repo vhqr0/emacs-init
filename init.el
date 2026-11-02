@@ -112,12 +112,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set ctl-x-x-map "<left>" #'previous-buffer)
 (keymap-set ctl-x-x-map "<right>" #'next-buffer)
 
-(defun init-kill-current-buffer ()
-  "Confirm then kill current buffer."
-  (interactive)
-  (when (y-or-n-p "Kill current buffer?")
-    (kill-current-buffer)))
-
 (defun init-auto-save-p ()
   "Predication of `auto-save-visited-mode'."
   (not vim-insert-mode))
@@ -1214,7 +1208,7 @@ EVENT see `input-method-function'."
  "o" #'other-window
  "q" #'quit-window
  "b" #'switch-to-buffer
- "k" #'init-kill-current-buffer
+ "k" #'kill-buffer
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
