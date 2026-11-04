@@ -18,5 +18,6 @@ creates the first one, which is handy to write such a function.
 
 ## Languages
 
+- Emacs Lisp (`el`): `foo/bar.el` <-> `foo/bar-tests.el`.
 - Clojure (`clj`, `cljc`, `cljs`): `src/foo/bar.clj` <-> `test/foo/bar_test.clj`,
   trying `.clj`, `.cljc` and `.cljs`.

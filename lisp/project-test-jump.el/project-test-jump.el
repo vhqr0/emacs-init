@@ -17,7 +17,8 @@
 (require 'subr-x)
 
 (defvar project-test-jump-function-alist
-  '(("clj" . project-test-jump-clojure-find-test-file)
+  '(("el" . project-test-jump-elisp-find-test-file)
+    ("clj" . project-test-jump-clojure-find-test-file)
     ("cljc" . project-test-jump-clojure-find-test-file)
     ("cljs" . project-test-jump-clojure-find-test-file))
   "Alist of (EXTENSION . FUNCTION) used by `project-test-jump'.
@@ -52,6 +53,22 @@ The function is looked up by the file extension in
                     nil nil
                     (file-name-nondirectory file)))
       (user-error "No test file found"))))
+
+;;; elisp
+
+(defun project-test-jump-elisp-test-file (file)
+  "Convert FILE to its test file in the same directory, or back."
+  (if (string-match "\\(.*\\)-tests\\.el\\'" file)
+      (concat (match-string 1 file) ".el")
+    (concat (file-name-sans-extension file) "-tests.el")))
+
+;; (project-test-jump-elisp-test-file "foo/bar.el") => "foo/bar-tests.el"
+;; (project-test-jump-elisp-test-file "foo/bar-tests.el") => "foo/bar.el"
+
+(defun project-test-jump-elisp-find-test-file ()
+  "Find test file of current buffer."
+  (project-test-jump-find-file
+   (list (project-test-jump-elisp-test-file (file-relative-name buffer-file-name)))))
 
 ;;; clojure
 
