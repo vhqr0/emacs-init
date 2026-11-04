@@ -418,7 +418,11 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set ivy-minibuffer-map "<remap> <vim-gg>" #'ivy-beginning-of-buffer)
 (keymap-set ivy-minibuffer-map "<remap> <vim-G>" #'ivy-end-of-buffer)
 
-(define-advice icomplete-minibuffer-setup (:before-until () ivy) ivy--minibuffer)
+(defun init-ivy-inhibit-icomplete ()
+  "Disable `icomplete-mode' in the ivy minibuffer."
+  (setq-local icomplete-mode nil))
+
+(add-to-list 'ivy-hooks-alist '(t . init-ivy-inhibit-icomplete))
 
 (keymap-set ivy-occur-mode-map "<remap> <revert-buffer-quick>" #'ivy-occur-revert-buffer)
 (keymap-set ivy-occur-mode-map "<remap> <revert-buffer>" #'ivy-occur-revert-buffer)
