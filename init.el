@@ -354,12 +354,12 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
              (funcall func)))))))
 
 (require 'pair-x)
-(keymap-global-set "C-<left>" #'pair-x-forward-barf)
-(keymap-global-set "C-<right>" #'pair-x-forward-slurp)
-(keymap-global-set "C-M-<left>" #'pair-x-backward-slurp)
-(keymap-global-set "C-M-<right>" #'pair-x-backward-barf)
+(keymap-global-set "C-<left>" #'pair-x-forward-barf-sexp)
+(keymap-global-set "C-<right>" #'pair-x-forward-slurp-sexp)
+(keymap-global-set "C-M-<left>" #'pair-x-backward-slurp-sexp)
+(keymap-global-set "C-M-<right>" #'pair-x-backward-barf-sexp)
 (keymap-set vim-normal-mode-map "M-r" #'raise-sexp)
-(keymap-set vim-normal-mode-map "M-s" #'pair-x-splice)
+(keymap-set vim-normal-mode-map "M-s" #'pair-x-splice-sexp)
 
 (defun init-wrap-pair (&optional arg)
   "Insert pair, ARG see `insert-pair'."

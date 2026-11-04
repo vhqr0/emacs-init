@@ -9,11 +9,13 @@
 
 ;; Paredit like commands on the list enclosing point, by its syntax:
 ;;
-;; - `pair-x-splice' deletes its delimiters.
-;; - `pair-x-forward-slurp' and `pair-x-backward-slurp' move its closing
-;;   or opening delimiter over the next or previous sexp, to take it in.
-;; - `pair-x-forward-barf' and `pair-x-backward-barf' move its closing
-;;   or opening delimiter over its last or first sexp, to put it out.
+;; - `pair-x-splice-sexp' deletes its delimiters.
+;; - `pair-x-forward-slurp-sexp' and `pair-x-backward-slurp-sexp' move
+;;   its closing or opening delimiter over the next or previous sexp,
+;;   to take it in.
+;; - `pair-x-forward-barf-sexp' and `pair-x-backward-barf-sexp' move
+;;   its closing or opening delimiter over its last or first sexp, to
+;;   put it out.
 ;;
 ;; Strings are not lists: in a string, the list enclosing the string is
 ;; edited.  The lines changed are reindented.
@@ -34,7 +36,7 @@ END is after its closing delimiter."
     (scan-error nil)))
 
 ;;;###autoload
-(defun pair-x-splice ()
+(defun pair-x-splice-sexp ()
   "Delete the delimiters of the list enclosing point."
   (interactive)
   (pcase-let ((`(,beg . ,end) (pair-x--list)))
@@ -46,7 +48,7 @@ END is after its closing delimiter."
       (indent-region beg (- end 2)))))
 
 ;;;###autoload
-(defun pair-x-forward-slurp ()
+(defun pair-x-forward-slurp-sexp ()
   "Move the closing delimiter of the list enclosing point over the next sexp."
   (interactive)
   (pcase-let* ((`(,beg . ,end) (pair-x--list))
@@ -60,7 +62,7 @@ END is after its closing delimiter."
       (indent-region beg to))))
 
 ;;;###autoload
-(defun pair-x-forward-barf ()
+(defun pair-x-forward-barf-sexp ()
   "Move the closing delimiter of the list enclosing point before its last sexp."
   (interactive)
   (pcase-let* ((`(,beg . ,end) (pair-x--list))
@@ -77,7 +79,7 @@ END is after its closing delimiter."
       (indent-region beg end))))
 
 ;;;###autoload
-(defun pair-x-backward-slurp ()
+(defun pair-x-backward-slurp-sexp ()
   "Move the opening delimiter of the list enclosing point over the previous sexp."
   (interactive)
   (pcase-let* ((`(,beg . ,end) (pair-x--list))
@@ -92,7 +94,7 @@ END is after its closing delimiter."
       (indent-region to end))))
 
 ;;;###autoload
-(defun pair-x-backward-barf ()
+(defun pair-x-backward-barf-sexp ()
   "Move the opening delimiter of the list enclosing point after its first sexp."
   (interactive)
   (pcase-let* ((`(,beg . ,end) (pair-x--list))
