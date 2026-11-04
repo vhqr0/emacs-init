@@ -38,7 +38,6 @@
 
 (defvar init-packages
   '(
-    paredit
     counsel
     yasnippet
     company
@@ -331,7 +330,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (require 'timestamp-at-point)
 
-;;;; paredit
+;;;; pair
 
 (require 'elec-pair)
 (electric-pair-mode 1)
@@ -354,19 +353,13 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
              (narrow-to-region (point-min) (point))
              (funcall func)))))))
 
-(require 'paredit)
-(keymap-global-set "M-r" #'raise-sexp)
-(keymap-global-set "M-R" #'paredit-splice-sexp-killing-backward)
-(keymap-global-set "M-K" #'paredit-splice-sexp-killing-forward)
-(keymap-global-set "M-s" #'paredit-splice-sexp)
-(keymap-global-set "M-S" #'paredit-split-sexp)
-(keymap-global-set "M-J" #'paredit-join-sexps)
-(keymap-global-set "C-<left>" #'paredit-forward-barf-sexp)
-(keymap-global-set "C-<right>" #'paredit-forward-slurp-sexp)
-(keymap-global-set "C-M-<left>" #'paredit-backward-slurp-sexp)
-(keymap-global-set "C-M-<right>" #'paredit-backward-barf-sexp)
+(require 'pair-x)
+(keymap-global-set "C-<left>" #'pair-x-forward-barf)
+(keymap-global-set "C-<right>" #'pair-x-forward-slurp)
+(keymap-global-set "C-M-<left>" #'pair-x-backward-slurp)
+(keymap-global-set "C-M-<right>" #'pair-x-backward-barf)
 (keymap-set vim-normal-mode-map "M-r" #'raise-sexp)
-(keymap-set vim-normal-mode-map "M-s" #'paredit-splice-sexp)
+(keymap-set vim-normal-mode-map "M-s" #'pair-x-splice)
 
 (defun init-wrap-pair (&optional arg)
   "Insert pair, ARG see `insert-pair'."
