@@ -388,6 +388,24 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set icomplete-minibuffer-map "C-n" #'icomplete-forward-completions)
 (keymap-set icomplete-minibuffer-map "C-p" #'icomplete-backward-completions)
 
+(defun init-minibuffer-up-dir ()
+  "Delete the last file name before point."
+  (interactive)
+  (when (and minibuffer-completing-file-name
+             (> (point) (minibuffer-prompt-end)))
+    ;; expand ~/
+    (let ((path (buffer-substring-no-properties (minibuffer-prompt-end) (point))))
+      (when (string-match-p "\\`~[^/]*/\\'" path)
+        (delete-minibuffer-contents)
+        (insert (expand-file-name path))))
+    (save-excursion
+      (let ((end (point)))
+        (goto-char (1- end))
+        (when (search-backward "/" (minibuffer-prompt-end) t)
+          (delete-region (1+ (point)) end))))))
+
+(keymap-set icomplete-minibuffer-map "C-l" #'init-minibuffer-up-dir)
+
 (require 'iselect)
 
 (add-hook 'iselect-buffer-mode-hook #'hl-line-mode)
