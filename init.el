@@ -412,6 +412,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set myswiper-map "<remap> <vim-gg>" #'myswiper-first)
 (keymap-set myswiper-map "<remap> <vim-G>" #'myswiper-last)
 
+(add-hook 'myswiper-move-hook #'hl-line-highlight)
+
 (keymap-global-set "C-s" #'myswiper-at-point)
 (keymap-set search-map "s" #'myswiper)
 
