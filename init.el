@@ -367,6 +367,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 ;;; minibuffer
 
+(setq completion-styles '(flex))
+
 (setq enable-recursive-minibuffers t)
 (setq completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
@@ -380,39 +382,41 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (savehist-mode 1)
 
 (require 'icomplete)
-(require 'iselect)
-(require 'ifilter)
-(require 'myswiper)
-
-(setq completion-styles '(flex))
 
 (icomplete-mode 1)
 
 (keymap-set icomplete-minibuffer-map "C-n" #'icomplete-forward-completions)
 (keymap-set icomplete-minibuffer-map "C-p" #'icomplete-backward-completions)
-(keymap-set icomplete-minibuffer-map "C-s" #'iselect-complete)
 
-(keymap-set iselect-minibuffer-map "<remap> <vim-j>" #'iselect-next)
-(keymap-set iselect-minibuffer-map "<remap> <vim-k>" #'iselect-previous)
-(keymap-set iselect-minibuffer-map "<remap> <vim-gg>" #'iselect-first)
-(keymap-set iselect-minibuffer-map "<remap> <vim-G>" #'iselect-last)
-
-(keymap-set vim-insert-mode-map "M-r" #'iselect-history)
+(require 'iselect)
 
 (add-hook 'iselect-buffer-mode-hook #'hl-line-mode)
 (add-hook 'iselect-buffer-mode-hook #'display-line-numbers-mode)
 (add-hook 'iselect-update-hook #'hl-line-highlight)
 (add-hook 'iselect-move-hook #'hl-line-highlight)
 
+(keymap-set iselect-minibuffer-map "<remap> <vim-j>" #'iselect-next)
+(keymap-set iselect-minibuffer-map "<remap> <vim-k>" #'iselect-previous)
+(keymap-set iselect-minibuffer-map "<remap> <vim-gg>" #'iselect-first)
+(keymap-set iselect-minibuffer-map "<remap> <vim-G>" #'iselect-last)
+
+(keymap-set icomplete-minibuffer-map "C-s" #'iselect-complete)
+
+(keymap-set vim-insert-mode-map "M-r" #'iselect-history)
+
+(require 'ifilter)
+
 (add-hook 'ifilter-mode-hook #'hl-line-mode)
 (add-hook 'ifilter-mode-hook #'display-line-numbers-mode)
+
+(require 'myswiper)
+
+(add-hook 'myswiper-move-hook #'hl-line-highlight)
 
 (keymap-set myswiper-map "<remap> <vim-j>" #'myswiper-next)
 (keymap-set myswiper-map "<remap> <vim-k>" #'myswiper-previous)
 (keymap-set myswiper-map "<remap> <vim-gg>" #'myswiper-first)
 (keymap-set myswiper-map "<remap> <vim-G>" #'myswiper-last)
-
-(add-hook 'myswiper-move-hook #'hl-line-highlight)
 
 (keymap-global-set "C-s" #'myswiper-at-point)
 (keymap-set search-map "s" #'myswiper)
@@ -1158,6 +1162,8 @@ EVENT see `input-method-function'."
   "e" #'flymake-show-buffer-diagnostics
   "E" #'flymake-show-project-diagnostics)
 
+(keymap-set vim-normal-mode-map "C-p" #'iselect-project-files)
+
 (init-leader-set
  "SPC" #'iselect-files
  "\\" #'init-magic-shift
@@ -1217,8 +1223,6 @@ EVENT see `input-method-function'."
  "'" #'init-wrap-pair
  "`" #'init-wrap-pair
  "\"" #'init-wrap-pair)
-
-(keymap-set vim-normal-mode-map "C-p" #'iselect-project-files)
 
 ;;; end
 
