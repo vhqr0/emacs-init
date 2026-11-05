@@ -8,6 +8,7 @@ compile:
 	$(MAKE) -C lisp/vim.el compile
 	$(MAKE) -C lisp/iselect.el compile
 	$(MAKE) -C lisp/ifilter.el compile
+	$(MAKE) -C lisp/myswiper.el compile
 	$(MAKE) -C lisp/project-test-jump.el compile
 	$(MAKE) -C lisp/flymake-x.el compile
 	$(MAKE) -C lisp/eshell-dwim.el compile

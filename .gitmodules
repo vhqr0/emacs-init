@@ -7,3 +7,6 @@
 [submodule "ifilter.el"]
 	path = lisp/ifilter.el
 	url = git@github.com:vhqr0/ifilter.el
+[submodule "myswiper.el"]
+	path = lisp/myswiper.el
+	url = git@github.com:vhqr0/myswiper.el

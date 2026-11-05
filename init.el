@@ -37,7 +37,6 @@
 
 (defvar init-packages
   '(
-    counsel
     yasnippet
     company
     wgrep
@@ -383,6 +382,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (require 'icomplete)
 (require 'iselect)
 (require 'ifilter)
+(require 'myswiper)
 
 (setq completion-styles '(flex))
 
@@ -407,45 +407,13 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (add-hook 'ifilter-mode-hook #'hl-line-mode)
 (add-hook 'ifilter-mode-hook #'display-line-numbers-mode)
 
-;;;; ivy
+(keymap-set myswiper-map "<remap> <vim-j>" #'myswiper-next)
+(keymap-set myswiper-map "<remap> <vim-k>" #'myswiper-previous)
+(keymap-set myswiper-map "<remap> <vim-gg>" #'myswiper-first)
+(keymap-set myswiper-map "<remap> <vim-G>" #'myswiper-last)
 
-(require 'counsel)
-
-(setq ivy-count-format "(%d/%d) ")
-
-(keymap-set ivy-minibuffer-map "<remap> <save-buffer>" #'ivy-occur)
-(keymap-set ivy-minibuffer-map "<remap> <quit-window>" #'abort-recursive-edit)
-(keymap-set ivy-minibuffer-map "<remap> <vim-j>" #'ivy-next-line)
-(keymap-set ivy-minibuffer-map "<remap> <vim-k>" #'ivy-previous-line)
-(keymap-set ivy-minibuffer-map "<remap> <vim-gg>" #'ivy-beginning-of-buffer)
-(keymap-set ivy-minibuffer-map "<remap> <vim-G>" #'ivy-end-of-buffer)
-
-(defun init-ivy-inhibit-icomplete ()
-  "Disable `icomplete-mode' in the ivy minibuffer."
-  (setq-local icomplete-mode nil))
-
-(add-to-list 'ivy-hooks-alist '(t . init-ivy-inhibit-icomplete))
-
-(keymap-set ivy-occur-mode-map "<remap> <revert-buffer-quick>" #'ivy-occur-revert-buffer)
-(keymap-set ivy-occur-mode-map "<remap> <revert-buffer>" #'ivy-occur-revert-buffer)
-
-(defun init-search (&optional initial-input)
-  "Search things dwim with optional INITIAL-INPUT."
-  (interactive)
-  (let ((arg (prefix-numeric-value current-prefix-arg)))
-    (if (>= arg 4)
-        (progn
-          (setq current-prefix-arg (- arg 4))
-          (counsel-rg initial-input))
-      (swiper initial-input))))
-
-(defun init-search-at-point ()
-  "Search thing at point."
-  (interactive)
-  (init-search (thing-at-point 'symbol)))
-
-(keymap-global-set "C-s" #'init-search-at-point)
-(keymap-set search-map "s" #'init-search)
+(keymap-global-set "C-s" #'myswiper-at-point)
+(keymap-set search-map "s" #'myswiper)
 
 ;;; outline
 
