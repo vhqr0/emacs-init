@@ -388,6 +388,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (icomplete-mode 1)
 
+(keymap-set icomplete-minibuffer-map "C-n" #'icomplete-forward-completions)
+(keymap-set icomplete-minibuffer-map "C-p" #'icomplete-backward-completions)
 (keymap-set icomplete-minibuffer-map "C-s" #'iselect-complete)
 
 (keymap-set iselect-minibuffer-map "<remap> <vim-j>" #'iselect-next)
