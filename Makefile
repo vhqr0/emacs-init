@@ -17,7 +17,7 @@ compile:
 	$(MAKE) -C lisp/pyim-zirjma.el compile
 	$(MAKE) -C lisp/rg-dwim.el compile
 	$(MAKE) -C lisp/timestamp-at-point.el compile
-	$(MAKE) -C lisp/header-line-x.el compile
+	$(MAKE) -C lisp/search-x.el compile
 	$(MAKE) -C lisp/outline-x.el compile
 	$(MAKE) -C lisp/markdown-x.el compile
 	$(MAKE) -C lisp/simple-format.el compile

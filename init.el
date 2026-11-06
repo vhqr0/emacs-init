@@ -85,8 +85,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 ;;; files
 
-(require 'header-line-x)
-
 (defalias 'w 'save-buffer)
 
 (setq column-number-mode t)
@@ -454,7 +452,12 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set occur-mode-map "C-c C-p" #'occur-edit-mode)
 
-(add-hook 'occur-mode-hook #'header-line-x-occur-setup)
+(require 'search-x)
+
+(add-hook 'occur-mode-hook #'search-x-occur-header-setup)
+
+(keymap-set occur-mode-map "/" #'search-x-occur-edit-regexp)
+(keymap-set occur-mode-map "C-c C-/" #'search-x-occur-edit-regexp)
 
 ;;; dired
 
@@ -526,7 +529,12 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
-(add-hook 'compilation-mode-hook #'header-line-x-compile-setup)
+(add-hook 'compilation-mode-hook #'search-x-compile-header-setup)
+
+(keymap-set compilation-mode-map "/" #'search-x-compile-edit-command)
+(keymap-set compilation-mode-map "C-c C-/" #'search-x-compile-edit-command)
+(keymap-set compilation-minor-mode-map "/" #'search-x-compile-edit-command)
+(keymap-set compilation-minor-mode-map "C-c C-/" #'search-x-compile-edit-command)
 
 ;;;; grep
 
