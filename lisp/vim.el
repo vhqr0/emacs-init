@@ -33,7 +33,8 @@
 ;;   R overwrite, \ run the next key in Emacs bindings, : M-x.
 ;;
 ;; A count goes either before the op or after it (2dw, d2w, d2ib) and may
-;; be negative.
+;; be negative.  The finds match case, and the searches ignore case unless
+;; they have an upper case letter, as isearch and occur.
 ;;
 ;; New keys are defined with `vim-define-move', `vim-define-tobj',
 ;; `vim-define-op' and `vim-define-cmd'.  A move function takes a count; a
@@ -557,8 +558,9 @@ marks the region of a move."
 (defun vim-find-forward (n char to)
   "Find CHAR forward N times on the line.
 If TO is non-nil, stop before CHAR."
-  (let ((pt (point))
-        (string (char-to-string char)))
+  (let* ((pt (point))
+         (string (char-to-string char))
+         (case-fold-search nil))
     (unless (if (< n 0)
                 (progn
                   (goto-char (max (- pt (if (and to vim-in-exec-last) 1 0)) (line-beginning-position)))
@@ -630,6 +632,12 @@ If TO is non-nil, stop after CHAR."
 
 ;;;; search
 
+(defun vim-case-fold (regexp)
+  "Return `case-fold-search' for REGEXP, as isearch and occur do."
+  (if (and case-fold-search search-upper-case)
+      (isearch-no-upper-case-p regexp t)
+    case-fold-search))
+
 (defvar vim-search-last nil
   "Last search as (REGEXP FORWARD).")
 
@@ -639,14 +647,15 @@ Search forward if FORWARD is non-nil."
   (when (< n 0)
     (setq n (- n)
           forward (not forward)))
-  (let ((pos (save-excursion
-               (if forward
-                   (progn
-                     (unless (eobp)
-                       (forward-char 1))
-                     (and (re-search-forward regexp nil t n)
-                          (match-beginning 0)))
-                 (re-search-backward regexp nil t n)))))
+  (let* ((case-fold-search (vim-case-fold regexp))
+         (pos (save-excursion
+                (if forward
+                    (progn
+                      (unless (eobp)
+                        (forward-char 1))
+                      (and (re-search-forward regexp nil t n)
+                           (match-beginning 0)))
+                  (re-search-backward regexp nil t n)))))
     (unless pos
       (user-error "Search failed: %s" regexp))
     (vim-push-jump-mark)

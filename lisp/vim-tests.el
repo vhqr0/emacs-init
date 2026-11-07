@@ -123,6 +123,10 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "a-b-c-|d" "F -") "a-b-c|-d"))
   (should (equal (vim-test "a-b-c-|d" "T - ;") "a-b-|c-d")))
 
+(ert-deftest vim-test-move-find-case ()
+  (should (equal (vim-test "|aXbx" "f x") "aXb|x"))
+  (should (equal (vim-test "|axbX" "f X") "axb|X")))
+
 (ert-deftest vim-test-move-jump-item ()
   (let ((text "((a (b (c))) (d ((e))))"))
     (dolist (pair '((1 . 23) (2 . 12) (11 . 5) (23 . 1) (17 . 21)))
@@ -133,6 +137,14 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "|foo bar foo baz foo" "/ f o o RET") "foo bar |foo baz foo"))
   (should (equal (vim-test "|foo bar foo baz foo" "/ f o o RET n") "foo bar foo baz |foo"))
   (should (equal (vim-test "foo bar foo baz |foo" "? f o o RET") "foo bar |foo baz foo")))
+
+(ert-deftest vim-test-move-search-case ()
+  (should (equal (vim-test "|foo Foo foo" "/ f o o RET") "foo |Foo foo"))
+  (should (equal (vim-test "|foo Foo foo" "/ F o o RET") "foo |Foo foo"))
+  (should (equal (vim-test "|Foo foo Foo" "/ F o o RET") "Foo foo |Foo"))
+  (should (equal (vim-test "|foo Foo foo" "/ \\ W RET") "foo| Foo foo"))
+  (let ((case-fold-search nil))
+    (should (equal (vim-test "|foo Foo foo" "/ f o o RET") "foo Foo |foo"))))
 
 (ert-deftest vim-test-move-search-count ()
   (should (equal (vim-test "|a foo b foo c foo" "2 / f o o RET") "a foo b |foo c foo"))
