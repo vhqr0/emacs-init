@@ -15,10 +15,39 @@
   "Insert \"|\" into TEXT before 1-based POS."
   (concat (substring text 0 (1- pos)) "|" (substring text (1- pos))))
 
+(defmacro vim-deftest (name args &rest body)
+  "Define test NAME with ARGS running BODY without changing the global state.
+`vim-global-mode' is on in BODY, and the buffer of `vim-test--setup'
+is killed after BODY."
+  (declare (indent 2))
+  `(ert-deftest ,name ,args
+     (let ((global-mode vim-global-mode)
+           (kill-ring nil)
+           (kill-ring-yank-pointer nil)
+           (interprogram-cut-function nil)
+           (interprogram-paste-function nil)
+           (select-active-regions nil)
+           (regexp-history nil)
+           (extended-command-history nil)
+           (global-mark-ring nil)
+           (vim-last nil)
+           (vim-pending-op-fn nil)
+           (vim-find-last nil)
+           (vim-search-last nil)
+           (vim-replace-char nil)
+           (vim-surround-from nil)
+           (vim-surround-to nil))
+       (unwind-protect
+           (save-window-excursion
+             (unless global-mode
+               (vim-global-mode 1))
+             ,@body)
+         (when (get-buffer "*vim-test*")
+           (kill-buffer "*vim-test*"))
+         (unless global-mode
+           (vim-global-mode -1))))))
+
 (defun vim-test--setup (text mode)
-  (transient-mark-mode 1)
-  (unless vim-global-mode
-    (vim-global-mode 1))
   (let ((buffer (get-buffer-create "*vim-test*"))
         (python-indent-guess-indent-offset nil))
     (switch-to-buffer buffer)
@@ -27,6 +56,7 @@
     (set-marker (mark-marker) nil)
     (erase-buffer)
     (funcall mode)
+    (setq-local transient-mark-mode t)
     (insert (string-replace "|" "" text))
     (goto-char (1+ (string-search "|" text)))
     (vim-change-mode-to-normal)
@@ -81,14 +111,14 @@ Return (RESULT REGION-ACTIVE) after the error."
 
 ;;; move
 
-(ert-deftest vim-test-move-char-line ()
+(vim-deftest vim-test-move-char-line ()
   (should (equal (vim-test "ab|cd" "h") "a|bcd"))
   (should (equal (vim-test "ab|cd" "l") "abc|d"))
   (should (equal (vim-test "a|bcd" "2 l") "abc|d"))
   (should (equal (vim-test "a|b\ncd\nef" "j") "ab\nc|d\nef"))
   (should (equal (vim-test "ab\ncd\ne|f" "2 k") "a|b\ncd\nef")))
 
-(ert-deftest vim-test-move-word ()
+(vim-deftest vim-test-move-word ()
   (should (equal (vim-test "|foo bar baz" "w") "foo |bar baz"))
   (should (equal (vim-test "|foo bar baz" "2 w") "foo bar |baz"))
   (should (equal (vim-test "|foo bar baz" "e") "fo|o bar baz"))
@@ -96,7 +126,7 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "foo bar |baz" "b") "foo |bar baz"))
   (should (equal (vim-test "foo ba|r baz" "g e") "fo|o bar baz")))
 
-(ert-deftest vim-test-move-sexp ()
+(vim-deftest vim-test-move-sexp ()
   (let ((text "(foo (bar baz) qux) (a b)"))
     (should (equal (vim-test (vim-test--mark text 2) "W" :mode #'emacs-lisp-mode)
                    (vim-test--mark text 6)))
@@ -107,7 +137,7 @@ Return (RESULT REGION-ACTIVE) after the error."
     (should (equal (vim-test (vim-test--mark text 16) "g E" :mode #'emacs-lisp-mode)
                    (vim-test--mark text 14)))))
 
-(ert-deftest vim-test-move-line ()
+(vim-deftest vim-test-move-line ()
   (should (equal (vim-test "  foo b|ar" "0") "|  foo bar"))
   (should (equal (vim-test "  foo b|ar" "^") "  |foo bar"))
   (should (equal (vim-test "  f|oo bar\nx" "$") "  foo ba|r\nx"))
@@ -115,7 +145,7 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "|a\nb\nc" "2 G") "a\n|b\nc"))
   (should (equal (vim-test "|a\nb\nc" "G") "a\nb\nc|")))
 
-(ert-deftest vim-test-move-find ()
+(vim-deftest vim-test-move-find ()
   (should (equal (vim-test "|a-b-c-d" "f -") "a|-b-c-d"))
   (should (equal (vim-test "|a-b-c-d" "f - ;") "a-b|-c-d"))
   (should (equal (vim-test "|a-b-c-d" "f - ; ,") "a|-b-c-d"))
@@ -123,22 +153,22 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "a-b-c-|d" "F -") "a-b-c|-d"))
   (should (equal (vim-test "a-b-c-|d" "T - ;") "a-b-|c-d")))
 
-(ert-deftest vim-test-move-find-case ()
+(vim-deftest vim-test-move-find-case ()
   (should (equal (vim-test "|aXbx" "f x") "aXb|x"))
   (should (equal (vim-test "|axbX" "f X") "axb|X")))
 
-(ert-deftest vim-test-move-jump-item ()
+(vim-deftest vim-test-move-jump-item ()
   (let ((text "((a (b (c))) (d ((e))))"))
     (dolist (pair '((1 . 23) (2 . 12) (11 . 5) (23 . 1) (17 . 21)))
       (should (equal (vim-test (vim-test--mark text (car pair)) "%" :mode #'emacs-lisp-mode)
                      (vim-test--mark text (cdr pair)))))))
 
-(ert-deftest vim-test-move-search ()
+(vim-deftest vim-test-move-search ()
   (should (equal (vim-test "|foo bar foo baz foo" "/ f o o RET") "foo bar |foo baz foo"))
   (should (equal (vim-test "|foo bar foo baz foo" "/ f o o RET n") "foo bar foo baz |foo"))
   (should (equal (vim-test "foo bar foo baz |foo" "? f o o RET") "foo bar |foo baz foo")))
 
-(ert-deftest vim-test-move-search-case ()
+(vim-deftest vim-test-move-search-case ()
   (should (equal (vim-test "|foo Foo foo" "/ f o o RET") "foo |Foo foo"))
   (should (equal (vim-test "|foo Foo foo" "/ F o o RET") "foo |Foo foo"))
   (should (equal (vim-test "|Foo foo Foo" "/ F o o RET") "Foo foo |Foo"))
@@ -146,7 +176,7 @@ Return (RESULT REGION-ACTIVE) after the error."
   (let ((case-fold-search nil))
     (should (equal (vim-test "|foo Foo foo" "/ f o o RET") "foo Foo |foo"))))
 
-(ert-deftest vim-test-move-search-count ()
+(vim-deftest vim-test-move-search-count ()
   (should (equal (vim-test "|a foo b foo c foo" "2 / f o o RET") "a foo b |foo c foo"))
   (should (equal (vim-test "a foo b foo c |foo" "2 ? f o o RET") "a |foo b foo c foo"))
   (should (equal (vim-test "|a foo b foo c foo" "2 d / f o o RET") "|foo c foo"))
@@ -160,7 +190,7 @@ Return (RESULT REGION-ACTIVE) after the error."
     (ignore-errors (vim-test--execute keys))
     (list (vim-test--result) (mark t) (length mark-ring) mark-active)))
 
-(ert-deftest vim-test-move-jump ()
+(vim-deftest vim-test-move-jump ()
   (should (equal (vim-test-jump "|a foo b foo" "/ f o o RET") '("a |foo b foo" 1 0 nil)))
   (should (equal (vim-test-jump "|a foo b foo" "/ f o o RET n") '("a foo b |foo" 3 1 nil)))
   (should (equal (vim-test-jump "a foo b |foo" "? f o o RET") '("a |foo b foo" 9 0 nil)))
@@ -172,16 +202,16 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test-jump "|a foo b" "d / b RET") '("|b" 1 0 nil)))
   (should (equal (vim-test-jump "a |foo b foo" "v / f o o RET") '("a foo b |foo" 3 0 t))))
 
-(ert-deftest vim-test-move-jump-back ()
+(vim-deftest vim-test-move-jump-back ()
   (should (equal (vim-test "|a foo b foo c foo" "/ f o o RET n n g o") "a foo b |foo c foo"))
   (should (equal (vim-test "|a foo b foo c foo" "/ f o o RET n n g o g o g o") "|a foo b foo c foo"))
   (should (equal (vim-test "a\n|b\nc" "G g o") "a\n|b\nc")))
 
-(ert-deftest vim-test-move-search-repeat ()
+(vim-deftest vim-test-move-search-repeat ()
   (should (equal (vim-test "|a foo b foo c foo" "d / f o o RET .") "|foo c foo"))
   (should (equal (vim-test "a foo b foo c |foo" "d ? f o o RET .") "a |foo")))
 
-(ert-deftest vim-test-move-search-empty ()
+(vim-deftest vim-test-move-search-empty ()
   (should (equal (vim-test "|foo bar foo bar foo" "/ b a r RET / RET") "foo bar foo |bar foo"))
   (should (equal (vim-test "|foo bar foo bar foo" "/ b a r RET n ? RET") "foo |bar foo bar foo")))
 
@@ -193,7 +223,7 @@ Return (RESULT REGION-ACTIVE) after the error."
       (quit nil))
     (vim-test--result)))
 
-(ert-deftest vim-test-move-search-quit ()
+(vim-deftest vim-test-move-search-quit ()
   (should (equal (vim-test-quit "|foo bar foo baz foo" "/ f o o C-g") "|foo bar foo baz foo"))
   (should (equal (vim-test-quit "|foo bar foo baz foo" "/ f o o <escape> <escape>") "|foo bar foo baz foo"))
   (should (equal (vim-test-quit "foo bar foo baz |foo" "? f o o C-g") "foo bar foo baz |foo"))
@@ -202,14 +232,14 @@ Return (RESULT REGION-ACTIVE) after the error."
   (vim-test--execute "n")
   (should (equal (vim-test--result) "foo bar foo |bar")))
 
-(ert-deftest vim-test-move-negative ()
+(vim-deftest vim-test-move-negative ()
   (should (equal (vim-test "foo bar |baz" "- w") "foo |bar baz"))
   (should (equal (vim-test "foo |bar baz" "- b") "foo bar |baz"))
   (should (equal (vim-test "a-b-c-|d" "- f -") "a-b-c|-d")))
 
 ;;; tobj
 
-(ert-deftest vim-test-tobj ()
+(vim-deftest vim-test-tobj ()
   (should (equal (vim-test "foo b|ar baz" "d i w") "foo | baz"))
   (should (equal (vim-test "foo b|ar baz" "d a w") "foo |baz"))
   (should (equal (vim-test "f(a, (b| c), d)" "d i b") "f(a, (|), d)"))
@@ -222,13 +252,13 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "(f \"a|b\" 'x)" "d i Q" :mode #'emacs-lisp-mode) "(f \"|\" 'x)"))
   (should (equal (vim-test "x = 'a|b'" "d a q" :mode #'python-mode) "x = |")))
 
-(ert-deftest vim-test-tobj-error-keeps-state ()
+(vim-deftest vim-test-tobj-error-keeps-state ()
   (should (equal (vim-test-error "fo|o bar" "d i b") '("fo|o bar" nil)))
   (should (equal (vim-test-error "foo (bar [b|az) qux" "v l i r") '("foo (bar [ba|z) qux" t))))
 
 ;;; op
 
-(ert-deftest vim-test-op ()
+(vim-deftest vim-test-op ()
   (should (equal (vim-test "|foo bar baz" "d w") "|bar baz"))
   (should (equal (vim-test "|foo bar baz" "d e") "| bar baz"))
   (should (equal (vim-test "foo |bar baz" "d b") "|bar baz"))
@@ -244,13 +274,13 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "|a\nb" "g c c" :mode #'emacs-lisp-mode) "|;; a\nb"))
   (should (equal (vim-test "|a\n  b\nc" "g J j") "|a b\nc")))
 
-(ert-deftest vim-test-op-change ()
+(vim-deftest vim-test-op-change ()
   (should (equal (vim-test "  a|b cd\nx" "c c") "  |\nx"))
   (should (equal (vim-test "|ab\ncd\nef" "c j") "|\nef"))
   (should (equal (vim-test "|foo bar" "c w") "| bar"))
   (should (equal (car (vim-test-state "|foo bar" "c w")) 'insert)))
 
-(ert-deftest vim-test-op-count ()
+(vim-deftest vim-test-op-count ()
   (should (equal (vim-test "f(a, (b| c), d)" "d 2 i b") "f(|)"))
   (should (equal (vim-test "f(a, (b| c), d)" "d 2 i (") "f(|)"))
   (should (equal (vim-test "|foo bar baz qux" "c 2 a w x <escape>") "|x baz qux"))
@@ -258,7 +288,7 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "|a\nb\nc\nd" "y 2 y") "|a\nb\nc\nd"))
   (should (equal (vim-test "|foo bar baz" "d 2 w") "|baz")))
 
-(ert-deftest vim-test-op-pending-clear ()
+(vim-deftest vim-test-op-pending-clear ()
   (with-current-buffer (vim-test--setup "|foo bar" #'text-mode)
     (vim-test--execute "d")
     (should vim-pending-op-fn)
@@ -271,13 +301,13 @@ Return (RESULT REGION-ACTIVE) after the error."
     (vim-test--execute "w")
     (should (equal (vim-test--result) "foo |bar"))))
 
-(ert-deftest vim-test-op-pending ()
+(vim-deftest vim-test-op-pending ()
   (should (equal (vim-test "|foo bar baz" "d x w") "oo |bar baz"))
   (should (equal (vim-test "|aa bb cc" "d c w") "| bb cc")))
 
 ;;; cmd
 
-(ert-deftest vim-test-cmd ()
+(vim-deftest vim-test-cmd ()
   (should (equal (vim-test "a|bcd" "x") "a|cd"))
   (should (equal (vim-test "a|bcd" "9 x") "a|"))
   (should (equal (vim-test "ab|cd" "X") "a|cd"))
@@ -292,7 +322,7 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "|a\n  b\n  c" "J") "a| b\n  c"))
   (should (equal (vim-test "|a\n  b\n  c" "2 J") "a| b c")))
 
-(ert-deftest vim-test-cmd-insert ()
+(vim-deftest vim-test-cmd-insert ()
   (should (equal (vim-test "a|bc" "i x <escape>") "a|xbc"))
   (should (equal (vim-test "a|bc" "a x <escape>") "ab|xc"))
   (should (equal (vim-test "  a|bc" "I x <escape>") "  |xabc"))
@@ -303,7 +333,7 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "  a|b  \nc" "S x <escape>") "  |x  \nc"))
   (should (equal (vim-test "a|bc" "C x <escape>") "a|x")))
 
-(ert-deftest vim-test-cmd-put ()
+(vim-deftest vim-test-cmd-put ()
   (should (equal (vim-test "a|bc" "p" :kill "XY") "a|bXYc"))
   (should (equal (vim-test "a|bc" "P" :kill "XY") "a|XYbc"))
   (should (equal (vim-test "a|b\nc" "p" :kill "L\n") "a|b\nL\nc"))
@@ -311,7 +341,7 @@ Return (RESULT REGION-ACTIVE) after the error."
 
 ;;; visual
 
-(ert-deftest vim-test-visual-state ()
+(vim-deftest vim-test-visual-state ()
   (should (equal (vim-test-state "|foo bar" "v e") '(visual "fo" nil)))
   (should (equal (vim-test-state "|foo bar" "v e <escape>") '(normal nil nil)))
   (should (equal (vim-test-state "|foo bar" "v e v") '(normal nil nil)))
@@ -320,12 +350,12 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "|foo bar" "v e o") "|foo bar"))
   (should (equal (vim-test-state "|foo bar" "v e o") '(visual "fo" nil))))
 
-(ert-deftest vim-test-visual-reselect ()
+(vim-deftest vim-test-visual-reselect ()
   (should (equal (vim-test-state "|foo bar" "v e <escape> g v") '(visual "fo" nil)))
   (should (equal (vim-test-state "|foo bar" "v e o <escape> g v") '(visual "fo" nil)))
   (should (equal (vim-test-state "|foo bar" "v e <escape> l g v") '(visual "foo" nil))))
 
-(ert-deftest vim-test-visual-op ()
+(vim-deftest vim-test-visual-op ()
   (should (equal (vim-test "|foo bar" "v e d") "|o bar"))
   (should (equal (vim-test "|foo bar" "v e x") "|o bar"))
   (should (equal (vim-test "|foo bar" "v e D") "|o bar"))
@@ -338,14 +368,14 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "  a\n  b|b  \nc" "V c x <escape>") "  a\n  |x  \nc"))
   (should (equal (vim-test "|a\n  b\nc" "V j J") "a| b\nc")))
 
-(ert-deftest vim-test-visual-tobj ()
+(vim-deftest vim-test-visual-tobj ()
   (should (equal (vim-test-state "f (a b|c) d" "v i b") '(visual "a bc" nil)))
   (should (equal (vim-test-state "f (a b|c) d" "v a b") '(visual "(a bc)" nil)))
   (should (equal (vim-test "f (a b|c) d" "v i b d") "f (|) d")))
 
 ;;; surround
 
-(ert-deftest vim-test-surround ()
+(vim-deftest vim-test-surround ()
   (should (equal (vim-test "f(a, [b| c])" "d s r") "f(a, b| c)"))
   (should (equal (vim-test "f(a, [b| c])" "d s (") "fa, [b| c]"))
   (should (equal (vim-test "f(a, [b| c])" "c s r B") "f(a, {b| c})"))
@@ -356,7 +386,7 @@ Return (RESULT REGION-ACTIVE) after the error."
 
 ;;; repeat
 
-(ert-deftest vim-test-repeat ()
+(vim-deftest vim-test-repeat ()
   (should (equal (vim-test "|a b c d" "d w .") "|c d"))
   (should (equal (vim-test "|abcd" "x .") "|cd"))
   (should (equal (vim-test "|a-b-c-d-e" "d f - .") "|c-d-e"))
@@ -366,24 +396,24 @@ Return (RESULT REGION-ACTIVE) after the error."
 
 ;;; misc
 
-(ert-deftest vim-test-execute-in-emacs ()
+(vim-deftest vim-test-execute-in-emacs ()
   (should (equal (vim-test "|abc" "\\ w") "w|abc"))
   (should (equal (vim-test "|abc" "3 \\ C-f") "abc|")))
 
-(ert-deftest vim-test-overwrite ()
+(vim-deftest vim-test-overwrite ()
   (should (equal (vim-test "|abc" "R x y <escape>") "xy|c"))
   (should (equal (vim-test "|ab" "R x y z <escape>") "xyz|")))
 
 ;;; more coverage
 
-(ert-deftest vim-test-move-more ()
+(vim-deftest vim-test-move-more ()
   (should (equal (vim-test "|foo bar foo baz foo" "/ f o o RET n N") "foo bar |foo baz foo"))
   (should (equal (vim-test "|a\nb\nc" "- g g") "a\nb\n|c"))
   (should (equal (vim-test "a\nb|b\nc" "- 2 $") "|a\nbb\nc"))
   (should (equal (vim-test-error "x (a \"(b\" c) y|" "%" :mode #'emacs-lisp-mode)
                  '("x (a \"(b\" c) y|" nil))))
 
-(ert-deftest vim-test-tobj-more ()
+(vim-deftest vim-test-tobj-more ()
   (should (equal (vim-test "(a b|c-d e)" "d i W" :mode #'emacs-lisp-mode) "(a | e)"))
   (should (equal (vim-test "(a b|c-d e)" "d a W" :mode #'emacs-lisp-mode) "(a |e)"))
   (should (equal (vim-test "see ~/a/b|c.el ok" "d i f") "see | ok"))
@@ -398,7 +428,7 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test "x = 'a|b'" "d i '" :mode #'python-mode) "x = '|'"))
   (should (equal (vim-test "x = \"a|b\"" "d a \"" :mode #'python-mode) "x = |")))
 
-(ert-deftest vim-test-op-more ()
+(vim-deftest vim-test-op-more ()
   (should (equal (vim-test "(a\n|b)" "= =" :mode #'emacs-lisp-mode) "(a\n| b)"))
   (should (equal (vim-test "|    a" "< <") "|a"))
   (should (equal (vim-test "|a" "> >" :mode #'fundamental-mode) "|\ta"))
@@ -406,7 +436,7 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test-state "a|b\ncd" "y y") '(normal nil "ab\n")))
   (should (equal (vim-test "|a\nb\nc" "y 2 j") "|a\nb\nc")))
 
-(ert-deftest vim-test-visual-more ()
+(vim-deftest vim-test-visual-more ()
   (should (equal (vim-test "|FOO bar" "v e u") "fo|O bar"))
   (should (equal (vim-test "|foo bar" "v e C x <escape>") "|xo bar"))
   (should (equal (vim-test-state "|foo bar" "v e Y") '(normal nil "fo")))
@@ -416,20 +446,20 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal (vim-test-state "|foo bar" "i S-<right>") '(visual "f" nil)))
   (should (equal (vim-test-state "|foo bar" "C-SPC C-f C-w") '(normal nil "f"))))
 
-(ert-deftest vim-test-repeat-count ()
+(vim-deftest vim-test-repeat-count ()
   (should (equal (vim-test "|abcdef" "x 3 .") "|ef")))
 
-(ert-deftest vim-test-insert-more ()
+(vim-deftest vim-test-insert-more ()
   (should (equal (vim-test "(a\n |b\n c)" "o x <escape>" :mode #'emacs-lisp-mode) "(a\n b\n |x\n c)"))
   (should (equal (vim-test "(a\n |b)" "O x <escape>" :mode #'emacs-lisp-mode) "(a\n |x\n b)")))
 
-(ert-deftest vim-test-overwrite-more ()
+(vim-deftest vim-test-overwrite-more ()
   (should (equal (vim-test "|abc" "R x DEL y <escape>") "y|bc"))
   (should (equal (vim-test "|abc" "R x RET") "x|bc"))
   (should (equal (vim-test "|abc" "R x C-j") "x|bc"))
   (should (equal (vim-test "|abc" "R x C-z y <escape>") "x\^Zy|")))
 
-(ert-deftest vim-test-global-mode-off ()
+(vim-deftest vim-test-global-mode-off ()
   (unwind-protect
       (with-current-buffer (vim-test--setup "|foo" #'text-mode)
         (vim-global-mode -1)
@@ -439,90 +469,9 @@ Return (RESULT REGION-ACTIVE) after the error."
         (should-not (memq 'vim-emulation-map-alist emulation-mode-map-alists)))
     (vim-global-mode 1)))
 
-(define-derived-mode vim-test-override-mode nil "Override")
-
-(ert-deftest vim-test-major-mode-map ()
-  (vim-define-major-mode-map 'vim-test-override-mode)
-  (vim-major-mode-map-set 'vim-test-override-mode '(normal visual) "m" #'ignore)
-  (with-current-buffer (vim-test--setup "|foo" #'text-mode)
-    (should (eq (keymap-lookup nil "m") #'point-to-register)))
-  (with-current-buffer (vim-test--setup "|foo" #'vim-test-override-mode)
-    (should vim-normal-mode)
-    (should (eq (keymap-lookup nil "m") #'ignore))
-    (should (eq (keymap-lookup nil "w") #'vim-w))
-    (should (eq (keymap-lookup nil "g g") #'vim-gg))
-    (vim-change-mode-to-visual)
-    (should (eq (keymap-lookup nil "m") #'ignore))
-    (should (eq (keymap-lookup nil "i w") #'vim-iw))
-    (should (eq (keymap-lookup nil "<escape>") #'vim-exit-visual))
-    (vim-change-mode-to-normal)
-    (fundamental-mode)
-    (should (eq (keymap-lookup nil "m") #'point-to-register))))
-
-(ert-deftest vim-test-major-mode-map-set ()
-  (vim-define-major-mode-map 'vim-test-major-mode)
-  (vim-major-mode-map-set 'vim-test-major-mode 'insert "<f11>" #'ignore)
-  (vim-major-mode-map-set 'vim-test-major-mode '(normal) "<f12>" #'ignore)
-  (should-not (keymap-lookup vim-vim-test-major-mode-normal-override-map "<f11>"))
-  (should (eq (keymap-lookup vim-vim-test-major-mode-insert-override-map "<f11>") #'ignore))
-  (should (eq (keymap-lookup vim-vim-test-major-mode-normal-override-map "<f12>") #'ignore))
-  (should-not (keymap-lookup vim-vim-test-major-mode-visual-override-map "<f12>"))
-  (should (eq (keymap-lookup vim-vim-test-major-mode-insert-override-map "<escape>") #'vim-exit-insert))
-  (should-error (vim-major-mode-map-set 'vim-test-no-mode 'normal "<f11>" #'ignore))
-  (should-error (vim-major-mode-map-set 'vim-test-major-mode 'emacs "<f11>" #'ignore)))
-
-(define-derived-mode vim-test-parent-mode special-mode "Parent")
-(define-derived-mode vim-test-child-mode vim-test-parent-mode "Child")
-(define-derived-mode vim-test-grandchild-mode vim-test-child-mode "Grandchild")
-
-(ert-deftest vim-test-major-mode-map-derived ()
-  (vim-define-major-mode-map 'vim-test-child-mode)
-  (should (eq (keymap-parent vim-special-mode-normal-override-map) vim-normal-mode-map))
-  (should (eq (keymap-parent vim-vim-test-parent-mode-normal-override-map)
-              vim-special-mode-normal-override-map))
-  (should (eq (keymap-parent vim-vim-test-child-mode-normal-override-map)
-              vim-vim-test-parent-mode-normal-override-map))
-  (should (eq (keymap-parent vim-vim-test-child-mode-visual-override-map)
-              vim-vim-test-parent-mode-visual-override-map))
-  (let ((child-maps (alist-get 'vim-test-child-mode vim-major-mode-map-alist)))
-    (vim-define-major-mode-map 'vim-test-child-mode)
-    (should (eq (alist-get 'vim-test-child-mode vim-major-mode-map-alist) child-maps)))
-  (defvar vim-vim-test-grandchild-mode-insert-override-map (make-sparse-keymap))
-  (let ((insert-map vim-vim-test-grandchild-mode-insert-override-map))
-    (vim-define-major-mode-map 'vim-test-grandchild-mode)
-    (should (eq vim-vim-test-grandchild-mode-insert-override-map insert-map))
-    (should (eq (alist-get 'insert (alist-get 'vim-test-grandchild-mode vim-major-mode-map-alist))
-                insert-map))
-    (should (eq (keymap-parent vim-vim-test-grandchild-mode-normal-override-map)
-                vim-vim-test-child-mode-normal-override-map)))
-  (vim-major-mode-map-set 'vim-test-parent-mode 'normal "<f11>" #'ignore)
-  (vim-major-mode-map-set 'vim-test-child-mode 'normal "<f12>" #'ignore)
-  (should (eq (keymap-lookup vim-vim-test-child-mode-normal-override-map "<f11>") #'ignore))
-  (should-not (keymap-lookup vim-vim-test-parent-mode-normal-override-map "<f12>"))
-  (with-temp-buffer
-    (vim-test-grandchild-mode)
-    (vim-change-mode-to-default)
-    (should (eq (alist-get 'vim-normal-mode vim-emulation-map-alist)
-                vim-vim-test-grandchild-mode-normal-override-map))
-    (should (eq (keymap-lookup nil "<f11>") #'ignore)))
-  (with-temp-buffer
-    (text-mode)
-    (vim-change-mode-to-default)
-    (should (eq (alist-get 'vim-normal-mode vim-emulation-map-alist) vim-normal-mode-map))))
-
-(define-derived-mode vim-test-rebind-mode nil "Rebind")
-
-(ert-deftest vim-test-op-rebind-jk ()
-  (vim-define-major-mode-map 'vim-test-rebind-mode)
-  (vim-major-mode-map-set 'vim-test-rebind-mode 'normal "j" #'ignore "k" #'ignore)
-  (should (equal (vim-test "|a\nb\nc" "j" :mode #'vim-test-rebind-mode) "|a\nb\nc"))
-  (should (equal (vim-test "|a\nb\nc" "d j" :mode #'vim-test-rebind-mode) "|c"))
-  (should (equal (vim-test-state "a\n|b\nc" "y k" :mode #'vim-test-rebind-mode)
-                 '(normal nil "a\nb\n"))))
-
 (defvar vim-test--eval nil)
 
-(ert-deftest vim-test-op-narrow-eval ()
+(vim-deftest vim-test-op-narrow-eval ()
   (should (equal (vim-test "|a\nb\nc" "g - j") "|a\nb\n"))
   (setq vim-test--eval nil)
   (vim-test "|(setq vim-test--eval 1)" "g y y" :mode #'emacs-lisp-mode)
@@ -531,10 +480,10 @@ Return (RESULT REGION-ACTIVE) after the error."
   (should (equal vim-test--eval 2))
   (should (equal (vim-test-error "|a" "g y y") '("|a" nil))))
 
-(ert-deftest vim-test-visual-jump-item ()
+(vim-deftest vim-test-visual-jump-item ()
   (should (equal (vim-test-state "|(a b) c" "v m") '(visual "(a b" nil))))
 
-(ert-deftest vim-test-goto-last-change ()
+(vim-deftest vim-test-goto-last-change ()
   (should (equal (vim-test "|abc def" "w i x <escape> 0 g ;") "abc |xdef"))
   (should (equal (vim-test "|abc def" "w x 0 g ;") "abc |ef"))
   (should (equal (vim-test "|abc def" "w x i y <escape> 0 g ;") "abc |yef"))
@@ -550,7 +499,7 @@ Return (RESULT REGION-ACTIVE) after the error."
 (define-minor-mode vim-test-minor-mode
   "Minor mode binding a single key.")
 
-(ert-deftest vim-test-emulation ()
+(vim-deftest vim-test-emulation ()
   (should-not (assq 'vim-normal-mode minor-mode-map-alist))
   (should (memq 'vim-emulation-map-alist emulation-mode-map-alists))
   (should (equal (assq 'vim-normal-mode minor-mode-alist) '(vim-normal-mode " <N>")))
@@ -563,18 +512,7 @@ Return (RESULT REGION-ACTIVE) after the error."
           (should (eq (keymap-lookup nil "j") #'ignore)))
       (vim-test-minor-mode -1))))
 
-(ert-deftest vim-test-major-mode-map-reset ()
-  (vim-define-major-mode-map 'vim-test-override-mode)
-  (with-temp-buffer
-    (vim-test-override-mode)
-    (vim-change-mode-to-default)
-    (should (local-variable-p 'vim-emulation-map-alist))
-    (setq major-mode 'fundamental-mode)
-    (vim-change-mode-to-default)
-    (should-not (local-variable-p 'vim-emulation-map-alist))
-    (should (eq (alist-get 'vim-normal-mode vim-emulation-map-alist) vim-normal-mode-map))))
-
-(ert-deftest vim-test-exit-insert-abbrev ()
+(vim-deftest vim-test-exit-insert-abbrev ()
   (with-current-buffer (vim-test--setup "|" #'text-mode)
     (let ((local-abbrev-table (make-abbrev-table)))
       (define-abbrev local-abbrev-table "teh" "the")
@@ -585,7 +523,7 @@ Return (RESULT REGION-ACTIVE) after the error."
       (vim-test--execute "A SPC teh <escape>")
       (should (equal (vim-test--result) "the te|h")))))
 
-(ert-deftest vim-test-eldoc ()
+(vim-deftest vim-test-eldoc ()
   (should (eldoc--message-command-p 'vim-j))
   (should (eldoc--message-command-p 'vim-iw)))
 

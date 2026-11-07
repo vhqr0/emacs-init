@@ -10,9 +10,13 @@
 (require 'myswiper)
 
 (defmacro myswiper-test-with-buffer (text &rest body)
-  "Run BODY in a buffer of TEXT shown in the selected window."
+  "Run BODY in a buffer of TEXT shown in the selected window.
+The histories and the global mark ring are not changed."
   (declare (indent 1))
-  `(let ((buffer (generate-new-buffer "*myswiper-test*")))
+  `(let ((buffer (generate-new-buffer "*myswiper-test*"))
+         (myswiper-history nil)
+         (extended-command-history nil)
+         (global-mark-ring nil))
      (unwind-protect
          (save-window-excursion
            (switch-to-buffer buffer)

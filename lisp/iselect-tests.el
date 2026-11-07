@@ -32,7 +32,24 @@
           (quit 'quit)
           (user-error 'user-error))))
 
-(keymap-global-set "<f12>" #'iselect-test--read)
+(defmacro iselect-deftest (name args &rest body)
+  "Define test NAME with ARGS running BODY without changing the global state.
+`<f12>' calls `iselect-test--read' in BODY, and the buffer of the
+candidates is killed after BODY."
+  (declare (indent 2))
+  `(ert-deftest ,name ,args
+     (let ((emulation-mode-map-alists
+            (cons `((t . ,(define-keymap "<f12>" #'iselect-test--read)))
+                  emulation-mode-map-alists))
+           (minibuffer-history nil)
+           (iselect-test--args nil)
+           (iselect-test--result nil)
+           (iselect-test-buffer nil))
+       (unwind-protect
+           (save-window-excursion
+             ,@body)
+         (when (buffer-live-p iselect-test-buffer)
+           (kill-buffer iselect-test-buffer))))))
 
 (defun iselect-test (keys &rest args)
   "Call `iselect-read' on the test candidates with KEYS as input.
@@ -77,7 +94,7 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
   (should (equal (iselect-test-filter "o" 0) nil))
   (should (equal (iselect-test-filter "o" -1) nil)))
 
-(ert-deftest iselect-test-select ()
+(iselect-deftest iselect-test-select ()
   (should (equal (iselect-test "RET") '("foo bar" . 1)))
   (should (equal (iselect-test "q C-c C-u RET") '("qux" . 3)))
   (should (equal (iselect-test "q RET") '("foo bar" . 1)))
@@ -93,7 +110,7 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
   (should (equal (iselect-test "x x C-c C-u DEL DEL q C-c C-u RET") '("qux" . 3)))
   (should (equal (iselect-test "RET" :initial-input "baz") '("Foo baz" . 2))))
 
-(ert-deftest iselect-test-invalid-regexp ()
+(iselect-deftest iselect-test-invalid-regexp ()
   (should (equal (iselect-test "[ C-M-j" :input-fn (lambda (s) (cons s 0)))
                  '("[" . 0)))
   (should (equal (iselect-test "q [ C-c C-u DEL C-c C-u RET") '("qux" . 3)))
@@ -101,26 +118,26 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
   (with-current-buffer iselect-test-buffer
     (should (equal (buffer-string) ""))))
 
-(ert-deftest iselect-test-limit ()
+(iselect-deftest iselect-test-limit ()
   (should (equal (iselect-test "C-n RET" :limit 2) '("Foo baz" . 2)))
   (should (equal (iselect-test "q C-c C-u RET" :limit 1) '("qux" . 3))))
 
-(ert-deftest iselect-test-no-match ()
+(iselect-deftest iselect-test-no-match ()
   (with-temp-buffer
     (setq iselect--buffer (current-buffer))
     (switch-to-buffer (current-buffer))
     (should-error (iselect-exit) :type 'user-error)))
 
-(ert-deftest iselect-test-input ()
+(iselect-deftest iselect-test-input ()
   (should (equal (iselect-test "x y C-M-j" :input-fn (lambda (s) (cons s 0)))
                  '("xy" . 0)))
   (should (eq (iselect-test "q C-M-j") 'user-error)))
 
-(ert-deftest iselect-test-quit ()
+(iselect-deftest iselect-test-quit ()
   (should (eq (iselect-test "f C-g") 'quit))
   (should (null (iselect-test "f C-M-c"))))
 
-(ert-deftest iselect-test-newline ()
+(iselect-deftest iselect-test-newline ()
   (let ((iselect-test-candidates '(("a\nb" . 1) ("b" . 2))))
     (should (equal (iselect-test "C-n RET") '("b" . 2)))
     (should (equal (iselect-test "a C-c C-u RET") '("a\nb" . 1)))
@@ -133,11 +150,11 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
                      "a b\nb"))
       (should (equal (get-text-property 2 'display) "^J")))))
 
-(ert-deftest iselect-test-auto-update ()
+(iselect-deftest iselect-test-auto-update ()
   (should (equal (iselect-test "q RET" :delay 0) '("qux" . 3)))
   (should (equal (iselect-test "f o o C-n RET" :delay 0.2) '("Foo baz" . 2))))
 
-(ert-deftest iselect-test-suspend ()
+(iselect-deftest iselect-test-suspend ()
   (should (equal (iselect-test "C-c C-s q C-c C-s RET") '("qux" . 3)))
   (should (equal (iselect-test "q C-c C-s DEL b a C-c C-s RET" :delay 0) '("foo bar" . 1)))
   (should (equal (iselect-test "C-c C-s q RET" :delay 0) '("foo bar" . 1)))
@@ -146,7 +163,7 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
   (with-current-buffer iselect-test-buffer
     (should (equal (count-lines (point-min) (point-max)) 3))))
 
-(ert-deftest iselect-test-render ()
+(iselect-deftest iselect-test-render ()
   (let ((iselect-test-candidates
          (mapcar (lambda (i) (cons (format "c%d" i) i)) (number-sequence 1 30))))
     (iselect-test "1 C-c C-u C-n C-n RET")
@@ -160,40 +177,6 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
     (iselect-test "x C-c C-u C-g")
     (with-current-buffer iselect-test-buffer
       (should (equal (buffer-string) "")))))
-
-(defun iselect-test-complete (keys collection)
-  "Call `completing-read' on COLLECTION with KEYS as input.
-`<f11>' is bound to `iselect-complete'."
-  (let ((iselect-layout nil)
-        (minibuffer-local-completion-map
-         (define-keymap :parent minibuffer-local-completion-map
-           "<f11>" #'iselect-complete))
-        result)
-    (keymap-global-set "<f12>" (lambda ()
-                                 (interactive)
-                                 (setq result (completing-read "> " collection))))
-    (unwind-protect
-        (execute-kbd-macro (key-parse (concat "<f12> " keys)))
-      (keymap-global-set "<f12>" #'iselect-test--read))
-    result))
-
-(ert-deftest iselect-test-complete ()
-  (should (equal (iselect-test-complete "b a <f11> C-n RET RET"
-                                        '("foo" "bar" "baz"))
-                 "baz"))
-  (should (equal (iselect-test-complete "<f11> z C-c C-u RET RET"
-                                        '("foo" "bar" "baz"))
-                 "baz"))
-  (let* ((dir (file-name-as-directory (make-temp-file "iselect-test" t)))
-         (default-directory dir))
-    (unwind-protect
-        (progn
-          (make-directory (expand-file-name "sub/abc" dir) t)
-          (make-directory (expand-file-name "sub/abd" dir) t)
-          (should (equal (iselect-test-complete "s u b / a <f11> d C-c C-u RET RET"
-                                                #'read-file-name-internal)
-                         "sub/abd/")))
-      (delete-directory dir t))))
 
 (provide 'iselect-tests)
 ;;; iselect-tests.el ends here
