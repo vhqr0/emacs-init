@@ -160,9 +160,9 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (require 'project-test-jump)
 
 (setq project-mode-line t)
+(setq project-vc-merge-submodules nil)
 (setq project-switch-use-entire-map t)
 (setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
-(setq project-vc-merge-submodules nil)
 
 (keymap-set project-prefix-map "C" #'project-x-switch-to-compile)
 (keymap-set project-prefix-map "t" #'project-test-jump)
