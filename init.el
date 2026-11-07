@@ -432,8 +432,38 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-set myswiper-map "<remap> <vim-gg>" #'myswiper-first)
 (keymap-set myswiper-map "<remap> <vim-G>" #'myswiper-last)
 
-(keymap-global-set "C-s" #'myswiper-at-point)
-(keymap-set search-map "s" #'myswiper)
+(require 'mygreper)
+
+(add-hook 'mygreper-move-hook #'hl-line-highlight)
+
+(keymap-set mygreper-map "<remap> <vim-j>" #'mygreper-next)
+(keymap-set mygreper-map "<remap> <vim-k>" #'mygreper-previous)
+(keymap-set mygreper-map "<remap> <vim-gg>" #'mygreper-first)
+(keymap-set mygreper-map "<remap> <vim-G>" #'mygreper-last)
+
+(defun init-search (&optional initial-input)
+  "Search the buffer, or with prefix arg the project, with INITIAL-INPUT.
+With two prefix args, read the directory to search."
+  (interactive)
+  (cond ((> (prefix-numeric-value current-prefix-arg) 4)
+         (let ((default-directory (read-directory-name "Search directory: ")))
+           (mygreper initial-input)))
+        (current-prefix-arg
+         (let ((default-directory (if-let* ((project (project-current)))
+                                      (project-root project)
+                                    default-directory)))
+           (mygreper initial-input)))
+        (t
+         (myswiper initial-input))))
+
+(defun init-search-at-point ()
+  "Search the symbol at point, as `init-search'."
+  (interactive)
+  (init-search (when-let* ((symbol (thing-at-point 'symbol t)))
+                 (regexp-quote symbol))))
+
+(keymap-global-set "C-s" #'init-search-at-point)
+(keymap-set search-map "s" #'init-search)
 
 ;;; outline
 

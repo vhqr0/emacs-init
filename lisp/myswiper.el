@@ -11,8 +11,6 @@
 ;; input under the input in the minibuffer, and previews the selected
 ;; one in the buffer, highlighting the matches in its window.
 ;;
-;; `myswiper-at-point' starts with the symbol at point.
-;;
 ;; In the minibuffer:
 ;;
 ;; - `C-n', `C-p', `M-<', `M->', `C-v' and `M-v' select a line.
@@ -26,7 +24,7 @@
 ;; lines shown are copied and fontified, so a large buffer is searched
 ;; quickly.  Updating is skipped while more input is pending.
 ;;
-;;   (keymap-global-set "C-s" #'myswiper-at-point)
+;;   (keymap-global-set "C-s" #'myswiper)
 ;;   (setq myswiper-height 15)
 ;;
 ;; To highlight the selected line by `hl-line-mode':
@@ -426,13 +424,6 @@ Return the last index if none, and nil if LINES is empty."
     (pcase result
       (`(occur ,regexp)
        (occur regexp)))))
-
-;;;###autoload
-(defun myswiper-at-point ()
-  "Search the lines of the current buffer for the symbol at point."
-  (interactive)
-  (myswiper (when-let* ((symbol (thing-at-point 'symbol t)))
-              (regexp-quote symbol))))
 
 (provide 'myswiper)
 ;;; myswiper.el ends here

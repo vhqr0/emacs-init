@@ -83,14 +83,6 @@ The histories and the global mark ring are not changed."
       (should (memq 'myswiper-match
                     (ensure-list (get-text-property (string-search "bar" shown) 'face shown)))))))
 
-(ert-deftest myswiper-test-at-point ()
-  (myswiper-test-with-buffer "a*b\naab\na*b\n"
-    (emacs-lisp-mode)
-    ;; Quoted, not matching "aab".
-    (execute-kbd-macro (kbd "M-x myswiper-at-point RET C-n RET"))
-    (should (= (point) 9))
-    (should (equal (car myswiper-history) "a\\*b"))))
-
 (ert-deftest myswiper-test-move-hook ()
   (myswiper-test-with-buffer "foo\nbar\nbaz\n"
     (let (moved)
