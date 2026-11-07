@@ -973,12 +973,12 @@ With two prefix args, read the directory to search."
 ;;; markdown
 
 (require 'markdown-mode)
-(require 'markdown-x)
+(require 'markdown-org)
 
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
 
-(setq markdown-x-capture-major-mode #'markdown-mode)
+(setq markdown-org-capture-major-mode #'markdown-mode)
 
 (defun init-capture-time ()
   "Return the current time for capture templates."
@@ -987,39 +987,39 @@ With two prefix args, read the directory to search."
 (defun init-capture-location ()
   "Return the file and line where capture started."
   (format "%s %d"
-          (or markdown-x-capture-origin-file
-              (buffer-name markdown-x-capture-origin-buffer))
-          markdown-x-capture-origin-line))
+          (or markdown-org-capture-origin-file
+              (buffer-name markdown-org-capture-origin-buffer))
+          markdown-org-capture-origin-line))
 
 (defun init-capture-context ()
   "Return the region or the line where capture started."
   (string-trim-right
-   (or markdown-x-capture-origin-region markdown-x-capture-origin-line-text)
+   (or markdown-org-capture-origin-region markdown-org-capture-origin-line-text)
    "\n+"))
 
 (defun init-capture-initial ()
   "Return the region where capture started or the last kill."
   (string-trim-right
-   (or markdown-x-capture-origin-region (ignore-errors (current-kill 0 t)) "")
+   (or markdown-org-capture-origin-region (ignore-errors (current-kill 0 t)) "")
    "\n+"))
 
-(setq markdown-x-capture-templates
-      `((?t "Todo" ,markdown-x-capture-default-file
+(setq markdown-org-capture-templates
+      `((?t "Todo" ,markdown-org-capture-default-file
             "# TODO $0\n`(init-capture-time)`\n")
-        (?a "Todo With Context" ,markdown-x-capture-default-file
+        (?a "Todo With Context" ,markdown-org-capture-default-file
             "# TODO $0\n`(init-capture-time)`\n`(init-capture-location)`\n\\`\\`\\`\n`(init-capture-context)`\n\\`\\`\\`\n")
-        (?i "Todo With Initial Content" ,markdown-x-capture-default-file
+        (?i "Todo With Initial Content" ,markdown-org-capture-default-file
             "# TODO $0\n`(init-capture-time)`\n`(init-capture-initial)`\n")))
 
-(keymap-set markdown-mode-map "C-c C-t" #'markdown-x-toggle-todo)
+(keymap-set markdown-mode-map "C-c C-t" #'markdown-org-toggle-todo)
 
-(defvar init-markdown-x-agenda-keys
+(defvar init-markdown-org-agenda-keys
   '("o")
-  "Keys merged from `markdown-x-agenda-mode-map'.")
+  "Keys merged from `markdown-org-agenda-mode-map'.")
 
-(vim-define-major-mode-map 'markdown-x-agenda-mode)
+(vim-define-major-mode-map 'markdown-org-agenda-mode)
 
-(init-vim-merge 'markdown-x-agenda-mode '(normal visual) markdown-x-agenda-mode-map init-markdown-x-agenda-keys)
+(init-vim-merge 'markdown-org-agenda-mode '(normal visual) markdown-org-agenda-mode-map init-markdown-org-agenda-keys)
 
 ;;;; denote
 
@@ -1221,8 +1221,8 @@ EVENT see `input-method-function'."
  "f" #'find-file
  "d" #'dired
  "j" #'dired-jump
- "C" #'markdown-x-capture
- "A" #'markdown-x-agenda-todo
+ "C" #'markdown-org-capture
+ "A" #'markdown-org-agenda-todo
  "w" window-prefix-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
