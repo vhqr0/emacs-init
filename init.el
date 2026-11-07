@@ -123,8 +123,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (add-hook 'after-init-hook #'recentf-mode)
 (keymap-set ctl-x-r-map "e" #'recentf-open)
 
-(require 'zipfile)
-
 ;;;; vc
 
 (require 'vc)
