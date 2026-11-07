@@ -422,6 +422,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-hook 'ifilter-mode-hook #'hl-line-mode)
 (add-hook 'ifilter-mode-hook #'display-line-numbers-mode)
+(add-hook 'ifilter-line-goto-hook #'hl-line-highlight)
 
 (require 'myswiper)
 

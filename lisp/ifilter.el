@@ -46,20 +46,26 @@
 ;;
 ;; The tools:
 ;;
-;; - `ifilter-imenu' shows the index of the current buffer.  `RET'
-;;   jumps to an item in another window, previewed by displaying it.
-;; - `ifilter-outline' shows the outline headings of the current buffer,
-;;   each as the path of the lines of it and its ancestors.  `RET' and
-;;   the preview are as in `ifilter-imenu'.
+;; - `ifilter-line' shows the lines of the current buffer.  `RET' jumps
+;;   to a line in another window, previewed by displaying it, and runs
+;;   `ifilter-line-goto-hook' there.  `ifilter-line-at-point' filters
+;;   them by the symbol at point.  Given the functions collecting the
+;;   candidates of a buffer and jumping to one, it shows them instead.
+;; - `ifilter-imenu' shows the index of the current buffer, and
+;;   `ifilter-outline' its outline headings, each as the path of the
+;;   lines of it and its ancestors, both by `ifilter-line'.
 ;; - `ifilter-kill-ring' shows the kill ring.  `RET' selects a kill
 ;;   shown whole in another buffer, also previewed so.  `w' or `C-c C-w'
 ;;   moves it to the front of the kill ring, and `k' or `C-c C-k'
 ;;   deletes it.  The kill ring is shown again by `g', or with prefix
 ;;   arg, rather than at once, to keep the position.
 ;;
-;; `ifilter-imenu' and `ifilter-outline' each show in one buffer.
-;; Called from another buffer, they show its items instead, clearing
-;; the filter.
+;; `ifilter-line', `ifilter-imenu' and `ifilter-outline' each show in
+;; one buffer.  Called from another buffer, they show its candidates
+;; instead, clearing the filter.  To highlight the line jumped to by
+;; `hl-line-mode', also when previewing:
+;;
+;;   (add-hook 'ifilter-line-goto-hook #'hl-line-highlight)
 ;;
 ;; The filter is updated automatically `ifilter-delay' seconds after the
 ;; last command, 0.2 by default.  To wait longer, or never:
@@ -332,88 +338,6 @@ automatically as `ifilter-delay'."
               nil t)
     (add-hook 'kill-buffer-hook #'ifilter--cancel-timer nil t)))
 
-;;; imenu
-
-(defvar imenu-flatten)
-(defvar imenu--rescan-item)
-(declare-function imenu "imenu")
-(declare-function imenu-flush-cache "imenu")
-(declare-function imenu--make-index-alist "imenu")
-(declare-function imenu--flatten-index-alist "imenu")
-
-(defvar-local ifilter-imenu--buffer nil
-  "Buffer of the index shown in the current buffer.")
-
-(defun ifilter-imenu--candidates (buffer)
-  "Return the index items of BUFFER as candidates, rescanning it."
-  (with-current-buffer buffer
-    (imenu-flush-cache)
-    ;; Flatten the nested items by concatenating the names, as by
-    ;; `imenu-flatten' nil.
-    (let ((imenu-flatten nil))
-      (mapcan (lambda (item)
-                (when (stringp (car item))
-                  (list (cons (car item) item))))
-              (imenu--flatten-index-alist
-               (remove imenu--rescan-item (imenu--make-index-alist t))
-               t)))))
-
-(defun ifilter-imenu--revert (&rest _)
-  "Show the index of `ifilter-imenu--buffer' again, rescanning it."
-  (unless (buffer-live-p ifilter-imenu--buffer)
-    (user-error "Buffer of the index killed"))
-  (ifilter-render (ifilter-imenu--candidates ifilter-imenu--buffer)))
-
-(defun ifilter-imenu-goto (&optional display)
-  "Jump to the index item at point in another window.
-If DISPLAY is non-nil, only display it, keeping the selected window."
-  (interactive)
-  (let ((item (cdr (ifilter--candidate-or-error))))
-    (unless (buffer-live-p ifilter-imenu--buffer)
-      (user-error "Buffer of the index killed"))
-    (with-selected-window (if display
-                              (display-buffer ifilter-imenu--buffer t)
-                            (switch-to-buffer-other-window ifilter-imenu--buffer)
-                            (selected-window))
-      (imenu item))))
-
-(defun ifilter-imenu--preview ()
-  "Display the index item at point in another window."
-  (ifilter-imenu-goto t))
-
-(defvar-keymap ifilter-imenu-mode-map
-  "RET" #'ifilter-imenu-goto)
-
-(define-derived-mode ifilter-imenu-mode ifilter-mode "IFilter-Imenu"
-  "Mode of the buffers filtering the index of a buffer."
-  (setq-local revert-buffer-function #'ifilter-imenu--revert)
-  (setq-local ifilter-preview-function #'ifilter-imenu--preview))
-
-;;;###autoload
-(defun ifilter-imenu ()
-  "Show the index of the current buffer, as by `imenu', to filter."
-  (interactive)
-  (require 'imenu)
-  (when (derived-mode-p 'ifilter-mode)
-    (user-error "Already in an ifilter buffer"))
-  (let ((source (current-buffer))
-        (buffer (get-buffer "*ifilter-imenu*")))
-    ;; Show the index of another buffer, or in another mode, in a new
-    ;; buffer, clearing the filter.
-    (unless (and buffer
-                 (with-current-buffer buffer
-                   (and (derived-mode-p 'ifilter-imenu-mode)
-                        (eq ifilter-imenu--buffer source))))
-      (let ((candidates (ifilter-imenu--candidates source)))
-        (when buffer
-          (kill-buffer buffer))
-        (setq buffer (generate-new-buffer "*ifilter-imenu*"))
-        (with-current-buffer buffer
-          (ifilter-imenu-mode)
-          (setq ifilter-imenu--buffer source)
-          (ifilter-render candidates))))
-    (switch-to-buffer-other-window buffer)))
-
 ;;; line
 
 (defun ifilter--line (beg)
@@ -431,9 +355,6 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
         (setq pos next)))
     line))
 
-(defvar-local ifilter-line--buffer nil
-  "Buffer of the lines shown in the current buffer.")
-
 (defun ifilter-line--candidates (buffer)
   "Return the lines of BUFFER as candidates, with their positions as data."
   (with-current-buffer buffer
@@ -447,57 +368,85 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
           (forward-line 1))
         (nreverse candidates)))))
 
+(defvar-local ifilter-line--source nil
+  "Buffer of the candidates shown in the current buffer.")
+
+(defvar-local ifilter-line--candidates-function nil
+  "Function returning the candidates of a buffer, called with it.")
+
+(defvar-local ifilter-line--goto-function nil
+  "Function moving to the data of a candidate in its buffer.")
+
+(defvar ifilter-line-goto-hook nil
+  "Hook run in the window of the candidate after moving to it.")
+
 (defun ifilter-line--revert (&rest _)
-  "Show the lines of `ifilter-line--buffer' again."
-  (unless (buffer-live-p ifilter-line--buffer)
-    (user-error "Buffer of the lines killed"))
-  (ifilter-render (ifilter-line--candidates ifilter-line--buffer)))
+  "Show the candidates of `ifilter-line--source' again."
+  (unless (buffer-live-p ifilter-line--source)
+    (user-error "Buffer of the candidates killed"))
+  (ifilter-render (funcall ifilter-line--candidates-function ifilter-line--source)))
 
 (defun ifilter-line-goto (&optional display)
-  "Jump to the line at point in another window.
-If DISPLAY is non-nil, only display it, keeping the selected window."
+  "Jump to the candidate at point in another window.
+If DISPLAY is non-nil, only display it, keeping the selected window.
+Return the window."
   (interactive)
-  (let ((pos (cdr (ifilter--candidate-or-error))))
-    (unless (buffer-live-p ifilter-line--buffer)
-      (user-error "Buffer of the lines killed"))
-    (with-selected-window (if display
-                              (display-buffer ifilter-line--buffer t)
-                            (switch-to-buffer-other-window ifilter-line--buffer)
-                            (selected-window))
-      (goto-char pos))))
+  (let ((data (cdr (ifilter--candidate-or-error)))
+        (goto ifilter-line--goto-function)
+        (source ifilter-line--source))
+    (unless (buffer-live-p source)
+      (user-error "Buffer of the candidates killed"))
+    (let ((window (if display
+                      (display-buffer source t)
+                    (switch-to-buffer-other-window source)
+                    (selected-window))))
+      (with-selected-window window
+        (funcall goto data)
+        (run-hooks 'ifilter-line-goto-hook))
+      window)))
 
 (defun ifilter-line--preview ()
-  "Display the line at point in another window."
+  "Display the candidate at point in another window."
   (ifilter-line-goto t))
 
 (defvar-keymap ifilter-line-mode-map
   "RET" #'ifilter-line-goto)
 
 (define-derived-mode ifilter-line-mode ifilter-mode "IFilter-Line"
-  "Mode of the buffers filtering the lines of a buffer."
+  "Mode of the buffers filtering the candidates of a buffer, as lines."
   (setq-local revert-buffer-function #'ifilter-line--revert)
   (setq-local ifilter-preview-function #'ifilter-line--preview))
 
 ;;;###autoload
-(defun ifilter-line ()
-  "Show the lines of the current buffer to filter."
+(defun ifilter-line (&optional name candidates-function goto-function)
+  "Show the lines of the current buffer to filter.
+Show them in the buffer NAME, \"*ifilter-line*\" by default.  Show the
+candidates returned by CANDIDATES-FUNCTION called with the current
+buffer instead, and jump to the data of one by GOTO-FUNCTION called in
+the buffer, by default the lines with their positions, and `goto-char'."
   (interactive)
   (when (derived-mode-p 'ifilter-mode)
     (user-error "Already in an ifilter buffer"))
-  (let ((source (current-buffer))
-        (buffer (get-buffer "*ifilter-line*")))
-    ;; As in `ifilter-imenu'.
+  (let* ((name (or name "*ifilter-line*"))
+         (candidates-function (or candidates-function #'ifilter-line--candidates))
+         (source (current-buffer))
+         (buffer (get-buffer name)))
+    ;; Show the candidates of another buffer, or of another tool, in a
+    ;; new buffer, clearing the filter.
     (unless (and buffer
                  (with-current-buffer buffer
                    (and (derived-mode-p 'ifilter-line-mode)
-                        (eq ifilter-line--buffer source))))
-      (let ((candidates (ifilter-line--candidates source)))
+                        (eq ifilter-line--source source)
+                        (eq ifilter-line--candidates-function candidates-function))))
+      (let ((candidates (funcall candidates-function source)))
         (when buffer
           (kill-buffer buffer))
-        (setq buffer (generate-new-buffer "*ifilter-line*"))
+        (setq buffer (generate-new-buffer name))
         (with-current-buffer buffer
           (ifilter-line-mode)
-          (setq ifilter-line--buffer source)
+          (setq ifilter-line--source source
+                ifilter-line--candidates-function candidates-function
+                ifilter-line--goto-function (or goto-function #'goto-char))
           (ifilter-render candidates))))
     (switch-to-buffer-other-window buffer)))
 
@@ -512,10 +461,37 @@ As `ifilter-line', but replace the filter with the symbol quoted."
         (ifilter-set-filter (regexp-quote symbol)))
     (user-error "No symbol at point")))
 
-;;; outline
+;;; imenu
 
-(defvar-local ifilter-outline--buffer nil
-  "Buffer of the headings shown in the current buffer.")
+(defvar imenu-flatten)
+(defvar imenu--rescan-item)
+(declare-function imenu "imenu")
+(declare-function imenu-flush-cache "imenu")
+(declare-function imenu--make-index-alist "imenu")
+(declare-function imenu--flatten-index-alist "imenu")
+
+(defun ifilter-imenu--candidates (buffer)
+  "Return the index items of BUFFER as candidates, rescanning it."
+  (with-current-buffer buffer
+    (imenu-flush-cache)
+    ;; Flatten the nested items by concatenating the names, as by
+    ;; `imenu-flatten' nil.
+    (let ((imenu-flatten nil))
+      (mapcan (lambda (item)
+                (when (stringp (car item))
+                  (list (cons (car item) item))))
+              (imenu--flatten-index-alist
+               (remove imenu--rescan-item (imenu--make-index-alist t))
+               t)))))
+
+;;;###autoload
+(defun ifilter-imenu ()
+  "Show the index of the current buffer, as by `imenu', to filter."
+  (interactive)
+  (require 'imenu)
+  (ifilter-line "*ifilter-imenu*" #'ifilter-imenu--candidates #'imenu))
+
+;;; outline
 
 (defun ifilter-outline--candidates (buffer)
   "Return the headings of BUFFER as candidates.
@@ -546,59 +522,11 @@ by \" / \", and has its position as data."
               (forward-line 1))))
         (nreverse candidates)))))
 
-(defun ifilter-outline--revert (&rest _)
-  "Show the headings of `ifilter-outline--buffer' again."
-  (unless (buffer-live-p ifilter-outline--buffer)
-    (user-error "Buffer of the headings killed"))
-  (ifilter-render (ifilter-outline--candidates ifilter-outline--buffer)))
-
-(defun ifilter-outline-goto (&optional display)
-  "Jump to the heading at point in another window.
-If DISPLAY is non-nil, only display it, keeping the selected window."
-  (interactive)
-  (let ((pos (cdr (ifilter--candidate-or-error))))
-    (unless (buffer-live-p ifilter-outline--buffer)
-      (user-error "Buffer of the headings killed"))
-    (with-selected-window (if display
-                              (display-buffer ifilter-outline--buffer t)
-                            (switch-to-buffer-other-window ifilter-outline--buffer)
-                            (selected-window))
-      (goto-char pos))))
-
-(defun ifilter-outline--preview ()
-  "Display the heading at point in another window."
-  (ifilter-outline-goto t))
-
-(defvar-keymap ifilter-outline-mode-map
-  "RET" #'ifilter-outline-goto)
-
-(define-derived-mode ifilter-outline-mode ifilter-mode "IFilter-Outline"
-  "Mode of the buffers filtering the outline headings of a buffer."
-  (setq-local revert-buffer-function #'ifilter-outline--revert)
-  (setq-local ifilter-preview-function #'ifilter-outline--preview))
-
 ;;;###autoload
 (defun ifilter-outline ()
   "Show the outline headings of the current buffer to filter."
   (interactive)
-  (when (derived-mode-p 'ifilter-mode)
-    (user-error "Already in an ifilter buffer"))
-  (let ((source (current-buffer))
-        (buffer (get-buffer "*ifilter-outline*")))
-    ;; As in `ifilter-imenu'.
-    (unless (and buffer
-                 (with-current-buffer buffer
-                   (and (derived-mode-p 'ifilter-outline-mode)
-                        (eq ifilter-outline--buffer source))))
-      (let ((candidates (ifilter-outline--candidates source)))
-        (when buffer
-          (kill-buffer buffer))
-        (setq buffer (generate-new-buffer "*ifilter-outline*"))
-        (with-current-buffer buffer
-          (ifilter-outline-mode)
-          (setq ifilter-outline--buffer source)
-          (ifilter-render candidates))))
-    (switch-to-buffer-other-window buffer)))
+  (ifilter-line "*ifilter-outline*" #'ifilter-outline--candidates))
 
 ;;; kill ring
 

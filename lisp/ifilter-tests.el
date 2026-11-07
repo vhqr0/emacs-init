@@ -235,7 +235,7 @@ The filter is not updated automatically."
 
 (ert-deftest ifilter-test-button ()
   (with-temp-buffer
-    (ifilter-imenu-mode)
+    (ifilter-line-mode)
     (ifilter-render ifilter-test-candidates)
     (goto-char (point-min))
     (widget-forward 1)
