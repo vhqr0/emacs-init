@@ -156,6 +156,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 ;;;; project
 
 (require 'project)
+(require 'project-x)
 (require 'project-test-jump)
 
 (setq project-mode-line t)
@@ -163,18 +164,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (setq project-compilation-buffer-name-function #'project-prefixed-buffer-name)
 (setq project-vc-merge-submodules nil)
 
-(defun init-project-switch-to-compile ()
-  "Switch to project compilation buffer."
-  (interactive)
-  (let ((default-directory (project-root (project-current t)))
-        (compilation-buffer-name-function
-         (or project-compilation-buffer-name-function
-             compilation-buffer-name-function)))
-    (if-let* ((buffer (get-buffer (compilation-buffer-name "compilation" nil nil))))
-        (switch-to-buffer buffer)
-      (user-error "No project compilation buffer found"))))
-
-(keymap-set project-prefix-map "C" #'init-project-switch-to-compile)
+(keymap-set project-prefix-map "C" #'project-x-switch-to-compile)
 (keymap-set project-prefix-map "t" #'project-test-jump)
 
 ;;;; ibuffer
