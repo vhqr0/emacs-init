@@ -15,7 +15,9 @@
 ;; button, as the search field of Customize, and each line after it
 ;; shows a candidate.  The candidates not matching the filter are hidden
 ;; by overlays, so filtering never changes the text, and `undo' only
-;; undoes the edits of the filter.
+;; undoes the edits of the filter.  The candidates shown are changed
+;; only by `revert-buffer', even if the commands on them change their
+;; source.
 ;;
 ;; A candidate is (STRING . DATA).  STRING is shown and matched, with
 ;; its newlines shown as ^J, and the candidates of empty STRING are
@@ -32,24 +34,28 @@
 ;;   the minibuffer, and apply it.
 ;; - `C-c C-s' suspends updating the filter automatically.
 ;; - `g' collects the candidates again, keeping the filter.
+;; - `M-RET' previews the candidate at point in another window, keeping
+;;   the selected one.  `M-n' and `M-p', also in the filter field, move
+;;   to the next and previous candidates shown, and preview them.
 ;;
 ;; A tool is a child mode of `ifilter-mode' and a command opening its
 ;; buffer.  The mode binds the commands on the candidates, which get the
 ;; candidate at point by `ifilter-candidate', and sets
 ;; `revert-buffer-function' to collect the candidates again and call
-;; `ifilter-render'.  `ifilter-next' moves between the candidates shown.
+;; `ifilter-render', and may set `ifilter-preview-function'.
 ;;
 ;; The tools:
 ;;
 ;; - `ifilter-imenu' shows the index of the current buffer.  `RET'
-;;   jumps to an item in another window, and `M-RET' only displays it.
-;;   `M-n' and `M-p' move to the next and previous items, and display
-;;   them.
+;;   jumps to an item in another window, previewed by displaying it.
 ;; - `ifilter-outline' shows the outline headings of the current buffer,
-;;   each as the path of the lines of it and its ancestors.  `RET',
-;;   `M-RET', `M-n' and `M-p' are as in `ifilter-imenu'.
-;; - `ifilter-kill-ring' shows the kill ring.  `RET' makes a kill the
-;;   latest one.
+;;   each as the path of the lines of it and its ancestors.  `RET' and
+;;   the preview are as in `ifilter-imenu'.
+;; - `ifilter-kill-ring' shows the kill ring.  `RET' selects a kill
+;;   shown whole in another buffer, also previewed so.  `w' or `C-c C-w'
+;;   moves it to the front of the kill ring, and `k' or `C-c C-k'
+;;   deletes it.  The kill ring is shown again by `g', or with prefix
+;;   arg, rather than at once, to keep the position.
 ;;
 ;; `ifilter-imenu' and `ifilter-outline' each show in one buffer.
 ;; Called from another buffer, they show its items instead, clearing
@@ -93,7 +99,9 @@
   :parent widget-field-keymap
   "C-c C-u" #'ifilter-update
   "C-c C-s" #'ifilter-toggle-suspend
-  "C-c C-/" #'ifilter-set-filter)
+  "C-c C-/" #'ifilter-set-filter
+  "M-n" #'ifilter-preview-next
+  "M-p" #'ifilter-preview-previous)
 
 (defun ifilter-render (candidates)
   "Show CANDIDATES in the current buffer under the filter field.
@@ -270,13 +278,39 @@ If BACKWARD is non-nil, of the previous one."
       (goto-char (or (ifilter--next-candidate (minusp n))
                      (user-error "No more candidates"))))))
 
+(defvar-local ifilter-preview-function nil
+  "Function previewing the candidate at point in another window, or nil.
+It is called with no arguments, keeping the selected window.")
+
+(defun ifilter-preview ()
+  "Preview the candidate at point in another window."
+  (interactive)
+  (ifilter--candidate-or-error)
+  (unless ifilter-preview-function
+    (user-error "No preview"))
+  (funcall ifilter-preview-function))
+
+(defun ifilter-preview-next (&optional n)
+  "Move to the Nth next candidate shown, and preview it."
+  (interactive "p")
+  (ifilter-next n)
+  (ifilter-preview))
+
+(defun ifilter-preview-previous (&optional n)
+  "Move to the Nth previous candidate shown, and preview it."
+  (interactive "p")
+  (ifilter-preview-next (- (or n 1))))
+
 (defvar-keymap ifilter-mode-map
   ;; `widget-keymap' presses the buttons, and moves between the widgets.
   :parent (make-composed-keymap widget-keymap special-mode-map)
   "C-c C-u" #'ifilter-update
   "C-c C-s" #'ifilter-toggle-suspend
   "C-c C-/" #'ifilter-set-filter
-  "/" #'ifilter-set-filter)
+  "/" #'ifilter-set-filter
+  "M-RET" #'ifilter-preview
+  "M-n" #'ifilter-preview-next
+  "M-p" #'ifilter-preview-previous)
 
 (define-derived-mode ifilter-mode special-mode "IFilter"
   "Parent mode of the buffers filtering a list.
@@ -343,31 +377,17 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
                             (selected-window))
       (imenu item))))
 
-(defun ifilter-imenu-display ()
+(defun ifilter-imenu--preview ()
   "Display the index item at point in another window."
-  (interactive)
   (ifilter-imenu-goto t))
 
-(defun ifilter-imenu-next (&optional n)
-  "Move to the Nth next index item shown, and display it."
-  (interactive "p")
-  (ifilter-next n)
-  (ifilter-imenu-display))
-
-(defun ifilter-imenu-previous (&optional n)
-  "Move to the Nth previous index item shown, and display it."
-  (interactive "p")
-  (ifilter-imenu-next (- n)))
-
 (defvar-keymap ifilter-imenu-mode-map
-  "RET" #'ifilter-imenu-goto
-  "M-RET" #'ifilter-imenu-display
-  "M-n" #'ifilter-imenu-next
-  "M-p" #'ifilter-imenu-previous)
+  "RET" #'ifilter-imenu-goto)
 
 (define-derived-mode ifilter-imenu-mode ifilter-mode "IFilter-Imenu"
   "Mode of the buffers filtering the index of a buffer."
-  (setq-local revert-buffer-function #'ifilter-imenu--revert))
+  (setq-local revert-buffer-function #'ifilter-imenu--revert)
+  (setq-local ifilter-preview-function #'ifilter-imenu--preview))
 
 ;;;###autoload
 (defun ifilter-imenu ()
@@ -446,31 +466,17 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
                             (selected-window))
       (goto-char pos))))
 
-(defun ifilter-line-display ()
+(defun ifilter-line--preview ()
   "Display the line at point in another window."
-  (interactive)
   (ifilter-line-goto t))
 
-(defun ifilter-line-next (&optional n)
-  "Move to the Nth next line shown, and display it."
-  (interactive "p")
-  (ifilter-next n)
-  (ifilter-line-display))
-
-(defun ifilter-line-previous (&optional n)
-  "Move to the Nth previous line shown, and display it."
-  (interactive "p")
-  (ifilter-line-next (- n)))
-
 (defvar-keymap ifilter-line-mode-map
-  "RET" #'ifilter-line-goto
-  "M-RET" #'ifilter-line-display
-  "M-n" #'ifilter-line-next
-  "M-p" #'ifilter-line-previous)
+  "RET" #'ifilter-line-goto)
 
 (define-derived-mode ifilter-line-mode ifilter-mode "IFilter-Line"
   "Mode of the buffers filtering the lines of a buffer."
-  (setq-local revert-buffer-function #'ifilter-line--revert))
+  (setq-local revert-buffer-function #'ifilter-line--revert)
+  (setq-local ifilter-preview-function #'ifilter-line--preview))
 
 ;;;###autoload
 (defun ifilter-line ()
@@ -559,31 +565,17 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
                             (selected-window))
       (goto-char pos))))
 
-(defun ifilter-outline-display ()
+(defun ifilter-outline--preview ()
   "Display the heading at point in another window."
-  (interactive)
   (ifilter-outline-goto t))
 
-(defun ifilter-outline-next (&optional n)
-  "Move to the Nth next heading shown, and display it."
-  (interactive "p")
-  (ifilter-next n)
-  (ifilter-outline-display))
-
-(defun ifilter-outline-previous (&optional n)
-  "Move to the Nth previous heading shown, and display it."
-  (interactive "p")
-  (ifilter-outline-next (- n)))
-
 (defvar-keymap ifilter-outline-mode-map
-  "RET" #'ifilter-outline-goto
-  "M-RET" #'ifilter-outline-display
-  "M-n" #'ifilter-outline-next
-  "M-p" #'ifilter-outline-previous)
+  "RET" #'ifilter-outline-goto)
 
 (define-derived-mode ifilter-outline-mode ifilter-mode "IFilter-Outline"
   "Mode of the buffers filtering the outline headings of a buffer."
-  (setq-local revert-buffer-function #'ifilter-outline--revert))
+  (setq-local revert-buffer-function #'ifilter-outline--revert)
+  (setq-local ifilter-preview-function #'ifilter-outline--preview))
 
 ;;;###autoload
 (defun ifilter-outline ()
@@ -625,17 +617,59 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
   "Show the kill ring again."
   (ifilter-render (ifilter-kill-ring--candidates)))
 
-(defun ifilter-kill-ring-select ()
-  "Make the kill at point the latest kill, by `kill-new'."
+(defun ifilter-kill-ring--preview ()
+  "Display the whole kill at point in another window, and return it."
+  (let ((kill (cdr (ifilter--candidate-or-error))))
+    (with-current-buffer (get-buffer-create "*ifilter-kill-ring-preview*")
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert kill))
+      (special-mode)
+      (goto-char (point-min))
+      (let ((window (display-buffer (current-buffer) t)))
+        (set-window-point window (point-min))
+        window))))
+
+(defun ifilter-kill-ring-goto ()
+  "Select the window showing the whole kill at point."
   (interactive)
-  (kill-new (cdr (ifilter--candidate-or-error))))
+  (select-window (ifilter-kill-ring--preview)))
+
+(defun ifilter-kill-ring--remove (kill)
+  "Remove KILL from the kill ring, itself rather than the equal ones."
+  (setq kill-ring (delq kill kill-ring))
+  (when (eq (car kill-ring-yank-pointer) kill)
+    (setq kill-ring-yank-pointer kill-ring)))
+
+(defun ifilter-kill-ring-select (&optional revert)
+  "Move the kill at point to the front of the kill ring, by `kill-new'.
+With prefix arg REVERT, show the kill ring again."
+  (interactive "P")
+  (let ((kill (cdr (ifilter--candidate-or-error))))
+    (ifilter-kill-ring--remove kill)
+    (kill-new kill))
+  (when revert
+    (revert-buffer)))
+
+(defun ifilter-kill-ring-delete (&optional revert)
+  "Delete the kill at point from the kill ring.
+With prefix arg REVERT, show the kill ring again."
+  (interactive "P")
+  (ifilter-kill-ring--remove (cdr (ifilter--candidate-or-error)))
+  (when revert
+    (revert-buffer)))
 
 (defvar-keymap ifilter-kill-ring-mode-map
-  "RET" #'ifilter-kill-ring-select)
+  "RET" #'ifilter-kill-ring-goto
+  "w" #'ifilter-kill-ring-select
+  "C-c C-w" #'ifilter-kill-ring-select
+  "k" #'ifilter-kill-ring-delete
+  "C-c C-k" #'ifilter-kill-ring-delete)
 
 (define-derived-mode ifilter-kill-ring-mode ifilter-mode "IFilter-Kill-Ring"
   "Mode of the buffer filtering the kill ring."
-  (setq-local revert-buffer-function #'ifilter-kill-ring--revert))
+  (setq-local revert-buffer-function #'ifilter-kill-ring--revert)
+  (setq-local ifilter-preview-function #'ifilter-kill-ring--preview))
 
 ;;;###autoload
 (defun ifilter-kill-ring ()

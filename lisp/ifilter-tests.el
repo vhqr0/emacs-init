@@ -128,6 +128,51 @@ The filter is not updated automatically."
     (ifilter-next 2)
     (should (equal (cdr (ifilter-candidate)) 3))))
 
+(ert-deftest ifilter-test-preview ()
+  (ifilter-test-with-buffer
+    (should-error (ifilter-preview) :type 'user-error)
+    (let (previewed)
+      (setq-local ifilter-preview-function
+                  (lambda () (push (cdr (ifilter-candidate)) previewed)))
+      (ifilter-test-input "bar\\|qux")
+      (goto-char (point-min))
+      ;; No candidate in the filter field.
+      (should-error (ifilter-preview) :type 'user-error)
+      (ifilter-preview-next)
+      (ifilter-preview-next)
+      (ifilter-preview-previous)
+      (ifilter-preview)
+      (should (equal (nreverse previewed) '(1 3 1 1))))
+    (should (eq (keymap-lookup ifilter-field-map "M-n") #'ifilter-preview-next))))
+
+(ert-deftest ifilter-test-kill-ring ()
+  (let* ((kill-ring (list "a" "b" "c"))
+         (kill-ring-yank-pointer (cdr kill-ring))
+         (interprogram-cut-function nil)
+         (interprogram-paste-function nil))
+    (with-temp-buffer
+      (ifilter-kill-ring-mode)
+      (ifilter-render (ifilter-kill-ring--candidates))
+      (goto-char (point-min))
+      (ifilter-next 2)
+      (ifilter-kill-ring-delete)
+      (should (equal kill-ring '("a" "c")))
+      (should (eq kill-ring-yank-pointer kill-ring))
+      ;; Not shown again.
+      (should (equal (cdr (ifilter-candidate)) "b"))
+      (should (string-suffix-p "]\na\nb\nc" (buffer-string)))
+      (ifilter-next)
+      (ifilter-kill-ring-select)
+      (should (equal kill-ring '("c" "a")))
+      (should (string-suffix-p "]\na\nb\nc" (buffer-string)))
+      (ifilter-kill-ring-delete t)
+      (should (equal kill-ring '("a")))
+      (should (string-suffix-p "]\na" (buffer-string)))
+      (goto-char (point-min))
+      (ifilter-next)
+      (ifilter-kill-ring-select t)
+      (should (equal kill-ring '("a"))))))
+
 (ert-deftest ifilter-test-hide-last ()
   (ifilter-test-with-buffer
     (ifilter-test-input "foo")
