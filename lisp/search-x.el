@@ -7,6 +7,9 @@
 
 ;;; Commentary:
 
+;; `search-x-occur-at-point' and `search-x-query-replace-at-point'
+;; occur and query replace the symbol at point.
+;;
 ;; Tools to revert or edit the arguments of occur and compilation
 ;; buffers, by clickable header line buttons and commands:
 ;;
@@ -75,6 +78,23 @@
 (defun search-x-occur-header-setup ()
   "Set header line of occur buffers."
   (setq header-line-format search-x-occur-header-format))
+
+;;;###autoload
+(defun search-x-occur-at-point ()
+  "Occur the symbol at point."
+  (interactive)
+  (occur (regexp-quote (or (thing-at-point 'symbol t)
+                           (user-error "No symbol at point")))))
+
+;;;###autoload
+(defun search-x-query-replace-at-point ()
+  "Query replace the symbol at point, from it."
+  (interactive)
+  (let* ((bounds (or (bounds-of-thing-at-point 'symbol)
+                     (user-error "No symbol at point")))
+         (from (buffer-substring (car bounds) (cdr bounds))))
+    (goto-char (car bounds))
+    (query-replace from (query-replace-read-to from "Query replace" nil))))
 
 ;;; compile
 

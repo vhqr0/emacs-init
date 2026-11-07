@@ -310,20 +310,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (setq isearch-motion-changes-direction t)
 ;; (setq isearch-repeat-on-direction-change t)
 
-(defun init-occur-at-point ()
-  "Occur thing at point."
-  (interactive)
-  (occur (regexp-quote (thing-at-point 'symbol))))
-
-(defun init-query-replace-at-point ()
-  "Query replace at point."
-  (interactive)
-  (let* ((bounds (bounds-of-thing-at-point 'symbol))
-         (from (buffer-substring (car bounds) (cdr bounds))))
-    (goto-char (car bounds))
-    (query-replace
-     from (query-replace-read-to from "Query replace" nil))))
-
 (require 'timestamp-at-point)
 
 ;;;; pair
@@ -1264,8 +1250,8 @@ EVENT see `input-method-function'."
  "T" #'timestamp-at-point
  "e" #'eshell-dwim
  "S" #'rg-dwim
- "O" #'init-occur-at-point
- "Q" #'init-query-replace-at-point
+ "O" #'search-x-occur-at-point
+ "Q" #'search-x-query-replace-at-point
  "%" #'query-replace-regexp
  "$" #'ispell-word
  "=" #'simple-format-buffer
