@@ -111,6 +111,23 @@ The filter is not updated automatically."
     (should (equal (widget-value ifilter--widget) "foo baz"))
     (should (equal (mapcar #'cdr (ifilter-test-shown)) '(2)))))
 
+(ert-deftest ifilter-test-next ()
+  (ifilter-test-with-buffer
+    (ifilter-test-input "bar\\|qux")
+    ;; From the filter field, skipping the candidate 2 hidden.
+    (goto-char (point-min))
+    (ifilter-next)
+    (should (equal (cdr (ifilter-candidate)) 1))
+    (ifilter-next)
+    (should (equal (cdr (ifilter-candidate)) 3))
+    (should-error (ifilter-next) :type 'user-error)
+    (ifilter-next -1)
+    (should (equal (cdr (ifilter-candidate)) 1))
+    (should-error (ifilter-next -1) :type 'user-error)
+    (goto-char (point-min))
+    (ifilter-next 2)
+    (should (equal (cdr (ifilter-candidate)) 3))))
+
 (ert-deftest ifilter-test-hide-last ()
   (ifilter-test-with-buffer
     (ifilter-test-input "foo")

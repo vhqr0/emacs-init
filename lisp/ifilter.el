@@ -37,15 +37,17 @@
 ;; buffer.  The mode binds the commands on the candidates, which get the
 ;; candidate at point by `ifilter-candidate', and sets
 ;; `revert-buffer-function' to collect the candidates again and call
-;; `ifilter-render'.
+;; `ifilter-render'.  `ifilter-next' moves between the candidates shown.
 ;;
 ;; The tools:
 ;;
 ;; - `ifilter-imenu' shows the index of the current buffer.  `RET'
 ;;   jumps to an item in another window, and `M-RET' only displays it.
+;;   `M-n' and `M-p' move to the next and previous items, and display
+;;   them.
 ;; - `ifilter-outline' shows the outline headings of the current buffer,
-;;   each as the path of the lines of it and its ancestors.  `RET' and
-;;   `M-RET' are as in `ifilter-imenu'.
+;;   each as the path of the lines of it and its ancestors.  `RET',
+;;   `M-RET', `M-n' and `M-p' are as in `ifilter-imenu'.
 ;; - `ifilter-kill-ring' shows the kill ring.  `RET' makes a kill the
 ;;   latest one.
 ;;
@@ -251,6 +253,23 @@ Resuming updates it at once."
 
 ;;;; mode
 
+(defun ifilter--next-candidate (backward)
+  "Return the beginning of the next candidate shown, nil if none.
+If BACKWARD is non-nil, of the previous one."
+  (save-excursion
+    (catch 'found
+      ;; Not moving to the next line from the last line, but to its end.
+      (while (and (zerop (forward-line (if backward -1 1))) (bolp))
+        (when (and (ifilter-candidate) (not (invisible-p (point))))
+          (throw 'found (point)))))))
+
+(defun ifilter-next (&optional n)
+  "Move to the Nth next candidate shown, or previous if N is negative."
+  (let ((n (or n 1)))
+    (dotimes (_ (abs n))
+      (goto-char (or (ifilter--next-candidate (minusp n))
+                     (user-error "No more candidates"))))))
+
 (defvar-keymap ifilter-mode-map
   ;; `widget-keymap' presses the buttons, and moves between the widgets.
   :parent (make-composed-keymap widget-keymap special-mode-map)
@@ -329,9 +348,22 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
   (interactive)
   (ifilter-imenu-goto t))
 
+(defun ifilter-imenu-next (&optional n)
+  "Move to the Nth next index item shown, and display it."
+  (interactive "p")
+  (ifilter-next n)
+  (ifilter-imenu-display))
+
+(defun ifilter-imenu-previous (&optional n)
+  "Move to the Nth previous index item shown, and display it."
+  (interactive "p")
+  (ifilter-imenu-next (- n)))
+
 (defvar-keymap ifilter-imenu-mode-map
   "RET" #'ifilter-imenu-goto
-  "M-RET" #'ifilter-imenu-display)
+  "M-RET" #'ifilter-imenu-display
+  "M-n" #'ifilter-imenu-next
+  "M-p" #'ifilter-imenu-previous)
 
 (define-derived-mode ifilter-imenu-mode ifilter-mode "IFilter-Imenu"
   "Mode of the buffers filtering the index of a buffer."
@@ -419,9 +451,22 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
   (interactive)
   (ifilter-line-goto t))
 
+(defun ifilter-line-next (&optional n)
+  "Move to the Nth next line shown, and display it."
+  (interactive "p")
+  (ifilter-next n)
+  (ifilter-line-display))
+
+(defun ifilter-line-previous (&optional n)
+  "Move to the Nth previous line shown, and display it."
+  (interactive "p")
+  (ifilter-line-next (- n)))
+
 (defvar-keymap ifilter-line-mode-map
   "RET" #'ifilter-line-goto
-  "M-RET" #'ifilter-line-display)
+  "M-RET" #'ifilter-line-display
+  "M-n" #'ifilter-line-next
+  "M-p" #'ifilter-line-previous)
 
 (define-derived-mode ifilter-line-mode ifilter-mode "IFilter-Line"
   "Mode of the buffers filtering the lines of a buffer."
@@ -519,9 +564,22 @@ If DISPLAY is non-nil, only display it, keeping the selected window."
   (interactive)
   (ifilter-outline-goto t))
 
+(defun ifilter-outline-next (&optional n)
+  "Move to the Nth next heading shown, and display it."
+  (interactive "p")
+  (ifilter-next n)
+  (ifilter-outline-display))
+
+(defun ifilter-outline-previous (&optional n)
+  "Move to the Nth previous heading shown, and display it."
+  (interactive "p")
+  (ifilter-outline-next (- n)))
+
 (defvar-keymap ifilter-outline-mode-map
   "RET" #'ifilter-outline-goto
-  "M-RET" #'ifilter-outline-display)
+  "M-RET" #'ifilter-outline-display
+  "M-n" #'ifilter-outline-next
+  "M-p" #'ifilter-outline-previous)
 
 (define-derived-mode ifilter-outline-mode ifilter-mode "IFilter-Outline"
   "Mode of the buffers filtering the outline headings of a buffer."
