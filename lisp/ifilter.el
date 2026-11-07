@@ -461,7 +461,7 @@ As `ifilter-line', but replace the filter with the symbol quoted."
         (ifilter-set-filter (regexp-quote symbol)))
     (user-error "No symbol at point")))
 
-;;; imenu
+;;;; imenu
 
 (defvar imenu-flatten)
 (defvar imenu--rescan-item)
@@ -491,7 +491,7 @@ As `ifilter-line', but replace the filter with the symbol quoted."
   (require 'imenu)
   (ifilter-line "*ifilter-imenu*" #'ifilter-imenu--candidates #'imenu))
 
-;;; outline
+;;;; outline
 
 (defun ifilter-outline--candidates (buffer)
   "Return the headings of BUFFER as candidates.
@@ -552,7 +552,8 @@ by \" / \", and has its position as data."
       (let ((inhibit-read-only t))
         (erase-buffer)
         (insert kill))
-      (special-mode)
+      (text-mode)
+      (setq buffer-read-only t)
       (goto-char (point-min))
       (let ((window (display-buffer (current-buffer) t)))
         (set-window-point window (point-min))
