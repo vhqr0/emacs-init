@@ -1,3 +1,6 @@
+EMACS ?= emacs
+BATCH = $(EMACS) -Q --batch --eval '(package-initialize)' -L lisp
+
 .PHONY: setup
 setup:
 	cd .. && echo '(load-file (expand-file-name "emacs-init/init.el" user-emacs-directory))' > init.el
@@ -5,20 +8,12 @@ setup:
 
 .PHONY: compile
 compile:
-	$(MAKE) -C lisp/vim.el compile
-	$(MAKE) -C lisp/iselect.el compile
-	$(MAKE) -C lisp/ifilter.el compile
-	$(MAKE) -C lisp/myswiper.el compile
-	$(MAKE) -C lisp/project-test-jump.el compile
-	$(MAKE) -C lisp/flymake-x.el compile
-	$(MAKE) -C lisp/eshell-dwim.el compile
-	$(MAKE) -C lisp/simple-abbrev.el compile
-	$(MAKE) -C lisp/macrostep-cider.el compile
-	$(MAKE) -C lisp/pyim-zirjma.el compile
-	$(MAKE) -C lisp/rg-dwim.el compile
-	$(MAKE) -C lisp/timestamp-at-point.el compile
-	$(MAKE) -C lisp/search-x.el compile
-	$(MAKE) -C lisp/outline-x.el compile
-	$(MAKE) -C lisp/markdown-x.el compile
-	$(MAKE) -C lisp/simple-format.el compile
-	$(MAKE) -C lisp/pair-x.el compile
+	$(BATCH) --eval '(byte-recompile-directory "lisp" 0)'
+
+.PHONY: test
+test:
+	$(BATCH) $(addprefix -l ,$(wildcard lisp/*-tests.el)) -f ert-run-tests-batch-and-exit < /dev/null
+
+.PHONY: clean
+clean:
+	rm -f lisp/*.elc

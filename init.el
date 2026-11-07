@@ -10,9 +10,7 @@
 (defvar init-directory (expand-file-name "emacs-init" user-emacs-directory))
 (defvar priv-directory (expand-file-name "emacs-priv" user-emacs-directory))
 
-(dolist (dir (directory-files (expand-file-name "lisp" init-directory) t "\\`[^.]"))
-  (when (file-directory-p dir)
-    (add-to-list 'load-path dir)))
+(add-to-list 'load-path (expand-file-name "lisp" init-directory))
 
 (setq load-prefer-newer t)
 
