@@ -1149,6 +1149,26 @@ EVENT see `input-method-function'."
   (interactive)
   (init-magic-prefix "C-c"))
 
+(defun init-magic-meta ()
+  "Magic meta."
+  (interactive)
+  (let* ((event (read-event "M-"))
+         (prefix (concat "M-" (if (symbolp event)
+                                  (concat "<" (symbol-name event) ">")
+                                (char-to-string event))))
+         (binding (key-binding (kbd prefix))))
+    (cond ((and binding (commandp binding))
+           (setq this-command binding
+                 real-this-command binding
+                 last-command-event event)
+           (if (commandp binding t)
+               (call-interactively binding)
+             (execute-kbd-macro binding)))
+          ((and binding (keymapp binding))
+           (init-magic-prefix prefix))
+          (t
+           (user-error "no magic key binding found on %s" prefix)))))
+
 (defun init-magic-C-u ()
   "Magic control U."
   (interactive)
@@ -1178,27 +1198,13 @@ EVENT see `input-method-function'."
           (user-error "Binding on <leader> %c is not a command" shift-char))
       (user-error "No binding found on <leader> %c" shift-char))))
 
-(defvar-keymap init-minor-prefix-map
-  "s" #'auto-save-visited-mode
-  "r" #'global-auto-revert-mode
-  "t" #'toggle-truncate-lines
-  "S" #'init-toggle-scroll-bar
-  "v" #'visual-line-mode
-  "w" #'whitespace-mode
-  "W" #'whitespace-newline-mode
-  "h" #'hl-line-mode
-  "n" #'display-line-numbers-mode
-  "N" #'init-toggle-line-numbers-relative
-  "d" #'eldoc-doc-buffer
-  "e" #'flymake-show-buffer-diagnostics
-  "E" #'flymake-show-project-diagnostics)
-
 (keymap-set vim-normal-mode-map "C-p" #'iselect-project-files)
 
 (init-leader-set
  "SPC" #'iselect-files
  "\\" #'init-magic-shift
  "TAB" #'init-magic-shift
+ "m" #'init-magic-meta
  "x" #'init-magic-C-x
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
@@ -1234,7 +1240,6 @@ EVENT see `input-method-function'."
  "s" search-map
  "n" narrow-map
  "a" abbrev-map
- "m" init-minor-prefix-map
  "T" #'timestamp-at-point
  "e" #'eshell-dwim
  "S" #'rg-dwim
