@@ -1156,7 +1156,7 @@ EVENT see `input-method-function'."
          (event (read-event prefix))
          (prefix (concat prefix (if (symbolp event)
                                     (concat "<" (symbol-name event) ">")
-                                  (char-to-string event))))
+                                  (if (eq event ?\s) "SPC" (char-to-string event)))))
          (binding (key-binding (kbd prefix))))
     (cond ((and binding (commandp binding))
            (setq this-command binding
