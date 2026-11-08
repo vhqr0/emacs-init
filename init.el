@@ -1168,7 +1168,7 @@ EVENT see `input-method-function'."
           ((and binding (keymapp binding))
            (init-magic-prefix prefix))
           (t
-           (user-error "no magic key binding found on %s" prefix)))))
+           (user-error "No magic key binding found on %s" prefix)))))
 
 (defun init-magic-control-meta ()
   "Magic control meta."
