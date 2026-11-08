@@ -102,9 +102,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set ctl-x-x-map "G" #'revert-buffer)
 
-(keymap-set ctl-x-x-map "<left>" #'previous-buffer)
-(keymap-set ctl-x-x-map "<right>" #'next-buffer)
-
 (defun init-auto-save-p ()
   "Predication of `auto-save-visited-mode'."
   (not vim-insert-mode))
@@ -222,12 +219,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
   :repeat t
   "<left>" #'tab-bar-history-back
   "<right>" #'tab-bar-history-forward)
-
-(keymap-set tab-prefix-map "<left>" #'tab-bar-history-back)
-(keymap-set tab-prefix-map "<right>" #'tab-bar-history-forward)
-
-(keymap-set window-prefix-map "<left>" #'tab-bar-history-back)
-(keymap-set window-prefix-map "<right>" #'tab-bar-history-forward)
 
 (keymap-global-set "C-S-N" #'make-frame-command)
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
@@ -1120,29 +1111,38 @@ EVENT see `input-method-function'."
 
 (defun init-magic-prefix (prefix)
   "Magically read and execute command on PREFIX."
-  (let ((char (read-char (concat prefix " C-"))))
-    (if (= char ?\C-h)
+  (let ((event (read-event (concat prefix " C-"))))
+    (if (eq event ?\C-h)
         (describe-keymap (key-binding (kbd prefix)))
-      (let ((literal (= char ?\s))
-            new-prefix binding)
+      (let ((literal (eq event ?\s))
+            event-string new-prefix binding)
         (when literal
-          (setq char (read-char prefix)))
+          (setq event (read-event prefix)))
+        (setq event-string (if (symbolp event)
+                               (concat "<" (symbol-name event) ">")
+                             (char-to-string event)))
         (unless literal
-          (setq new-prefix (concat prefix " C-" (char-to-string char))
+          (setq new-prefix (concat prefix " C-" event-string)
                 binding (key-binding (kbd new-prefix))))
         (unless binding
-          (setq new-prefix (concat prefix " " (char-to-string char))
+          (setq new-prefix (concat prefix " " event-string)
                 binding (key-binding (kbd new-prefix))))
         (cond ((and binding (commandp binding))
-               (setq this-command binding)
-               (setq real-this-command binding)
+               (setq this-command binding
+                     real-this-command binding
+                     last-command-event event)
                (if (commandp binding t)
                    (call-interactively binding)
                  (execute-kbd-macro binding)))
               ((and binding (keymapp binding))
                (init-magic-prefix new-prefix))
               (t
-               (user-error "No magic key binding found on %s %c" prefix char)))))))
+               (user-error "No magic key binding found on %s %s" prefix event-string)))))))
+
+(defun init-magic-C-x ()
+  "Magic control C."
+  (interactive)
+  (init-magic-prefix "C-x"))
 
 (defun init-magic-C-c ()
   "Magic control C."
@@ -1199,6 +1199,7 @@ EVENT see `input-method-function'."
  "SPC" #'iselect-files
  "\\" #'init-magic-shift
  "TAB" #'init-magic-shift
+ "x" #'init-magic-C-x
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
  "z" #'repeat
@@ -1227,7 +1228,6 @@ EVENT see `input-method-function'."
  "t" tab-prefix-map
  "p" project-prefix-map
  "v" vc-prefix-map
- "x" ctl-x-x-map
  "r" ctl-x-r-map
  "h" help-map
  "g" goto-map
