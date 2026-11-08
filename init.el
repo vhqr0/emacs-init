@@ -1149,13 +1149,14 @@ EVENT see `input-method-function'."
   (interactive)
   (init-magic-prefix "C-c"))
 
-(defun init-magic-meta ()
+(defun init-magic-meta (&optional control-meta)
   "Magic meta."
   (interactive)
-  (let* ((event (read-event "M-"))
-         (prefix (concat "M-" (if (symbolp event)
-                                  (concat "<" (symbol-name event) ">")
-                                (char-to-string event))))
+  (let* ((prefix (if control-meta "C-M-" "M-"))
+         (event (read-event prefix))
+         (prefix (concat prefix (if (symbolp event)
+                                    (concat "<" (symbol-name event) ">")
+                                  (char-to-string event))))
          (binding (key-binding (kbd prefix))))
     (cond ((and binding (commandp binding))
            (setq this-command binding
@@ -1168,6 +1169,11 @@ EVENT see `input-method-function'."
            (init-magic-prefix prefix))
           (t
            (user-error "no magic key binding found on %s" prefix)))))
+
+(defun init-magic-control-meta ()
+  "Magic control meta."
+  (interactive)
+  (init-magic-meta t))
 
 (defun init-magic-C-u ()
   "Magic control U."
@@ -1205,6 +1211,7 @@ EVENT see `input-method-function'."
  "\\" #'init-magic-shift
  "TAB" #'init-magic-shift
  "m" #'init-magic-meta
+ "M" #'init-magic-control-meta
  "x" #'init-magic-C-x
  "c" #'init-magic-C-c
  "u" #'init-magic-C-u
