@@ -10,7 +10,7 @@
 ;; A helm like selection.  (iselect-read PROMPT CANDIDATES &key
 ;; initial-input history input-fn limit delay layout buffer) reads a
 ;; candidate in the minibuffer, showing the candidates matching the input
-;; in a child frame, or a new frame on text terminals.
+;; in a new frame.
 ;;
 ;; - CANDIDATES is a list of (STRING . DATA).  STRING is shown and
 ;;   matched.
@@ -22,8 +22,7 @@
 ;; - DELAY is the seconds to wait after the last command before updating
 ;;   the matches automatically, `iselect-delay' (0.2) by default.  If
 ;;   negative, they are not updated automatically.
-;; - LAYOUT is `child-frame' or `frame', `iselect-layout' by default, or
-;;   nil not to show the candidates.
+;; - LAYOUT is non-nil by default, or nil not to show the candidates.
 ;; - BUFFER is the buffer of the candidates or its name, "*iselect*" by
 ;;   default.  It is kept after exiting, to be viewed.
 ;;
@@ -154,68 +153,25 @@ candidate as the property `iselect-candidate'.  Select the first one."
       (when window
         (set-window-point window (point-min))))))
 
-;;;; layout
-
-(defcustom iselect-layout 'child-frame
-  "How `iselect-read' shows the buffer of the candidates and the input.
-- `child-frame': in a child frame with its own minibuffer, or as
-  `frame' on text terminals.
-- `frame': in a new frame."
-  :type '(choice (const child-frame) (const frame)))
-
-(defcustom iselect-child-frame-parameters
-  '((width . 0.62)
-    (height . 0.5)
-    (child-frame-border-width . 1))
-  "Parameters of the child frame.
-Float sizes are ratios to the parent frame.  The child frame is centered
-in the parent frame."
-  :type '(alist :key-type symbol :value-type sexp))
+;;;; frame
 
 (defcustom iselect-frame-parameters nil
-  "Parameters of the new frame."
+  "Parameters of the frame showing the candidates and the input."
   :type '(alist :key-type symbol :value-type sexp))
 
-(defun iselect--center-frame (frame)
-  "Center FRAME in its parent frame."
-  (let ((parent (frame-parent frame)))
-    (set-frame-position frame
-                        (/ (- (frame-pixel-width parent) (frame-pixel-width frame)) 2)
-                        (/ (- (frame-pixel-height parent) (frame-pixel-height frame)) 2))))
-
-(defun iselect--show-frame (buffer parameters)
-  "Show BUFFER in a new frame with PARAMETERS, and select it.
-Return a function to delete the frame and select the old one."
-  (let* ((old-frame (selected-frame))
-         (frame (make-frame (append parameters
-                                    '((minibuffer . t)
-                                      (unsplittable . t)
-                                      (no-other-frame . t)
-                                      (menu-bar-lines . 0)
-                                      (tool-bar-lines . 0)
-                                      (tab-bar-lines . 0)))))
-         (window (frame-root-window frame)))
-    (when (frame-parent frame)
-      (iselect--center-frame frame))
+(defun iselect--show (buffer)
+  "Show BUFFER in a new frame, and select it.
+Return a function to select the old frame and delete the new one, or
+to keep the new one if the old one is deleted."
+  (let ((old-frame (selected-frame))
+        (frame (make-frame iselect-frame-parameters)))
     (select-frame-set-input-focus frame)
-    (set-window-buffer window buffer)
-    (set-window-dedicated-p window t)
+    (set-window-buffer (frame-root-window frame) buffer)
     (lambda ()
       (when (frame-live-p old-frame)
-        (select-frame-set-input-focus old-frame))
-      (when (frame-live-p frame)
-        (delete-frame frame)))))
-
-(defun iselect--show (layout buffer)
-  "Show BUFFER by LAYOUT, a value of `iselect-layout'.
-Return a function to undo it."
-  (iselect--show-frame
-   buffer
-   (if (and (eq layout 'child-frame) (display-graphic-p))
-       `(,@iselect-child-frame-parameters
-         (parent-frame . ,(selected-frame))
-         (undecorated . t))
-     iselect-frame-parameters)))
+        (select-frame-set-input-focus old-frame)
+        (when (frame-live-p frame)
+          (delete-frame frame))))))
 
 ;;;; commands
 
@@ -379,8 +335,7 @@ candidates."
 
 (cl-defun iselect-read (prompt candidates &key initial-input history
                                input-fn limit (delay iselect-delay)
-                               (layout iselect-layout)
-                               buffer)
+                               (layout t) buffer)
   "Read a candidate of CANDIDATES with PROMPT, and return it.
 
 CANDIDATES is a list of (STRING . DATA).  STRING is shown, and matched
@@ -399,10 +354,10 @@ INPUT-FN called with the input, or signals `user-error' without
 INPUT-FN.  Quitting signals `quit'.  Exiting otherwise, such as by
 `exit-recursive-edit', is abnormal, and returns nil.
 
-LAYOUT is how to show the buffer of the candidates, as `iselect-layout',
-which is the default.  If nil, the buffer is not shown.  BUFFER is the
-buffer of the candidates or its name, \"*iselect*\" by default.  It is
-kept after exiting, to be viewed.
+If LAYOUT is non-nil, the default, the buffer of the candidates and the
+input are shown in a new frame with `iselect-frame-parameters', or else
+the buffer is not shown.  BUFFER is the buffer of the candidates or its
+name, \"*iselect*\" by default.  It is kept after exiting, to be viewed.
 
 INITIAL-INPUT and HISTORY are as in `read-from-minibuffer'.  The input
 is added to HISTORY on exiting by \\[iselect-exit] or \\[iselect-exit-input]."
@@ -413,7 +368,7 @@ is added to HISTORY on exiting by \\[iselect-exit] or \\[iselect-exit-input]."
     (pcase (unwind-protect
                (progn
                  (when layout
-                   (setq undo-layout (iselect--show layout buffer)))
+                   (setq undo-layout (iselect--show buffer)))
                  ;; The commands exiting normally throw the result.
                  ;; Exiting without throwing, such as by
                  ;; `exit-recursive-edit', is abnormal, and returns nil.
