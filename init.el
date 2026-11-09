@@ -221,6 +221,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
   "<right>" #'tab-bar-history-forward)
 
 (keymap-global-set "C-S-N" #'make-frame-command)
+(keymap-global-set "C-S-M" #'toggle-frame-maximized)
 (keymap-global-set "C-S-T" #'tab-bar-new-tab)
 (keymap-global-set "C-S-W" #'tab-bar-close-tab)
 
