@@ -16,7 +16,7 @@
 ;; - `C-n', `C-p', `M-<', `M->', `C-v' and `M-v' select a line.
 ;; - `RET' jumps to the selected line, and `C-g' goes back.
 ;; - `C-l' recenters the window of the search.
-;; - `C-x C-s' runs `occur' with the input.
+;; - `C-x C-s' runs `occur' with the input, and selects its buffer.
 ;;
 ;; The input is a regexp, but spaces match any string.  As isearch and
 ;; occur, the search ignores case unless the input has an upper case
@@ -423,7 +423,9 @@ Return the last index if none, and nil if LINES is empty."
            (set-window-start window start t)))))
     (pcase result
       (`(occur ,regexp)
-       (occur regexp)))))
+       (occur regexp)
+       (when-let* ((window (get-buffer-window "*Occur*")))
+         (select-window window))))))
 
 (provide 'myswiper)
 ;;; myswiper.el ends here

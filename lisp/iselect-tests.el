@@ -110,6 +110,14 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
   (should (equal (iselect-test "x x C-c C-u DEL DEL q C-c C-u RET") '("qux" . 3)))
   (should (equal (iselect-test "RET" :initial-input "baz") '("Foo baz" . 2))))
 
+(iselect-deftest iselect-test-line-start ()
+  (dolist (keys '("C-n C-n C-n C-g" "M-> C-g" "M-> C-p C-n C-g"))
+    (iselect-test keys)
+    (with-current-buffer iselect-test-buffer
+      (should (= (point) (save-excursion
+                           (goto-char (point-max))
+                           (line-beginning-position)))))))
+
 (iselect-deftest iselect-test-invalid-regexp ()
   (should (equal (iselect-test "[ C-M-j" :input-fn (lambda (s) (cons s 0)))
                  '("[" . 0)))

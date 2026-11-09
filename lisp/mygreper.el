@@ -18,7 +18,7 @@
 ;; - `C-n', `C-p', `M-<', `M->', `C-v' and `M-v' select a line.
 ;; - `RET' visits the selected line, and `C-g' goes back.
 ;; - `C-l' recenters the window of the search.
-;; - `C-x C-s' runs the search in a `grep-mode' buffer.
+;; - `C-x C-s' runs the search in a `grep-mode' buffer, and selects it.
 ;;
 ;; The input is a regexp of ripgrep, not of Emacs, converted by
 ;; `mygreper-regexp-function', by default spaces match any string.  The
@@ -506,16 +506,17 @@ if reaching `mygreper-limit'."
 (defun mygreper--grep (dir regexp)
   "Search REGEXP in DIR by ripgrep in a `grep-mode' buffer."
   (let ((default-directory dir))
-    (compilation-start
-     (mapconcat #'shell-quote-argument
-                `(,mygreper-program
-                  "--no-heading" "--line-number" "--color=always"
-                  "--smart-case"
-                  ,@mygreper-args
-                  "-e" ,regexp
-                  ".")
-                " ")
-     'grep-mode)))
+    (pop-to-buffer
+     (compilation-start
+      (mapconcat #'shell-quote-argument
+                 `(,mygreper-program
+                   "--no-heading" "--line-number" "--color=always"
+                   "--smart-case"
+                   ,@mygreper-args
+                   "-e" ,regexp
+                   ".")
+                 " ")
+      'grep-mode))))
 
 (defun mygreper--visit (file line column)
   "Visit COLUMN of LINE of FILE."

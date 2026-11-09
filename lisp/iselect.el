@@ -267,9 +267,11 @@ Resuming updates them at once."
   "Hook run in the buffer of the candidates after moving point.")
 
 (defun iselect--move (fn)
-  "Call FN to move point in the buffer of the candidates."
+  "Call FN to move point in the buffer of the candidates.
+Then move point to the line start."
   (with-current-buffer iselect--buffer
     (funcall fn)
+    (goto-char (line-beginning-position))
     (let ((window (get-buffer-window nil t)))
       (when window
         (set-window-point window (point))))
@@ -293,14 +295,16 @@ Resuming updates them at once."
 (defun iselect-last ()
   "Select the last candidate."
   (interactive)
-  (iselect--move (lambda () (goto-char (point-max)) (forward-line 0))))
+  (iselect--move (lambda () (goto-char (point-max)))))
 
 (defun iselect--scroll (fn)
-  "Call FN in the window of the buffer of the candidates, if any."
+  "Call FN in the window of the buffer of the candidates, if any.
+Then move point to the line start."
   (let ((window (get-buffer-window iselect--buffer t)))
     (when window
       (with-selected-window window
         (funcall fn)
+        (goto-char (line-beginning-position))
         (run-hooks 'iselect-move-hook)))))
 
 (defun iselect-scroll-up (&optional arg)
