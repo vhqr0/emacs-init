@@ -1112,33 +1112,33 @@ EVENT see `input-method-function'."
 
 (defun init-magic-prefix (prefix)
   "Magically read and execute command on PREFIX."
-  (let ((event (read-event (concat prefix " C-"))))
-    (if (eq event ?\C-h)
+  (let ((key (read-key (concat prefix " C-"))))
+    (if (eq key ?\C-h)
         (describe-keymap (key-binding (kbd prefix)))
-      (let ((literal (eq event ?\s))
-            event-string new-prefix binding)
+      (let ((literal (eq key ?\s))
+            key-string new-prefix binding)
         (when literal
-          (setq event (read-event prefix)))
-        (setq event-string (if (symbolp event)
-                               (concat "<" (symbol-name event) ">")
-                             (char-to-string event)))
+          (setq key (read-key prefix)))
+        (setq key-string (if (symbolp key)
+                             (concat "<" (symbol-name key) ">")
+                           (char-to-string key)))
         (unless literal
-          (setq new-prefix (concat prefix " C-" event-string)
+          (setq new-prefix (concat prefix " C-" key-string)
                 binding (key-binding (kbd new-prefix))))
         (unless binding
-          (setq new-prefix (concat prefix " " event-string)
+          (setq new-prefix (concat prefix " " key-string)
                 binding (key-binding (kbd new-prefix))))
         (cond ((and binding (commandp binding))
                (setq this-command binding
                      real-this-command binding
-                     last-command-event event)
+                     last-command-event key)
                (if (commandp binding t)
                    (call-interactively binding)
                  (execute-kbd-macro binding)))
               ((and binding (keymapp binding))
                (init-magic-prefix new-prefix))
               (t
-               (user-error "No magic key binding found on %s %s" prefix event-string)))))))
+               (user-error "No magic key binding found on %s %s" prefix key-string)))))))
 
 (defun init-magic-C-x ()
   "Magic control C."
@@ -1154,15 +1154,15 @@ EVENT see `input-method-function'."
   "Magic meta."
   (interactive)
   (let* ((prefix (if control-meta "C-M-" "M-"))
-         (event (read-event prefix))
-         (prefix (concat prefix (if (symbolp event)
-                                    (concat "<" (symbol-name event) ">")
-                                  (if (eq event ?\s) "SPC" (char-to-string event)))))
+         (key (read-key prefix))
+         (prefix (concat prefix (if (symbolp key)
+                                    (concat "<" (symbol-name key) ">")
+                                  (if (eq key ?\s) "SPC" (char-to-string key)))))
          (binding (key-binding (kbd prefix))))
     (cond ((and binding (commandp binding))
            (setq this-command binding
                  real-this-command binding
-                 last-command-event event)
+                 last-command-event key)
            (if (commandp binding t)
                (call-interactively binding)
              (execute-kbd-macro binding)))
