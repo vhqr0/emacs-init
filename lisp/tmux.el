@@ -34,12 +34,12 @@
 ;; the part fetched if killed.  It is ignored while fetching.
 ;;
 ;; In the push buffer, `C-c C-c' pastes the text into the pane without
-;; the trailing newlines, and with `C-u' also presses Enter.  The
-;; buffer is erased to edit the next text, which is ignored while
-;; pushing.  The text is pasted by bracketed paste if the application
-;; asks for it, so the newlines in the text don't submit it.  The text
-;; pushed is logged in the buffer *tmux-log*, which is shown if failed
-;; or killed.
+;; the trailing newlines, and with `C-u' also presses Enter, which
+;; `C-c C-m' presses alone.  The buffer is erased to edit the next
+;; text, which is ignored while pushing.  The text is pasted by
+;; bracketed paste if the application asks for it, so the newlines in
+;; the text don't submit it.  The text pushed is logged in the buffer
+;; *tmux-log*, which is shown if failed or killed.
 ;;
 ;; The push buffer is in `text-mode', to change it:
 ;;
@@ -300,6 +300,7 @@ interactively read with a prefix argument."
 
 (defvar-keymap tmux-pane-push-mode-map
   "C-c C-c" #'tmux-pane-push
+  "C-c C-m" #'tmux-pane-push-enter
   "C-c C-k" #'tmux-kill
   "C-c C-z" #'tmux-pane-switch)
 
@@ -367,6 +368,13 @@ interactively read with a prefix argument."
                         (tmux-pane-push--done (tmux--log tmux--pane text))
                         text)
            (erase-buffer)))))
+
+(defun tmux-pane-push-enter ()
+  "Press Enter in the pane."
+  (interactive)
+  (if (tmux--busy-p)
+      (message "Pushing to %s..." tmux--pane)
+    (tmux--start (list "send-keys" "-t" tmux--pane "Enter") #'tmux--failed-p)))
 
 (provide 'tmux)
 ;;; tmux.el ends here
