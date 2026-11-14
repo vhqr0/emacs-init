@@ -1005,14 +1005,6 @@ With two prefix args, read the directory to search."
 
 (keymap-set markdown-mode-map "C-c C-t" #'markdown-org-toggle-todo)
 
-(defvar init-markdown-org-agenda-keys
-  '("o")
-  "Keys merged from `markdown-org-agenda-mode-map'.")
-
-(vim-define-major-mode-map 'markdown-org-agenda-mode)
-
-(init-vim-merge 'markdown-org-agenda-mode '(normal visual) markdown-org-agenda-mode-map init-markdown-org-agenda-keys)
-
 ;;;; note
 
 (require 'markdown-note)

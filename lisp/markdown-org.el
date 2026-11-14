@@ -50,7 +50,9 @@
 ;; the # marks highlighted by `markdown-org-heading-marks', and TODO by
 ;; `markdown-org-todo':
 ;;
-;; - `RET' goes to the heading, `o' in other window.
+;; - `RET' goes to the heading in another window, and `M-RET' displays
+;;   it, keeping the selected window.  `M-n' and `M-p' move to the next
+;;   and previous entries, and display them.
 ;; - `C-c C-t' toggles TODO of the heading.
 ;; - `g' regenerates the list.
 
@@ -267,19 +269,37 @@ Lines in fenced code blocks are skipped."
   (goto-char (point-min))
   (forward-line (1- (nth 1 heading))))
 
-(defun markdown-org-agenda-goto ()
-  "Go to the heading of the agenda entry at point."
+(defun markdown-org-agenda-goto (&optional display)
+  "Go to the heading of the agenda entry at point in another window.
+If DISPLAY is non-nil, only display it, keeping the selected window."
   (interactive)
-  (let ((heading (markdown-org-agenda-heading)))
-    (find-file (nth 0 heading))
-    (markdown-org-agenda-visit heading)))
+  (let* ((heading (markdown-org-agenda-heading))
+         (buffer (find-file-noselect (nth 0 heading)))
+         (window (if display
+                     (display-buffer buffer t)
+                   (switch-to-buffer-other-window buffer)
+                   (selected-window))))
+    (with-selected-window window
+      (markdown-org-agenda-visit heading))))
 
-(defun markdown-org-agenda-goto-other-window ()
-  "Go to the heading of the agenda entry at point in other window."
+(defun markdown-org-agenda-display ()
+  "Display the heading of the agenda entry at point in another window."
   (interactive)
-  (let ((heading (markdown-org-agenda-heading)))
-    (find-file-other-window (nth 0 heading))
-    (markdown-org-agenda-visit heading)))
+  (markdown-org-agenda-goto t))
+
+(defun markdown-org-agenda-display-next (&optional n)
+  "Move to the Nth next agenda entry, and display its heading."
+  (interactive "p")
+  (forward-line (or n 1))
+  ;; Not after the last entry, at the empty last line.
+  (when (and (eobp) (not (bobp)))
+    (forward-line -1))
+  (markdown-org-agenda-display))
+
+(defun markdown-org-agenda-display-previous (&optional n)
+  "Move to the Nth previous agenda entry, and display its heading."
+  (interactive "p")
+  (markdown-org-agenda-display-next (- (or n 1))))
 
 (defun markdown-org-agenda-toggle-todo ()
   "Toggle TODO of the heading of the agenda entry at point.
@@ -307,7 +327,9 @@ Signal an error if the heading no longer matches its file."
 
 (defvar-keymap markdown-org-agenda-mode-map
   "RET" #'markdown-org-agenda-goto
-  "o" #'markdown-org-agenda-goto-other-window
+  "M-RET" #'markdown-org-agenda-display
+  "M-n" #'markdown-org-agenda-display-next
+  "M-p" #'markdown-org-agenda-display-previous
   "C-c C-t" #'markdown-org-agenda-toggle-todo)
 
 (defgroup markdown-org nil
