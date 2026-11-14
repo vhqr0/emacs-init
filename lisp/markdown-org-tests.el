@@ -32,5 +32,21 @@
   (should-error (markdown-org-test-toggle "foo") :type 'user-error)
   (should-error (markdown-org-test-toggle "#foo") :type 'user-error))
 
+;;; agenda
+
+(ert-deftest markdown-org-test-agenda-faces ()
+  (with-temp-buffer
+    (markdown-org-agenda-mode)
+    (let ((inhibit-read-only t))
+      (insert "# TODO a\n### b\n######### c\n#d\n"))
+    (font-lock-ensure)
+    (should (equal (mapcar (lambda (pos) (get-text-property pos 'face))
+                           '(1 2 3 7 8 10 12 13 14))
+                   '(markdown-org-heading-marks nil markdown-org-todo nil nil
+                     markdown-org-heading-marks markdown-org-heading-marks nil nil)))
+    (goto-char (point-min))
+    (forward-line 3)
+    (should-not (text-property-not-all (point) (point-max) 'face nil))))
+
 (provide 'markdown-org-tests)
 ;;; markdown-org-tests.el ends here

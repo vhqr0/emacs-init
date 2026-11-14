@@ -46,7 +46,9 @@
 ;; standing for the markdown files in it, defaulting to
 ;; `markdown-org-capture-default-file'.  `markdown-org-agenda-headings'
 ;; collects their headings as (FILE LINE TEXT), skipping fenced code
-;; blocks.  `markdown-org-agenda-todo' lists the TODO headings:
+;; blocks.  `markdown-org-agenda-todo' lists the TODO headings, with
+;; the # marks highlighted by `markdown-org-heading-marks', and TODO by
+;; `markdown-org-todo':
 ;;
 ;; - `RET' goes to the heading, `o' in other window.
 ;; - `C-c C-t' toggles TODO of the heading.
@@ -308,8 +310,25 @@ Signal an error if the heading no longer matches its file."
   "o" #'markdown-org-agenda-goto-other-window
   "C-c C-t" #'markdown-org-agenda-toggle-todo)
 
+(defgroup markdown-org nil
+  "Org-like extensions for markdown."
+  :group 'text)
+
+(defface markdown-org-heading-marks '((t :inherit font-lock-keyword-face))
+  "Face of the # marks of the headings in markdown agenda buffers.")
+
+(defface markdown-org-todo '((t :inherit font-lock-warning-face))
+  "Face of TODO of the headings in markdown agenda buffers.")
+
+(defvar markdown-org-agenda-font-lock-keywords
+  '(("^\\(#+\\)[ \t]+\\(?:\\(TODO\\) \\)?"
+     (1 'markdown-org-heading-marks)
+     (2 'markdown-org-todo nil t)))
+  "Font lock keywords of markdown agenda buffers.")
+
 (define-derived-mode markdown-org-agenda-mode special-mode "MD-Agenda"
-  "Major mode of markdown agenda buffers.")
+  "Major mode of markdown agenda buffers."
+  (setq-local font-lock-defaults '(markdown-org-agenda-font-lock-keywords t)))
 
 (defun markdown-org-agenda-todo-insert ()
   "Insert the TODO headings of `markdown-org-agenda-files'."
