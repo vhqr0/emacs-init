@@ -16,10 +16,10 @@
 ;; of it in `markdown-org-capture-templates', a list of (CHAR DESCRIPTION
 ;; FILE TEMPLATE).  TEMPLATE is a yasnippet snippet, expanded literally,
 ;; without reindenting, in a temporary buffer of
-;; `markdown-org-capture-major-mode', `text-mode' by default.  `C-c C-c'
+;; `markdown-org-markdown-major-mode', `text-mode' by default.  `C-c C-c'
 ;; appends the buffer to FILE, and `C-c C-k' aborts.
 ;;
-;;   (setq markdown-org-capture-major-mode #'markdown-mode)
+;;   (setq markdown-org-markdown-major-mode #'markdown-mode)
 ;;   (setq markdown-org-capture-templates
 ;;         '((?t "Todo" "~/notes/inbox.md"
 ;;               "## TODO $0\n`(format-time-string \"[%F %a %R]\")`\n")))
@@ -56,6 +56,9 @@
 
 (declare-function yas-expand-snippet "yasnippet")
 (declare-function yas-minor-mode "yasnippet")
+
+(defvar markdown-org-markdown-major-mode #'text-mode
+  "Major mode for markdown, such as `markdown-mode'.")
 
 (defconst markdown-org-heading-regexp "^#+[ \t]+"
   "Regexp matching the beginning of a heading.")
@@ -97,9 +100,6 @@ snippet, expanded and then appended to FILE.")
 \\`\\`\\`
 "
   "Default capture template, used when `markdown-org-capture-templates' is nil.")
-
-(defvar markdown-org-capture-major-mode #'text-mode
-  "Major mode of capture buffers, such as `markdown-mode'.")
 
 (defvar-local markdown-org-capture-file nil
   "File to append the capture buffer to.")
@@ -191,7 +191,7 @@ Return the default template if `markdown-org-capture-templates' is nil."
                                     (region-beginning) (region-end))))
                (buffer (generate-new-buffer "*markdown-org-capture*")))
     (pop-to-buffer buffer)
-    (funcall markdown-org-capture-major-mode)
+    (funcall markdown-org-markdown-major-mode)
     (markdown-org-capture-mode 1)
     (setq markdown-org-capture-file file
           markdown-org-capture-window-configuration window-configuration

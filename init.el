@@ -46,7 +46,6 @@
     cider
     markdown-mode
     edit-indirect
-    denote
     pyim
     pyim-basedict
     posframe
@@ -963,12 +962,15 @@ With two prefix args, read the directory to search."
 ;;; markdown
 
 (require 'markdown-mode)
-(require 'markdown-org)
 
 (setq markdown-special-ctrl-a/e t)
 (setq markdown-fontify-code-blocks-natively t)
 
-(setq markdown-org-capture-major-mode #'markdown-mode)
+;;;; org
+
+(require 'markdown-org)
+
+(setq markdown-org-markdown-major-mode #'markdown-mode)
 
 (defun init-capture-time ()
   "Return the current time for capture templates."
@@ -1011,12 +1013,44 @@ With two prefix args, read the directory to search."
 
 (init-vim-merge 'markdown-org-agenda-mode '(normal visual) markdown-org-agenda-mode-map init-markdown-org-agenda-keys)
 
-;;;; denote
+;;;; note
 
-(require 'denote)
+(require 'markdown-note)
 
-(setq denote-directory (expand-file-name "denote" priv-directory))
-(setq denote-file-type 'markdown-yaml)
+(defun init-markdown-note-backlinks (link)
+  "Search LINK in the notes by ripgrep."
+  (rg-dwim-search (rg-dwim-command (shell-quote-argument link))
+                  markdown-note-directory))
+
+(setq markdown-note-directory (expand-file-name "denote" priv-directory))
+(setq markdown-note-markdown-major-mode #'markdown-mode)
+(setq markdown-note-backlinks-function #'init-markdown-note-backlinks)
+
+(defalias 'denote #'markdown-note-new)
+(defalias 'denote-rename #'markdown-note-rename)
+(defalias 'denote-link #'markdown-note-link)
+(defalias 'denote-backlinks #'markdown-note-backlinks)
+
+(defun init-markdown-note-follow-link (url)
+  "Visit the note of URL, if a link to a note."
+  (when-let* ((file (markdown-note-resolve-link url)))
+    (find-file file)))
+
+(add-hook 'markdown-follow-link-functions #'init-markdown-note-follow-link)
+
+(defun init-iselect-note ()
+  "Open a note selected, or create a note titled by the input."
+  (interactive)
+  (pcase-let ((`(,title . ,file)
+               (iselect-read "Note: "
+                             (mapcar (lambda (file)
+                                       (cons (file-name-nondirectory file) file))
+                                     (nreverse (directory-files markdown-note-directory t "\\.md\\'")))
+                             :buffer "*iselect-note*"
+                             :input-fn #'list)))
+    (if file
+        (find-file file)
+      (markdown-note-new title (split-string (read-string "Keywords: "))))))
 
 ;;; input method
 
@@ -1236,6 +1270,7 @@ EVENT see `input-method-function'."
  "j" #'dired-jump
  "C" #'markdown-org-capture
  "A" #'markdown-org-agenda-todo
+ "N" #'init-iselect-note
  "w" window-prefix-map
  "4" ctl-x-4-map
  "5" ctl-x-5-map
