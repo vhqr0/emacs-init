@@ -191,16 +191,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-hook 'after-init-hook #'init-disable-ui)
 
-(defun init-toggle-scroll-bar ()
-  "Toggle scroll bar."
-  (interactive)
-  (if (or scroll-bar-mode horizontal-scroll-bar-mode)
-      (progn
-        (scroll-bar-mode -1)
-        (horizontal-scroll-bar-mode -1))
-    (scroll-bar-mode 1)
-    (horizontal-scroll-bar-mode 1)))
-
 (undelete-frame-mode 1)
 
 (require 'tab-bar)
@@ -246,7 +236,12 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-global-set "C-z" [escape])
 
+(require 'repeat)
+(add-hook 'after-init-hook #'repeat-mode)
+
 (require 'hl-line)
+
+(setq global-hl-line-sticky-flag 'all)
 
 (defun init-hl-line-range ()
   "Return the current line range, or nil when the region is active."
@@ -254,19 +249,10 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
     (cons (line-beginning-position) (line-beginning-position 2))))
 
 (setq-default hl-line-range-function #'init-hl-line-range)
-(setq global-hl-line-sticky-flag 'all)
+
 (global-hl-line-mode 1)
 
 (require 'display-line-numbers)
-
-(defun init-toggle-line-numbers-relative ()
-  "Toggle local display type of line numbers."
-  (interactive)
-  (setq-local display-line-numbers-type
-              (if (eq display-line-numbers-type 'relative)
-                  t
-                'relative))
-  (display-line-numbers-mode 1))
 
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
@@ -278,9 +264,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-hook 'text-mode-hook #'init-show-trailing-whitespace-mode)
 (add-hook 'prog-mode-hook #'init-show-trailing-whitespace-mode)
-
-(require 'repeat)
-(add-hook 'after-init-hook #'repeat-mode)
 
 (setq isearch-lazy-count t)
 (setq isearch-allow-scroll t)
