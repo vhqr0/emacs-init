@@ -236,8 +236,12 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-global-set "C-z" [escape])
 
+;;;; repeat
+
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
+
+;;;; hl line
 
 (require 'hl-line)
 
@@ -252,10 +256,14 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (global-hl-line-mode 1)
 
+;;;; display line numbers
+
 (require 'display-line-numbers)
 
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+;;;; trailing whitespace
 
 (define-minor-mode init-show-trailing-whitespace-mode
   "Show trailing whitespace."
@@ -265,6 +273,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (add-hook 'text-mode-hook #'init-show-trailing-whitespace-mode)
 (add-hook 'prog-mode-hook #'init-show-trailing-whitespace-mode)
 
+;;;; isearch
+
 (setq isearch-lazy-count t)
 (setq isearch-allow-scroll t)
 (setq isearch-allow-motion t)
@@ -272,16 +282,18 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (setq isearch-motion-changes-direction t)
 ;; (setq isearch-repeat-on-direction-change t)
 
-(require 'timestamp-at-point)
-
-;;;; pair
+;;;; elec pair
 
 (require 'elec-pair)
 (electric-pair-mode 1)
 
+;;;; show paren
+
 (require 'paren)
+
 ;; (setq show-paren-style 'expression)
 (setq show-paren-context-when-offscreen 'child-frame)
+
 (show-paren-mode 1)
 
 (define-advice show-paren--default (:around (func) vim)
@@ -297,6 +309,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
              (narrow-to-region (point-min) (point))
              (funcall func)))))))
 
+;;;; paredit
+
 (require 'pair-x)
 (keymap-global-set "C-<left>" #'pair-x-forward-barf-sexp)
 (keymap-global-set "C-<right>" #'pair-x-forward-slurp-sexp)
@@ -311,6 +325,10 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
   (insert-pair (or arg 1))
   (indent-sexp))
 
+;;;; timestamp
+
+(require 'timestamp-at-point)
+
 ;;; minibuffer
 
 (setq completion-styles '(flex))
@@ -323,9 +341,12 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set minibuffer-local-map "<remap> <quit-window>" #'abort-recursive-edit)
 
-(require 'savehist)
+;;;; savehist
 
+(require 'savehist)
 (savehist-mode 1)
+
+;;;; icomplete
 
 (require 'icomplete)
 
@@ -352,6 +373,8 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set icomplete-minibuffer-map "C-l" #'init-minibuffer-up-dir)
 
+;;;; iselect
+
 (require 'iselect)
 
 (add-hook 'iselect-buffer-mode-hook #'display-line-numbers-mode)
@@ -366,9 +389,13 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (keymap-set vim-insert-mode-map "M-r" #'iselect-history)
 
+;;;; ifilter
+
 (require 'ifilter)
 
 (add-hook 'ifilter-mode-hook #'display-line-numbers-mode)
+
+;;;; search
 
 (require 'myswiper)
 
