@@ -259,11 +259,6 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (require 'display-line-numbers)
 
-(defun init-toggle-trailing-whitespace ()
-  "Toggle `show-trailing-whitespace'."
-  (interactive)
-  (setq-local show-trailing-whitespace (not show-trailing-whitespace)))
-
 (defun init-toggle-line-numbers-relative ()
   "Toggle local display type of line numbers."
   (interactive)
@@ -273,13 +268,16 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
                 'relative))
   (display-line-numbers-mode 1))
 
-(defun init-set-line-modes ()
-  "Set line modes."
-  (setq-local show-trailing-whitespace t)
-  (display-line-numbers-mode 1))
+(add-hook 'text-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
-(add-hook 'text-mode-hook #'init-set-line-modes)
-(add-hook 'prog-mode-hook #'init-set-line-modes)
+(define-minor-mode init-show-trailing-whitespace-mode
+  "Show trailing whitespace."
+  :lighter nil
+  (setq-local show-trailing-whitespace init-show-trailing-whitespace-mode))
+
+(add-hook 'text-mode-hook #'init-show-trailing-whitespace-mode)
+(add-hook 'prog-mode-hook #'init-show-trailing-whitespace-mode)
 
 (require 'repeat)
 (add-hook 'after-init-hook #'repeat-mode)
