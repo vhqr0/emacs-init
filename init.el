@@ -224,6 +224,10 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 (keymap-global-set "C-M-+" #'global-text-scale-adjust)
 (keymap-global-set "C-M-=" #'global-text-scale-adjust)
 
+(require 'modus-themes)
+
+(setq modus-themes-bold-constructs t)
+
 ;;; edit
 
 (setq ring-bell-function #'ignore)
