@@ -11,6 +11,7 @@
 (defvar priv-directory (expand-file-name "emacs-priv" user-emacs-directory))
 
 (add-to-list 'load-path (expand-file-name "lisp" init-directory))
+(add-to-list 'custom-theme-load-path (expand-file-name "theme" init-directory))
 
 (setq load-prefer-newer t)
 
