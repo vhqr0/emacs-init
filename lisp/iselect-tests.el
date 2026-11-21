@@ -56,13 +56,15 @@ candidates is killed after BODY."
 ARGS are passed to `iselect-read'.  The candidates are updated only by
 `iselect-update', unless ARGS has `:delay', and then at once, as the
 timers do not run in keyboard macros.  Return `quit' on quit, and
-`user-error' on user errors.  The buffer of the candidates is kept in
-`iselect-test-buffer' until the next call."
+`user-error' on user errors.  The buffer of the candidates is shown,
+and kept in `iselect-test-buffer' until the next call."
   (when (buffer-live-p iselect-test-buffer)
     (kill-buffer iselect-test-buffer))
   (setq iselect-test--args args
         iselect-test--result nil
         iselect-test-buffer (generate-new-buffer " *iselect-test*"))
+  ;; Shown for the commands working in its window.
+  (switch-to-buffer iselect-test-buffer)
   ;; The minibuffer reads from stdin in batch unless in a keyboard macro.
   (cl-letf (((symbol-function 'run-with-timer)
              (lambda (_secs _repeat function &rest args)
@@ -98,25 +100,8 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
   (should (equal (iselect-test "RET") '("foo bar" . 1)))
   (should (equal (iselect-test "q C-c C-u RET") '("qux" . 3)))
   (should (equal (iselect-test "q RET") '("foo bar" . 1)))
-  (should (equal (iselect-test "C-n RET") '("Foo baz" . 2)))
-  (should (equal (iselect-test "C-n C-p C-p RET") '("foo bar" . 1)))
-  (should (equal (iselect-test "C-n C-n C-n C-n RET") '("qux" . 3)))
-  (should (equal (iselect-test "f o o C-c C-u C-n RET") '("Foo baz" . 2)))
-  (should (equal (iselect-test "C-n C-n f C-c C-u RET") '("foo bar" . 1)))
-  (should (equal (iselect-test "<down> <down> <up> C-j") '("Foo baz" . 2)))
-  (should (equal (iselect-test "M-> RET") '("qux" . 3)))
-  (should (equal (iselect-test "M-> M-< RET") '("foo bar" . 1)))
-  (should (equal (iselect-test "f C-c C-u M-> RET") '("Foo baz" . 2)))
   (should (equal (iselect-test "x x C-c C-u DEL DEL q C-c C-u RET") '("qux" . 3)))
   (should (equal (iselect-test "RET" :initial-input "baz") '("Foo baz" . 2))))
-
-(iselect-deftest iselect-test-line-start ()
-  (dolist (keys '("C-n C-n C-n C-g" "M-> C-g" "M-> C-p C-n C-g"))
-    (iselect-test keys)
-    (with-current-buffer iselect-test-buffer
-      (should (= (point) (save-excursion
-                           (goto-char (point-max))
-                           (line-beginning-position)))))))
 
 (iselect-deftest iselect-test-invalid-regexp ()
   (should (equal (iselect-test "[ C-M-j" :input-fn (lambda (s) (cons s 0)))
@@ -127,7 +112,6 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
     (should (equal (buffer-string) ""))))
 
 (iselect-deftest iselect-test-limit ()
-  (should (equal (iselect-test "C-n RET" :limit 2) '("Foo baz" . 2)))
   (should (equal (iselect-test "q C-c C-u RET" :limit 1) '("qux" . 3))))
 
 (iselect-deftest iselect-test-no-match ()
@@ -141,13 +125,17 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
                  '("xy" . 0)))
   (should (eq (iselect-test "q C-M-j") 'user-error)))
 
+(iselect-deftest iselect-test-history ()
+  (iselect-test "q C-c C-u RET")
+  (iselect-test "x C-M-j" :input-fn #'list)
+  (should (equal minibuffer-history '("x" "q"))))
+
 (iselect-deftest iselect-test-quit ()
   (should (eq (iselect-test "f C-g") 'quit))
   (should (null (iselect-test "f C-M-c"))))
 
 (iselect-deftest iselect-test-newline ()
   (let ((iselect-test-candidates '(("a\nb" . 1) ("b" . 2))))
-    (should (equal (iselect-test "C-n RET") '("b" . 2)))
     (should (equal (iselect-test "a C-c C-u RET") '("a\nb" . 1)))
     (should (equal (iselect-test "a SPC b C-c C-u C-g") 'quit))
     (with-current-buffer iselect-test-buffer
@@ -159,8 +147,7 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
       (should (equal (get-text-property 2 'display) "^J")))))
 
 (iselect-deftest iselect-test-auto-update ()
-  (should (equal (iselect-test "q RET" :delay 0) '("qux" . 3)))
-  (should (equal (iselect-test "f o o C-n RET" :delay 0.2) '("Foo baz" . 2))))
+  (should (equal (iselect-test "q RET" :delay 0) '("qux" . 3))))
 
 (iselect-deftest iselect-test-suspend ()
   (should (equal (iselect-test "C-c C-s q C-c C-s RET") '("qux" . 3)))
@@ -174,7 +161,7 @@ timers do not run in keyboard macros.  Return `quit' on quit, and
 (iselect-deftest iselect-test-render ()
   (let ((iselect-test-candidates
          (mapcar (lambda (i) (cons (format "c%d" i) i)) (number-sequence 1 30))))
-    (iselect-test "1 C-c C-u C-n C-n RET")
+    (iselect-test "1 C-c C-u RET")
     (with-current-buffer iselect-test-buffer
       (should (equal (split-string (buffer-string) "\n")
                      '("c1" "c10" "c11" "c12" "c13" "c14" "c15"

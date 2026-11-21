@@ -52,11 +52,16 @@
 ;;   the current project, or of a project read by `iselect-project'.
 ;;
 ;; The selected candidate is at point in the buffer of the candidates,
-;; shown by the cursor of the non-selected window.  To highlight its
-;; line and show the line numbers:
+;; shown by the cursor of the non-selected window.  The commands moving
+;; or exiting with it work in its window, and do nothing without one.
+;; The hooks `iselect-update-hook' and `iselect-move-hook' run with its
+;; window selected.  To show the line numbers:
+;;
+;;   (add-hook 'iselect-buffer-mode-hook #'display-line-numbers-mode)
+;;
+;; To highlight its line by `hl-line-mode':
 ;;
 ;;   (add-hook 'iselect-buffer-mode-hook #'hl-line-mode)
-;;   (add-hook 'iselect-buffer-mode-hook #'display-line-numbers-mode)
 ;;   (add-hook 'iselect-update-hook #'hl-line-highlight)
 ;;   (add-hook 'iselect-move-hook #'hl-line-highlight)
 ;;
@@ -64,6 +69,14 @@
 ;; commands run in the minibuffer, so it is updated by the hooks.  It
 ;; needs `hl-line-sticky-flag' non-nil, the default, to highlight in
 ;; the non-selected window.
+;;
+;; Or by `global-hl-line-mode':
+;;
+;;   (add-hook 'iselect-update-hook #'global-hl-line-highlight)
+;;   (add-hook 'iselect-move-hook #'global-hl-line-highlight)
+;;
+;; Global Hl-Line mode does not update while the minibuffer is
+;; selected, so it is updated by the hooks too.
 
 ;;; Code:
 
@@ -175,8 +188,16 @@ to keep the new one if the old one is deleted."
 
 ;;;; commands
 
+(defmacro iselect--with-window (&rest body)
+  "Run BODY with the window of the candidates selected, if any."
+  (declare (indent 0) (debug t))
+  (let ((window (gensym "window")))
+    `(when-let* ((,window (get-buffer-window iselect--buffer t)))
+       (with-selected-window ,window
+         ,@body))))
+
 (defvar iselect-update-hook nil
-  "Hook run in the buffer of the candidates after updating its contents.")
+  "Hook run in the window of the candidates after updating its contents.")
 
 (defun iselect-update ()
   "Update the candidates by the input, if changed.
@@ -199,7 +220,7 @@ Unlike updating automatically, it is not suspended by
          (iselect--render iselect--buffer nil)
          (minibuffer-message "Invalid regexp: %s" (cadr err)))
         (quit (abort-recursive-edit)))
-      (with-current-buffer iselect--buffer
+      (iselect--with-window
         (run-hooks 'iselect-update-hook)))))
 
 (defun iselect--auto-update (minibuffer)
@@ -220,17 +241,14 @@ Resuming updates them at once."
   (minibuffer-message (if iselect--suspend-p "[Suspended]" "[Resumed]")))
 
 (defvar iselect-move-hook nil
-  "Hook run in the buffer of the candidates after moving point.")
+  "Hook run in the window of the candidates after moving point.")
 
 (defun iselect--move (fn)
-  "Call FN to move point in the buffer of the candidates.
+  "Call FN in the window of the candidates, if any, to move point.
 Then move point to the line start."
-  (with-current-buffer iselect--buffer
+  (iselect--with-window
     (funcall fn)
     (goto-char (line-beginning-position))
-    (let ((window (get-buffer-window nil t)))
-      (when window
-        (set-window-point window (point))))
     (run-hooks 'iselect-move-hook)))
 
 (defun iselect-next (n)
@@ -253,34 +271,21 @@ Then move point to the line start."
   (interactive)
   (iselect--move (lambda () (goto-char (point-max)))))
 
-(defun iselect--scroll (fn)
-  "Call FN in the window of the buffer of the candidates, if any.
-Then move point to the line start."
-  (let ((window (get-buffer-window iselect--buffer t)))
-    (when window
-      (with-selected-window window
-        (funcall fn)
-        (goto-char (line-beginning-position))
-        (run-hooks 'iselect-move-hook)))))
-
 (defun iselect-scroll-up (&optional arg)
   "Scroll the candidates up, as `scroll-up-command' with ARG."
   (interactive "^P")
-  (iselect--scroll (lambda () (scroll-up-command arg))))
+  (iselect--move (lambda () (scroll-up-command arg))))
 
 (defun iselect-scroll-down (&optional arg)
   "Scroll the candidates down, as `scroll-down-command' with ARG."
   (interactive "^P")
-  (iselect--scroll (lambda () (scroll-down-command arg))))
+  (iselect--move (lambda () (scroll-down-command arg))))
 
 (defun iselect-recenter (&optional arg)
   "Recenter the candidates, as `recenter-top-bottom' with ARG."
   (interactive "P")
-  (iselect--scroll (lambda () (recenter-top-bottom arg))))
+  (iselect--move (lambda () (recenter-top-bottom arg))))
 
-(defun iselect--candidate ()
-  "Return the selected candidate in the current buffer."
-  (get-text-property (line-beginning-position) 'iselect-candidate))
 
 (defun iselect--exit (value)
   "Exit the minibuffer, making `iselect-read' return VALUE.
@@ -294,11 +299,12 @@ candidates."
   (throw 'iselect--exit value))
 
 (defun iselect-exit ()
-  "Exit with the selected candidate."
+  "Exit with the selected candidate, if the candidates are shown."
   (interactive)
-  (let ((candidate (with-current-buffer iselect--buffer (iselect--candidate))))
-    (unless candidate
-      (user-error "No candidate"))
+  (when-let* ((candidate (iselect--with-window
+                           (or (get-text-property (line-beginning-position)
+                                                  'iselect-candidate)
+                               (user-error "No candidate")))))
     (iselect--exit (cons 'candidate candidate))))
 
 (defun iselect-exit-input ()

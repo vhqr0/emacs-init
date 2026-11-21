@@ -379,6 +379,7 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (add-hook 'iselect-buffer-mode-hook #'display-line-numbers-mode)
 (add-hook 'iselect-update-hook #'global-hl-line-highlight)
+(add-hook 'iselect-move-hook #'global-hl-line-highlight)
 
 (keymap-set iselect-minibuffer-map "<remap> <vim-j>" #'iselect-next)
 (keymap-set iselect-minibuffer-map "<remap> <vim-k>" #'iselect-previous)
@@ -399,12 +400,16 @@ in MAP; KEY alone is (KEY . KEY).  MODES is as in `vim-major-mode-map-set'."
 
 (require 'myswiper)
 
+(add-hook 'myswiper-move-hook #'global-hl-line-highlight)
+
 (keymap-set myswiper-map "<remap> <vim-j>" #'myswiper-next)
 (keymap-set myswiper-map "<remap> <vim-k>" #'myswiper-previous)
 (keymap-set myswiper-map "<remap> <vim-gg>" #'myswiper-first)
 (keymap-set myswiper-map "<remap> <vim-G>" #'myswiper-last)
 
 (require 'mygreper)
+
+(add-hook 'mygreper-move-hook #'global-hl-line-highlight)
 
 (keymap-set mygreper-map "<remap> <vim-j>" #'mygreper-next)
 (keymap-set mygreper-map "<remap> <vim-k>" #'mygreper-previous)
